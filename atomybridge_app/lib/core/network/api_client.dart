@@ -5,8 +5,8 @@ class TriageReport {
   final String bodyRegion;
   final String painType;
   final int severity;
-  final String? direction;   // NEW
-  final String? depth;       // NEW
+  final String? direction;
+  final String? depth;
   final double? heartRate;
 
   const TriageReport({
@@ -30,26 +30,59 @@ class TriageReport {
 
 class TriageResult {
   final int id;
-  final double riskScore;
-  final String shapExplanation;
+  final int? patientId;
+  final String? anonymousCode; // <-- NEW: The 12-char Base36 ID from backend
+  final String bodyRegion;
+  final String painType;
+  final int severity;
+  final double? heartRate;
+  final String? direction;
+  final String? depth;
+  final double? riskScore;
+  final String? shapExplanation;
+  final String? qrPayloadHash;
+  final DateTime createdAt;
 
   const TriageResult({
     required this.id,
-    required this.riskScore,
-    required this.shapExplanation,
+    this.patientId,
+    this.anonymousCode,
+    required this.bodyRegion,
+    required this.painType,
+    required this.severity,
+    this.heartRate,
+    this.direction,
+    this.depth,
+    this.riskScore,
+    this.shapExplanation,
+    this.qrPayloadHash,
+    required this.createdAt,
   });
 
   String get riskLevel {
-    if (riskScore >= 0.7) return 'HIGH RISK';
-    if (riskScore >= 0.4) return 'MEDIUM RISK';
+    final score = riskScore ?? 0.0;
+    if (score >= 0.7) return 'HIGH RISK';
+    if (score >= 0.4) return 'MEDIUM RISK';
     return 'LOW RISK';
   }
 
-  factory TriageResult.fromJson(Map<String, dynamic> json) => TriageResult(
-        id: json['id'] as int,
-        riskScore: (json['risk_score'] as num?)?.toDouble() ?? 0,
-        shapExplanation: json['shap_explanation'] as String? ?? '[]',
-      );
+  factory TriageResult.fromJson(Map<String, dynamic> json) {
+    return TriageResult(
+      id: json['id'] as int,
+      patientId: json['patient_id'] as int?,
+      anonymousCode: json['anonymous_code'] as String?, // <-- NEW: Map the backend field
+      bodyRegion: json['body_region'] as String,
+      painType: json['pain_type'] as String,
+      severity: json['severity'] as int,
+      heartRate: (json['heart_rate'] as num?)?.toDouble(),
+      direction: json['direction'] as String?,
+      depth: json['depth'] as String?,
+      riskScore: (json['risk_score'] as num?)?.toDouble(),
+      shapExplanation: json['shap_explanation'] as String?,
+      qrPayloadHash: json['qr_payload_hash'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+    );
+  }
 }
 
 class ApiClient {

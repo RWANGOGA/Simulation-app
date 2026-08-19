@@ -1,7 +1,7 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
+import '../../success/ui/success_screen.dart'; // Import the new Screen 6
 
 class ReviewScreen extends StatefulWidget {
   final String region;
@@ -31,8 +31,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
   bool _isSubmitting = false;
   bool _isSavingDraft = false;
   
-  // Generate a random Patient ID and current Timestamp
-  final String _patientId = 'P-${Random().nextInt(900000) + 100000}';
   final String _timestamp = DateTime.now().toString().substring(0, 16).replaceAll('T', ', ');
 
   Future<void> _submitToDoctor() async {
@@ -50,7 +48,16 @@ class _ReviewScreenState extends State<ReviewScreen> {
       ));
 
       if (!mounted) return;
-      _showSuccessDialog(result);
+      
+      // Navigate to Screen 6 with the REAL backend-generated 12-char ID
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(
+          builder: (_) => SuccessScreen(
+            patientId: result.anonymousCode ?? 'P-UNKNOWN',
+            triageResult: result,
+          ),
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -65,75 +72,17 @@ class _ReviewScreenState extends State<ReviewScreen> {
     HapticFeedback.lightImpact();
     setState(() => _isSavingDraft = true);
     
-    // Simulate saving to local storage (SQLite/SharedPreferences)
     Future.delayed(const Duration(milliseconds: 800), () {
       if (!mounted) return;
       setState(() => _isSavingDraft = false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text(' Draft saved offline successfully!'),
+          content: Text('✅ Draft saved offline successfully!'),
           backgroundColor: Color(0xFF16A34A),
           behavior: SnackBarBehavior.floating,
         ),
       );
     });
-  }
-
-  void _showSuccessDialog(TriageResult result) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Icon(result.riskScore >= 0.7 ? Icons.warning_amber_rounded : Icons.check_circle_outline,
-              color: result.riskScore >= 0.7 ? const Color(0xFFDC2626) : const Color(0xFF16A34A), size: 28),
-            const SizedBox(width: 10),
-            const Text('Triage Summary'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: (result.riskScore >= 0.7 ? const Color(0xFFDC2626) : const Color(0xFF16A34A)).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Text('Risk Status: ', style: TextStyle(fontWeight: FontWeight.w600)),
-                  Text(result.riskLevel, style: TextStyle(fontWeight: FontWeight.bold,
-                    color: result.riskScore >= 0.7 ? const Color(0xFFDC2626) : const Color(0xFF16A34A))),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text('• Location: ${widget.region}'),
-            Text('• Pain Type: ${widget.painType}'),
-            Text('• Intensity: ${widget.severity} / 10'),
-            Text('• Direction: ${widget.direction}'),
-            Text('• Depth: ${widget.depth}'),
-            Text('• Heart Rate: ${widget.heartRate.toInt()} BPM'),
-            Text('• SpO2: ${widget.spo2.toInt()}%'),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6D28D9),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-            child: const Text('Return to Home', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
   }
 
   @override
@@ -147,9 +96,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
         title: const Text('5. Review & Submit', style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 18)),
         centerTitle: true,
         actions: [
-          // EDIT BUTTON
           TextButton.icon(
-            onPressed: () => Navigator.of(context).pop(), // Goes back to Pain Details
+            onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.edit_outlined, color: Color(0xFF6D28D9), size: 18),
             label: const Text('Edit', style: TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
           ),
@@ -157,7 +105,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
       ),
       body: Column(
         children: [
-          // PATIENT CONTEXT HEADER
+          // HEADER: Honestly states that ID is generated on submit
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -165,10 +113,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(crossAxisAlignment: CrossAxisAlignment.start,
+                const Column(crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Patient ID', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
-                    Text(_patientId, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                    Text('Anonymous Patient', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                    Text('ID generated on submit', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6D28D9))),
                   ],
                 ),
                 Column(crossAxisAlignment: CrossAxisAlignment.end,
@@ -191,7 +139,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   const Text('Clinical Summary', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
                   const SizedBox(height: 16),
                   
-                  // SUMMARY CARD
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
@@ -233,14 +180,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
             ),
           ),
           
-          // BOTTOM ACTION BUTTONS
           Container(
             padding: const EdgeInsets.all(20),
             color: Colors.white,
             child: SafeArea(
               child: Row(
                 children: [
-                  // SAVE DRAFT BUTTON
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _isSavingDraft ? null : _saveDraft,
@@ -255,7 +200,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  // SUBMIT BUTTON
                   Expanded(
                     flex: 2,
                     child: ElevatedButton(

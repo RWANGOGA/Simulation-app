@@ -10,13 +10,13 @@ class TriageBase(BaseModel):
     direction: Optional[str] = Field(None, description="e.g., Towards Back, Radiating Down")
     depth: Optional[str] = Field(None, description="e.g., Superficial, Moderate, Deep")
 
-
 class TriageCreate(TriageBase):
     patient_id: Optional[int] = None
 
 class TriageResponse(TriageBase):
     id: int
     patient_id: Optional[int] = None
+    anonymous_code: Optional[str] = None  # NEW: The 12-char Base36 ID
     risk_score: Optional[float] = None
     shap_explanation: Optional[str] = None
     qr_payload_hash: Optional[str] = None
