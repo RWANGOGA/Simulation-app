@@ -1,0 +1,23 @@
+# Don't push the Flutter SDK itself
+flutter/
+
+# Exclude unrelated project
+painpoint/
+untitled folder/
+
+# macOS
+.DS_Store
+
+# Python backend
+Backend-fastapi/.env
+Backend-fastapi/**/__pycache__/
+Backend-fastapi/**/*.pyc
+
+# Flutter frontend
+atomybridge_patient/.dart_tool/
+atomybridge_patient/build/
+atomybridge_patient/.flutter-plugins
+atomybridge_patient/.flutter-plugins-dependencies
+atomybridge_patient/android/.gradle
+atomybridge_patient/ios/Pods/
+atomybridge_patient/ios/.symlinks/

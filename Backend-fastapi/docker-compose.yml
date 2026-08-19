@@ -1,0 +1,21 @@
+services:
+  db:
+    image: postgres:15
+    container_name: atomybridge_db
+    environment:
+      POSTGRES_USER: atomy
+      POSTGRES_PASSWORD: atomy123
+      POSTGRES_DB: atomybridge
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U atomy -d atomybridge"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+volumes:
+  pgdata:

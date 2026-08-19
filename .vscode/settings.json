@@ -1,0 +1,11 @@
+{
+  "files.exclude": {
+    "flutter": true,
+    "**/.dart_tool": true,
+    "**/.idea": true,
+    "**/build": true,
+    "**/.DS_Store": true,
+    "**/.pub-cache": true
+  },
+  "explorer.compactFolders": false
+}

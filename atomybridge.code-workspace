@@ -1,0 +1,16 @@
+{
+  "folders": [
+    { "name": "📱 FRONTEND - atomybridge_app", "path": "atomybridge_app" },
+    { "name": " BACKEND - Backend-fastapi", "path": "Backend-fastapi" }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/.dart_tool": true,
+      "**/.idea": true,
+      "**/build": true,
+      "**/.DS_Store": true,
+      "**/.pub-cache": true
+    },
+    "explorer.compactFolders": false
+  }
+}
