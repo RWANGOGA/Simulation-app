@@ -5,12 +5,16 @@ class TriageReport {
   final String bodyRegion;
   final String painType;
   final int severity;
+  final String? direction;   // NEW
+  final String? depth;       // NEW
   final double? heartRate;
 
   const TriageReport({
     required this.bodyRegion,
     required this.painType,
     required this.severity,
+    this.direction,
+    this.depth,
     this.heartRate,
   });
 
@@ -18,6 +22,8 @@ class TriageReport {
         'body_region': bodyRegion,
         'pain_type': painType,
         'severity': severity,
+        if (direction != null) 'direction': direction,
+        if (depth != null) 'depth': depth,
         if (heartRate != null) 'heart_rate': heartRate,
       };
 }

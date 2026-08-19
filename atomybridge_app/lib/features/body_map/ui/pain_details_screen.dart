@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import '../../../core/network/api_client.dart';
+import '../../vitals/ui/vitals_capture_screen.dart'; // <-- ADDED: Import for the next screen
 
 class PainDetailsScreen extends StatefulWidget {
   final String region;
@@ -19,7 +19,6 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
   int _severity = 7;
   String _swipeDirection = 'Towards Back';
   String _pinchDepth = 'Deep';
-  bool _isSubmitting = false;
 
   final List<String> _painTypes = ['Sharp', 'Dull', 'Burning', 'Cramping'];
   final List<String> _directions = ['Towards Back', 'Towards Front', 'Radiating Down', 'Radiating Up'];
@@ -31,98 +30,20 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
     _selectedRegion = widget.region;
   }
 
-  Future<void> _submitReport() async {
-    HapticFeedback.heavyImpact();
-    setState(() => _isSubmitting = true);
-
-    try {
-      final result = await ApiClient.sendTriage(TriageReport(
-        bodyRegion: _selectedRegion,
-        painType: _painType.toLowerCase(),
-        severity: _severity,
-      ));
-
-      if (!mounted) return;
-
-      _showSuccessDialog(result);
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('⚠️ Error: $e'),
-          backgroundColor: const Color(0xFFF59E0B),
-          behavior: SnackBarBehavior.floating,
+  // <-- REPLACED: Old _submitReport with this smooth navigation function
+  void _continueToVitals() {
+    HapticFeedback.mediumImpact();
+    
+    // Navigate to the Vitals Screen, passing all the collected clinical data
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => VitalsCaptureScreen(
+          region: _selectedRegion,
+          painType: _painType,
+          severity: _severity,
+          direction: _swipeDirection,
+          depth: _pinchDepth,
         ),
-      );
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
-    }
-  }
-
-  void _showSuccessDialog(TriageResult result) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Icon(
-              result.riskScore >= 0.7 ? Icons.warning_amber_rounded : Icons.check_circle_outline,
-              color: result.riskScore >= 0.7 ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
-              size: 28,
-            ),
-            const SizedBox(width: 10),
-            const Text('Triage Summary'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: (result.riskScore >= 0.7 ? const Color(0xFFDC2626) : const Color(0xFF16A34A)).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
-                children: [
-                  const Text(
-                    'Risk Status: ',
-                    style: TextStyle(fontWeight: FontWeight.w600),
-                  ),
-                  Text(
-                    result.riskLevel,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: result.riskScore >= 0.7 ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text('• Location: $_selectedRegion'),
-            Text('• Pain Type: $_painType'),
-            Text('• Intensity: $_severity / 10'),
-            Text('• Direction: $_swipeDirection'),
-            Text('• Depth: $_pinchDepth'),
-          ],
-        ),
-        actions: [
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6D28D9),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            },
-            child: const Text('Return to Home', style: TextStyle(color: Colors.white)),
-          ),
-        ],
       ),
     );
   }
@@ -496,7 +417,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submitReport,
+                  // <-- FIXED: Now calls _continueToVitals instead of the old submit function
+                  onPressed: _continueToVitals,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6D28D9),
                     elevation: 3,
@@ -505,27 +427,21 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: _isSubmitting
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
-                        )
-                      : const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              'Submit & Continue to Vitals',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            SizedBox(width: 8),
-                            Icon(Icons.arrow_forward, color: Colors.white, size: 20),
-                          ],
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Submit & Continue to Vitals',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                    ],
+                  ),
                 ),
               ),
             ),

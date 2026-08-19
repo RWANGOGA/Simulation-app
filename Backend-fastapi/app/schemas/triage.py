@@ -7,6 +7,9 @@ class TriageBase(BaseModel):
     pain_type: str = Field(..., description="e.g., sharp, burning, throbbing")
     severity: int = Field(..., ge=1, le=10)
     heart_rate: Optional[float] = Field(None, description="BPM from camera PPG")
+    direction: Optional[str] = Field(None, description="e.g., Towards Back, Radiating Down")
+    depth: Optional[str] = Field(None, description="e.g., Superficial, Moderate, Deep")
+
 
 class TriageCreate(TriageBase):
     patient_id: Optional[int] = None

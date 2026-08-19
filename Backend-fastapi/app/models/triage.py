@@ -10,6 +10,8 @@ class TriageSession(Base):
     pain_type = Column(String)
     severity = Column(Integer)
     heart_rate = Column(Float, nullable=True)
+    direction = Column(String, nullable=True)
+    depth = Column(String, nullable=True)
     risk_score = Column(Float, nullable=True)
     shap_explanation = Column(Text, nullable=True)
     qr_payload_hash = Column(String, nullable=True)
