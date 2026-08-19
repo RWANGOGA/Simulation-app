@@ -1,4 +1,4 @@
-# atomybridge_patient
+# atomybridge_app
 
 A new Flutter project.
 
