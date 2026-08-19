@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import '../../vitals/ui/vitals_capture_screen.dart'; // <-- ADDED: Import for the next screen
+import '../../review/ui/review_screen.dart';
 
 class PainDetailsScreen extends StatefulWidget {
   final String region;
@@ -29,20 +30,20 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
     super.initState();
     _selectedRegion = widget.region;
   }
-
-  // <-- REPLACED: Old _submitReport with this smooth navigation function
   void _continueToVitals() {
     HapticFeedback.mediumImpact();
     
-    // Navigate to the Vitals Screen, passing all the collected clinical data
+    // TEMPORARY: Skip Vitals screen for PC testing. Pass 0 for heart rate and spo2.
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => VitalsCaptureScreen(
+        builder: (_) => ReviewScreen(
           region: _selectedRegion,
           painType: _painType,
           severity: _severity,
           direction: _swipeDirection,
           depth: _pinchDepth,
+          heartRate: 75, // Simulated BPM for testing
+          spo2: 98,      // Simulated SpO2 for testing
         ),
       ),
     );

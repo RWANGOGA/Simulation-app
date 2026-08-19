@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -47,46 +48,67 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
     });
   }
 
-  Future<void> _startMeasurement() async {
+    Future<void> _startMeasurement() async {
+    // 1. SAFE FALLBACK FOR WEB: Prevents Chrome camera crash
+    if (kIsWeb) {
+      setState(() {
+        _isMeasuring = true;
+        _statusMessage = 'Simulating PPG measurement for Web...';
+      });
+      
+      // Simulate 3 seconds of measuring
+      await Future.delayed(const Duration(seconds: 3)); 
+      
+      if (mounted) {
+        setState(() {
+          _currentBPM = 75.0;
+          _currentSpO2 = 98.0;
+          _isMeasuring = false;
+          _statusMessage = 'Measurement complete (Simulated)!';
+        });
+      }
+      return; // STOP here, do not run camera code on Web
+    }
+
+    // 2. REAL MOBILE LOGIC (Only runs on actual Android/iOS devices)
     if (!_hasPermission) return;
 
-    final cameras = await availableCameras();
-    final backCamera = cameras.firstWhere(
-      (camera) => camera.lensDirection == CameraLensDirection.back,
-    );
+    try {
+      final cameras = await availableCameras();
+      final backCamera = cameras.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.back,
+        orElse: () => cameras.first, // Safe fallback
+      );
 
-    _cameraController = CameraController(
-      backCamera,
-      ResolutionPreset.medium,
-      enableAudio: false,
-      imageFormatGroup: ImageFormatGroup.yuv420,
-    );
+      _cameraController = CameraController(
+        backCamera,
+        ResolutionPreset.medium,
+        enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.yuv420,
+      );
 
-    await _cameraController!.initialize();
-    
-    // Start processing frames
-    _cameraController!.startImageStream((CameraImage image) {
-      if (_ppgProcessor != null) {
-        _ppgProcessor!.processFrame(image);
-        
-        // Update UI with real-time values
-        if (_ppgProcessor!.isReady) {
-          setState(() {
-            _currentBPM = _ppgProcessor!.currentBPM;
-            _currentSpO2 = _ppgProcessor!.currentSpO2;
-            _isMeasuring = true;
-            _statusMessage = 'Measuring... Keep finger steady';
-          });
+      await _cameraController!.initialize();
+      
+      _cameraController!.startImageStream((CameraImage image) {
+        if (_ppgProcessor != null) {
+          _ppgProcessor!.processFrame(image);
+          if (_ppgProcessor!.isReady) {
+            setState(() {
+              _currentBPM = _ppgProcessor!.currentBPM;
+              _currentSpO2 = _ppgProcessor!.currentSpO2;
+              _isMeasuring = true;
+              _statusMessage = 'Measuring... Keep finger steady';
+            });
+          }
         }
-      }
-    });
+      });
 
-    // Auto-stop after 10 seconds
-    Future.delayed(const Duration(seconds: 10), () {
-      if (mounted) {
-        _stopMeasurement();
-      }
-    });
+      Future.delayed(const Duration(seconds: 10), () {
+        if (mounted) _stopMeasurement();
+      });
+    } catch (e) {
+      setState(() => _statusMessage = 'Camera error: $e');
+    }
   }
 
   void _stopMeasurement() {

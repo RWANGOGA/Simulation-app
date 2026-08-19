@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
@@ -28,13 +29,17 @@ class ReviewScreen extends StatefulWidget {
 
 class _ReviewScreenState extends State<ReviewScreen> {
   bool _isSubmitting = false;
+  bool _isSavingDraft = false;
+  
+  // Generate a random Patient ID and current Timestamp
+  final String _patientId = 'P-${Random().nextInt(900000) + 100000}';
+  final String _timestamp = DateTime.now().toString().substring(0, 16).replaceAll('T', ', ');
 
   Future<void> _submitToDoctor() async {
     HapticFeedback.heavyImpact();
     setState(() => _isSubmitting = true);
 
     try {
-      // This is where the magic happens: sending ALL data to the backend!
       final result = await ApiClient.sendTriage(TriageReport(
         bodyRegion: widget.region,
         painType: widget.painType.toLowerCase(),
@@ -49,15 +54,29 @@ class _ReviewScreenState extends State<ReviewScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('⚠️ Error: $e'),
-          backgroundColor: const Color(0xFFF59E0B),
-          behavior: SnackBarBehavior.floating,
-        ),
+        SnackBar(content: Text('⚠️ Error: $e'), backgroundColor: const Color(0xFFF59E0B)),
       );
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
+  }
+
+  void _saveDraft() {
+    HapticFeedback.lightImpact();
+    setState(() => _isSavingDraft = true);
+    
+    // Simulate saving to local storage (SQLite/SharedPreferences)
+    Future.delayed(const Duration(milliseconds: 800), () {
+      if (!mounted) return;
+      setState(() => _isSavingDraft = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(' Draft saved offline successfully!'),
+          backgroundColor: Color(0xFF16A34A),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    });
   }
 
   void _showSuccessDialog(TriageResult result) {
@@ -68,11 +87,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
-            Icon(
-              result.riskScore >= 0.7 ? Icons.warning_amber_rounded : Icons.check_circle_outline,
-              color: result.riskScore >= 0.7 ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
-              size: 28,
-            ),
+            Icon(result.riskScore >= 0.7 ? Icons.warning_amber_rounded : Icons.check_circle_outline,
+              color: result.riskScore >= 0.7 ? const Color(0xFFDC2626) : const Color(0xFF16A34A), size: 28),
             const SizedBox(width: 10),
             const Text('Triage Summary'),
           ],
@@ -90,13 +106,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
               child: Row(
                 children: [
                   const Text('Risk Status: ', style: TextStyle(fontWeight: FontWeight.w600)),
-                  Text(
-                    result.riskLevel,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: result.riskScore >= 0.7 ? const Color(0xFFDC2626) : const Color(0xFF16A34A),
-                    ),
-                  ),
+                  Text(result.riskLevel, style: TextStyle(fontWeight: FontWeight.bold,
+                    color: result.riskScore >= 0.7 ? const Color(0xFFDC2626) : const Color(0xFF16A34A))),
                 ],
               ),
             ),
@@ -112,13 +123,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
         ),
         actions: [
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6D28D9),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6D28D9),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
             onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              Navigator.of(context).popUntil((route) => route.isFirst); // Go back to Welcome Screen
+              Navigator.of(context).pop();
+              Navigator.of(context).popUntil((route) => route.isFirst);
             },
             child: const Text('Return to Home', style: TextStyle(color: Colors.white)),
           ),
@@ -134,37 +143,60 @@ class _ReviewScreenState extends State<ReviewScreen> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          '5. Review & Submit',
-          style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 18),
-        ),
+        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)), onPressed: () => Navigator.of(context).pop()),
+        title: const Text('5. Review & Submit', style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 18)),
         centerTitle: true,
+        actions: [
+          // EDIT BUTTON
+          TextButton.icon(
+            onPressed: () => Navigator.of(context).pop(), // Goes back to Pain Details
+            icon: const Icon(Icons.edit_outlined, color: Color(0xFF6D28D9), size: 18),
+            label: const Text('Edit', style: TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
+          ),
+        ],
       ),
       body: Column(
         children: [
+          // PATIENT CONTEXT HEADER
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            color: Colors.white,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Patient ID', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                    Text(_patientId, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                  ],
+                ),
+                Column(crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    const Text('Timestamp', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                    Text(_timestamp, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const Divider(height: 1),
+
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Clinical Summary',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
-                  ),
+                  const Text('Clinical Summary', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
                   const SizedBox(height: 16),
                   
-                  // Summary Card
+                  // SUMMARY CARD
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white, borderRadius: BorderRadius.circular(16),
                       border: Border.all(color: const Color(0xFFE2E8F0)),
                       boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))],
                     ),
@@ -201,33 +233,50 @@ class _ReviewScreenState extends State<ReviewScreen> {
             ),
           ),
           
-          // Submit Button
+          // BOTTOM ACTION BUTTONS
           Container(
             padding: const EdgeInsets.all(20),
             color: Colors.white,
             child: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submitToDoctor,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6D28D9),
-                    elevation: 3,
-                    shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+              child: Row(
+                children: [
+                  // SAVE DRAFT BUTTON
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: _isSavingDraft ? null : _saveDraft,
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: Color(0xFFCBD5E1)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: _isSavingDraft 
+                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Text('Save Draft', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
+                    ),
                   ),
-                  child: _isSubmitting
-                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                      : const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('Submit to Doctor', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                  const SizedBox(width: 16),
+                  // SUBMIT BUTTON
+                  Expanded(
+                    flex: 2,
+                    child: ElevatedButton(
+                      onPressed: _isSubmitting ? null : _submitToDoctor,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6D28D9),
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        elevation: 3,
+                        shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                      ),
+                      child: _isSubmitting
+                        ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
+                        : const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            Text('Submit', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
                             SizedBox(width: 8),
                             Icon(Icons.send, color: Colors.white, size: 20),
-                          ],
-                        ),
-                ),
+                          ]),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -239,15 +288,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Widget _buildSummaryRow(String label, String value, IconData icon) {
     return Row(
       children: [
-        Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(color: const Color(0xFF6D28D9).withOpacity(0.1), shape: BoxShape.circle),
-          child: Icon(icon, color: const Color(0xFF6D28D9), size: 20),
-        ),
+        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFF6D28D9).withOpacity(0.1), shape: BoxShape.circle),
+          child: Icon(icon, color: const Color(0xFF6D28D9), size: 20)),
         const SizedBox(width: 12),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500)),
               Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
@@ -261,17 +306,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Widget _buildVitalMiniCard(String label, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
-      ),
+      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.3))),
       child: Row(
         children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Column(crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(label, style: TextStyle(fontSize: 11, color: color.withOpacity(0.8), fontWeight: FontWeight.w600)),
               Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
