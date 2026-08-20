@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     DATABASE_URL: str = "postgresql+psycopg://atomy:atomy123@localhost:5432/atomybridge"
     SECRET_KEY: str = "change-me-in-production"
+    QR_SECRET_KEY: str = "change-me-in-production"
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
 settings = Settings()
