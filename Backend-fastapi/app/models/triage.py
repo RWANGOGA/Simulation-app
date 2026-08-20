@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String, Float, DateTime, Text, ForeignKey
 from app.core.database import Base
 
@@ -16,3 +17,5 @@ class TriageSession(Base):
     shap_explanation = Column(Text, nullable=True)
     qr_payload_hash = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    patient = relationship("Patient", back_populates="triage_sessions")

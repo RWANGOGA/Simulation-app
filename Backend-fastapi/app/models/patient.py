@@ -1,6 +1,7 @@
 from datetime import datetime, timezone
 from sqlalchemy import Column, Integer, String, DateTime, Text
 from app.core.database import Base
+from sqlalchemy.orm import relationship 
 
 class Patient(Base):
     __tablename__ = "patients"
@@ -11,3 +12,5 @@ class Patient(Base):
     preferred_language = Column(String, default="en")
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+    triage_sessions = relationship("TriageSession", back_populates="patient")
