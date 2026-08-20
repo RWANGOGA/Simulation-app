@@ -19,3 +19,10 @@ def list_triage(db: Session, limit: int = 50, patient_id: Optional[int] = None) 
 
 def get_triage(db: Session, session_id: int) -> Optional[TriageSession]:
     return db.get(TriageSession, session_id)
+
+def update_triage_qr_hash(db: Session, session: TriageSession, qr_hash: str) -> TriageSession:
+    session.qr_payload_hash = qr_hash
+    db.commit()
+    db.refresh(session)
+    return session
+#to save the qr hash after generation

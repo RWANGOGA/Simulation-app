@@ -5,6 +5,7 @@ from app.core.database import get_db
 from app.crud import crud_triage
 from app.schemas import TriageCreate, TriageResponse
 from app.services import triage_service
+from app.services.qr_service import generate_qr_payload, hash_qr_payload
 
 router = APIRouter(prefix="/triage", tags=["triage"])
 
@@ -16,6 +17,13 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
         risk_score=risk,
         shap_explanation=triage_service.explain(contributions)
     )
+
+    qr_data = generate_qr_payload(session)
+    qr_hash = hash_qr_payload(qr_data)
+    session = crud_triage.update_triage_qr_hash(db, session, qr_hash)
+
+    session.qr.data = qr_data  # Attach the QR data to the session for response
+    
     return session
 
 @router.get("/", response_model=List[TriageResponse])

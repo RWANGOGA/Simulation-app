@@ -20,5 +20,6 @@ class TriageResponse(TriageBase):
     risk_score: Optional[float] = None
     shap_explanation: Optional[str] = None
     qr_payload_hash: Optional[str] = None
+    qr_data : Optional[str] = None  #going to add this to the endpoint
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
