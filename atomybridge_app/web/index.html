@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
+<!--
     If you are serving your web app in a path other than the root, change the
     href value below to reflect the base path you are serving from.
 
@@ -14,87 +14,105 @@
     This is a placeholder for base href that will be replaced by the value of
     the `--base-href` argument provided to `flutter build`.
   -->
-  <base href="$FLUTTER_BASE_HREF">
+<base href="$FLUTTER_BASE_HREF">
 
-  <meta charset="UTF-8">
-  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta charset="UTF-8">
+<meta content="IE=Edge" http-equiv="X-UA-Compatible">
+<meta name="description" content="A new Flutter project.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-  <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="atomybridge_app">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+<!-- iOS meta tags & icons -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="atomybridge_app">
+<link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>atomybridge_app</title>
-  <link rel="manifest" href="manifest.json">
+<title>atomybridge_app</title>
+<link rel="manifest" href="manifest.json">
 
-  <!-- 3D Engine for model-viewer -->
-  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
+<!-- 3D Engine for model-viewer -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
-  <script>
-    (function () {
-      var downX = 0, downY = 0;
-
-      window.addEventListener('pointerdown', function (e) {
-        downX = e.clientX; downY = e.clientY;
-      }, true);
-
-      window.addEventListener('click', function (e) {
-        // 🛑 MAGIC FIX: IGNORE clicks on the Flutter UI (buttons, chips, sliders)
-        if (e.target.tagName === 'CANVAS' || e.target.tagName === 'FLT-GLASS-PANE') return;
-        if (e.target.closest && e.target.closest('flt-glass-pane')) return;
-
-        // If moved more than 8 pixels, it's a drag (camera rotation), not a tap
-        if (Math.abs(e.clientX - downX) + Math.abs(e.clientY - downY) > 8) return;
-
-        // Only process clicks directly on the model-viewer
-        var mv = e.target.closest ? e.target.closest('model-viewer') : null;
-        if (!mv) return;
-        
-        // Only process clicks on the human body model (not the avatar)
-        var src = mv.getAttribute('src') || '';
-        if (src.indexOf('human_body') === -1) return;
-
-        var r = mv.getBoundingClientRect();
-        var rx = (e.clientX - r.left) / r.width;  // 0 = left edge, 1 = right edge
-        var ry = (e.clientY - r.top) / r.height;  // 0 = top (head), 1 = bottom (feet)
-        
-        var part = null;
-        
-        // Simple grid-based detection
-        if (ry < 0.20) {
-          part = 'Head';
-        } else if (ry < 0.50) {
-          // Upper body
-          if (rx < 0.25) {
-            part = 'Right Arm';
-          } else if (rx > 0.75) {
-            part = 'Left Arm';
-          } else if (ry < 0.35) {
-            part = 'Chest';
-          } else {
-            part = 'Abdomen';
-          }
-        } else {
-          // Lower body (legs)
-          if (rx < 0.45) {
-            part = 'Right Leg';
-          } else {
-            part = 'Left Leg';
-          }
+<script src="flutter_bootstrap.js" async></script>
+<script type="module">
+  // Wait for model-viewer custom element to be defined
+  customElements.whenDefined('model-viewer').then(() => {
+    // Give Flutter time to render the model
+    setTimeout(() => {
+      // Find ALL model-viewer elements on the page
+      const viewers = document.querySelectorAll('model-viewer');
+      
+      viewers.forEach((viewer) => {
+        // Check if this is the human body model (not the avatar)
+        const src = viewer.getAttribute('src') || '';
+        if (src.indexOf('human_body') === -1 && src.indexOf('models/human_body') === -1) {
+          return; // Skip non-body models
         }
-
-        console.log('🩺 Body tap at rx=' + rx.toFixed(2) + ', ry=' + ry.toFixed(2) + ' →', part);
-        window.dispatchEvent(new CustomEvent('atomybridge-bodypart', { detail: part }));
-      }, true);
-    })();
-  </script>
+        
+        console.log('✅ Found human body model-viewer, attaching listener...');
+        
+        // Listen for the native 'select' event (fires when user taps/clicks on the 3D model)
+        viewer.addEventListener('select', (event) => {
+          const intersection = event.detail.intersection;
+          
+          if (intersection && intersection.point) {
+            // Get the 3D intersection point
+            const point = intersection.point;
+            
+            // Calculate UV coordinates (0-1 range)
+            const uv = intersection.uv || { x: 0.5, y: 0.5 };
+            const rx = uv.x;
+            const ry = uv.y;
+            
+            // Determine body part based on Y (height) and X (width)
+            let part = 'Unknown';
+            
+            if (ry < 0.20) {
+              part = 'Headache / Cranial';
+            } else if (ry < 0.50) {
+              // Upper body
+              if (rx < 0.30) {
+                part = 'Right Arm / Shoulder';
+              } else if (rx > 0.70) {
+                part = 'Left Arm / Shoulder';
+              } else if (ry < 0.35) {
+                part = 'Chest / Heart';
+              } else {
+                part = 'Abdomen (Upper)';
+              }
+            } else {
+              // Lower body
+              if (rx < 0.45) {
+                part = 'Right Leg / Knee';
+              } else {
+                part = 'Left Leg / Knee';
+              }
+            }
+            
+            console.log('🩺 Model tapped! Part:', part, '| UV:', rx.toFixed(2), ry.toFixed(2));
+            
+            // Dispatch custom event for Flutter to catch
+            window.dispatchEvent(new CustomEvent('atomybridge-bodypart', {
+              detail: { part: part, x: rx, y: ry }
+            }));
+          }
+        });
+        
+        // Also add a fallback click listener
+        viewer.addEventListener('click', (e) => {
+          console.log(' Click detected on model-viewer element');
+        });
+      });
+      
+      if (viewers.length === 0) {
+        console.warn('⚠️ No model-viewer elements found on page!');
+      }
+    }, 2000); // Wait 2 seconds for Flutter to render
+  });
+</script>
 </body>
 </html>

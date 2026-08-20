@@ -2,23 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 import '../../vitals/ui/vitals_capture_screen.dart'; // <-- Import for the next screen
 
 class PainDetailsScreen extends StatefulWidget {
   final String region;
+  // Exact tap position (0..1 fractions of the model canvas) carried over
+  // from the Body Map screen, so the pain marker shows in the same spot
+  // instead of resetting to center. Null falls back to center.
+  final double? markerX;
+  final double? markerY;
 
-  const PainDetailsScreen({super.key, required this.region});
+  const PainDetailsScreen({
+    super.key,
+    required this.region,
+    this.markerX,
+    this.markerY,
+  });
 
   @override
   State<PainDetailsScreen> createState() => _PainDetailsScreenState();
 }
 
-class _PainDetailsScreenState extends State<PainDetailsScreen> {
+class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTickerProviderStateMixin {
   late String _selectedRegion;
   String _painType = 'Sharp';
   int _severity = 7;
   String _swipeDirection = 'Towards Back';
   String _pinchDepth = 'Deep';
+  late AnimationController _pulseController;
 
   final List<String> _painTypes = ['Sharp', 'Dull', 'Burning', 'Cramping'];
   final List<String> _directions = ['Towards Back', 'Towards Front', 'Radiating Down', 'Radiating Up'];
@@ -28,6 +40,16 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
   void initState() {
     super.initState();
     _selectedRegion = widget.region;
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    super.dispose();
   }
 
   void _continueToVitals() {
@@ -127,10 +149,16 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                             ],
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.edit_outlined, color: Color(0xFF6D28D9)),
-                          onPressed: () => Navigator.of(context).pop(),
-                          tooltip: 'Change location',
+                        // Wrapped in PointerInterceptor too — it sits directly
+                        // above the model viewer's overall stacking context on
+                        // web and was at risk of the same tap-swallowing issue
+                        // as the dropdowns below.
+                        PointerInterceptor(
+                          child: IconButton(
+                            icon: const Icon(Icons.edit_outlined, color: Color(0xFF6D28D9)),
+                            onPressed: () => Navigator.of(context).pop(),
+                            tooltip: 'Change location',
+                          ),
                         ),
                       ],
                     ),
@@ -153,141 +181,197 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                         ),
                       ],
                     ),
-                    child: Stack(
-                      children: [
-                        // Background 3D Body Model
-                        // NOTE: camera-controls is enabled here, so the model already
-                        // owns drag (rotate) and pinch (zoom) gestures. Direction/Depth
-                        // are deliberately plain dropdowns rather than gestures on the
-                        // model itself, to avoid fighting the model's own controls.
-                        Positioned.fill(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: const ModelViewer(
-                              src: kIsWeb ? 'models/human_body.glb' : 'assets/models/human_body.glb',
-                              alt: '3D pain vector model',
-                              ar: false,
-                              autoRotate: false,
-                              cameraControls: true,
-                              backgroundColor: Color(0xFFF8FAFC),
-                            ),
-                          ),
-                        ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Stack(
+                            children: [
+                              // Background 3D Body Model
+                              // NOTE: camera-controls is enabled here, so the model already
+                              // owns drag (rotate) and pinch (zoom) gestures. Direction/Depth
+                              // are deliberately plain dropdowns rather than gestures on the
+                              // model itself, to avoid fighting the model's own controls.
+                              const Positioned.fill(
+                                child: ModelViewer(
+                                  src: kIsWeb ? 'models/human_body.glb' : 'assets/models/human_body.glb',
+                                  alt: '3D pain vector model',
+                                  ar: false,
+                                  autoRotate: false,
+                                  cameraControls: true,
+                                  backgroundColor: Color(0xFFF8FAFC),
+                                ),
+                              ),
 
-                        // Direction Selector (Top Left)
-                        Positioned(
-                          top: 14,
-                          left: 14,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.95),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.3)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.06),
-                                  blurRadius: 6,
+                              // Pain location marker — same pulsing dot from the
+                              // Body Map screen, carried over to the exact spot
+                              // the user tapped (falls back to center if this
+                              // screen was reached without coordinates).
+                              Positioned(
+                                left: (widget.markerX ?? 0.5) * constraints.maxWidth - 22,
+                                top: (widget.markerY ?? 0.5) * constraints.maxHeight - 22,
+                                child: IgnorePointer(
+                                  child: AnimatedBuilder(
+                                    animation: _pulseController,
+                                    builder: (context, child) {
+                                      return Container(
+                                        width: 32 + (12 * _pulseController.value),
+                                        height: 32 + (12 * _pulseController.value),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: const Color(0xFFEF4444)
+                                              .withOpacity(0.35 * (1 - _pulseController.value)),
+                                          border: Border.all(
+                                            color: const Color(0xFFEF4444),
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Container(
+                                            width: 14,
+                                            height: 14,
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Color(0xFFDC2626),
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.north_east_outlined, size: 16, color: Color(0xFF6D28D9)),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      'Direction',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF6D28D9),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                DropdownButton<String>(
-                                  value: _swipeDirection,
-                                  isDense: true,
-                                  underline: const SizedBox(),
-                                  icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6D28D9), size: 18),
-                                  style: const TextStyle(fontSize: 12, color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
-                                  onChanged: (val) {
-                                    if (val != null) {
-                                      HapticFeedback.selectionClick();
-                                      setState(() => _swipeDirection = val);
-                                    }
-                                  },
-                                  items: _directions.map((d) {
-                                    return DropdownMenuItem(value: d, child: Text(d));
-                                  }).toList(),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                              ),
 
-                        // Depth Selector (Bottom Right)
-                        Positioned(
-                          bottom: 14,
-                          right: 14,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.95),
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.3)),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.06),
-                                  blurRadius: 6,
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.layers_outlined, size: 16, color: Color(0xFF6D28D9)),
-                                    SizedBox(width: 4),
-                                    Text(
-                                      'Depth',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        color: Color(0xFF6D28D9),
-                                      ),
+                              // Direction Selector (Top Left)
+                              // Wrapped in PointerInterceptor: on Flutter Web,
+                              // model-viewer is a platform view that captures
+                              // pointer events for its own drag-to-rotate
+                              // gesture, which can swallow taps meant for
+                              // Flutter widgets sitting visually on top of it.
+                              // PointerInterceptor claims this region back so
+                              // the dropdown actually opens.
+                              Positioned(
+                                top: 14,
+                                left: 14,
+                                child: PointerInterceptor(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.95),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.3)),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.06),
+                                          blurRadius: 6,
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.north_east_outlined, size: 16, color: Color(0xFF6D28D9)),
+                                            SizedBox(width: 4),
+                                            Text(
+                                              'Direction',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF6D28D9),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        DropdownButton<String>(
+                                          value: _swipeDirection,
+                                          isDense: true,
+                                          underline: const SizedBox(),
+                                          icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6D28D9), size: 18),
+                                          style: const TextStyle(
+                                              fontSize: 12, color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
+                                          onChanged: (val) {
+                                            if (val != null) {
+                                              HapticFeedback.selectionClick();
+                                              setState(() => _swipeDirection = val);
+                                            }
+                                          },
+                                          items: _directions.map((d) {
+                                            return DropdownMenuItem(value: d, child: Text(d));
+                                          }).toList(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                                const SizedBox(height: 4),
-                                DropdownButton<String>(
-                                  value: _pinchDepth,
-                                  isDense: true,
-                                  underline: const SizedBox(),
-                                  icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6D28D9), size: 18),
-                                  style: const TextStyle(fontSize: 12, color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
-                                  onChanged: (val) {
-                                    if (val != null) {
-                                      HapticFeedback.selectionClick();
-                                      setState(() => _pinchDepth = val);
-                                    }
-                                  },
-                                  items: _depths.map((dp) {
-                                    return DropdownMenuItem(value: dp, child: Text(dp));
-                                  }).toList(),
+                              ),
+
+                              // Depth Selector (Bottom Right)
+                              Positioned(
+                                bottom: 14,
+                                right: 14,
+                                child: PointerInterceptor(
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withOpacity(0.95),
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.3)),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.06),
+                                          blurRadius: 6,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        const Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Icon(Icons.layers_outlined, size: 16, color: Color(0xFF6D28D9)),
+                                            SizedBox(width: 4),
+                                            Text(
+                                              'Depth',
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF6D28D9),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
+                                        DropdownButton<String>(
+                                          value: _pinchDepth,
+                                          isDense: true,
+                                          underline: const SizedBox(),
+                                          icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6D28D9), size: 18),
+                                          style: const TextStyle(
+                                              fontSize: 12, color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
+                                          onChanged: (val) {
+                                            if (val != null) {
+                                              HapticFeedback.selectionClick();
+                                              setState(() => _pinchDepth = val);
+                                            }
+                                          },
+                                          items: _depths.map((dp) {
+                                            return DropdownMenuItem(value: dp, child: Text(dp));
+                                          }).toList(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
+                              ),
+                            ],
+                          );
+                        },
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
