@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
+import 'features/dashboard/ui/practitioner_dashboard_screen.dart';
 import 'features/onboarding/ui/welcome_screen.dart';
-import 'features/report/ui/clinical_report_screen.dart'; // <-- NEW: Import the report screen
+import 'features/report/ui/clinical_report_screen.dart';
 
 void main() {
   runApp(const AtomyBridgeApp());
@@ -15,16 +16,22 @@ class AtomyBridgeApp extends StatelessWidget {
     // 1. Read the URL fragment (the part after the '#' symbol)
     final String fragment = Uri.base.fragment;
     
-    // 2. Check if it's a clinical report route (e.g., #/report/P-BHRXBWXP927T)
+    // 2. Determine the route
     String? reportPatientId;
+    bool isDashboard = false;
+
     if (fragment.startsWith('/report/')) {
       reportPatientId = fragment.replaceFirst('/report/', '');
+    } else if (fragment == '/dashboard') {
+      isDashboard = true;
     }
 
     // 3. Determine the initial screen based on the URL
-    final Widget initialScreen = reportPatientId != null
-        ? ClinicalReportScreen(patientId: reportPatientId)
-        : const WelcomeScreen();
+    final Widget initialScreen = isDashboard
+        ? const PractitionerDashboardScreen()
+        : (reportPatientId != null 
+            ? ClinicalReportScreen(patientId: reportPatientId) 
+            : const WelcomeScreen());
 
     return MaterialApp(
       title: 'AtomyBridge Care',

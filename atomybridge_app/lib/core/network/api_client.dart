@@ -31,7 +31,7 @@ class TriageReport {
 class TriageResult {
   final int id;
   final int? patientId;
-  final String? anonymousCode; // <-- NEW: The 12-char Base36 ID from backend
+  final String? anonymousCode;
   final String bodyRegion;
   final String painType;
   final int severity;
@@ -70,7 +70,7 @@ class TriageResult {
     return TriageResult(
       id: json['id'] as int,
       patientId: json['patient_id'] as int?,
-      anonymousCode: json['anonymous_code'] as String?, // <-- NEW: Map the backend field
+      anonymousCode: json['anonymous_code'] as String?,
       bodyRegion: json['body_region'] as String,
       painType: json['pain_type'] as String,
       severity: json['severity'] as int,
@@ -104,5 +104,35 @@ class ApiClient {
       );
     }
     throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+  }
+
+  // --- NEW METHODS FOR PRACTITIONER DASHBOARD ---
+
+  static Future<Map<String, dynamic>> getTriageStats() async {
+    final response = await http.get(Uri.parse('$baseUrl/triage/stats'));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+    throw Exception('Failed to load stats: ${response.body}');
+  }
+
+  static Future<List<Map<String, dynamic>>> getTriageList({
+    int limit = 50,
+    int offset = 0,
+    String? patientCode,
+    String? riskLevel,
+  }) async {
+    final uri = Uri.parse('$baseUrl/triage/list').replace(queryParameters: {
+      'limit': limit.toString(),
+      'offset': offset.toString(),
+      if (patientCode != null) 'patient_code': patientCode,
+      if (riskLevel != null) 'risk_level': riskLevel,
+    });
+
+    final response = await http.get(uri);
+    if (response.statusCode == 200) {
+      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
+    }
+    throw Exception('Failed to load triage list: ${response.body}');
   }
 }
