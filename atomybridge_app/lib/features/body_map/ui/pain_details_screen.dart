@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import '../../vitals/ui/vitals_capture_screen.dart'; // <-- ADDED: Import for the next screen
-import '../../review/ui/review_screen.dart';
+import '../../vitals/ui/vitals_capture_screen.dart'; // <-- Import for the next screen
 
 class PainDetailsScreen extends StatefulWidget {
   final String region;
@@ -30,20 +29,18 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
     super.initState();
     _selectedRegion = widget.region;
   }
+
   void _continueToVitals() {
     HapticFeedback.mediumImpact();
-    
-    // TEMPORARY: Skip Vitals screen for PC testing. Pass 0 for heart rate and spo2.
+
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ReviewScreen(
+        builder: (_) => VitalsCaptureScreen(
           region: _selectedRegion,
           painType: _painType,
           severity: _severity,
           direction: _swipeDirection,
           depth: _pinchDepth,
-          heartRate: 75, // Simulated BPM for testing
-          spo2: 98,      // Simulated SpO2 for testing
         ),
       ),
     );
@@ -140,7 +137,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                   ),
                   const SizedBox(height: 20),
 
-                  // 3D Visual Model with Gesture Callout Overlays (Swipe / Pinch)
+                  // 3D Visual Model with Direction / Depth selectors
                   Container(
                     height: 260,
                     width: double.infinity,
@@ -159,6 +156,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                     child: Stack(
                       children: [
                         // Background 3D Body Model
+                        // NOTE: camera-controls is enabled here, so the model already
+                        // owns drag (rotate) and pinch (zoom) gestures. Direction/Depth
+                        // are deliberately plain dropdowns rather than gestures on the
+                        // model itself, to avoid fighting the model's own controls.
                         Positioned.fill(
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(20),
@@ -173,7 +174,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                           ),
                         ),
 
-                        // Swipe Gesture Visual Badge (Top Left)
+                        // Direction Selector (Top Left)
                         Positioned(
                           top: 14,
                           left: 14,
@@ -196,10 +197,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                                 const Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.swipe_outlined, size: 16, color: Color(0xFF6D28D9)),
+                                    Icon(Icons.north_east_outlined, size: 16, color: Color(0xFF6D28D9)),
                                     SizedBox(width: 4),
                                     Text(
-                                      'Swipe = Direction',
+                                      'Direction',
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
@@ -216,7 +217,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                                   icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6D28D9), size: 18),
                                   style: const TextStyle(fontSize: 12, color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
                                   onChanged: (val) {
-                                    if (val != null) setState(() => _swipeDirection = val);
+                                    if (val != null) {
+                                      HapticFeedback.selectionClick();
+                                      setState(() => _swipeDirection = val);
+                                    }
                                   },
                                   items: _directions.map((d) {
                                     return DropdownMenuItem(value: d, child: Text(d));
@@ -227,7 +231,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                           ),
                         ),
 
-                        // Pinch Gesture Visual Badge (Bottom Right)
+                        // Depth Selector (Bottom Right)
                         Positioned(
                           bottom: 14,
                           right: 14,
@@ -250,10 +254,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                                 const Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.pinch_outlined, size: 16, color: Color(0xFF6D28D9)),
+                                    Icon(Icons.layers_outlined, size: 16, color: Color(0xFF6D28D9)),
                                     SizedBox(width: 4),
                                     Text(
-                                      'Pinch = Depth',
+                                      'Depth',
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.bold,
@@ -270,7 +274,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                                   icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6D28D9), size: 18),
                                   style: const TextStyle(fontSize: 12, color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
                                   onChanged: (val) {
-                                    if (val != null) setState(() => _pinchDepth = val);
+                                    if (val != null) {
+                                      HapticFeedback.selectionClick();
+                                      setState(() => _pinchDepth = val);
+                                    }
                                   },
                                   items: _depths.map((dp) {
                                     return DropdownMenuItem(value: dp, child: Text(dp));
@@ -418,7 +425,6 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  // <-- FIXED: Now calls _continueToVitals instead of the old submit function
                   onPressed: _continueToVitals,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6D28D9),
@@ -432,7 +438,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Submit & Continue to Vitals',
+                        'Next: Measure Vitals',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -468,9 +474,9 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('• Swipe gesture specifies direction of pain (e.g. Towards Back).'),
+            Text('• Use the Direction dropdown to specify where the pain moves (e.g. Towards Back).'),
             SizedBox(height: 8),
-            Text('• Pinch gesture specifies depth (Deep, Moderate, Superficial).'),
+            Text('• Use the Depth dropdown to specify how deep the pain feels (Deep, Moderate, Superficial).'),
             SizedBox(height: 8),
             Text('• Tap pain type chips (Sharp, Dull, Burning, Cramping).'),
             SizedBox(height: 8),

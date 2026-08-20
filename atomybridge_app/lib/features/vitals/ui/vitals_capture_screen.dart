@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../core/ppg_processor.dart';
-import '../../review/ui/review_screen.dart'; // We'll create this next
+import '../../review/ui/review_screen.dart';
 
 class VitalsCaptureScreen extends StatefulWidget {
   final String region;
@@ -38,27 +38,31 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
   void initState() {
     super.initState();
     _ppgProcessor = PPGProcessor();
-    _requestCameraPermission();
+    // The web branch of _startMeasurement never touches the camera at all,
+    // so requesting camera permission on web is pointless and can surface
+    // a confusing browser permission prompt for no reason.
+    if (!kIsWeb) {
+      _requestCameraPermission();
+    }
   }
 
   Future<void> _requestCameraPermission() async {
     var status = await Permission.camera.request();
-    setState(() {
-      _hasPermission = status.isGranted;
-    });
+    if (mounted) {
+      setState(() {
+        _hasPermission = status.isGranted;
+      });
+    }
   }
 
-    Future<void> _startMeasurement() async {
+  Future<void> _startMeasurement() async {
     // 1. SAFE FALLBACK FOR WEB: Prevents Chrome camera crash
     if (kIsWeb) {
       setState(() {
         _isMeasuring = true;
         _statusMessage = 'Simulating PPG measurement for Web...';
       });
-      
-      // Simulate 3 seconds of measuring
-      await Future.delayed(const Duration(seconds: 3)); 
-      
+      await Future.delayed(const Duration(seconds: 3));
       if (mounted) {
         setState(() {
           _currentBPM = 75.0;
@@ -67,29 +71,51 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
           _statusMessage = 'Measurement complete (Simulated)!';
         });
       }
-      return; // STOP here, do not run camera code on Web
+      return;
     }
 
-    // 2. REAL MOBILE LOGIC (Only runs on actual Android/iOS devices)
-    if (!_hasPermission) return;
+    // 2. REAL MOBILE LOGIC (Uses real camera math)
+    if (!_hasPermission) {
+      // Previously this just silently returned, leaving the patient tapping
+      // a button that appeared to do nothing. Now we re-request and explain
+      // what's needed if it's still denied.
+      final status = await Permission.camera.request();
+      if (!status.isGranted) {
+        if (mounted) {
+          setState(() {
+            _statusMessage =
+                'Camera permission is needed to measure your heart rate. Please allow camera access and try again.';
+          });
+        }
+        return;
+      }
+      if (mounted) setState(() => _hasPermission = true);
+    }
 
     try {
       final cameras = await availableCameras();
       final backCamera = cameras.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.back,
-        orElse: () => cameras.first, // Safe fallback
+        orElse: () => cameras.first,
       );
 
       _cameraController = CameraController(
         backCamera,
-        ResolutionPreset.medium,
+        ResolutionPreset.low, // Low resolution is faster and better for PPG
         enableAudio: false,
         imageFormatGroup: ImageFormatGroup.yuv420,
       );
 
       await _cameraController!.initialize();
-      
+
+      // Turn on the flashlight for better light penetration
+      await _cameraController!.setFlashMode(FlashMode.torch);
+
       _cameraController!.startImageStream((CameraImage image) {
+        // Guard against frames arriving after the widget has been disposed
+        // (e.g. the patient backs out mid-measurement) — calling setState
+        // on a disposed widget throws.
+        if (!mounted) return;
         if (_ppgProcessor != null) {
           _ppgProcessor!.processFrame(image);
           if (_ppgProcessor!.isReady) {
@@ -103,22 +129,43 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
         }
       });
 
-      Future.delayed(const Duration(seconds: 10), () {
-        if (mounted) _stopMeasurement();
+      // Auto-stop after 15 seconds to save battery
+      Future.delayed(const Duration(seconds: 15), () {
+        if (mounted && _isMeasuring) _stopMeasurement();
       });
     } catch (e) {
-      setState(() => _statusMessage = 'Camera error: $e');
+      // Previously a mid-setup failure here (e.g. camera initialize()
+      // succeeding but setFlashMode or startImageStream throwing) could
+      // leave the torch on and the camera resource held indefinitely.
+      // Clean up explicitly before surfacing the error.
+      try {
+        await _cameraController?.setFlashMode(FlashMode.off);
+      } catch (_) {
+        // Best-effort — controller may already be in a bad state.
+      }
+      await _cameraController?.dispose();
+      _cameraController = null;
+
+      if (mounted) {
+        setState(() {
+          _isMeasuring = false;
+          _statusMessage = 'Camera error: $e';
+        });
+      }
     }
   }
 
   void _stopMeasurement() {
+    _cameraController?.setFlashMode(FlashMode.off);
     _cameraController?.dispose();
     _cameraController = null;
-    
-    setState(() {
-      _isMeasuring = false;
-      _statusMessage = 'Measurement complete!';
-    });
+
+    if (mounted) {
+      setState(() {
+        _isMeasuring = false;
+        _statusMessage = 'Measurement complete!';
+      });
+    }
   }
 
   @override
@@ -140,11 +187,8 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: const Text(
-          '4. Vitals Capture (PPG)',
-          style: TextStyle(
-            color: Color(0xFF1E293B),
-            fontWeight: FontWeight.bold,
-          ),
+          '4. Vitals Capture',
+          style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
         ),
       ),
       body: Padding(
@@ -152,8 +196,8 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            
-            // The Two Circles with REAL values
+
+            // The Two Circles with REAL calculated values
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -161,10 +205,10 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
                 _buildVitalCircle('BPM', _currentBPM > 0 ? '${_currentBPM.toInt()}' : '--', const Color(0xFF6D28D9), Icons.favorite),
               ],
             ),
-            
+
             const SizedBox(height: 40),
 
-            // Camera Preview or Placeholder
+            // Camera Preview
             Expanded(
               child: Container(
                 width: double.infinity,
@@ -182,12 +226,9 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.camera_alt, size: 64, color: Color(0xFF6D28D9)),
+                            Icon(Icons.fingerprint, size: 64, color: Color(0xFF6D28D9)),
                             SizedBox(height: 16),
-                            Text(
-                              'Camera Preview',
-                              style: TextStyle(color: Color(0xFF64748B)),
-                            ),
+                            Text('Camera Ready', style: TextStyle(color: Color(0xFF64748B))),
                           ],
                         ),
                       ),
@@ -196,9 +237,9 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
 
             const SizedBox(height: 30),
 
-            // Status Message
             Text(
               _statusMessage,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -207,12 +248,9 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Place your finger over the back camera and flash',
+              'Place your finger gently over the back camera and flash',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14,
-                color: Color(0xFF64748B),
-              ),
+              style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
             ),
 
             const SizedBox(height: 20),
@@ -226,17 +264,11 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6D28D9),
                   disabledBackgroundColor: const Color(0xFFCBD5E1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(
                   _currentBPM > 0 ? 'Next: Review & Submit' : (_isMeasuring ? 'Measuring...' : 'Start Measurement'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.white,
-                  ),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white),
                 ),
               ),
             ),
@@ -261,22 +293,8 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
             children: [
               Icon(icon, color: color, size: 28),
               const SizedBox(height: 8),
-              Text(
-                value,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: color,
-                ),
-              ),
-              Text(
-                label,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF64748B),
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              Text(value, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: color)),
+              Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
             ],
           ),
         ),
@@ -286,8 +304,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
 
   void _goToReview() {
     _stopMeasurement();
-    
-    Navigator.of(context).pushReplacement(
+    Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ReviewScreen(
           region: widget.region,
