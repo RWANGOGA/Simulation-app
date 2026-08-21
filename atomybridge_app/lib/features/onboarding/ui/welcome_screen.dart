@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../body_map/ui/body_map_screen.dart';
 
+import '../../body_map/ui/body_map_screen.dart';
+import '../../qr_passport/qr_passport_screen.dart';
+import '../../../core/network/api_client.dart';
+
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -99,10 +103,35 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
               const SizedBox(height: 8),
+
+              // TODO: DEBUG ONLY — remove once screen 5 (Review & Submit) passes real TriageResult
+              Center(
+                child: TextButton(
+                  onPressed: _previewQrPassport,
+                  child: const Text(
+                    '🔧 Preview QR Passport (test data)',
+                    style: TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  void _previewQrPassport() {
+    final fakeResult = TriageResult(
+      id: 1,
+      patientId: 1,
+      riskScore: 0.82,
+      shapExplanation: '[]',
+      qrData: 'test-qr-data-preview-only-not-encrypted',
+      createdAt: DateTime.now(),
+    );
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => QrPassportScreen(result: fakeResult)),
     );
   }
 

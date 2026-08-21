@@ -8,6 +8,8 @@ class TriageReport {
   final String? direction;   // NEW
   final String? depth;       // NEW
   final double? heartRate;
+  final int? patientId; // TODO: wire to real patient once login exists
+
 
   const TriageReport({
     required this.bodyRegion,
@@ -16,6 +18,7 @@ class TriageReport {
     this.direction,
     this.depth,
     this.heartRate,
+    this.patientId, // just added
   });
 
   Map<String, dynamic> toJson() => {
@@ -25,18 +28,25 @@ class TriageReport {
         if (direction != null) 'direction': direction,
         if (depth != null) 'depth': depth,
         if (heartRate != null) 'heart_rate': heartRate,
+        if (patientId != null) 'patient_id': patientId, // just added
       };
 }
 
 class TriageResult {
   final int id;
+  final int? patientId; // just added
   final double riskScore;
   final String shapExplanation;
+  final String? qrData; // just added
+  final DateTime? createdAt; // just added
 
   const TriageResult({
     required this.id,
+    this.patientId, // just added
     required this.riskScore,
     required this.shapExplanation,
+    this.qrData, // just added
+    required this.createdAt, // just added
   });
 
   String get riskLevel {
@@ -49,6 +59,9 @@ class TriageResult {
         id: json['id'] as int,
         riskScore: (json['risk_score'] as num?)?.toDouble() ?? 0,
         shapExplanation: json['shap_explanation'] as String? ?? '[]',
+        patientId: json['patient_id'] as int?, // added from here
+        qrData: json['qr_data'] as String?,
+        createdAt: DateTime.parse(json['created_at'] as String),
       );
 }
 
