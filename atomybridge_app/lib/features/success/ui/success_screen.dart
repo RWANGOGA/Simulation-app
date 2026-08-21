@@ -227,7 +227,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       body: SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             children: [
@@ -313,7 +313,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                 ),
               ),
 
-              const Spacer(),
+              const SizedBox(height: 24),
 
               // Risk Summary
               Container(
