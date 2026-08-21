@@ -3,6 +3,7 @@ import '../../../core/storage/draft_storage.dart';
 import '../../../core/storage/triage_draft.dart';
 import '../../patient_info/ui/patient_info_screen.dart';
 import '../../review/ui/review_screen.dart';
+import '../../../core/theme/app_page_route.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -37,7 +38,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final draft = _draft;
     if (draft == null) return;
     Navigator.of(context).push(
-      MaterialPageRoute(
+      AppPageRoute(
         builder: (_) => ReviewScreen(
           region: draft.region,
           painType: draft.painType,
@@ -259,7 +260,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   void _navigateToPatientInfo() {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const PatientInfoScreen()),
+      AppPageRoute(builder: (_) => const PatientInfoScreen()),
     );
   }
 }

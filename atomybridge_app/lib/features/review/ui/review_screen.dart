@@ -4,6 +4,8 @@ import '../../../core/network/api_client.dart';
 import '../../../core/storage/draft_storage.dart';
 import '../../../core/storage/triage_draft.dart';
 import '../../success/ui/success_screen.dart'; // Import the new Screen 6
+import '../../../core/theme/app_page_route.dart';
+import '../../../core/theme/app_card.dart';
 
 class ReviewScreen extends StatefulWidget {
   final String region;
@@ -59,7 +61,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
       // Navigate to Screen 6 with the REAL backend-generated 12-char ID
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
+        AppPageRoute(
           builder: (_) => SuccessScreen(
             patientId: result.anonymousCode ?? 'P-UNKNOWN',
             triageResult: result,
@@ -165,14 +167,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   const Text('Clinical Summary', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
                   const SizedBox(height: 16),
                   
-                  Container(
+                  AppCard(
                     width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white, borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
-                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

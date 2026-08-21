@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/network/api_client.dart';
 import '../../body_map/ui/body_map_screen.dart';
+import '../../../core/theme/app_page_route.dart';
 
 class PatientInfoScreen extends StatefulWidget {
   const PatientInfoScreen({super.key});
@@ -210,7 +211,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
 
       if (!mounted) return;
       Navigator.of(context).push(
-        MaterialPageRoute(
+        AppPageRoute(
           builder: (_) => BodyMapScreen(
             patientId: patient.id,
             gender: _gender,

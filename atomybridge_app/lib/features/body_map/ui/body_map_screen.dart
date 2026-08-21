@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'pain_details_screen.dart';
+import '../../../core/theme/app_page_route.dart';
 
 class BodyMapScreen extends StatefulWidget {
   final int patientId;
@@ -622,7 +623,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
 
   void _navigateToPainDetails() {
     Navigator.of(context).push(
-      MaterialPageRoute(
+      AppPageRoute(
         builder: (_) => PainDetailsScreen(
           region: _selectedRegion,
           patientId: widget.patientId,
