@@ -19,8 +19,9 @@ dependencies:
   math_expressions: ^2.4.0  
   share_plus: ^7.2.1         # To share the link or image
   universal_html: ^2.2.4     # REQUIRED: For triggering web downloads
-  cross_file: ^0.3.4+2  
+  cross_file: ^0.3.4+2
   intl: ^0.19.0     # REQUIRED: For handling file data in share_plus
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:

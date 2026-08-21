@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../body_map/ui/body_map_screen.dart';
+import '../../patient_info/ui/patient_info_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -67,7 +67,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: () => _navigateToBodyMap(),
+                  onPressed: () => _navigateToPatientInfo(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6D28D9),
                     disabledBackgroundColor: const Color(0xFFCBD5E1),
@@ -181,9 +181,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  void _navigateToBodyMap() {
+  void _navigateToPatientInfo() {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const BodyMapScreen()),
+      MaterialPageRoute(builder: (_) => const PatientInfoScreen()),
     );
   }
 }

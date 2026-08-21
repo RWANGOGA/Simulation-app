@@ -59,7 +59,6 @@ class PPGProcessor {
 
     // 3. Real BPM Calculation using Peak Detection
     int peaks = 0;
-    bool rising = false;
     double threshold = mean + (stdDev * 0.5); // Dynamic threshold
     
     for (int i = 1; i < _signalBuffer.length - 1; i++) {

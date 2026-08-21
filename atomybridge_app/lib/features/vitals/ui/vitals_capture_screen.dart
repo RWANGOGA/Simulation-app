@@ -11,6 +11,7 @@ class VitalsCaptureScreen extends StatefulWidget {
   final int severity;
   final String direction;
   final String depth;
+  final int patientId;
 
   const VitalsCaptureScreen({
     super.key,
@@ -19,6 +20,7 @@ class VitalsCaptureScreen extends StatefulWidget {
     required this.severity,
     required this.direction,
     required this.depth,
+    required this.patientId,
   });
 
   @override
@@ -314,6 +316,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
           depth: widget.depth,
           heartRate: _currentBPM,
           spo2: _currentSpO2,
+          patientId: widget.patientId,
         ),
       ),
     );

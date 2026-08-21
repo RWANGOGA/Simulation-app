@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, DateTime, Text
+from sqlalchemy import Column, Integer, String, DateTime, Text, Float
 from app.core.database import Base
 
 class Patient(Base):
@@ -8,6 +8,8 @@ class Patient(Base):
     anonymous_code = Column(String, unique=True, index=True, default="P-ANON")
     age = Column(Integer, nullable=True)
     gender = Column(String, nullable=True)
+    weight = Column(Float, nullable=True)  # kg
+    height = Column(Float, nullable=True)  # cm
     preferred_language = Column(String, default="en")
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

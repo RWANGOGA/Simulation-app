@@ -1,5 +1,39 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+
+class PatientProfile {
+  final int age;
+  final String gender;
+  final double weight;
+  final double height;
+
+  const PatientProfile({
+    required this.age,
+    required this.gender,
+    required this.weight,
+    required this.height,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'age': age,
+        'gender': gender,
+        'weight': weight,
+        'height': height,
+      };
+}
+
+class PatientResult {
+  final int id;
+  final String anonymousCode;
+
+  const PatientResult({required this.id, required this.anonymousCode});
+
+  factory PatientResult.fromJson(Map<String, dynamic> json) => PatientResult(
+        id: json['id'] as int,
+        anonymousCode: json['anonymous_code'] as String,
+      );
+}
 
 class TriageReport {
   final String bodyRegion;
@@ -8,6 +42,7 @@ class TriageReport {
   final String? direction;
   final String? depth;
   final double? heartRate;
+  final int? patientId;
 
   const TriageReport({
     required this.bodyRegion,
@@ -16,6 +51,7 @@ class TriageReport {
     this.direction,
     this.depth,
     this.heartRate,
+    this.patientId,
   });
 
   Map<String, dynamic> toJson() => {
@@ -25,6 +61,7 @@ class TriageReport {
         if (direction != null) 'direction': direction,
         if (depth != null) 'depth': depth,
         if (heartRate != null) 'heart_rate': heartRate,
+        if (patientId != null) 'patient_id': patientId,
       };
 }
 
@@ -89,8 +126,23 @@ class ApiClient {
   // Use 127.0.0.1 instead of localhost for Chrome Web
   static const String baseUrl = 'http://127.0.0.1:8000/api/v1';
 
+  static Future<PatientResult> createPatient(PatientProfile profile) async {
+    final response = await http.post(
+      Uri.parse('$baseUrl/patients/'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(profile.toJson()),
+    );
+
+    if (response.statusCode == 201) {
+      return PatientResult.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>,
+      );
+    }
+    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+  }
+
   static Future<TriageResult> sendTriage(TriageReport report) async {
-    print('🚀 Sending to backend: ${report.toJson()}'); // Debug log
+    debugPrint('🚀 Sending to backend: ${report.toJson()}');
     
     final response = await http.post(
       Uri.parse('$baseUrl/triage/'),

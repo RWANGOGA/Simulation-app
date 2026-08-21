@@ -9,7 +9,7 @@ import 'package:universal_html/html.dart' as html; // For web downloads
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/network/api_client.dart';
 import '../../history/ui/patient_history_screen.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 
 // --- CONFIGURATION ---
 const String kReportBaseUrl = 'http://10.16.10.85:5000';
@@ -53,7 +53,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
           // Web: Trigger browser download
           final blob = html.Blob([imageBytes], 'image/png');
           final url = html.Url.createObjectUrlFromBlob(blob);
-          final anchor = html.AnchorElement(href: url)
+          html.AnchorElement(href: url)
             ..setAttribute('download', '${widget.patientId}_QR.png')
             ..click();
           html.Url.revokeObjectUrl(url);
@@ -89,7 +89,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
             duration: const Duration(seconds: 4),
           ),
         );
-        print('DEBUG ERROR: $e');
+        debugPrint('DEBUG ERROR: $e');
       }
     } finally {
       if (mounted) setState(() => _isProcessing = false);
@@ -157,7 +157,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                       onTap: () async {
                         await Clipboard.setData(ClipboardData(text: message));
                         if (sheetContext.mounted) Navigator.of(sheetContext).pop();
-                        if (mounted) {
+                        if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Link copied to clipboard')),
                           );
@@ -189,7 +189,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
           children: [
             CircleAvatar(
               radius: 26,
-              backgroundColor: color.withOpacity(0.1),
+              backgroundColor: color.withValues(alpha: 0.1),
               child: Icon(icon, color: color, size: 26),
             ),
             const SizedBox(height: 6),
@@ -237,7 +237,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF16A34A).withOpacity(0.1),
+                  color: const Color(0xFF16A34A).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check_circle, color: Color(0xFF16A34A), size: 48),
@@ -293,7 +293,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: const Color(0xFF6D28D9), width: 2),
-                    boxShadow: [BoxShadow(color: const Color(0xFF6D28D9).withOpacity(0.1), blurRadius: 10, offset: const Offset(0, 4))],
+                    boxShadow: [BoxShadow(color: const Color(0xFF6D28D9).withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
                   ),
                   child: Column(
                     children: [
@@ -319,7 +319,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: riskColor.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(color: riskColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                 child: Row(
                   children: [
                     Icon(isHighRisk ? Icons.warning_amber_rounded : Icons.check_circle_outline, color: riskColor, size: 20),

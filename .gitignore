@@ -21,3 +21,6 @@ atomybridge_patient/.flutter-plugins-dependencies
 atomybridge_patient/android/.gradle
 atomybridge_patient/ios/Pods/
 atomybridge_patient/ios/.symlinks/
+
+# Local 3D model tooling/scratch (not part of the app)
+model-source/
