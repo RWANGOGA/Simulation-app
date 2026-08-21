@@ -57,7 +57,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                   style: TextStyle(
                     fontSize: 60,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     letterSpacing: 10,
                   ),
                 ),
@@ -93,7 +93,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: const Color(0xFF6D28D9).withOpacity(0.1), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: const Color(0xFF6D28D9).withValues(alpha: 0.1), shape: BoxShape.circle),
                 child: const Icon(Icons.medical_services, color: Color(0xFF6D28D9), size: 32),
               ),
               const SizedBox(width: 16),
@@ -126,7 +126,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           // Risk Assessment Card
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: riskColor.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: riskColor)),
+            decoration: BoxDecoration(color: riskColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: riskColor)),
             child: Row(
               children: [
                 Icon(isHighRisk ? Icons.warning_amber_rounded : Icons.check_circle_outline, color: riskColor, size: 32),

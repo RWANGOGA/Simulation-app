@@ -8,7 +8,27 @@ import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'pain_details_screen.dart';
 
 class BodyMapScreen extends StatefulWidget {
-  const BodyMapScreen({super.key});
+  final int patientId;
+  final String gender;
+  final double weightKg;
+  final double heightCm;
+
+  const BodyMapScreen({
+    super.key,
+    required this.patientId,
+    required this.gender,
+    required this.weightKg,
+    required this.heightCm,
+  });
+
+  /// Picks the body model variant matching the patient's gender.
+  /// BMI (weightKg/heightCm) isn't used yet — there's only one build per
+  /// gender today. Once BMI-varied versions of these models exist, branch
+  /// on bmi here the same way the old slim/average/heavy logic did.
+  String get modelAsset {
+    final file = gender == 'Male' ? 'human_body_male.glb' : 'human_body_female.glb';
+    return kIsWeb ? 'models/$file' : 'assets/models/$file';
+  }
 
   @override
   State<BodyMapScreen> createState() => _BodyMapScreenState();
@@ -111,17 +131,27 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   }
 
   String _getCameraOrbit([String? angle]) {
+    final radius = (105 / _zoomLevel).round();
+    // The female source model was exported facing the opposite way from the
+    // male one, so every angle needs a 180° correction for that model only.
+    final flip = widget.gender == 'Female';
+    final int baseDeg;
     switch (angle ?? _viewAngle) {
       case 'back':
-        return '180deg 75deg 105%';
+        baseDeg = 180;
+        break;
       case 'left':
-        return '-90deg 75deg 105%';
+        baseDeg = -90;
+        break;
       case 'right':
-        return '90deg 75deg 105%';
+        baseDeg = 90;
+        break;
       case 'front':
       default:
-        return '0deg 75deg 105%';
+        baseDeg = 0;
     }
+    final deg = flip ? baseDeg + 180 : baseDeg;
+    return '${deg}deg 75deg $radius%';
   }
 
   // Bypasses the normal Flutter -> platform-view prop pipeline: sets the
@@ -188,7 +218,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                     Positioned.fill(
                       child: ModelViewer(
                         id: _modelViewerId,
-                        src: kIsWeb ? 'models/human_body.glb' : 'assets/models/human_body.glb',
+                        src: widget.modelAsset,
                         alt: 'OpenHuman 3D body model for pain mapping',
                         ar: false,
                         autoRotate: false,
@@ -205,11 +235,11 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.92),
+                          color: Colors.white.withValues(alpha: 0.92),
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
+                              color: Colors.black.withValues(alpha: 0.08),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -248,6 +278,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                               onTap: () {
                                 HapticFeedback.selectionClick();
                                 setState(() => _zoomLevel = (_zoomLevel + 0.15).clamp(0.7, 2.0));
+                                _applyCameraOrbitNow(_getCameraOrbit());
                               },
                             ),
                             const SizedBox(height: 8),
@@ -257,6 +288,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                               onTap: () {
                                 HapticFeedback.selectionClick();
                                 setState(() => _zoomLevel = (_zoomLevel - 0.15).clamp(0.7, 2.0));
+                                _applyCameraOrbitNow(_getCameraOrbit());
                               },
                             ),
                           ],
@@ -279,7 +311,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                               height: 32 + (12 * _pulseController.value),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: const Color(0xFFEF4444).withOpacity(0.35 * (1 - _pulseController.value)),
+                                color: const Color(0xFFEF4444).withValues(alpha: 0.35 * (1 - _pulseController.value)),
                                 border: Border.all(
                                   color: const Color(0xFFEF4444),
                                   width: 2,
@@ -315,7 +347,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF6D28D9).withOpacity(0.3),
+                                color: const Color(0xFF6D28D9).withValues(alpha: 0.3),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
@@ -354,7 +386,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -387,7 +419,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6D28D9),
                     elevation: 3,
-                    shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
+                    shadowColor: const Color(0xFF6D28D9).withValues(alpha: 0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -593,6 +625,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
       MaterialPageRoute(
         builder: (_) => PainDetailsScreen(
           region: _selectedRegion,
+          patientId: widget.patientId,
+          modelAsset: widget.modelAsset,
           markerX: _markerFraction?.dx,
           markerY: _markerFraction?.dy,
         ),

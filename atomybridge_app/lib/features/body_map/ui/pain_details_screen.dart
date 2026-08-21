@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import '../../vitals/ui/vitals_capture_screen.dart'; // <-- Import for the next screen
 
 class PainDetailsScreen extends StatefulWidget {
   final String region;
+  final int patientId;
+  final String modelAsset;
   // Exact tap position (0..1 fractions of the model canvas) carried over
   // from the Body Map screen, so the pain marker shows in the same spot
   // instead of resetting to center. Null falls back to center.
@@ -16,6 +17,8 @@ class PainDetailsScreen extends StatefulWidget {
   const PainDetailsScreen({
     super.key,
     required this.region,
+    required this.patientId,
+    required this.modelAsset,
     this.markerX,
     this.markerY,
   });
@@ -63,6 +66,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
           severity: _severity,
           direction: _swipeDirection,
           depth: _pinchDepth,
+          patientId: widget.patientId,
         ),
       ),
     );
@@ -113,7 +117,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                       border: Border.all(color: const Color(0xFFE2E8F0)),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.03),
+                          color: Colors.black.withValues(alpha: 0.03),
                           blurRadius: 8,
                           offset: const Offset(0, 2),
                         ),
@@ -124,7 +128,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6D28D9).withOpacity(0.1),
+                            color: const Color(0xFF6D28D9).withValues(alpha: 0.1),
                             shape: BoxShape.circle,
                           ),
                           child: const Icon(Icons.location_on, color: Color(0xFF6D28D9), size: 20),
@@ -175,7 +179,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                       border: Border.all(color: const Color(0xFFE2E8F0)),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
+                          color: Colors.black.withValues(alpha: 0.04),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -192,14 +196,14 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                               // owns drag (rotate) and pinch (zoom) gestures. Direction/Depth
                               // are deliberately plain dropdowns rather than gestures on the
                               // model itself, to avoid fighting the model's own controls.
-                              const Positioned.fill(
+                              Positioned.fill(
                                 child: ModelViewer(
-                                  src: kIsWeb ? 'models/human_body.glb' : 'assets/models/human_body.glb',
+                                  src: widget.modelAsset,
                                   alt: '3D pain vector model',
                                   ar: false,
                                   autoRotate: false,
                                   cameraControls: true,
-                                  backgroundColor: Color(0xFFF8FAFC),
+                                  backgroundColor: const Color(0xFFF8FAFC),
                                 ),
                               ),
 
@@ -220,7 +224,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           color: const Color(0xFFEF4444)
-                                              .withOpacity(0.35 * (1 - _pulseController.value)),
+                                              .withValues(alpha: 0.35 * (1 - _pulseController.value)),
                                           border: Border.all(
                                             color: const Color(0xFFEF4444),
                                             width: 2,
@@ -257,12 +261,12 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.95),
+                                      color: Colors.white.withValues(alpha: 0.95),
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.3)),
+                                      border: Border.all(color: const Color(0xFF6D28D9).withValues(alpha: 0.3)),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.06),
+                                          color: Colors.black.withValues(alpha: 0.06),
                                           blurRadius: 6,
                                         ),
                                       ],
@@ -317,12 +321,12 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                   child: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.95),
+                                      color: Colors.white.withValues(alpha: 0.95),
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.3)),
+                                      border: Border.all(color: const Color(0xFF6D28D9).withValues(alpha: 0.3)),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black.withOpacity(0.06),
+                                          color: Colors.black.withValues(alpha: 0.06),
                                           blurRadius: 6,
                                         ),
                                       ],
@@ -448,7 +452,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF6D28D9).withOpacity(0.25),
+                              color: const Color(0xFF6D28D9).withValues(alpha: 0.25),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -478,7 +482,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                         activeTrackColor: const Color(0xFF6D28D9),
                         inactiveTrackColor: const Color(0xFFE2E8F0),
                         thumbColor: const Color(0xFF6D28D9),
-                        overlayColor: const Color(0xFF6D28D9).withOpacity(0.15),
+                        overlayColor: const Color(0xFF6D28D9).withValues(alpha: 0.15),
                         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
                         trackHeight: 6,
                       ),
@@ -513,7 +517,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6D28D9),
                     elevation: 3,
-                    shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
+                    shadowColor: const Color(0xFF6D28D9).withValues(alpha: 0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),

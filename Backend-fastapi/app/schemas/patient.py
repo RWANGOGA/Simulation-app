@@ -5,6 +5,8 @@ from pydantic import BaseModel, ConfigDict, Field
 class PatientBase(BaseModel):
     age: Optional[int] = Field(None, ge=0, le=120)
     gender: Optional[str] = None
+    weight: Optional[float] = Field(None, ge=1, le=500, description="kg")
+    height: Optional[float] = Field(None, ge=30, le=272, description="cm")
     preferred_language: str = Field("en", description="e.g., en, lug, sign")
     notes: Optional[str] = None
 

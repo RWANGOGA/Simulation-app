@@ -25,6 +25,10 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
         new_patient = crud_patient.create_patient(db, new_patient_data)
         patient_id = new_patient.id
         anonymous_code = new_patient.anonymous_code
+    else:
+        existing_patient = db.query(Patient).filter(Patient.id == patient_id).first()
+        if existing_patient:
+            anonymous_code = existing_patient.anonymous_code
 
     session_data = payload.model_dump()
     session_data["patient_id"] = patient_id
