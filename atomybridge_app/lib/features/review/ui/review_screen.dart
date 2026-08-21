@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/storage/draft_storage.dart';
+import '../../../core/storage/triage_draft.dart';
 import '../../success/ui/success_screen.dart'; // Import the new Screen 6
 
 class ReviewScreen extends StatefulWidget {
@@ -50,8 +52,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
         patientId: widget.patientId,
       ));
 
+      // A submitted report supersedes any saved draft.
+      await DraftStorage.clear();
+
       if (!mounted) return;
-      
+
       // Navigate to Screen 6 with the REAL backend-generated 12-char ID
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
@@ -71,13 +76,24 @@ class _ReviewScreenState extends State<ReviewScreen> {
     }
   }
 
-  void _saveDraft() {
+  Future<void> _saveDraft() async {
     HapticFeedback.lightImpact();
     setState(() => _isSavingDraft = true);
-    
-    Future.delayed(const Duration(milliseconds: 800), () {
+
+    try {
+      await DraftStorage.save(TriageDraft(
+        region: widget.region,
+        painType: widget.painType,
+        severity: widget.severity,
+        direction: widget.direction,
+        depth: widget.depth,
+        heartRate: widget.heartRate,
+        spo2: widget.spo2,
+        patientId: widget.patientId,
+        savedAt: DateTime.now(),
+      ));
+
       if (!mounted) return;
-      setState(() => _isSavingDraft = false);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('✅ Draft saved offline successfully!'),
@@ -85,7 +101,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-    });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Could not save draft: $e'), backgroundColor: const Color(0xFFF59E0B)),
+      );
+    } finally {
+      if (mounted) setState(() => _isSavingDraft = false);
+    }
   }
 
   @override

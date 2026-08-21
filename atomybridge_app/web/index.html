@@ -39,79 +39,94 @@
 <body>
 <script src="flutter_bootstrap.js" async></script>
 <script type="module">
+  // Attaches the tap-to-select-region listener to a single <model-viewer>
+  // element, once — guarded so re-entrant calls (e.g. the MutationObserver
+  // firing again for a subtree that was already handled) don't double-attach.
+  function attachBodyTapListener(viewer) {
+    if (viewer.dataset.atomybridgeListenerAttached === 'true') return;
+
+    const src = viewer.getAttribute('src') || '';
+    if (src.indexOf('human_body') === -1) {
+      return; // Skip non-body models
+    }
+
+    viewer.dataset.atomybridgeListenerAttached = 'true';
+    console.log('✅ Found human body model-viewer, attaching listener...');
+
+    // Listen for the native 'select' event (fires when user taps/clicks on the 3D model)
+    viewer.addEventListener('select', (event) => {
+      const intersection = event.detail.intersection;
+
+      if (intersection && intersection.point) {
+        // Calculate UV coordinates (0-1 range)
+        const uv = intersection.uv || { x: 0.5, y: 0.5 };
+        const rx = uv.x;
+        const ry = uv.y;
+
+        // Determine body part based on Y (height) and X (width)
+        let part = 'Unknown';
+
+        if (ry < 0.20) {
+          part = 'Headache / Cranial';
+        } else if (ry < 0.50) {
+          // Upper body
+          if (rx < 0.30) {
+            part = 'Right Arm / Shoulder';
+          } else if (rx > 0.70) {
+            part = 'Left Arm / Shoulder';
+          } else if (ry < 0.35) {
+            part = 'Chest / Heart';
+          } else {
+            part = 'Abdomen (Upper)';
+          }
+        } else {
+          // Lower body
+          if (rx < 0.45) {
+            part = 'Right Leg / Knee';
+          } else {
+            part = 'Left Leg / Knee';
+          }
+        }
+
+        console.log('🩺 Model tapped! Part:', part, '| UV:', rx.toFixed(2), ry.toFixed(2));
+
+        // Dispatch custom event for Flutter to catch
+        window.dispatchEvent(new CustomEvent('atomybridge-bodypart', {
+          detail: { part: part, x: rx, y: ry }
+        }));
+      }
+    });
+  }
+
+  // Scans a DOM subtree (an added node and its descendants) for any
+  // <model-viewer> elements and attaches the listener to each match.
+  function scanForBodyModelViewers(root) {
+    if (root.tagName === 'MODEL-VIEWER') {
+      attachBodyTapListener(root);
+    }
+    if (root.querySelectorAll) {
+      root.querySelectorAll('model-viewer').forEach(attachBodyTapListener);
+    }
+  }
+
   // Wait for model-viewer custom element to be defined
   customElements.whenDefined('model-viewer').then(() => {
-    // Give Flutter time to render the model
-    setTimeout(() => {
-      // Find ALL model-viewer elements on the page
-      const viewers = document.querySelectorAll('model-viewer');
-      
-      viewers.forEach((viewer) => {
-        // Check if this is the human body model (not the avatar)
-        const src = viewer.getAttribute('src') || '';
-        if (src.indexOf('human_body') === -1 && src.indexOf('models/human_body') === -1) {
-          return; // Skip non-body models
-        }
-        
-        console.log('✅ Found human body model-viewer, attaching listener...');
-        
-        // Listen for the native 'select' event (fires when user taps/clicks on the 3D model)
-        viewer.addEventListener('select', (event) => {
-          const intersection = event.detail.intersection;
-          
-          if (intersection && intersection.point) {
-            // Get the 3D intersection point
-            const point = intersection.point;
-            
-            // Calculate UV coordinates (0-1 range)
-            const uv = intersection.uv || { x: 0.5, y: 0.5 };
-            const rx = uv.x;
-            const ry = uv.y;
-            
-            // Determine body part based on Y (height) and X (width)
-            let part = 'Unknown';
-            
-            if (ry < 0.20) {
-              part = 'Headache / Cranial';
-            } else if (ry < 0.50) {
-              // Upper body
-              if (rx < 0.30) {
-                part = 'Right Arm / Shoulder';
-              } else if (rx > 0.70) {
-                part = 'Left Arm / Shoulder';
-              } else if (ry < 0.35) {
-                part = 'Chest / Heart';
-              } else {
-                part = 'Abdomen (Upper)';
-              }
-            } else {
-              // Lower body
-              if (rx < 0.45) {
-                part = 'Right Leg / Knee';
-              } else {
-                part = 'Left Leg / Knee';
-              }
-            }
-            
-            console.log('🩺 Model tapped! Part:', part, '| UV:', rx.toFixed(2), ry.toFixed(2));
-            
-            // Dispatch custom event for Flutter to catch
-            window.dispatchEvent(new CustomEvent('atomybridge-bodypart', {
-              detail: { part: part, x: rx, y: ry }
-            }));
+    // Flutter creates <model-viewer> elements dynamically as the user
+    // navigates between screens (Body Map, Pain Details), long after
+    // initial page load — a one-shot scan misses them entirely. Instead,
+    // check what's already present, then keep watching for new ones.
+    scanForBodyModelViewers(document.body);
+
+    const observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        mutation.addedNodes.forEach((node) => {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            scanForBodyModelViewers(node);
           }
         });
-        
-        // Also add a fallback click listener
-        viewer.addEventListener('click', (e) => {
-          console.log(' Click detected on model-viewer element');
-        });
-      });
-      
-      if (viewers.length === 0) {
-        console.warn('⚠️ No model-viewer elements found on page!');
       }
-    }, 2000); // Wait 2 seconds for Flutter to render
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
   });
 </script>
 </body>

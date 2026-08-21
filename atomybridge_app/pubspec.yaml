@@ -23,6 +23,7 @@ dependencies:
   pointer_interceptor: ^0.10.1
   intl: ^0.19.0     # REQUIRED: For handling file data in share_plus
   url_launcher: ^6.2.5
+  shared_preferences: ^2.2.3
 
 dev_dependencies:
   flutter_test:

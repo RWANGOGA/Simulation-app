@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../../core/storage/draft_storage.dart';
+import '../../../core/storage/triage_draft.dart';
 import '../../patient_info/ui/patient_info_screen.dart';
+import '../../review/ui/review_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -10,6 +13,7 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   String _selectedLanguage = 'English';
+  TriageDraft? _draft;
 
   final List<_LanguageOption> _languages = const [
     _LanguageOption('English', null),
@@ -17,6 +21,76 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     _LanguageOption('Luganda', null),
     _LanguageOption('Lusoga', null),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDraft();
+  }
+
+  Future<void> _loadDraft() async {
+    final draft = await DraftStorage.load();
+    if (mounted) setState(() => _draft = draft);
+  }
+
+  void _resumeDraft() {
+    final draft = _draft;
+    if (draft == null) return;
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ReviewScreen(
+          region: draft.region,
+          painType: draft.painType,
+          severity: draft.severity,
+          direction: draft.direction,
+          depth: draft.depth,
+          heartRate: draft.heartRate,
+          spo2: draft.spo2,
+          patientId: draft.patientId,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResumeDraftBanner() {
+    final draft = _draft;
+    if (draft == null) return const SizedBox.shrink();
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFF6D28D9).withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF6D28D9).withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.history_edu_outlined, color: Color(0xFF6D28D9)),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'You have a saved draft',
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                ),
+                Text(
+                  '${draft.region} · ${draft.painType}',
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: _resumeDraft,
+            child: const Text('Resume'),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,6 +127,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
               const SizedBox(height: 24),
+
+              _buildResumeDraftBanner(),
 
               // Language Selector
               ..._languages.map((lang) => Padding(
