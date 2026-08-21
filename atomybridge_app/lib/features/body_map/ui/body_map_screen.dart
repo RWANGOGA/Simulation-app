@@ -1,6 +1,7 @@
 // ignore: avoid_web_libraries_in_flutter
 import 'dart:html' as html;
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'dart:js_util' as js_util;
+import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
@@ -34,10 +35,19 @@ class BodyMapScreen extends StatefulWidget {
 }
 
 class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProviderStateMixin {
+  // Fixed id so we can grab the underlying <model-viewer> element directly
+  // and talk to it via JS, instead of relying only on Flutter's prop diffing.
+  static const String _modelViewerId = 'body-map-model-viewer';
+
   String _selectedRegion = 'Abdomen (Lower Right)';
   String _viewAngle = 'front';
   double _zoomLevel = 1.0;
   late AnimationController _pulseController;
+
+  // Marker position as a fraction of the canvas (0..1). Null = use the
+  // default centered marker. Set when a tap on the model gives us real
+  // coordinates.
+  Offset? _markerFraction;
 
   @override
   void initState() {
@@ -61,12 +71,51 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
     super.dispose();
   }
 
+  // The bridge may send a plain region-name String, or a JS object shaped
+  // like { part, x, y } where x/y are 0..1 fractions of the model canvas.
+  //
+  // IMPORTANT: we read `detail` straight off the raw JS event via js_util
+  // instead of casting to html.CustomEvent first. That cast is only safe
+  // for primitive-shaped details; for an object detail like { part, x, y }
+  // it can throw, and since this runs inside an event-listener callback
+  // the exception gets swallowed silently — setState never runs and the
+  // badge just sits on its initial value forever. js_util sidesteps that.
   void _onBodyPartEvent(html.Event event) {
-    final part = (event as html.CustomEvent).detail as String?;
-    if (part == null) return;
+    final dynamic rawDetail = js_util.getProperty(event, 'detail');
+    if (rawDetail == null) return;
+
+    String? part;
+    double? x;
+    double? y;
+
+    if (rawDetail is String) {
+      part = rawDetail;
+    } else {
+      final dynamic converted = js_util.dartify(rawDetail);
+      if (converted is Map) {
+        final p = converted['part'];
+        final rx = converted['x'];
+        final ry = converted['y'];
+        if (p is String) part = p;
+        if (rx is num) x = rx.toDouble();
+        if (ry is num) y = ry.toDouble();
+      }
+    }
+
+    if (part == null || part.isEmpty) return;
+
+    if (!kReleaseMode) {
+      // Temporary breadcrumb: confirms the Dart side actually received the
+      // tap. Safe to remove once you've verified the badge updates.
+      debugPrint('BodyMap: received tap -> part=$part x=$x y=$y');
+    }
+
     HapticFeedback.mediumImpact();
     setState(() {
-      _selectedRegion = part;
+      _selectedRegion = part!;
+      if (x != null && y != null) {
+        _markerFraction = Offset(x, y);
+      }
     });
   }
 
@@ -74,16 +123,20 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
     HapticFeedback.selectionClick();
     setState(() {
       _viewAngle = angle;
+      // A button-driven view change is a hard reset of where we're looking,
+      // so drop any tap-based marker position back to center.
+      _markerFraction = null;
     });
+    _applyCameraOrbitNow(_getCameraOrbit(angle));
   }
 
-  String _getCameraOrbit() {
+  String _getCameraOrbit([String? angle]) {
     final radius = (105 / _zoomLevel).round();
     // The female source model was exported facing the opposite way from the
     // male one, so every angle needs a 180° correction for that model only.
     final flip = widget.gender == 'Female';
     final int baseDeg;
-    switch (_viewAngle) {
+    switch (angle ?? _viewAngle) {
       case 'back':
         baseDeg = 180;
         break;
@@ -101,10 +154,28 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
     return '${deg}deg 75deg $radius%';
   }
 
+  // Bypasses the normal Flutter -> platform-view prop pipeline: sets the
+  // camera-orbit attribute straight on the <model-viewer> element and then
+  // calls jumpCameraToGoal() so the camera snaps immediately instead of
+  // animating in behind the button press.
+  void _applyCameraOrbitNow(String orbit) {
+    if (!kIsWeb) return;
+    final el = html.document.getElementById(_modelViewerId);
+    if (el == null) return;
+    el.setAttribute('camera-orbit', orbit);
+    try {
+      js_util.callMethod(el, 'jumpCameraToGoal', []);
+    } catch (_) {
+      // Older model-viewer builds may not expose this — the attribute
+      // change above still applies, just with the default animation.
+    }
+  }
+
   void _selectPresetRegion(String region) {
     HapticFeedback.lightImpact();
     setState(() {
       _selectedRegion = region;
+      _markerFraction = null;
     });
   }
 
@@ -139,164 +210,172 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
         children: [
           // 3D Canvas Area
           Expanded(
-            child: Stack(
-              children: [
-                // 3D Model Viewer
-                Positioned.fill(
-                  // model_viewer_plus never updates its rendered view when
-                  // props change (no didUpdateWidget in the package) — keying
-                  // on the view/zoom state forces Flutter to recreate the
-                  // widget from scratch so the new camera-orbit actually
-                  // takes effect. Free-drag rotate/zoom on the model itself
-                  // still works smoothly; this only affects the preset buttons.
-                  child: ModelViewer(
-                    key: ValueKey('${widget.modelAsset}-$_viewAngle-${_zoomLevel.toStringAsFixed(2)}'),
-                    src: widget.modelAsset,
-                    alt: 'OpenHuman 3D body model for pain mapping',
-                    ar: false,
-                    autoRotate: false,
-                    cameraControls: true,
-                    cameraOrbit: _getCameraOrbit(),
-                    backgroundColor: const Color(0xFFF1F5F9),
-                  ),
-                ),
-
-                // Floating Camera & Controls Toolbar (Left Overlay)
-                Positioned(
-                  left: 16,
-                  top: 24,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.92),
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.08),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Stack(
+                  children: [
+                    // 3D Model Viewer
+                    Positioned.fill(
+                      child: ModelViewer(
+                        id: _modelViewerId,
+                        src: widget.modelAsset,
+                        alt: 'OpenHuman 3D body model for pain mapping',
+                        ar: false,
+                        autoRotate: false,
+                        cameraControls: true,
+                        cameraOrbit: _getCameraOrbit(),
+                        backgroundColor: const Color(0xFFF1F5F9),
+                      ),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        _buildOverlayTool(
-                          icon: Icons.center_focus_strong_outlined,
-                          tooltip: 'Reset View',
-                          onTap: () {
-                            HapticFeedback.lightImpact();
-                            setState(() {
-                              _viewAngle = 'front';
-                              _zoomLevel = 1.0;
-                            });
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        _buildOverlayTool(
-                          icon: Icons.sync,
-                          tooltip: 'Rotate Model',
-                          onTap: () {
-                            final angles = ['front', 'right', 'back', 'left'];
-                            final currentIndex = angles.indexOf(_viewAngle);
-                            _changeView(angles[(currentIndex + 1) % angles.length]);
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        _buildOverlayTool(
-                          icon: Icons.add,
-                          tooltip: 'Zoom In',
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            setState(() => _zoomLevel = (_zoomLevel + 0.15).clamp(0.7, 2.0));
-                          },
-                        ),
-                        const SizedBox(height: 8),
-                        _buildOverlayTool(
-                          icon: Icons.remove,
-                          tooltip: 'Zoom Out',
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            setState(() => _zoomLevel = (_zoomLevel - 0.15).clamp(0.7, 2.0));
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
 
-                // Pain Hotspot Pulse Overlay (Centered visual feedback)
-                Center(
-                  child: AnimatedBuilder(
-                    animation: _pulseController,
-                    builder: (context, child) {
-                      return Container(
-                        width: 32 + (12 * _pulseController.value),
-                        height: 32 + (12 * _pulseController.value),
+                    // Floating Camera & Controls Toolbar (Left Overlay)
+                    Positioned(
+                      left: 16,
+                      top: 24,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFFEF4444).withValues(alpha: 0.35 * (1 - _pulseController.value)),
-                          border: Border.all(
-                            color: const Color(0xFFEF4444),
-                            width: 2,
-                          ),
-                        ),
-                        child: Center(
-                          child: Container(
-                            width: 14,
-                            height: 14,
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Color(0xFFDC2626),
+                          color: Colors.white.withValues(alpha: 0.92),
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.08),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
                             ),
-                          ),
+                          ],
                         ),
-                      );
-                    },
-                  ),
-                ),
-
-                // Selected Region Badge Header (Top Right Overlay)
-                Positioned(
-                  top: 16,
-                  right: 16,
-                  child: GestureDetector(
-                    onTap: _showRegionPickerModal,
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFF6D28D9),
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF6D28D9).withValues(alpha: 0.3),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Icon(Icons.location_on, color: Colors.white, size: 18),
-                          const SizedBox(width: 6),
-                          Text(
-                            _selectedRegion,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            _buildOverlayTool(
+                              icon: Icons.center_focus_strong_outlined,
+                              tooltip: 'Reset View',
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                setState(() {
+                                  _viewAngle = 'front';
+                                  _zoomLevel = 1.0;
+                                  _markerFraction = null;
+                                });
+                                _applyCameraOrbitNow(_getCameraOrbit('front'));
+                              },
                             ),
-                          ),
-                          const SizedBox(width: 4),
-                          const Icon(Icons.arrow_drop_down, color: Colors.white, size: 18),
-                        ],
+                            const SizedBox(height: 8),
+                            _buildOverlayTool(
+                              icon: Icons.sync,
+                              tooltip: 'Rotate Model',
+                              onTap: () {
+                                final angles = ['front', 'right', 'back', 'left'];
+                                final currentIndex = angles.indexOf(_viewAngle);
+                                _changeView(angles[(currentIndex + 1) % angles.length]);
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            _buildOverlayTool(
+                              icon: Icons.add,
+                              tooltip: 'Zoom In',
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                setState(() => _zoomLevel = (_zoomLevel + 0.15).clamp(0.7, 2.0));
+                                _applyCameraOrbitNow(_getCameraOrbit());
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                            _buildOverlayTool(
+                              icon: Icons.remove,
+                              tooltip: 'Zoom Out',
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                setState(() => _zoomLevel = (_zoomLevel - 0.15).clamp(0.7, 2.0));
+                                _applyCameraOrbitNow(_getCameraOrbit());
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              ],
+
+                    // Pain Hotspot Pulse Overlay
+                    // Uses _markerFraction (set by a tap on the model) when
+                    // available, otherwise falls back to dead-center.
+                    Positioned(
+                      left: (_markerFraction?.dx ?? 0.5) * constraints.maxWidth - 22,
+                      top: (_markerFraction?.dy ?? 0.5) * constraints.maxHeight - 22,
+                      child: IgnorePointer(
+                        child: AnimatedBuilder(
+                          animation: _pulseController,
+                          builder: (context, child) {
+                            return Container(
+                              width: 32 + (12 * _pulseController.value),
+                              height: 32 + (12 * _pulseController.value),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: const Color(0xFFEF4444).withValues(alpha: 0.35 * (1 - _pulseController.value)),
+                                border: Border.all(
+                                  color: const Color(0xFFEF4444),
+                                  width: 2,
+                                ),
+                              ),
+                              child: Center(
+                                child: Container(
+                                  width: 14,
+                                  height: 14,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xFFDC2626),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+
+                    // Selected Region Badge Header (Top Right Overlay)
+                    Positioned(
+                      top: 16,
+                      right: 16,
+                      child: GestureDetector(
+                        onTap: _showRegionPickerModal,
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF6D28D9),
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF6D28D9).withValues(alpha: 0.3),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.location_on, color: Colors.white, size: 18),
+                              const SizedBox(width: 6),
+                              Text(
+                                _selectedRegion,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              const Icon(Icons.arrow_drop_down, color: Colors.white, size: 18),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
 
@@ -548,6 +627,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
           region: _selectedRegion,
           patientId: widget.patientId,
           modelAsset: widget.modelAsset,
+          markerX: _markerFraction?.dx,
+          markerY: _markerFraction?.dy,
         ),
       ),
     );
