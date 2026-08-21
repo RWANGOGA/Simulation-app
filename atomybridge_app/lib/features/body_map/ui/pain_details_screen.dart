@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import '../../vitals/ui/vitals_capture_screen.dart'; // <-- Import for the next screen
+import '../../../core/theme/app_page_route.dart';
+import '../../../core/theme/app_card.dart';
 
 class PainDetailsScreen extends StatefulWidget {
   final String region;
@@ -59,7 +61,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
     HapticFeedback.mediumImpact();
 
     Navigator.of(context).push(
-      MaterialPageRoute(
+      AppPageRoute(
         builder: (_) => VitalsCaptureScreen(
           region: _selectedRegion,
           painType: _painType,
@@ -108,21 +110,9 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Selected Region Banner with Edit Button
-                  Container(
+                  AppCard(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.03),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
                     child: Row(
                       children: [
                         Container(

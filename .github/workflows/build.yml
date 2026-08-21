@@ -1,0 +1,103 @@
+name: Build APK & Web
+
+on:
+  push:
+    branches: [main, madrine]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+defaults:
+  run:
+    # Every step below runs with this as the working directory, since the
+    # Flutter project lives in atomybridge_app/, not the repo root.
+    working-directory: atomybridge_app
+
+# Needed for the deploy-web job to publish to GitHub Pages.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one Pages deployment at a time; a newer push cancels an in-flight one.
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-apk:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build release APK
+        run: flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: atomybridge-apk
+          # Flutter always writes the release APK here, regardless of app name.
+          path: atomybridge_app/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
+
+  build-web:
+    name: Build Web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build release web bundle
+        # base-href must match the repo name — GitHub Pages serves a project
+        # site at https://<user>.github.io/<repo>/, and Flutter needs to know
+        # that subpath to load its JS/asset files correctly instead of
+        # looking for them at the domain root.
+        run: flutter build web --release --base-href "/Simulation-app/"
+
+      - name: Upload web build (plain artifact, always)
+        uses: actions/upload-artifact@v4
+        with:
+          name: atomybridge-web
+          path: atomybridge_app/build/web
+          if-no-files-found: error
+
+      - name: Upload web build for Pages
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: atomybridge_app/build/web
+
+  deploy-web:
+    name: Deploy Web to GitHub Pages
+    needs: build-web
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../core/ppg_processor.dart';
 import '../../review/ui/review_screen.dart';
+import '../../../core/theme/app_page_route.dart';
 
 class VitalsCaptureScreen extends StatefulWidget {
   final String region;
@@ -307,7 +308,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
   void _goToReview() {
     _stopMeasurement();
     Navigator.of(context).push(
-      MaterialPageRoute(
+      AppPageRoute(
         builder: (_) => ReviewScreen(
           region: widget.region,
           painType: widget.painType,

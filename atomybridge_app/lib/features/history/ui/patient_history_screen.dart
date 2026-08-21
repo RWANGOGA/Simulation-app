@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/network/api_client.dart';
 import '../../report/ui/clinical_report_screen.dart';
+import '../../../core/theme/app_page_route.dart';
 
 class PatientHistoryScreen extends StatefulWidget {
   final String patientId;
@@ -115,7 +116,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                         ),
                         onTap: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(
+                            AppPageRoute(
                               builder: (_) => ClinicalReportScreen(patientId: widget.patientId),
                             ),
                           );

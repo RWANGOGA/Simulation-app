@@ -10,6 +10,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/network/api_client.dart';
 import '../../history/ui/patient_history_screen.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
+import '../../../core/theme/app_page_route.dart';
+import '../../../core/theme/app_card.dart';
 
 // --- CONFIGURATION ---
 const String kReportBaseUrl = 'http://10.16.10.85:5000';
@@ -253,14 +255,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
               const SizedBox(height: 24),
 
               // Patient ID & Timestamp Card
-              Container(
+              AppCard(
                 width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
-                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -287,14 +283,10 @@ class _SuccessScreenState extends State<SuccessScreen> {
               // QR CODE SECTION
               RepaintBoundary(
                 key: _qrKey,
-                child: Container(
+                child: AppCard(
                   padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFF6D28D9), width: 2),
-                    boxShadow: [BoxShadow(color: const Color(0xFF6D28D9).withValues(alpha: 0.1), blurRadius: 10, offset: const Offset(0, 4))],
-                  ),
+                  borderColor: const Color(0xFF6D28D9),
+                  borderWidth: 2,
                   child: Column(
                     children: [
                       const Text('Encrypted QR Passport', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9), letterSpacing: 1)),
@@ -377,7 +369,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () {
                     Navigator.of(context).push(
-                      MaterialPageRoute(
+                      AppPageRoute(
                         builder: (_) => PatientHistoryScreen(patientId: widget.patientId),
                       ),
                     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/network/api_client.dart';
 import '../../report/ui/clinical_report_screen.dart';
+import '../../../core/theme/app_page_route.dart';
 
 class PractitionerDashboardScreen extends StatefulWidget {
   const PractitionerDashboardScreen({super.key});
@@ -193,7 +194,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                                 onTap: () {
                                   // Navigate to the detailed report screen we already built!
                                   Navigator.of(context).push(
-                                    MaterialPageRoute(
+                                    AppPageRoute(
                                       builder: (_) => ClinicalReportScreen(patientId: session['anonymous_code']),
                                     ),
                                   );

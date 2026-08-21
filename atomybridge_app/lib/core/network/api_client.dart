@@ -124,7 +124,7 @@ class TriageResult {
 
 class ApiClient {
   // Use 127.0.0.1 instead of localhost for Chrome Web
-  static const String baseUrl = 'http://127.0.0.1:8000/api/v1';
+  static const String baseUrl = 'https://backend-fastapi-linv.onrender.com/api/v1';
 
   static Future<PatientResult> createPatient(PatientProfile profile) async {
     final response = await http.post(
