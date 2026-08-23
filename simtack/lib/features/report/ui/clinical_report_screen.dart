@@ -26,7 +26,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
   Future<void> _fetchReport() async {
     try {
       final response = await http.get(
-        Uri.parse('https://backend-fastapi-linv.onrender.com/api/v1/triage/patient/${widget.patientId}'),
+        Uri.parse('${ApiClient.baseUrl}/triage/patient/${widget.patientId}'),
       );
       if (response.statusCode == 200) {
         setState(() {

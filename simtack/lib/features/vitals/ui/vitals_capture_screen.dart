@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../core/ppg_processor.dart';
+import '../core/web_ppg_capture.dart';
 import '../../review/ui/review_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 
@@ -30,6 +31,7 @@ class VitalsCaptureScreen extends StatefulWidget {
 
 class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
   CameraController? _cameraController;
+  WebPpgCapture? _webCapture;
   PPGProcessor? _ppgProcessor;
   bool _isMeasuring = false;
   bool _hasPermission = false;
@@ -41,15 +43,21 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
   void initState() {
     super.initState();
     _ppgProcessor = PPGProcessor();
-    // The web branch of _startMeasurement never touches the camera at all,
-    // so requesting camera permission on web is pointless and can surface
-    // a confusing browser permission prompt for no reason.
-    if (!kIsWeb) {
-      _requestCameraPermission();
-    }
+    // Web now uses the real camera path too (via camera_web), so we
+    // request permission here regardless of platform — the browser's
+    // own getUserMedia prompt handles the web case.
+    _requestCameraPermission();
   }
 
   Future<void> _requestCameraPermission() async {
+    if (kIsWeb) {
+      // permission_handler doesn't back web; the browser's getUserMedia
+      // prompt (triggered by CameraController.initialize()) is the real
+      // permission gate on web, so just assume granted here and let
+      // _startMeasurement's try/catch surface any denial.
+      if (mounted) setState(() => _hasPermission = true);
+      return;
+    }
     var status = await Permission.camera.request();
     if (mounted) {
       setState(() {
@@ -59,25 +67,59 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
   }
 
   Future<void> _startMeasurement() async {
-    // 1. SAFE FALLBACK FOR WEB: Prevents Chrome camera crash
     if (kIsWeb) {
-      setState(() {
-        _isMeasuring = true;
-        _statusMessage = 'Simulating PPG measurement for Web...';
-      });
-      await Future.delayed(const Duration(seconds: 3));
-      if (mounted) {
-        setState(() {
-          _currentBPM = 75.0;
-          _currentSpO2 = 98.0;
-          _isMeasuring = false;
-          _statusMessage = 'Measurement complete (Simulated)!';
-        });
-      }
+      await _startWebMeasurement();
       return;
     }
+    await _startMobileMeasurement();
+  }
 
-    // 2. REAL MOBILE LOGIC (Uses real camera math)
+  /// Web: CameraController.startImageStream() throws on web (the `camera`
+  /// package asserts Android/iOS only), so we bypass it entirely and drive
+  /// getUserMedia + canvas frame sampling directly via WebPpgCapture.
+  Future<void> _startWebMeasurement() async {
+    try {
+      _webCapture = WebPpgCapture();
+      await _webCapture!.start(
+        onSample: (double brightness) {
+          if (!mounted) return;
+          _ppgProcessor?.processSample(brightness);
+          if (_ppgProcessor != null && _ppgProcessor!.isReady) {
+            setState(() {
+              _currentBPM = _ppgProcessor!.currentBPM;
+              _currentSpO2 = _ppgProcessor!.currentSpO2;
+              _isMeasuring = true;
+              _statusMessage = 'Measuring... Keep finger steady';
+            });
+          }
+        },
+      );
+
+      if (mounted) {
+        setState(() {
+          _isMeasuring = true;
+          _statusMessage = 'Measuring... Keep finger steady over the camera';
+        });
+      }
+
+      // Auto-stop after 15 seconds.
+      Future.delayed(const Duration(seconds: 15), () {
+        if (mounted && _isMeasuring) _stopMeasurement();
+      });
+    } catch (e) {
+      await _webCapture?.stop();
+      _webCapture = null;
+      if (mounted) {
+        setState(() {
+          _isMeasuring = false;
+          _statusMessage =
+              'Camera error: $e. Check that camera access is allowed for this site.';
+        });
+      }
+    }
+  }
+
+  Future<void> _startMobileMeasurement() async {
     if (!_hasPermission) {
       // Previously this just silently returned, leaving the patient tapping
       // a button that appeared to do nothing. Now we re-request and explain
@@ -111,8 +153,18 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
 
       await _cameraController!.initialize();
 
-      // Turn on the flashlight for better light penetration
-      await _cameraController!.setFlashMode(FlashMode.torch);
+      try {
+        await _cameraController!.setFlashMode(FlashMode.torch);
+      } catch (_) {
+        // Some devices don't support torch — non-fatal, measurement can
+        // proceed without it.
+      }
+
+      if (mounted) {
+        setState(() {
+          _statusMessage = 'Measuring... Keep finger steady';
+        });
+      }
 
       _cameraController!.startImageStream((CameraImage image) {
         // Guard against frames arriving after the widget has been disposed
@@ -159,9 +211,14 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
   }
 
   void _stopMeasurement() {
-    _cameraController?.setFlashMode(FlashMode.off);
-    _cameraController?.dispose();
-    _cameraController = null;
+    if (kIsWeb) {
+      _webCapture?.stop();
+      _webCapture = null;
+    } else {
+      _cameraController?.setFlashMode(FlashMode.off);
+      _cameraController?.dispose();
+      _cameraController = null;
+    }
 
     if (mounted) {
       setState(() {
@@ -174,6 +231,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
   @override
   void dispose() {
     _cameraController?.dispose();
+    _webCapture?.stop();
     _ppgProcessor?.reset();
     super.dispose();
   }
@@ -204,7 +262,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildVitalCircle('SpO2', _currentSpO2 > 0 ? '${_currentSpO2.toInt()}%' : '--', Colors.green, Icons.air),
+                _buildVitalCircle('Signal Quality', _currentSpO2 > 0 ? _signalQualityLabel(_currentSpO2) : '--', Colors.teal, Icons.graphic_eq),
                 _buildVitalCircle('BPM', _currentBPM > 0 ? '${_currentBPM.toInt()}' : '--', const Color(0xFF6D28D9), Icons.favorite),
               ],
             ),
@@ -220,21 +278,37 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: const Color(0xFFE2E8F0)),
                 ),
-                child: _cameraController != null && _cameraController!.value.isInitialized
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: CameraPreview(_cameraController!),
-                      )
-                    : const Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.fingerprint, size: 64, color: Color(0xFF6D28D9)),
-                            SizedBox(height: 16),
-                            Text('Camera Ready', style: TextStyle(color: Color(0xFF64748B))),
-                          ],
-                        ),
-                      ),
+                child: kIsWeb
+                    ? (_webCapture != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: HtmlElementView(viewType: _webCapture!.viewType),
+                          )
+                        : const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.fingerprint, size: 64, color: Color(0xFF6D28D9)),
+                                SizedBox(height: 16),
+                                Text('Camera Ready', style: TextStyle(color: Color(0xFF64748B))),
+                              ],
+                            ),
+                          ))
+                    : (_cameraController != null && _cameraController!.value.isInitialized
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: CameraPreview(_cameraController!),
+                          )
+                        : const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.fingerprint, size: 64, color: Color(0xFF6D28D9)),
+                                SizedBox(height: 16),
+                                Text('Camera Ready', style: TextStyle(color: Color(0xFF64748B))),
+                              ],
+                            ),
+                          )),
               ),
             ),
 
@@ -281,6 +355,17 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
     );
   }
 
+  // _currentSpO2 is a perfusion-quality proxy derived from PPG signal
+  // strength, not a true pulse-oximetry SpO2 reading (a single RGB camera
+  // can't measure blood oxygen without a second/infrared wavelength).
+  // Shown as a qualitative signal-quality label so it's never mistaken for
+  // a clinical SpO2 percentage.
+  String _signalQualityLabel(double proxyValue) {
+    if (proxyValue >= 97) return 'Excellent';
+    if (proxyValue >= 94) return 'Good';
+    return 'Weak';
+  }
+
   Widget _buildVitalCircle(String label, String value, Color color, IconData icon) {
     return Column(
       children: [
@@ -296,8 +381,12 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
             children: [
               Icon(icon, color: color, size: 28),
               const SizedBox(height: 8),
-              Text(value, style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: color)),
-              Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+              Text(
+                value,
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color),
+                textAlign: TextAlign.center,
+              ),
+              Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
             ],
           ),
         ),
