@@ -10,8 +10,8 @@ on:
 defaults:
   run:
     # Every step below runs with this as the working directory, since the
-    # Flutter project lives in atomybridge_app/, not the repo root.
-    working-directory: atomybridge_app
+    # Flutter project lives in simtack/, not the repo root.
+    working-directory: simtack
 
 # Needed for the deploy-web job to publish to GitHub Pages.
 permissions:
@@ -52,7 +52,7 @@ jobs:
         with:
           name: atomybridge-apk
           # Flutter always writes the release APK here, regardless of app name.
-          path: atomybridge_app/build/app/outputs/flutter-apk/app-release.apk
+          path: simtack/build/app/outputs/flutter-apk/app-release.apk
           if-no-files-found: error
 
   build-web:
@@ -80,14 +80,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: atomybridge-web
-          path: atomybridge_app/build/web
+          path: simtack/build/web
           if-no-files-found: error
 
       - name: Upload web build for Pages
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: actions/upload-pages-artifact@v3
         with:
-          path: atomybridge_app/build/web
+          path: simtack/build/web
 
   deploy-web:
     name: Deploy Web to GitHub Pages
