@@ -1,20 +1,14 @@
+import '../../features/body_map/ui/pain_point.dart';
+
 class TriageDraft {
-  final String region;
-  final String painType;
-  final int severity;
-  final String direction;
-  final String depth;
+  final List<PainPoint> painPoints;
   final double heartRate;
   final double spo2;
   final int patientId;
   final DateTime savedAt;
 
   const TriageDraft({
-    required this.region,
-    required this.painType,
-    required this.severity,
-    required this.direction,
-    required this.depth,
+    required this.painPoints,
     required this.heartRate,
     required this.spo2,
     required this.patientId,
@@ -22,11 +16,7 @@ class TriageDraft {
   });
 
   Map<String, dynamic> toJson() => {
-        'region': region,
-        'painType': painType,
-        'severity': severity,
-        'direction': direction,
-        'depth': depth,
+        'painPoints': painPoints.map((p) => p.toJson()).toList(),
         'heartRate': heartRate,
         'spo2': spo2,
         'patientId': patientId,
@@ -34,11 +24,9 @@ class TriageDraft {
       };
 
   factory TriageDraft.fromJson(Map<String, dynamic> json) => TriageDraft(
-        region: json['region'] as String,
-        painType: json['painType'] as String,
-        severity: json['severity'] as int,
-        direction: json['direction'] as String,
-        depth: json['depth'] as String,
+        painPoints: (json['painPoints'] as List)
+            .map((p) => PainPoint.fromJson(p as Map<String, dynamic>))
+            .toList(),
         heartRate: (json['heartRate'] as num).toDouble(),
         spo2: (json['spo2'] as num).toDouble(),
         patientId: json['patientId'] as int,

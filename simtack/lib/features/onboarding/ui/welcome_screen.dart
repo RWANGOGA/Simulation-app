@@ -36,15 +36,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   void _resumeDraft() {
     final draft = _draft;
-    if (draft == null) return;
+    if (draft == null || draft.painPoints.isEmpty) return;
     Navigator.of(context).push(
       AppPageRoute(
         builder: (_) => ReviewScreen(
-          region: draft.region,
-          painType: draft.painType,
-          severity: draft.severity,
-          direction: draft.direction,
-          depth: draft.depth,
+          painPoints: draft.painPoints,
           heartRate: draft.heartRate,
           spo2: draft.spo2,
           patientId: draft.patientId,
@@ -55,7 +51,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   Widget _buildResumeDraftBanner() {
     final draft = _draft;
-    if (draft == null) return const SizedBox.shrink();
+    if (draft == null || draft.painPoints.isEmpty) return const SizedBox.shrink();
+
+    final first = draft.painPoints.first;
+    final extraCount = draft.painPoints.length - 1;
+    final subtitle = extraCount > 0
+        ? '${first.region} · ${first.painType} (+$extraCount more)'
+        : '${first.region} · ${first.painType}';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -78,7 +80,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
                 ),
                 Text(
-                  '${draft.region} · ${draft.painType}',
+                  subtitle,
                   style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                 ),
               ],

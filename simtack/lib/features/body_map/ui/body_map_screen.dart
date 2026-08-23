@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'pain_details_screen.dart';
+import 'pain_point.dart';
 import '../../../core/theme/app_page_route.dart';
 
 class BodyMapScreen extends StatefulWidget {
@@ -40,15 +41,14 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   // and talk to it via JS, instead of relying only on Flutter's prop diffing.
   static const String _modelViewerId = 'body-map-model-viewer';
 
-  String _selectedRegion = 'Abdomen (Lower Right)';
+  // Every pain location the patient has tapped so far. Tapping the same
+  // spot again (within PainPoint.sameSpotThreshold) removes it — this is
+  // the multi-select toggle behavior.
+  final List<PainPoint> _painPoints = [];
+
   String _viewAngle = 'front';
   double _zoomLevel = 1.0;
   late AnimationController _pulseController;
-
-  // Marker position as a fraction of the canvas (0..1). Null = use the
-  // default centered marker. Set when a tap on the model gives us real
-  // coordinates.
-  Offset? _markerFraction;
 
   @override
   void initState() {
@@ -107,26 +107,41 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
 
     if (!kReleaseMode) {
       // Temporary breadcrumb: confirms the Dart side actually received the
-      // tap. Safe to remove once you've verified the badge updates.
+      // tap. Safe to remove once you've verified markers update correctly.
       debugPrint('BodyMap: received tap -> part=$part x=$x y=$y');
     }
 
+    _addOrRemovePainPoint(region: part, x: x, y: y);
+  }
+
+  /// Multi-select toggle: tapping a fresh spot adds a new pain point.
+  /// Tapping close to an existing point removes it instead — this is how
+  /// a patient "unmarks" a location without a separate delete step.
+  void _addOrRemovePainPoint({required String region, double? x, double? y}) {
+    final tapX = x ?? 0.5;
+    final tapY = y ?? 0.5;
+
+    final existingIndex = _painPoints.indexWhere((p) => p.isNearby(tapX, tapY));
+
     HapticFeedback.mediumImpact();
     setState(() {
-      _selectedRegion = part!;
-      if (x != null && y != null) {
-        _markerFraction = Offset(x, y);
+      if (existingIndex != -1) {
+        _painPoints.removeAt(existingIndex);
+      } else {
+        _painPoints.add(PainPoint(region: region, x: tapX, y: tapY));
       }
     });
+  }
+
+  void _removePainPointAt(int index) {
+    HapticFeedback.lightImpact();
+    setState(() => _painPoints.removeAt(index));
   }
 
   void _changeView(String angle) {
     HapticFeedback.selectionClick();
     setState(() {
       _viewAngle = angle;
-      // A button-driven view change is a hard reset of where we're looking,
-      // so drop any tap-based marker position back to center.
-      _markerFraction = null;
     });
     _applyCameraOrbitNow(_getCameraOrbit(angle));
   }
@@ -172,11 +187,13 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
     }
   }
 
-  void _selectPresetRegion(String region) {
+  /// Manually add a region from the picker list (no tap coordinates yet,
+  /// so it drops in at the center of the canvas). Used as a fallback for
+  /// regions that are awkward to tap precisely, or for accessibility.
+  void _addRegionManually(String region) {
     HapticFeedback.lightImpact();
     setState(() {
-      _selectedRegion = region;
-      _markerFraction = null;
+      _painPoints.add(PainPoint(region: region, x: 0.5, y: 0.5));
     });
   }
 
@@ -257,7 +274,6 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                 setState(() {
                                   _viewAngle = 'front';
                                   _zoomLevel = 1.0;
-                                  _markerFraction = null;
                                 });
                                 _applyCameraOrbitNow(_getCameraOrbit('front'));
                               },
@@ -297,49 +313,54 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                       ),
                     ),
 
-                    // Pain Hotspot Pulse Overlay
-                    // Uses _markerFraction (set by a tap on the model) when
-                    // available, otherwise falls back to dead-center.
-                    Positioned(
-                      left: (_markerFraction?.dx ?? 0.5) * constraints.maxWidth - 22,
-                      top: (_markerFraction?.dy ?? 0.5) * constraints.maxHeight - 22,
-                      child: IgnorePointer(
-                        child: AnimatedBuilder(
-                          animation: _pulseController,
-                          builder: (context, child) {
-                            return Container(
-                              width: 32 + (12 * _pulseController.value),
-                              height: 32 + (12 * _pulseController.value),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: const Color(0xFFEF4444).withOpacity(0.35 * (1 - _pulseController.value)),
-                                border: Border.all(
-                                  color: const Color(0xFFEF4444),
-                                  width: 2,
-                                ),
-                              ),
-                              child: Center(
-                                child: Container(
-                                  width: 14,
-                                  height: 14,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Color(0xFFDC2626),
+                    // Pain Hotspot Pulses — one per marked location, all
+                    // shown at once. Previously there was only ever one
+                    // marker (overwritten on every tap); now each tap adds
+                    // to the list and every pulse in _painPoints renders.
+                    for (final point in _painPoints)
+                      Positioned(
+                        left: point.x * constraints.maxWidth - 22,
+                        top: point.y * constraints.maxHeight - 22,
+                        child: IgnorePointer(
+                          child: AnimatedBuilder(
+                            animation: _pulseController,
+                            builder: (context, child) {
+                              return Container(
+                                width: 32 + (12 * _pulseController.value),
+                                height: 32 + (12 * _pulseController.value),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: const Color(0xFFEF4444).withOpacity(0.35 * (1 - _pulseController.value)),
+                                  border: Border.all(
+                                    color: const Color(0xFFEF4444),
+                                    width: 2,
                                   ),
                                 ),
-                              ),
-                            );
-                          },
+                                child: Center(
+                                  child: Container(
+                                    width: 14,
+                                    height: 14,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Color(0xFFDC2626),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
 
-                    // Selected Region Badge Header (Top Right Overlay)
+                    // Selected Locations Badge (Top Right Overlay)
+                    // Now shows a count instead of a single region name,
+                    // and opens the manage-list sheet instead of a picker
+                    // that would overwrite the current selection.
                     Positioned(
                       top: 16,
                       right: 16,
                       child: GestureDetector(
-                        onTap: _showRegionPickerModal,
+                        onTap: _showSelectedLocationsSheet,
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
@@ -360,7 +381,9 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                               const Icon(Icons.location_on, color: Colors.white, size: 18),
                               const SizedBox(width: 6),
                               Text(
-                                _selectedRegion,
+                                _painPoints.isEmpty
+                                    ? 'Tap a body part'
+                                    : '${_painPoints.length} location${_painPoints.length == 1 ? '' : 's'} selected',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -404,7 +427,9 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
             ),
           ),
 
-          // Navigation CTA Button
+          // Navigation CTA Button — disabled until at least one location
+          // is marked, since there's nothing to carry into Pain Details
+          // otherwise.
           Container(
             padding: const EdgeInsets.all(20),
             color: Colors.white,
@@ -413,31 +438,36 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                 width: double.infinity,
                 height: 54,
                 child: ElevatedButton(
-                  onPressed: () {
-                    HapticFeedback.selectionClick();
-                    _navigateToPainDetails();
-                  },
+                  onPressed: _painPoints.isEmpty
+                      ? null
+                      : () {
+                          HapticFeedback.selectionClick();
+                          _navigateToPainDetails();
+                        },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF6D28D9),
+                    disabledBackgroundColor: const Color(0xFFCBD5E1),
                     elevation: 3,
                     shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        'Continue to Pain Details',
-                        style: TextStyle(
+                        _painPoints.isEmpty
+                            ? 'Tap the body to mark pain'
+                            : 'Continue to Pain Details (${_painPoints.length})',
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
+                      const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
                     ],
                   ),
                 ),
@@ -508,6 +538,96 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
     );
   }
 
+  /// Shows every currently-marked location with a remove button, plus an
+  /// "Add another location" entry point into the same preset-region list
+  /// the old single-select picker used (now additive instead of
+  /// overwriting the selection).
+  void _showSelectedLocationsSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (sheetContext, sheetSetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text(
+                        'Pain Locations',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (_painPoints.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                        child: Text(
+                          'No locations marked yet. Tap anywhere on the body to add one.',
+                          style: TextStyle(color: Color(0xFF64748B)),
+                        ),
+                      ),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.4),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: _painPoints.length,
+                        itemBuilder: (context, index) {
+                          final point = _painPoints[index];
+                          return ListTile(
+                            dense: true,
+                            leading: const Icon(Icons.location_on, color: Color(0xFF6D28D9)),
+                            title: Text(point.region),
+                            trailing: IconButton(
+                              icon: const Icon(Icons.close, color: Color(0xFFEF4444)),
+                              tooltip: 'Remove',
+                              onPressed: () {
+                                _removePainPointAt(index);
+                                sheetSetState(() {});
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    const Divider(height: 24),
+                    ListTile(
+                      leading: const Icon(Icons.add_circle_outline, color: Color(0xFF6D28D9)),
+                      title: const Text(
+                        'Add another location',
+                        style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF6D28D9)),
+                      ),
+                      onTap: () {
+                        Navigator.of(sheetContext).pop();
+                        _showRegionPickerModal();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   void _showRegionPickerModal() {
     final regions = [
       'Abdomen (Lower Right)',
@@ -554,25 +674,24 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                   itemCount: regions.length,
                   itemBuilder: (context, index) {
                     final item = regions[index];
-                    final isSelected = item == _selectedRegion;
+                    final alreadyAdded = _painPoints.any((p) => p.region == item);
                     return ListTile(
                       dense: true,
                       leading: Icon(
-                        Icons.location_on_outlined,
-                        color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFF94A3B8),
+                        alreadyAdded ? Icons.check_circle : Icons.location_on_outlined,
+                        color: alreadyAdded ? const Color(0xFF6D28D9) : const Color(0xFF94A3B8),
                       ),
                       title: Text(
                         item,
                         style: TextStyle(
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                          color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFF334155),
+                          fontWeight: alreadyAdded ? FontWeight.bold : FontWeight.normal,
+                          color: alreadyAdded ? const Color(0xFF6D28D9) : const Color(0xFF334155),
                         ),
                       ),
-                      trailing: isSelected
-                          ? const Icon(Icons.check_circle, color: Color(0xFF6D28D9))
-                          : null,
                       onTap: () {
-                        _selectPresetRegion(item);
+                        if (!alreadyAdded) {
+                          _addRegionManually(item);
+                        }
                         Navigator.of(context).pop();
                       },
                     );
@@ -604,7 +723,9 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
           children: [
             Text('• 3D Body (OpenHuman model): Rotate & inspect in 360°.'),
             SizedBox(height: 8),
-            Text('• Tap on body parts to place or adjust pain hotspot.'),
+            Text('• Tap on body parts to mark pain locations — tap as many as you need.'),
+            SizedBox(height: 8),
+            Text('• Tap the same spot again to remove that marker.'),
             SizedBox(height: 8),
             Text('• Use camera tools on the left overlay to zoom in/out or reset.'),
             SizedBox(height: 8),
@@ -625,11 +746,9 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
     Navigator.of(context).push(
       AppPageRoute(
         builder: (_) => PainDetailsScreen(
-          region: _selectedRegion,
+          painPoints: _painPoints,
           patientId: widget.patientId,
           modelAsset: widget.modelAsset,
-          markerX: _markerFraction?.dx,
-          markerY: _markerFraction?.dy,
         ),
       ),
     );

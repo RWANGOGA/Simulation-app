@@ -4,24 +4,21 @@ import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../core/ppg_processor.dart';
 import '../core/web_ppg_capture.dart';
+import '../../body_map/ui/pain_point.dart';
 import '../../review/ui/review_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 
 class VitalsCaptureScreen extends StatefulWidget {
-  final String region;
-  final String painType;
-  final int severity;
-  final String direction;
-  final String depth;
+  // All pain locations the patient marked, each already carrying its own
+  // painType/severity/direction/depth from the Pain Details wizard. Vitals
+  // (heart rate / signal quality) are captured once per visit and apply
+  // to all of them, not per-location.
+  final List<PainPoint> painPoints;
   final int patientId;
 
   const VitalsCaptureScreen({
     super.key,
-    required this.region,
-    required this.painType,
-    required this.severity,
-    required this.direction,
-    required this.depth,
+    required this.painPoints,
     required this.patientId,
   });
 
@@ -399,11 +396,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
     Navigator.of(context).push(
       AppPageRoute(
         builder: (_) => ReviewScreen(
-          region: widget.region,
-          painType: widget.painType,
-          severity: widget.severity,
-          direction: widget.direction,
-          depth: widget.depth,
+          painPoints: widget.painPoints,
           heartRate: _currentBPM,
           spo2: _currentSpO2,
           patientId: widget.patientId,

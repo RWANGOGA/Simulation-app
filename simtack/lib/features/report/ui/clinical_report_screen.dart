@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
 import '../../../core/network/api_client.dart';
 
 class ClinicalReportScreen extends StatefulWidget {
@@ -13,7 +11,7 @@ class ClinicalReportScreen extends StatefulWidget {
 }
 
 class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
-  TriageResult? _report;
+  List<TriageResult> _reports = [];
   bool _isLoading = true;
   String? _error;
 
@@ -25,19 +23,19 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
 
   Future<void> _fetchReport() async {
     try {
-      final response = await http.get(
-        Uri.parse('${ApiClient.baseUrl}/triage/patient/${widget.patientId}'),
-      );
-      if (response.statusCode == 200) {
-        setState(() {
-          _report = TriageResult.fromJson(jsonDecode(response.body));
-          _isLoading = false;
-        });
-      } else {
-        setState(() { _error = 'Report not found'; _isLoading = false; });
-      }
+      // Uses ApiClient.getLatestVisit, which already decodes the backend's
+      // list response correctly (the endpoint now returns every pain point
+      // from the patient's most recent visit, not just one).
+      final results = await ApiClient.getLatestVisit(widget.patientId);
+      setState(() {
+        _reports = results;
+        _isLoading = false;
+      });
     } catch (e) {
-      setState(() { _error = 'Connection error: $e'; _isLoading = false; });
+      setState(() {
+        _error = 'Connection error: $e';
+        _isLoading = false;
+      });
     }
   }
 
@@ -69,8 +67,8 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           SafeArea(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : _error != null
-                    ? Center(child: Text(_error!, style: const TextStyle(color: Colors.red)))
+                : (_error != null || _reports.isEmpty)
+                    ? Center(child: Text(_error ?? 'Report not found', style: const TextStyle(color: Colors.red)))
                     : _buildReport(),
           ),
         ],
@@ -79,7 +77,13 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
   }
 
   Widget _buildReport() {
-    final score = _report!.riskScore ?? 0.0;
+    // Overall banner uses the highest-risk pain point from the visit —
+    // a patient's clinical priority is driven by their worst finding, not
+    // an average across several unrelated regions.
+    final worst = _reports.reduce(
+      (a, b) => (a.riskScore ?? 0.0) >= (b.riskScore ?? 0.0) ? a : b,
+    );
+    final score = worst.riskScore ?? 0.0;
     final isHighRisk = score >= 0.7;
     final riskColor = isHighRisk ? const Color(0xFFDC2626) : const Color(0xFF16A34A);
 
@@ -123,7 +127,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           ),
           const SizedBox(height: 24),
 
-          // Risk Assessment Card
+          // Overall Risk Assessment Card (worst finding across the visit)
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(color: riskColor.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: riskColor)),
@@ -131,27 +135,70 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
               children: [
                 Icon(isHighRisk ? Icons.warning_amber_rounded : Icons.check_circle_outline, color: riskColor, size: 32),
                 const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('AI RISK ASSESSMENT', style: TextStyle(fontSize: 12, color: riskColor, fontWeight: FontWeight.bold)),
-                    Text('${_report!.riskLevel} (${(score * 100).toInt()}%)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: riskColor)),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('AI RISK ASSESSMENT (HIGHEST)', style: TextStyle(fontSize: 12, color: riskColor, fontWeight: FontWeight.bold)),
+                      Text('${worst.riskLevel} (${(score * 100).toInt()}%)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: riskColor)),
+                      if (_reports.length > 1)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            'Driven by: ${worst.bodyRegion}',
+                            style: TextStyle(fontSize: 12, color: riskColor.withOpacity(0.8)),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
           const SizedBox(height: 24),
 
-          // Clinical Details
-          const Text('Clinical Details', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+          Text(
+            _reports.length > 1 ? 'Clinical Details (${_reports.length} pain points)' : 'Clinical Details',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+          ),
           const SizedBox(height: 16),
-          _buildDetailRow('Pain Location', _report!.bodyRegion, Icons.location_on),
-          _buildDetailRow('Pain Type', '${_report!.painType} (${_report!.severity}/10)', Icons.sick),
-          _buildDetailRow('Direction', _report!.direction ?? 'N/A', Icons.arrow_right_alt),
-          _buildDetailRow('Depth', _report!.depth ?? 'N/A', Icons.layers),
-          _buildDetailRow('Heart Rate', '${_report!.heartRate?.toInt() ?? 0} BPM', Icons.favorite),
-          _buildDetailRow('Reported At', _report!.createdAt.toString().substring(0, 16), Icons.access_time),
+
+          // One card per pain point submitted in this visit.
+          ..._reports.asMap().entries.map((entry) {
+            final index = entry.key;
+            final report = entry.value;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (_reports.length > 1) ...[
+                      Text(
+                        'Pain Point ${index + 1}',
+                        style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9)),
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                    _buildDetailRow('Pain Location', report.bodyRegion, Icons.location_on),
+                    _buildDetailRow('Pain Type', '${report.painType} (${report.severity}/10)', Icons.sick),
+                    _buildDetailRow('Direction', report.direction ?? 'N/A', Icons.arrow_right_alt),
+                    _buildDetailRow('Depth', report.depth ?? 'N/A', Icons.layers),
+                    _buildDetailRow('Heart Rate', '${report.heartRate?.toInt() ?? 0} BPM', Icons.favorite),
+                    _buildDetailRow('Risk', '${report.riskLevel} (${((report.riskScore ?? 0.0) * 100).toInt()}%)', Icons.analytics),
+                    _buildDetailRow('Reported At', report.createdAt.toString().substring(0, 16), Icons.access_time),
+                  ],
+                ),
+              ),
+            );
+          }),
         ],
       ),
     );

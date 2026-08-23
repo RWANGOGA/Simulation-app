@@ -2,27 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
+import 'pain_point.dart';
 import '../../vitals/ui/vitals_capture_screen.dart'; // <-- Import for the next screen
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
 
 class PainDetailsScreen extends StatefulWidget {
-  final String region;
+  final List<PainPoint> painPoints;
   final int patientId;
   final String modelAsset;
-  // Exact tap position (0..1 fractions of the model canvas) carried over
-  // from the Body Map screen, so the pain marker shows in the same spot
-  // instead of resetting to center. Null falls back to center.
-  final double? markerX;
-  final double? markerY;
 
   const PainDetailsScreen({
     super.key,
-    required this.region,
+    required this.painPoints,
     required this.patientId,
     required this.modelAsset,
-    this.markerX,
-    this.markerY,
   });
 
   @override
@@ -30,21 +24,24 @@ class PainDetailsScreen extends StatefulWidget {
 }
 
 class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTickerProviderStateMixin {
-  late String _selectedRegion;
-  String _painType = 'Sharp';
-  int _severity = 7;
-  String _swipeDirection = 'Towards Back';
-  String _pinchDepth = 'Deep';
+  // Wizard position: which pain point (from Body Map) we're currently
+  // filling in details for. Each point keeps its own painType/severity/
+  // direction/depth — e.g. "much" pain on the nose, "low" pain on the
+  // knee, captured and stored independently rather than one shared set
+  // of fields applied to every location.
+  int _currentIndex = 0;
   late AnimationController _pulseController;
 
   final List<String> _painTypes = ['Sharp', 'Dull', 'Burning', 'Cramping'];
   final List<String> _directions = ['Towards Back', 'Towards Front', 'Radiating Down', 'Radiating Up'];
   final List<String> _depths = ['Superficial', 'Moderate', 'Deep'];
 
+  PainPoint get _currentPoint => widget.painPoints[_currentIndex];
+  bool get _isLastPoint => _currentIndex == widget.painPoints.length - 1;
+
   @override
   void initState() {
     super.initState();
-    _selectedRegion = widget.region;
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
@@ -57,17 +54,27 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
     super.dispose();
   }
 
-  void _continueToVitals() {
-    HapticFeedback.mediumImpact();
+  void _goToPreviousPoint() {
+    if (_currentIndex == 0) return;
+    HapticFeedback.selectionClick();
+    setState(() => _currentIndex--);
+  }
 
+  void _goToNextPointOrVitals() {
+    HapticFeedback.mediumImpact();
+    if (!_isLastPoint) {
+      setState(() => _currentIndex++);
+      return;
+    }
+
+    // All locations have their details filled in — hand the whole list
+    // forward. Vitals (heart rate / signal quality) are captured once per
+    // visit, not per pain location, so this only happens after the last
+    // point.
     Navigator.of(context).push(
       AppPageRoute(
         builder: (_) => VitalsCaptureScreen(
-          region: _selectedRegion,
-          painType: _painType,
-          severity: _severity,
-          direction: _swipeDirection,
-          depth: _pinchDepth,
+          painPoints: widget.painPoints,
           patientId: widget.patientId,
         ),
       ),
@@ -76,6 +83,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
+    final point = _currentPoint;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
@@ -85,9 +94,11 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
           icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          '3. Pain Details',
-          style: TextStyle(
+        title: Text(
+          widget.painPoints.length > 1
+              ? '3. Pain Details (${_currentIndex + 1} of ${widget.painPoints.length})'
+              : '3. Pain Details',
+          style: const TextStyle(
             color: Color(0xFF1E293B),
             fontWeight: FontWeight.bold,
             fontSize: 18,
@@ -103,13 +114,48 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
       ),
       body: Column(
         children: [
+          // Location progress dots — lets the patient see how many
+          // locations still need details and jump back to a previous one.
+          if (widget.painPoints.length > 1)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: List.generate(widget.painPoints.length, (i) {
+                  final isActive = i == _currentIndex;
+                  final isDone = i < _currentIndex;
+                  return GestureDetector(
+                    onTap: () {
+                      HapticFeedback.selectionClick();
+                      setState(() => _currentIndex = i);
+                    },
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 4),
+                      width: isActive ? 22 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: isActive
+                            ? const Color(0xFF6D28D9)
+                            : (isDone ? const Color(0xFF6D28D9).withOpacity(0.4) : const Color(0xFFE2E8F0)),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ),
+
           Expanded(
             child: SingleChildScrollView(
+              // Keying on the region string resets scroll position when
+              // moving between points, rather than freezing the previous
+              // point's scroll offset.
+              key: ValueKey('pain-point-scroll-$_currentIndex'),
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Selected Region Banner with Edit Button
+                  // Selected Region Banner
                   AppCard(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -133,7 +179,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                 style: TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
                               ),
                               Text(
-                                _selectedRegion,
+                                point.region,
                                 style: const TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.bold,
@@ -141,17 +187,6 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                 ),
                               ),
                             ],
-                          ),
-                        ),
-                        // Wrapped in PointerInterceptor too — it sits directly
-                        // above the model viewer's overall stacking context on
-                        // web and was at risk of the same tap-swallowing issue
-                        // as the dropdowns below.
-                        PointerInterceptor(
-                          child: IconButton(
-                            icon: const Icon(Icons.edit_outlined, color: Color(0xFF6D28D9)),
-                            onPressed: () => Navigator.of(context).pop(),
-                            tooltip: 'Change location',
                           ),
                         ),
                       ],
@@ -197,44 +232,58 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                 ),
                               ),
 
-                              // Pain location marker — same pulsing dot from the
-                              // Body Map screen, carried over to the exact spot
-                              // the user tapped (falls back to center if this
-                              // screen was reached without coordinates).
-                              Positioned(
-                                left: (widget.markerX ?? 0.5) * constraints.maxWidth - 22,
-                                top: (widget.markerY ?? 0.5) * constraints.maxHeight - 22,
-                                child: IgnorePointer(
-                                  child: AnimatedBuilder(
-                                    animation: _pulseController,
-                                    builder: (context, child) {
-                                      return Container(
-                                        width: 32 + (12 * _pulseController.value),
-                                        height: 32 + (12 * _pulseController.value),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: const Color(0xFFEF4444)
-                                              .withOpacity(0.35 * (1 - _pulseController.value)),
-                                          border: Border.all(
-                                            color: const Color(0xFFEF4444),
-                                            width: 2,
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: Container(
-                                            width: 14,
-                                            height: 14,
-                                            decoration: const BoxDecoration(
+                              // Every marked location shows here (dimmed for
+                              // the ones not currently being edited), so the
+                              // patient always has visual context for how
+                              // many locations they're working through.
+                              for (int i = 0; i < widget.painPoints.length; i++)
+                                Positioned(
+                                  left: widget.painPoints[i].x * constraints.maxWidth - 22,
+                                  top: widget.painPoints[i].y * constraints.maxHeight - 22,
+                                  child: IgnorePointer(
+                                    child: i == _currentIndex
+                                        ? AnimatedBuilder(
+                                            animation: _pulseController,
+                                            builder: (context, child) {
+                                              return Container(
+                                                width: 32 + (12 * _pulseController.value),
+                                                height: 32 + (12 * _pulseController.value),
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.circle,
+                                                  color: const Color(0xFFEF4444)
+                                                      .withOpacity(0.35 * (1 - _pulseController.value)),
+                                                  border: Border.all(
+                                                    color: const Color(0xFFEF4444),
+                                                    width: 2,
+                                                  ),
+                                                ),
+                                                child: Center(
+                                                  child: Container(
+                                                    width: 14,
+                                                    height: 14,
+                                                    decoration: const BoxDecoration(
+                                                      shape: BoxShape.circle,
+                                                      color: Color(0xFFDC2626),
+                                                    ),
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          )
+                                        : Container(
+                                            width: 18,
+                                            height: 18,
+                                            decoration: BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: Color(0xFFDC2626),
+                                              color: const Color(0xFFDC2626).withOpacity(0.35),
+                                              border: Border.all(
+                                                color: const Color(0xFFDC2626).withOpacity(0.5),
+                                                width: 1.5,
+                                              ),
                                             ),
                                           ),
-                                        ),
-                                      );
-                                    },
                                   ),
                                 ),
-                              ),
 
                               // Direction Selector (Top Left)
                               // Wrapped in PointerInterceptor: on Flutter Web,
@@ -281,7 +330,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                         ),
                                         const SizedBox(height: 4),
                                         DropdownButton<String>(
-                                          value: _swipeDirection,
+                                          value: point.direction,
                                           isDense: true,
                                           underline: const SizedBox(),
                                           icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6D28D9), size: 18),
@@ -290,7 +339,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                           onChanged: (val) {
                                             if (val != null) {
                                               HapticFeedback.selectionClick();
-                                              setState(() => _swipeDirection = val);
+                                              setState(() => point.direction = val);
                                             }
                                           },
                                           items: _directions.map((d) {
@@ -341,7 +390,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                         ),
                                         const SizedBox(height: 4),
                                         DropdownButton<String>(
-                                          value: _pinchDepth,
+                                          value: point.depth,
                                           isDense: true,
                                           underline: const SizedBox(),
                                           icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6D28D9), size: 18),
@@ -350,7 +399,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                           onChanged: (val) {
                                             if (val != null) {
                                               HapticFeedback.selectionClick();
-                                              setState(() => _pinchDepth = val);
+                                              setState(() => point.depth = val);
                                             }
                                           },
                                           items: _depths.map((dp) {
@@ -370,7 +419,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                   ),
                   const SizedBox(height: 24),
 
-                  // Pain Type Chips
+                  // Pain Type Chips — bound to this point specifically.
                   const Text(
                     'Pain Type',
                     style: TextStyle(
@@ -383,7 +432,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: _painTypes.map((type) {
-                      final isSelected = _painType == type;
+                      final isSelected = point.painType == type;
                       return Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 3),
@@ -404,7 +453,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                             onSelected: (selected) {
                               if (selected) {
                                 HapticFeedback.selectionClick();
-                                setState(() => _painType = type);
+                                setState(() => point.painType = type);
                               }
                             },
                             selectedColor: const Color(0xFF6D28D9),
@@ -423,7 +472,9 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                   ),
                   const SizedBox(height: 28),
 
-                  // Pain Intensity Slider
+                  // Pain Intensity Slider — this is the "much on the nose,
+                  // low on the knee" part: each point has its own severity,
+                  // set here independently per location.
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -449,7 +500,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                           ],
                         ),
                         child: Text(
-                          '$_severity / 10',
+                          '${point.severity} / 10',
                           style: const TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
@@ -477,13 +528,13 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                         trackHeight: 6,
                       ),
                       child: Slider(
-                        value: _severity.toDouble(),
+                        value: point.severity.toDouble(),
                         min: 1,
                         max: 10,
                         divisions: 9,
                         onChanged: (value) {
                           HapticFeedback.selectionClick();
-                          setState(() => _severity = value.round());
+                          setState(() => point.severity = value.round());
                         },
                       ),
                     ),
@@ -494,40 +545,63 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
             ),
           ),
 
-          // Submit Action Button
+          // Bottom navigation: Back / Next (or Next: Measure Vitals on the
+          // final point).
           Container(
             padding: const EdgeInsets.all(20),
             color: Colors.white,
             child: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: _continueToVitals,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6D28D9),
-                    elevation: 3,
-                    shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+              child: Row(
+                children: [
+                  if (_currentIndex > 0) ...[
+                    SizedBox(
+                      height: 54,
+                      child: OutlinedButton(
+                        onPressed: _goToPreviousPoint,
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: Color(0xFF6D28D9)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                        ),
+                        child: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
+                      ),
                     ),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Next: Measure Vitals',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                    const SizedBox(width: 12),
+                  ],
+                  Expanded(
+                    child: SizedBox(
+                      height: 54,
+                      child: ElevatedButton(
+                        onPressed: _goToNextPointOrVitals,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF6D28D9),
+                          elevation: 3,
+                          shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              _isLastPoint ? 'Next: Measure Vitals' : 'Next Location',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                          ],
                         ),
                       ),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, color: Colors.white, size: 20),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
             ),
           ),
@@ -552,13 +626,15 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Text('• If you marked more than one location, you\'ll fill in details for each one in turn.'),
+            SizedBox(height: 8),
             Text('• Use the Direction dropdown to specify where the pain moves (e.g. Towards Back).'),
             SizedBox(height: 8),
             Text('• Use the Depth dropdown to specify how deep the pain feels (Deep, Moderate, Superficial).'),
             SizedBox(height: 8),
             Text('• Tap pain type chips (Sharp, Dull, Burning, Cramping).'),
             SizedBox(height: 8),
-            Text('• Slide to set pain intensity scale from 1 to 10.'),
+            Text('• Slide to set pain intensity scale from 1 to 10 — each location can be different.'),
           ],
         ),
         actions: [

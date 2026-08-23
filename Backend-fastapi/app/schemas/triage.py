@@ -9,6 +9,11 @@ class TriageBase(BaseModel):
     heart_rate: Optional[float] = Field(None, description="BPM from camera PPG")
     direction: Optional[str] = Field(None, description="e.g., Towards Back, Radiating Down")
     depth: Optional[str] = Field(None, description="e.g., Superficial, Moderate, Deep")
+    # Client-generated id shared by every pain point submitted in the same
+    # Review & Submit action, so a multi-region visit can be grouped back
+    # together later (e.g. on the QR / patient-code lookup). Optional for
+    # backward compatibility with older clients that don't send it yet.
+    visit_id: Optional[str] = Field(None, description="Shared id across all pain points from one visit")
 
 class TriageCreate(TriageBase):
     patient_id: Optional[int] = None

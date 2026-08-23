@@ -43,6 +43,10 @@ class TriageReport {
   final String? depth;
   final double? heartRate;
   final int? patientId;
+  // Shared across every pain point submitted in the same Review & Submit
+  // action, so the backend can group them back into one visit (used by
+  // the QR / patient-code lookup).
+  final String? visitId;
 
   const TriageReport({
     required this.bodyRegion,
@@ -52,6 +56,7 @@ class TriageReport {
     this.depth,
     this.heartRate,
     this.patientId,
+    this.visitId,
   });
 
   Map<String, dynamic> toJson() => {
@@ -62,6 +67,7 @@ class TriageReport {
         if (depth != null) 'depth': depth,
         if (heartRate != null) 'heart_rate': heartRate,
         if (patientId != null) 'patient_id': patientId,
+        if (visitId != null) 'visit_id': visitId,
       };
 }
 
@@ -75,6 +81,7 @@ class TriageResult {
   final double? heartRate;
   final String? direction;
   final String? depth;
+  final String? visitId;
   final double? riskScore;
   final String? shapExplanation;
   final String? qrPayloadHash;
@@ -90,6 +97,7 @@ class TriageResult {
     this.heartRate,
     this.direction,
     this.depth,
+    this.visitId,
     this.riskScore,
     this.shapExplanation,
     this.qrPayloadHash,
@@ -114,6 +122,7 @@ class TriageResult {
       heartRate: (json['heart_rate'] as num?)?.toDouble(),
       direction: json['direction'] as String?,
       depth: json['depth'] as String?,
+      visitId: json['visit_id'] as String?,
       riskScore: (json['risk_score'] as num?)?.toDouble(),
       shapExplanation: json['shap_explanation'] as String?,
       qrPayloadHash: json['qr_payload_hash'] as String?,
@@ -151,7 +160,7 @@ class ApiClient {
 
   static Future<TriageResult> sendTriage(TriageReport report) async {
     debugPrint('🚀 Sending to backend ($baseUrl): ${report.toJson()}');
-    
+
     final response = await http.post(
       Uri.parse('$baseUrl/triage/'),
       headers: {'Content-Type': 'application/json'},
@@ -162,6 +171,26 @@ class ApiClient {
       return TriageResult.fromJson(
         jsonDecode(response.body) as Map<String, dynamic>,
       );
+    }
+    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+  }
+
+  /// Returns every TriageResult from the patient's most recent visit
+  /// (grouped server-side by visit_id). Used by the QR-scan / patient-code
+  /// lookup flow. Note: the backend endpoint now returns a JSON array
+  /// instead of a single object — if you have older code calling
+  /// `/triage/patient/{code}` and decoding one object, it needs updating
+  /// to use this method instead.
+  static Future<List<TriageResult>> getLatestVisit(String patientCode) async {
+    final response = await http.get(
+      Uri.parse('$baseUrl/triage/patient/$patientCode'),
+    );
+
+    if (response.statusCode == 200) {
+      final list = jsonDecode(response.body) as List;
+      return list
+          .map((e) => TriageResult.fromJson(e as Map<String, dynamic>))
+          .toList();
     }
     throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
   }

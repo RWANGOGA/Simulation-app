@@ -44,6 +44,7 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
         "id": session.id, "patient_id": session.patient_id, "anonymous_code": anonymous_code,
         "body_region": session.body_region, "pain_type": session.pain_type, "severity": session.severity,
         "heart_rate": session.heart_rate, "direction": session.direction, "depth": session.depth,
+        "visit_id": session.visit_id,
         "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
         "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at
     }
@@ -118,32 +119,37 @@ def list_triage_sessions(
     return result
 
 # ==========================================
-# 5. GET LATEST TRIAGE BY PATIENT CODE (QR Scan / Patient views own report)
+# 5. GET LATEST VISIT BY PATIENT CODE (QR Scan / Patient views own report)
+# Now returns EVERY pain point submitted in the patient's most recent
+# visit (grouped by visit_id), not just the single most recent row.
+# Response shape changed: was a single TriageResponse object, now a JSON
+# array of TriageResponse objects — the Flutter client needs to switch
+# from decoding one object to decoding a list.
 # Safe relative to /{session_id} since it has two path segments
 # ("/patient/...") and can't collide with a single-segment route,
 # but keeping it above /{session_id} anyway for readability.
 # ==========================================
-@router.get("/patient/{patient_code}", response_model=TriageResponse)
+@router.get("/patient/{patient_code}", response_model=List[TriageResponse])
 def get_triage_by_patient_code(patient_code: str, db: Session = Depends(get_db)):
     patient = crud_patient.get_patient_by_code(db, patient_code)
     if not patient:
         raise HTTPException(status_code=404, detail="Patient ID not found")
 
-    stmt = select(TriageSession).where(
-        TriageSession.patient_id == patient.id
-    ).order_by(TriageSession.created_at.desc())
-
-    session = db.execute(stmt).scalar_one_or_none()
-    if not session:
+    sessions = crud_triage.get_latest_visit(db, patient.id)
+    if not sessions:
         raise HTTPException(status_code=404, detail="No clinical report found for this patient")
 
-    return {
-        "id": session.id, "patient_id": session.patient_id, "anonymous_code": patient.anonymous_code,
-        "body_region": session.body_region, "pain_type": session.pain_type, "severity": session.severity,
-        "heart_rate": session.heart_rate, "direction": session.direction, "depth": session.depth,
-        "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
-        "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at
-    }
+    return [
+        {
+            "id": s.id, "patient_id": s.patient_id, "anonymous_code": patient.anonymous_code,
+            "body_region": s.body_region, "pain_type": s.pain_type, "severity": s.severity,
+            "heart_rate": s.heart_rate, "direction": s.direction, "depth": s.depth,
+            "visit_id": s.visit_id,
+            "risk_score": s.risk_score, "shap_explanation": s.shap_explanation,
+            "qr_payload_hash": s.qr_payload_hash, "created_at": s.created_at
+        }
+        for s in sessions
+    ]
 
 # ==========================================
 # 6. GET SINGLE TRIAGE BY SESSION ID
@@ -168,6 +174,7 @@ def get_triage(session_id: int, db: Session = Depends(get_db)):
         "id": session.id, "patient_id": session.patient_id, "anonymous_code": anon_code,
         "body_region": session.body_region, "pain_type": session.pain_type, "severity": session.severity,
         "heart_rate": session.heart_rate, "direction": session.direction, "depth": session.depth,
+        "visit_id": session.visit_id,
         "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
         "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at
     }

@@ -1,29 +1,23 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/storage/draft_storage.dart';
 import '../../../core/storage/triage_draft.dart';
-import '../../success/ui/success_screen.dart'; // Import the new Screen 6
+import '../../success/ui/success_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
+import '../../body_map/ui/pain_point.dart';
 
 class ReviewScreen extends StatefulWidget {
-  final String region;
-  final String painType;
-  final int severity;
-  final String direction;
-  final String depth;
+  final List<PainPoint> painPoints;
   final double heartRate;
   final double spo2;
   final int patientId;
 
   const ReviewScreen({
     super.key,
-    required this.region,
-    required this.painType,
-    required this.severity,
-    required this.direction,
-    required this.depth,
+    required this.painPoints,
     required this.heartRate,
     required this.spo2,
     required this.patientId,
@@ -36,35 +30,58 @@ class ReviewScreen extends StatefulWidget {
 class _ReviewScreenState extends State<ReviewScreen> {
   bool _isSubmitting = false;
   bool _isSavingDraft = false;
-  
+
   final String _timestamp = DateTime.now().toString().substring(0, 16).replaceAll('T', ', ');
+
+  // A patient can mark several pain points in one visit; each becomes its
+  // own TriageReport row on the backend, but they're tagged with this same
+  // visit_id so the QR / patient-code lookup can group them back together.
+  // No `uuid` package dependency needed — timestamp + random suffix is
+  // unique enough for this purpose.
+  String _generateVisitId() {
+    final rand = Random();
+    final suffix = List.generate(6, (_) => rand.nextInt(36).toRadixString(36)).join();
+    return '${DateTime.now().millisecondsSinceEpoch}-$suffix';
+  }
 
   Future<void> _submitToDoctor() async {
     HapticFeedback.heavyImpact();
     setState(() => _isSubmitting = true);
 
     try {
-      final result = await ApiClient.sendTriage(TriageReport(
-        bodyRegion: widget.region,
-        painType: widget.painType.toLowerCase(),
-        severity: widget.severity,
-        direction: widget.direction,
-        depth: widget.depth,
-        heartRate: widget.heartRate,
-        patientId: widget.patientId,
-      ));
+      final visitId = _generateVisitId();
+
+      // One TriageReport per pain point (the backend's TriageSession model
+      // is per-region), all sharing visitId and patientId so they're
+      // recognized as one visit.
+      TriageResult? lastResult;
+      for (final point in widget.painPoints) {
+        lastResult = await ApiClient.sendTriage(TriageReport(
+          bodyRegion: point.region,
+          painType: point.painType,
+          severity: point.severity,
+          direction: point.direction,
+          depth: point.depth,
+          heartRate: widget.heartRate,
+          patientId: widget.patientId,
+          visitId: visitId,
+        ));
+      }
+
+      if (lastResult == null) {
+        throw Exception('No pain points to submit.');
+      }
 
       // A submitted report supersedes any saved draft.
       await DraftStorage.clear();
 
       if (!mounted) return;
 
-      // Navigate to Screen 6 with the REAL backend-generated 12-char ID
       Navigator.of(context).pushReplacement(
         AppPageRoute(
           builder: (_) => SuccessScreen(
-            patientId: result.anonymousCode ?? 'P-UNKNOWN',
-            triageResult: result,
+            patientId: lastResult!.anonymousCode ?? 'P-UNKNOWN',
+            triageResult: lastResult,
           ),
         ),
       );
@@ -84,11 +101,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
     try {
       await DraftStorage.save(TriageDraft(
-        region: widget.region,
-        painType: widget.painType,
-        severity: widget.severity,
-        direction: widget.direction,
-        depth: widget.depth,
+        painPoints: widget.painPoints,
         heartRate: widget.heartRate,
         spo2: widget.spo2,
         patientId: widget.patientId,
@@ -133,7 +146,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
       ),
       body: Column(
         children: [
-          // HEADER: Honestly states that ID is generated on submit
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
@@ -166,32 +178,51 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 children: [
                   const Text('Clinical Summary', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
                   const SizedBox(height: 16),
-                  
-                  AppCard(
-                    width: double.infinity,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildSummaryRow('Location', widget.region, Icons.location_on),
-                        const Divider(height: 24),
-                        _buildSummaryRow('Pain Type', widget.painType, Icons.sick),
-                        const Divider(height: 24),
-                        _buildSummaryRow('Intensity', '${widget.severity} / 10', Icons.straighten),
-                        const Divider(height: 24),
-                        _buildSummaryRow('Direction', widget.direction, Icons.arrow_right_alt),
-                        const Divider(height: 24),
-                        _buildSummaryRow('Depth', widget.depth, Icons.layers),
-                        const Divider(height: 24),
-                        Row(
+
+                  ...widget.painPoints.asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final point = entry.value;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      child: AppCard(
+                        width: double.infinity,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(child: _buildVitalMiniCard('Heart Rate', '${widget.heartRate.toInt()} BPM', Icons.favorite, const Color(0xFF6D28D9))),
-                            const SizedBox(width: 12),
-                            Expanded(child: _buildVitalMiniCard('SpO2', '${widget.spo2.toInt()}%', Icons.air, Colors.green)),
+                            Text(
+                              'Pain Point ${index + 1}',
+                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9)),
+                            ),
+                            const SizedBox(height: 12),
+                            _buildSummaryRow('Location', point.region, Icons.location_on),
+                            const Divider(height: 24),
+                            _buildSummaryRow('Pain Type', point.painType, Icons.sick),
+                            const Divider(height: 24),
+                            _buildSummaryRow('Intensity', '${point.severity} / 10', Icons.straighten),
+                            const Divider(height: 24),
+                            _buildSummaryRow('Direction', point.direction, Icons.arrow_right_alt),
+                            const Divider(height: 24),
+                            _buildSummaryRow('Depth', point.depth, Icons.layers),
                           ],
                         ),
+                      ),
+                    );
+                  }),
+
+                  const SizedBox(height: 8),
+                  const Text('Vitals', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                  const SizedBox(height: 16),
+                  AppCard(
+                    width: double.infinity,
+                    child: Row(
+                      children: [
+                        Expanded(child: _buildVitalMiniCard('Heart Rate', '${widget.heartRate.toInt()} BPM', Icons.favorite, const Color(0xFF6D28D9))),
+                        const SizedBox(width: 12),
+                        Expanded(child: _buildVitalMiniCard('SpO2', '${widget.spo2.toInt()}%', Icons.air, Colors.green)),
                       ],
                     ),
                   ),
+
                   const SizedBox(height: 24),
                   const Text(
                     'By submitting, you consent to sharing this clinical data with the attending physician for triage purposes.',
@@ -201,7 +232,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
               ),
             ),
           ),
-          
+
           Container(
             padding: const EdgeInsets.all(20),
             color: Colors.white,
@@ -216,7 +247,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         side: const BorderSide(color: Color(0xFFCBD5E1)),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
-                      child: _isSavingDraft 
+                      child: _isSavingDraft
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Text('Save Draft', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
                     ),
