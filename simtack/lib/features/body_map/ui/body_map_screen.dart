@@ -1,12 +1,10 @@
-// ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
-import 'dart:js_util' as js_util;
 import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'pain_details_screen.dart';
 import 'pain_point.dart';
+import 'web_interop.dart';
 import '../../../core/theme/app_page_route.dart';
 
 class BodyMapScreen extends StatefulWidget {
@@ -58,59 +56,20 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
       duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
 
-    if (kIsWeb) {
-      html.window.addEventListener('atomybridge-bodypart', _onBodyPartEvent);
-    }
+    WebInterop.registerBodyPartListener(_handleBodyPartReceived);
   }
 
   @override
   void dispose() {
     _pulseController.dispose();
-    if (kIsWeb) {
-      html.window.removeEventListener('atomybridge-bodypart', _onBodyPartEvent);
-    }
+    WebInterop.unregisterBodyPartListener(_handleBodyPartReceived);
     super.dispose();
   }
 
-  // The bridge may send a plain region-name String, or a JS object shaped
-  // like { part, x, y } where x/y are 0..1 fractions of the model canvas.
-  //
-  // IMPORTANT: we read `detail` straight off the raw JS event via js_util
-  // instead of casting to html.CustomEvent first. That cast is only safe
-  // for primitive-shaped details; for an object detail like { part, x, y }
-  // it can throw, and since this runs inside an event-listener callback
-  // the exception gets swallowed silently — setState never runs and the
-  // badge just sits on its initial value forever. js_util sidesteps that.
-  void _onBodyPartEvent(html.Event event) {
-    final dynamic rawDetail = js_util.getProperty(event, 'detail');
-    if (rawDetail == null) return;
-
-    String? part;
-    double? x;
-    double? y;
-
-    if (rawDetail is String) {
-      part = rawDetail;
-    } else {
-      final dynamic converted = js_util.dartify(rawDetail);
-      if (converted is Map) {
-        final p = converted['part'];
-        final rx = converted['x'];
-        final ry = converted['y'];
-        if (p is String) part = p;
-        if (rx is num) x = rx.toDouble();
-        if (ry is num) y = ry.toDouble();
-      }
-    }
-
-    if (part == null || part.isEmpty) return;
-
+  void _handleBodyPartReceived(String part, double? x, double? y) {
     if (!kReleaseMode) {
-      // Temporary breadcrumb: confirms the Dart side actually received the
-      // tap. Safe to remove once you've verified markers update correctly.
       debugPrint('BodyMap: received tap -> part=$part x=$x y=$y');
     }
-
     _addOrRemovePainPoint(region: part, x: x, y: y);
   }
 
@@ -175,16 +134,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   // calls jumpCameraToGoal() so the camera snaps immediately instead of
   // animating in behind the button press.
   void _applyCameraOrbitNow(String orbit) {
-    if (!kIsWeb) return;
-    final el = html.document.getElementById(_modelViewerId);
-    if (el == null) return;
-    el.setAttribute('camera-orbit', orbit);
-    try {
-      js_util.callMethod(el, 'jumpCameraToGoal', []);
-    } catch (_) {
-      // Older model-viewer builds may not expose this — the attribute
-      // change above still applies, just with the default animation.
-    }
+    WebInterop.applyCameraOrbit(_modelViewerId, orbit);
   }
 
   /// Manually add a region from the picker list (no tap coordinates yet,

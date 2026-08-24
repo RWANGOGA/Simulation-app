@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:async';
 import 'dart:html' as html;
 import 'dart:ui_web' as ui_web;
@@ -47,7 +48,7 @@ class WebPpgCapture {
     // Small offscreen canvas — we only need average brightness, not full
     // resolution, so downscaling here keeps per-frame sampling cheap.
     _canvas = html.CanvasElement(width: 64, height: 64);
-    _ctx = _canvas!.context2D as html.CanvasRenderingContext2D;
+    _ctx = _canvas!.context2D;
 
     // ~30fps sampling.
     _timer = Timer.periodic(const Duration(milliseconds: 33), (_) {
