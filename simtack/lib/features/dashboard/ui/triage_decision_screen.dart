@@ -36,13 +36,13 @@ class _TriageDecisionScreenState extends State<TriageDecisionScreen> {
     try {
       final updated = await ApiClient.updateTriageDecision(
         widget.session['id'] as int,
-        notes: _notesController.text,
+        clinicalNotes: _notesController.text,
         status: _status,
       );
       // `widget.session` is the same Map instance held by the Dashboard's
       // session list, so this mutation is visible there the moment we pop
       // back — no separate reload needed.
-      widget.session['notes'] = updated.notes;
+      widget.session['notes'] = updated.clinicalNotes;
       widget.session['status'] = updated.status;
 
       if (!mounted) return;

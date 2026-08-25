@@ -21,22 +21,6 @@ def get_triage(db: Session, session_id: int) -> Optional[TriageSession]:
     return db.get(TriageSession, session_id)
 
 
-def update_decision(db: Session, session_id: int, notes: Optional[str], status: Optional[str]) -> Optional[TriageSession]:
-    """Applies a practitioner's review (notes / Open-Closed status) from the
-    dashboard's Triage Decision panel. Only touches the fields actually
-    passed in, so saving a note alone doesn't clobber an existing status."""
-    session = db.get(TriageSession, session_id)
-    if session is None:
-        return None
-    if notes is not None:
-        session.notes = notes
-    if status is not None:
-        session.status = status
-    db.commit()
-    db.refresh(session)
-    return session
-
-
 def get_regions_in_visit(db: Session, visit_id: str) -> List[str]:
     """Every body_region already submitted under this visit_id, so a new
     pain point being scored can be checked against what's already been

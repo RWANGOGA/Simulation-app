@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
+import 'package:webview_flutter/webview_flutter.dart' show JavaScriptMessage;
 import 'pain_details_screen.dart';
 import 'pain_point.dart';
 import 'web_interop.dart';
@@ -39,6 +42,88 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   // and talk to it via JS, instead of relying only on Flutter's prop diffing.
   static const String _modelViewerId = 'body-map-model-viewer';
 
+  // Mobile-only tap bridge. On web, web/index.html raycasts taps and fires
+  // an 'atomybridge-bodypart' window event that WebInterop listens for.
+  // The mobile WebView built by model_viewer_plus never sees index.html,
+  // so we inject the same raycast logic via `relatedJs` and post the
+  // result back through the AtomyBridgeBodyPart JavaScript channel.
+  static const String _mobileBodyTapJs = r'''
+(function () {
+  function attachBodyTapListener(viewer) {
+    if (viewer.dataset.atomybridgeListenerAttached === 'true') return;
+    viewer.dataset.atomybridgeListenerAttached = 'true';
+
+    viewer.addEventListener('click', function (event) {
+      var rect = viewer.getBoundingClientRect();
+      var pixelX = event.clientX - rect.left;
+      var pixelY = event.clientY - rect.top;
+
+      var hit = viewer.positionAndNormalFromPoint(pixelX, pixelY);
+      if (!hit) return;
+
+      var dims = viewer.getDimensions();
+      var center = viewer.getBoundingBoxCenter();
+      var minX = center.x - dims.x / 2;
+      var minY = center.y - dims.y / 2;
+
+      var rx = (hit.position.x - minX) / dims.x;
+      var ry = 1 - (hit.position.y - minY) / dims.y;
+
+      var part = 'Unknown';
+      if (ry < 0.20) {
+        part = 'Headache / Cranial';
+      } else if (ry < 0.50) {
+        if (rx < 0.30) {
+          part = 'Right Arm / Shoulder';
+        } else if (rx > 0.70) {
+          part = 'Left Arm / Shoulder';
+        } else if (ry < 0.35) {
+          part = 'Chest / Heart';
+        } else {
+          part = 'Abdomen (Upper)';
+        }
+      } else {
+        if (rx < 0.45) {
+          part = 'Right Leg / Knee';
+        } else {
+          part = 'Left Leg / Knee';
+        }
+      }
+
+      if (window.AtomyBridgeBodyPart && window.AtomyBridgeBodyPart.postMessage) {
+        window.AtomyBridgeBodyPart.postMessage(
+          JSON.stringify({ part: part, x: rx, y: ry })
+        );
+      }
+    });
+  }
+
+  function scanForBodyModelViewers(root) {
+    if (root.tagName === 'MODEL-VIEWER') {
+      attachBodyTapListener(root);
+    }
+    if (root.querySelectorAll) {
+      root.querySelectorAll('model-viewer').forEach(attachBodyTapListener);
+    }
+  }
+
+  customElements.whenDefined('model-viewer').then(function () {
+    scanForBodyModelViewers(document.body);
+
+    var observer = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        mutation.addedNodes.forEach(function (node) {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            scanForBodyModelViewers(node);
+          }
+        });
+      });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+})();
+''';
+
   // Every pain location the patient has tapped so far. Tapping the same
   // spot again (within PainPoint.sameSpotThreshold) removes it — this is
   // the multi-select toggle behavior.
@@ -71,6 +156,21 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
       debugPrint('BodyMap: received tap -> part=$part x=$x y=$y');
     }
     _addOrRemovePainPoint(region: part, x: x, y: y);
+  }
+
+  /// Mobile counterpart of the WebInterop listener: parses the JSON payload
+  /// posted by [_mobileBodyTapJs] through the AtomyBridgeBodyPart channel
+  /// and funnels it into the same handler the web path uses.
+  void _onMobileBodyPartReceived(JavaScriptMessage message) {
+    try {
+      final data = jsonDecode(message.message) as Map<String, dynamic>;
+      final part = (data['part'] as String?) ?? 'Unknown';
+      final x = (data['x'] as num?)?.toDouble();
+      final y = (data['y'] as num?)?.toDouble();
+      _handleBodyPartReceived(part, x, y);
+    } catch (e) {
+      debugPrint('BodyMap: failed to parse mobile tap payload: $e');
+    }
   }
 
   /// Multi-select toggle: tapping a fresh spot adds a new pain point.
@@ -199,6 +299,17 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                         cameraControls: false,
                         cameraOrbit: _getCameraOrbit(),
                         backgroundColor: const Color(0xFFF1F5F9),
+                        // Mobile-only tap bridge; on web the same job is
+                        // done by web/index.html + WebInterop.
+                        relatedJs: kIsWeb ? null : _mobileBodyTapJs,
+                        javascriptChannels: kIsWeb
+                            ? null
+                            : {
+                                JavascriptChannel(
+                                  'AtomyBridgeBodyPart',
+                                  onMessageReceived: _onMobileBodyPartReceived,
+                                ),
+                              },
                       ),
                     ),
 

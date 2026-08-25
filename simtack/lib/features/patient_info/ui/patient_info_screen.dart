@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
 import '../../body_map/ui/body_map_screen.dart';
 import '../../../core/theme/app_page_route.dart';
@@ -15,6 +16,15 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
   final _ageController = TextEditingController();
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
+  // Optional personal details — stored so the practitioner sees them on
+  // the clinical report and whenever the QR passport is scanned.
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _nextOfKinNameController = TextEditingController();
+  final _nextOfKinPhoneController = TextEditingController();
+  final _hospitalController = TextEditingController();
+  DateTime? _dateOfBirth;
   String _gender = 'Female';
   bool _isSubmitting = false;
 
@@ -23,8 +33,56 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
     _ageController.dispose();
     _weightController.dispose();
     _heightController.dispose();
+    _nameController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    _nextOfKinNameController.dispose();
+    _nextOfKinPhoneController.dispose();
+    _hospitalController.dispose();
     super.dispose();
   }
+
+  String _formatDob(DateTime dob) =>
+      '${dob.year.toString().padLeft(4, '0')}-'
+      '${dob.month.toString().padLeft(2, '0')}-'
+      '${dob.day.toString().padLeft(2, '0')}';
+
+  Future<void> _pickDateOfBirth() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _dateOfBirth ?? DateTime(now.year - 30),
+      firstDate: DateTime(1900),
+      lastDate: now,
+      helpText: 'DATE OF BIRTH',
+    );
+    if (picked != null) setState(() => _dateOfBirth = picked);
+  }
+
+  InputDecoration _fieldDecoration({
+    required String label,
+    IconData? icon,
+    String? helper,
+  }) =>
+      InputDecoration(
+        labelText: label,
+        prefixIcon: icon != null ? Icon(icon, color: const Color(0xFF6D28D9)) : null,
+        helperText: helper,
+        filled: true,
+        fillColor: Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF6D28D9), width: 2),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -57,44 +115,134 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                 const SizedBox(height: 4),
                 const Text(
                   'This helps us build your body map',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Color(0xFF64748B),
-                  ),
+                  style: TextStyle(fontSize: 15, color: Color(0xFF64748B)),
                 ),
                 const SizedBox(height: 24),
 
-                _buildGenderSelector(),
-                const SizedBox(height: 20),
+                Expanded(
+                  child: ListView(
+                    children: [
+                      _buildGenderSelector(),
+                      const SizedBox(height: 20),
+                      _buildNumberField(
+                        controller: _ageController,
+                        label: 'Age',
+                        suffix: 'years',
+                        min: 0,
+                        max: 120,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildNumberField(
+                        controller: _weightController,
+                        label: 'Weight',
+                        suffix: 'kg',
+                        min: 20,
+                        max: 300,
+                      ),
+                      const SizedBox(height: 16),
+                      _buildNumberField(
+                        controller: _heightController,
+                        label: 'Height',
+                        suffix: 'cm',
+                        min: 50,
+                        max: 250,
+                      ),
 
-                _buildNumberField(
-                  controller: _ageController,
-                  label: 'Age',
-                  suffix: 'years',
-                  min: 0,
-                  max: 120,
+                      // ----- Optional personal details -----
+                      const SizedBox(height: 28),
+                      const Text(
+                        'CONTACT & IDENTITY (OPTIONAL)',
+                        style: TextStyle(
+                          fontSize: 12,
+                          letterSpacing: 1.5,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF64748B),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Add these so the practitioner can identify and reach you. '
+                        'Skip them to stay fully anonymous.',
+                        style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _nameController,
+                        textInputAction: TextInputAction.next,
+                        decoration: _fieldDecoration(
+                          label: 'Full Name',
+                          icon: Icons.person_outline,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      GestureDetector(
+                        onTap: _pickDateOfBirth,
+                        child: AbsorbPointer(
+                          child: TextFormField(
+                            decoration: _fieldDecoration(
+                              label: 'Date of Birth',
+                              icon: Icons.cake_outlined,
+                            ),
+                            controller: TextEditingController(
+                              text: _dateOfBirth != null ? _formatDob(_dateOfBirth!) : '',
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _phoneController,
+                        keyboardType: TextInputType.phone,
+                        textInputAction: TextInputAction.next,
+                        decoration: _fieldDecoration(
+                          label: 'Contact Phone',
+                          icon: Icons.phone_outlined,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _addressController,
+                        textInputAction: TextInputAction.next,
+                        maxLines: 2,
+                        decoration: _fieldDecoration(
+                          label: 'Address',
+                          icon: Icons.home_outlined,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _nextOfKinNameController,
+                        textInputAction: TextInputAction.next,
+                        decoration: _fieldDecoration(
+                          label: 'Next of Kin Name',
+                          icon: Icons.family_restroom,
+                          helper: 'Useful when reporting for a child or dependent',
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _nextOfKinPhoneController,
+                        keyboardType: TextInputType.phone,
+                        textInputAction: TextInputAction.next,
+                        decoration: _fieldDecoration(
+                          label: 'Next of Kin Phone',
+                          icon: Icons.contact_phone_outlined,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _hospitalController,
+                        textInputAction: TextInputAction.done,
+                        decoration: _fieldDecoration(
+                          label: 'Hospital / Clinic Name',
+                          icon: Icons.local_hospital_outlined,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
+
                 const SizedBox(height: 16),
-
-                _buildNumberField(
-                  controller: _weightController,
-                  label: 'Weight',
-                  suffix: 'kg',
-                  min: 20,
-                  max: 300,
-                ),
-                const SizedBox(height: 16),
-
-                _buildNumberField(
-                  controller: _heightController,
-                  label: 'Height',
-                  suffix: 'cm',
-                  min: 50,
-                  max: 250,
-                ),
-
-                const Spacer(),
-
                 SizedBox(
                   width: double.infinity,
                   height: 56,
@@ -177,6 +325,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
     return TextFormField(
       controller: controller,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
       decoration: InputDecoration(
         labelText: label,
         suffixText: suffix,
@@ -207,6 +356,13 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         gender: _gender,
         weight: double.parse(_weightController.text),
         height: double.parse(_heightController.text),
+        fullName: _nameController.text,
+        dateOfBirth: _dateOfBirth,
+        phone: _phoneController.text,
+        address: _addressController.text,
+        nextOfKinName: _nextOfKinNameController.text,
+        nextOfKinPhone: _nextOfKinPhoneController.text,
+        hospitalName: _hospitalController.text,
       ));
 
       if (!mounted) return;
