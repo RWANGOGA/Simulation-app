@@ -5,8 +5,11 @@ import '../../../core/network/api_client.dart';
 
 class ClinicalReportScreen extends StatefulWidget {
   final String patientId;
+  // The decision card (status / priority / actions / notes) is for
+  // practitioners only — patients viewing their own report must not see it.
+  final bool practitionerMode;
 
-  const ClinicalReportScreen({super.key, required this.patientId});
+  const ClinicalReportScreen({super.key, required this.patientId, this.practitionerMode = false});
 
   @override
   State<ClinicalReportScreen> createState() => _ClinicalReportScreenState();
@@ -16,6 +19,19 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
   List<TriageResult> _reports = [];
   bool _isLoading = true;
   String? _error;
+
+  // ---- Practitioner decision workflow state ----
+  String _decisionStatus = 'open';
+  final Set<String> _checkedActions = {};
+  final TextEditingController _notesController = TextEditingController();
+  bool _savingDecision = false;
+  bool _decisionInitialized = false;
+
+  @override
+  void dispose() {
+    _notesController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -32,6 +48,17 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
       setState(() {
         _reports = results;
         _isLoading = false;
+        // Pre-fill the decision form from whatever a practitioner saved
+        // on a previous review of this visit.
+        if (widget.practitionerMode && !_decisionInitialized && results.isNotEmpty) {
+          final worst = results.reduce(
+            (a, b) => (a.riskScore ?? 0.0) >= (b.riskScore ?? 0.0) ? a : b,
+          );
+          _decisionStatus = worst.status;
+          _notesController.text = worst.clinicalNotes ?? '';
+          _checkedActions.addAll(worst.actionsTaken);
+          _decisionInitialized = true;
+        }
       });
     } catch (e) {
       setState(() {
@@ -168,6 +195,13 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           // (shap_explanation) on every session, but it was fetched and
           // then never shown. Surface it under the headline assessment.
           _buildRiskExplanation(worst),
+
+          // Practitioner-only review workflow (blueprint section 5):
+          // suggested priority, recommended actions, notes, open/closed.
+          if (widget.practitionerMode) ...[
+            _buildDecisionCard(worst),
+            const SizedBox(height: 24),
+          ],
 
           Text(
             _reports.length > 1 ? 'Clinical Details (${_reports.length} pain points)' : 'Clinical Details',
@@ -322,6 +356,166 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
             }),
           ],
         ),
+      ),
+    );
+  }
+
+  // ---- Practitioner decision workflow (blueprint section 5) ----
+
+  String _suggestedPriority(double? score) {
+    if ((score ?? 0) >= 0.7) return 'Review Immediately';
+    if ((score ?? 0) >= 0.4) return 'Urgent Review (24h)';
+    return 'Routine Follow-up';
+  }
+
+  List<String> _recommendedActions(double? score) {
+    if ((score ?? 0) >= 0.7) {
+      return ['Physical examination', 'Urgent review', 'Consider urgent labs / imaging'];
+    }
+    if ((score ?? 0) >= 0.4) {
+      return ['Urgent review within 24h', 'Targeted physical exam'];
+    }
+    return ['Routine follow-up', 'Safety-net advice'];
+  }
+
+  /// Saves the same decision onto every pain point of this visit, so the
+  /// whole visit flips to closed together.
+  Future<void> _saveDecision(TriageResult worst) async {
+    setState(() => _savingDecision = true);
+    try {
+      for (final report in _reports) {
+        await ApiClient.updateTriageDecision(
+          report.id,
+          status: _decisionStatus,
+          priority: _suggestedPriority(worst.riskScore),
+          actionsTaken: _checkedActions.toList(),
+          clinicalNotes: _notesController.text,
+        );
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Decision saved.'), backgroundColor: Color(0xFF16A34A)),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save decision: $e'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _savingDecision = false);
+    }
+  }
+
+  Widget _buildDecisionCard(TriageResult worst) {
+    final score = worst.riskScore;
+    final suggested = _suggestedPriority(score);
+    final options = _recommendedActions(score);
+    // Keep any previously saved actions that aren't in the default list.
+    final allOptions = [
+      ...options,
+      ..._checkedActions.where((a) => !options.contains(a)),
+    ];
+    final priorityColor = (score ?? 0) >= 0.7
+        ? const Color(0xFFDC2626)
+        : (score ?? 0) >= 0.4
+            ? const Color(0xFFF59E0B)
+            : const Color(0xFF16A34A);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.35)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'TRIAGE DECISION',
+            style: TextStyle(fontSize: 12, color: Color(0xFF64748B), letterSpacing: 1.5, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Icon(Icons.flag_outlined, size: 18, color: Color(0xFF64748B)),
+              const SizedBox(width: 8),
+              const Text('Suggested Priority', style: TextStyle(fontSize: 14, color: Color(0xFF1E293B))),
+              const Spacer(),
+              Text(suggested, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: priorityColor)),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              const Text('Status:', style: TextStyle(fontSize: 14, color: Color(0xFF1E293B))),
+              const SizedBox(width: 8),
+              for (final value in const ['open', 'closed'])
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(value[0].toUpperCase() + value.substring(1)),
+                    selected: _decisionStatus == value,
+                    onSelected: (picked) => setState(() => _decisionStatus = value),
+                    selectedColor: value == 'closed'
+                        ? const Color(0xFF16A34A).withOpacity(0.2)
+                        : const Color(0xFFF59E0B).withOpacity(0.2),
+                    labelStyle: const TextStyle(fontSize: 12),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          const Text('Recommended Actions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+          ...allOptions.map(
+            (action) => CheckboxListTile(
+              value: _checkedActions.contains(action),
+              dense: true,
+              contentPadding: EdgeInsets.zero,
+              activeColor: const Color(0xFF6D28D9),
+              title: Text(action, style: const TextStyle(fontSize: 14)),
+              onChanged: (checked) {
+                setState(() {
+                  if (checked == true) {
+                    _checkedActions.add(action);
+                  } else {
+                    _checkedActions.remove(action);
+                  }
+                });
+              },
+            ),
+          ),
+          TextField(
+            controller: _notesController,
+            maxLines: 3,
+            decoration: InputDecoration(
+              hintText: 'Clinical notes...',
+              filled: true,
+              fillColor: const Color(0xFFF8FAFC),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            height: 46,
+            child: ElevatedButton.icon(
+              onPressed: _savingDecision ? null : () => _saveDecision(worst),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6D28D9),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              ),
+              icon: _savingDecision
+                  ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                  : const Icon(Icons.save_outlined, size: 18),
+              label: const Text('Save Decision', style: TextStyle(fontWeight: FontWeight.w600)),
+            ),
+          ),
+        ],
       ),
     );
   }

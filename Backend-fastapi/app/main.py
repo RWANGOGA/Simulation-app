@@ -16,6 +16,10 @@ from app import models  # noqa: F401 registers Patient/TriageSession on Base
 _SCHEMA_DRIFT_STATEMENTS = [
     "ALTER TABLE triage_sessions ADD COLUMN IF NOT EXISTS visit_id VARCHAR",
     "ALTER TABLE triage_sessions ADD COLUMN IF NOT EXISTS spo2 FLOAT",
+    "ALTER TABLE triage_sessions ADD COLUMN IF NOT EXISTS status VARCHAR DEFAULT 'open'",
+    "ALTER TABLE triage_sessions ADD COLUMN IF NOT EXISTS priority VARCHAR",
+    "ALTER TABLE triage_sessions ADD COLUMN IF NOT EXISTS actions_taken TEXT",
+    "ALTER TABLE triage_sessions ADD COLUMN IF NOT EXISTS clinical_notes TEXT",
     "CREATE INDEX IF NOT EXISTS ix_triage_sessions_visit_id "
     "ON triage_sessions (visit_id)",
 ]

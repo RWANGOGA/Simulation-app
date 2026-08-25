@@ -21,6 +21,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
   bool _isLoading = true;
   String _searchQuery = '';
   String? _selectedRisk;
+  String? _selectedStatus;
 
   // Debounces the patient-code search so we don't hammer the backend with
   // one request per keystroke.
@@ -45,6 +46,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
       final sessions = await ApiClient.getTriageList(
         patientCode: _searchQuery.isEmpty ? null : _searchQuery,
         riskLevel: _selectedRisk,
+        status: _selectedStatus,
       );
       setState(() {
         _stats = stats;
@@ -180,6 +182,26 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                           },
                         ),
                       ),
+                      const SizedBox(width: 12),
+                      // Open/Closed lifecycle filter (blueprint session history).
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                        child: DropdownButton<String>(
+                          value: _selectedStatus,
+                          underline: const SizedBox(),
+                          hint: const Icon(Icons.folder_open, color: Color(0xFF64748B)),
+                          items: const [
+                            DropdownMenuItem(value: null, child: Text('Any')),
+                            DropdownMenuItem(value: 'open', child: Text('Open')),
+                            DropdownMenuItem(value: 'closed', child: Text('Closed')),
+                          ],
+                          onChanged: (value) {
+                            setState(() => _selectedStatus = value);
+                            _loadData();
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -197,6 +219,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                             final session = _sessions[index];
                             final riskLevel = _getRiskLevel(session['risk_score']);
                             final riskColor = _getRiskColor(riskLevel);
+                            final isClosed = session['status'] == 'closed';
                             final date = DateTime.parse(session['created_at']);
                             final formattedDate = DateFormat('MMM dd, HH:mm').format(date);
 
@@ -230,25 +253,46 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                                     Text(formattedDate, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
                                   ],
                                 ),
-                                trailing: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: riskColor.withOpacity(0.1),
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(color: riskColor.withOpacity(0.3)),
-                                  ),
-                                  child: Text(
-                                    riskLevel,
-                                    style: TextStyle(fontWeight: FontWeight.bold, color: riskColor, fontSize: 12),
-                                  ),
+                                trailing: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                      decoration: BoxDecoration(
+                                        color: riskColor.withOpacity(0.1),
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(color: riskColor.withOpacity(0.3)),
+                                      ),
+                                      child: Text(
+                                        riskLevel,
+                                        style: TextStyle(fontWeight: FontWeight.bold, color: riskColor, fontSize: 12),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      isClosed ? 'Closed' : 'Open',
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                        color: isClosed ? const Color(0xFF64748B) : const Color(0xFFF59E0B),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                onTap: () {
+                                onTap: () async {
                                   // Navigate to the detailed report screen we already built!
-                                  Navigator.of(context).push(
+                                  // practitionerMode adds the Triage Decision card.
+                                  await Navigator.of(context).push(
                                     AppPageRoute(
-                                      builder: (_) => ClinicalReportScreen(patientId: session['anonymous_code']),
+                                      builder: (_) => ClinicalReportScreen(
+                                        patientId: session['anonymous_code'],
+                                        practitionerMode: true,
+                                      ),
                                     ),
                                   );
+                                  // A decision may have been saved — refresh chips.
+                                  _loadData();
                                 },
                               ),
                             );

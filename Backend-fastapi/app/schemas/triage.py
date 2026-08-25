@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
 class TriageBase(BaseModel):
@@ -34,4 +34,16 @@ class TriageResponse(TriageBase):
     patient_gender: Optional[str] = None
     patient_weight: Optional[float] = None
     patient_height: Optional[float] = None
+    # Practitioner decision workflow fields.
+    status: Optional[str] = "open"
+    priority: Optional[str] = None
+    actions_taken: Optional[str] = None  # JSON array string of ticked actions
+    clinical_notes: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
+
+class TriageDecisionUpdate(BaseModel):
+    """PATCH /triage/{id}/decision — practitioner saves the review outcome."""
+    status: Optional[str] = Field(None, pattern="^(open|closed)$")
+    priority: Optional[str] = None
+    actions_taken: Optional[List[str]] = None
+    clinical_notes: Optional[str] = None

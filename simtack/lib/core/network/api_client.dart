@@ -179,6 +179,11 @@ class TriageResult {
   final String? patientGender;
   final double? patientWeight;
   final double? patientHeight;
+  // Practitioner decision workflow (blueprint section 5).
+  final String status; // 'open' until reviewed, then 'closed'
+  final String? priority;
+  final List<String> actionsTaken;
+  final String? clinicalNotes;
 
   const TriageResult({
     required this.id,
@@ -200,6 +205,10 @@ class TriageResult {
     this.patientGender,
     this.patientWeight,
     this.patientHeight,
+    this.status = 'open',
+    this.priority,
+    this.actionsTaken = const [],
+    this.clinicalNotes,
   });
 
   String get riskLevel {
@@ -230,7 +239,24 @@ class TriageResult {
       patientGender: json['patient_gender'] as String?,
       patientWeight: (json['patient_weight'] as num?)?.toDouble(),
       patientHeight: (json['patient_height'] as num?)?.toDouble(),
+      status: (json['status'] as String?) ?? 'open',
+      priority: json['priority'] as String?,
+      actionsTaken: _parseActionsTaken(json['actions_taken']),
+      clinicalNotes: json['clinical_notes'] as String?,
     );
+  }
+
+  // actions_taken travels as a JSON array string ("[\"a\", \"b\"]").
+  static List<String> _parseActionsTaken(dynamic raw) {
+    if (raw is String && raw.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is List) return decoded.map((e) => e.toString()).toList();
+      } catch (_) {
+        // Malformed JSON — treat as no actions rather than crashing.
+      }
+    }
+    return const [];
   }
 }
 
@@ -346,12 +372,14 @@ class ApiClient {
     int offset = 0,
     String? patientCode,
     String? riskLevel,
+    String? status,
   }) async {
     final uri = Uri.parse('$baseUrl/triage/list').replace(queryParameters: {
       'limit': limit.toString(),
       'offset': offset.toString(),
       if (patientCode != null) 'patient_code': patientCode,
       if (riskLevel != null) 'risk_level': riskLevel,
+      if (status != null) 'status': status,
     });
     // Doctor-only endpoint — must carry the JWT.
     final response = await httpClient.get(uri, headers: await _authHeaders());
@@ -359,5 +387,31 @@ class ApiClient {
       return List<Map<String, dynamic>>.from(jsonDecode(response.body));
     }
     throw Exception('Failed to load triage list: ${response.body}');
+  }
+
+  /// Practitioner review workflow: saves the decision (status, priority,
+  /// ticked actions, notes) on one triage session. Doctor-only endpoint —
+  /// must carry the JWT.
+  static Future<TriageResult> updateTriageDecision(
+    int sessionId, {
+    String? status,
+    String? priority,
+    List<String>? actionsTaken,
+    String? clinicalNotes,
+  }) async {
+    final response = await httpClient.patch(
+      Uri.parse('$baseUrl/triage/$sessionId/decision'),
+      headers: await _authHeaders(),
+      body: jsonEncode({
+        if (status != null) 'status': status,
+        if (priority != null) 'priority': priority,
+        if (actionsTaken != null) 'actions_taken': actionsTaken,
+        if (clinicalNotes != null) 'clinical_notes': clinicalNotes,
+      }),
+    );
+    if (response.statusCode == 200) {
+      return TriageResult.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    }
+    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
   }
 }
