@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi_offline import FastAPIOffline
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
+from sqlalchemy.engine.url import make_url
 from app.api.v1.endpoints import auth
 from app.api.v1.router import api_router
 from app.core.config import settings
@@ -21,6 +22,11 @@ _SCHEMA_DRIFT_STATEMENTS = [
 
 @asynccontextmanager
 async def lifespan(app: FastAPIOffline):
+    # Which database did we actually connect to? Env-var DATABASE_URL (Render
+    # injects the Neon URL) always beats the local .env (Docker Postgres),
+    # so this line makes the active environment obvious in the logs.
+    _db = make_url(settings.DATABASE_URL)
+    print(f"[startup] database host={_db.host} db={_db.database}", flush=True)
     Base.metadata.create_all(bind=engine)
     with engine.begin() as conn:
         for stmt in _SCHEMA_DRIFT_STATEMENTS:
