@@ -14,10 +14,29 @@ import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
 
 // --- CONFIGURATION ---
-// Base URL of the deployed Flutter web app that the QR deep-links into
-// (#/report/<patientId>). Was previously a hardcoded dev-machine LAN IP.
-String get kReportBaseUrl =>
-    kDebugMode ? 'http://localhost:5000' : 'https://rwangoga.github.io/Simulation-app';
+// Base URL of the Flutter web app that the QR / share links deep-link
+// into (#/report/<patientId>, parsed by main.dart via Uri.base.fragment).
+// Was previously a hardcoded dev-machine LAN IP, which produced dead QR
+// codes for anyone not on that exact Wi-Fi network.
+String get kReportBaseUrl {
+  if (kIsWeb) {
+    // On web, link into the very deployment the patient is already using
+    // (localhost dev server, staging, GitHub Pages, ...) — Uri.base carries
+    // the right origin AND base path (e.g. /Simulation-app/). Fragment and
+    // query are dropped so we never nest the current route into the link.
+    final base = Uri.base;
+    final url = '${base.origin}${base.path}';
+    return url.endsWith('/') ? url.substring(0, url.length - 1) : url;
+  }
+  if (kDebugMode) {
+    // Debug builds on a physical device can't resolve "localhost". To test
+    // QR scanning from a phone during development, temporarily swap in the
+    // dev machine's LAN IP, e.g. 'http://192.168.x.x:5000'.
+    return 'http://localhost:5000';
+  }
+  // Release builds on real devices: point at the public web deployment.
+  return 'https://rwangoga.github.io/Simulation-app';
+}
 
 class SuccessScreen extends StatefulWidget {
   final String patientId;
