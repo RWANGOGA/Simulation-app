@@ -27,6 +27,7 @@ dependencies:
   url_launcher: ^6.2.5
   shared_preferences: ^2.3.3
   flutter_secure_storage: ^10.3.1
+  web: ^1.1.0                # dart:html/dart:js_util replacement (js_util was removed from the SDK)
 
 dev_dependencies:
   flutter_test:

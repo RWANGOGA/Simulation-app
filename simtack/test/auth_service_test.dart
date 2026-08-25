@@ -81,7 +81,7 @@ void main() {
 
     test('wraps SocketException into a friendly ApiException', () async {
       ApiClient.httpClient = MockClient((request) async {
-        throw SocketException('Connection refused');
+        throw const SocketException('Connection refused');
       });
 
       expect(

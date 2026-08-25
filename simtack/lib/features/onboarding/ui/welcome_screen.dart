@@ -5,7 +5,6 @@ import '../../../core/storage/triage_draft.dart';
 import '../../patient_info/ui/patient_info_screen.dart';
 import '../../review/ui/review_screen.dart';
 import '../../../core/theme/app_page_route.dart';
-
 import '../../auth/ui/login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -205,7 +204,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
-                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                          AppPageRoute(builder: (_) => const LoginScreen()),
                         );
                       },
                       style: TextButton.styleFrom(

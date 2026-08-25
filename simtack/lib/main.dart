@@ -44,8 +44,8 @@ class AtomyBridgeApp extends StatelessWidget {
     // Otherwise, respect the patient deep links (report) or default to the Welcome Screen.
     final Widget initialScreen = isDoctorLoggedIn || isDashboardFromUrl
         ? const PractitionerDashboardScreen()
-        : (reportPatientId != null 
-            ? ClinicalReportScreen(patientId: reportPatientId) 
+        : (reportPatientId != null
+            ? ClinicalReportScreen(patientId: reportPatientId)
             : const WelcomeScreen());
 
     return MaterialApp(
