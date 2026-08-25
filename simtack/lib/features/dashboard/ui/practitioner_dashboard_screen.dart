@@ -2,11 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
 import 'package:intl/intl.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/auth_service.dart';
 import '../../auth/ui/login_screen.dart';
 import '../../report/ui/clinical_report_screen.dart';
+import '../../settings/ui/accessibility_settings_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import 'qr_scan_screen.dart';
 
@@ -118,20 +120,29 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
       case 'HIGH': return const Color(0xFFDC2626);
       case 'MEDIUM': return const Color(0xFFF59E0B);
       case 'LOW': return const Color(0xFF16A34A);
-      default: return const Color(0xFF64748B);
+      default: return AppPalette.textMuted(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppPalette.scaffold(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppPalette.surface(context),
         elevation: 0,
-        title: const Text('Practitioner Dashboard', style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold)),
+        title: Text('Practitioner Dashboard', style: TextStyle(color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.tune, color: Color(0xFF6D28D9)),
+            tooltip: 'Display & accessibility',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AccessibilitySettingsScreen()),
+              );
+            },
+          ),
           IconButton(icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)), onPressed: _loadData),
           IconButton(
             icon: const Icon(Icons.logout, color: Color(0xFF6D28D9)),
@@ -168,9 +179,9 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                         child: TextField(
                           decoration: InputDecoration(
                             hintText: 'Search Patient ID (e.g., P-...)',
-                            prefixIcon: const Icon(Icons.search, color: Color(0xFF64748B)),
+                            prefixIcon: Icon(Icons.search, color: AppPalette.textMuted(context)),
                             filled: true,
-                            fillColor: Colors.white,
+                            fillColor: AppPalette.inputFill(context),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                             contentPadding: const EdgeInsets.symmetric(vertical: 0),
                           ),
@@ -201,11 +212,11 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                       const SizedBox(width: 12),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                        decoration: BoxDecoration(color: AppPalette.surface(context), borderRadius: BorderRadius.circular(12)),
                         child: DropdownButton<String>(
                           value: _selectedRisk,
                           underline: const SizedBox(),
-                          hint: const Icon(Icons.filter_list, color: Color(0xFF64748B)),
+                          hint: Icon(Icons.filter_list, color: AppPalette.textMuted(context)),
                           items: const [
                             DropdownMenuItem(value: null, child: Text('All')),
                             DropdownMenuItem(value: 'HIGH', child: Text('High')),
@@ -222,11 +233,11 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                       // Open/Closed lifecycle filter (blueprint session history).
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                        decoration: BoxDecoration(color: AppPalette.surface(context), borderRadius: BorderRadius.circular(12)),
                         child: DropdownButton<String>(
                           value: _selectedStatus,
                           underline: const SizedBox(),
-                          hint: const Icon(Icons.folder_open, color: Color(0xFF64748B)),
+                          hint: Icon(Icons.folder_open, color: AppPalette.textMuted(context)),
                           items: const [
                             DropdownMenuItem(value: null, child: Text('Any')),
                             DropdownMenuItem(value: 'open', child: Text('Open')),
@@ -247,7 +258,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                 // SESSION LIST
                 Expanded(
                   child: _sessions.isEmpty
-                      ? const Center(child: Text('No triage sessions found.', style: TextStyle(color: Color(0xFF64748B))))
+                      ? Center(child: Text('No triage sessions found.', style: TextStyle(color: AppPalette.textMuted(context))))
                       : ListView.builder(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           itemCount: _sessions.length,
@@ -266,7 +277,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                               child: ListTile(
                                 contentPadding: const EdgeInsets.all(16),
                                 leading: CircleAvatar(
-                                  backgroundColor: riskColor.withValues(alpha: 0.1),
+                                  backgroundColor: riskColor.withOpacity(0.1),
                                   child: Icon(Icons.medical_services, color: riskColor, size: 24),
                                 ),
                                 title: Text(
@@ -286,7 +297,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                                       ),
                                     ],
                                     const SizedBox(height: 4),
-                                    Text(formattedDate, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                                    Text(formattedDate, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context))),
                                   ],
                                 ),
                                 trailing: Column(
@@ -296,9 +307,9 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: riskColor.withValues(alpha: 0.1),
+                                        color: riskColor.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: riskColor.withValues(alpha: 0.3)),
+                                        border: Border.all(color: riskColor.withOpacity(0.3)),
                                       ),
                                       child: Text(
                                         riskLevel,
@@ -311,7 +322,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
-                                        color: isClosed ? const Color(0xFF64748B) : const Color(0xFFF59E0B),
+                                        color: isClosed ? AppPalette.textMuted(context) : const Color(0xFFF59E0B),
                                       ),
                                     ),
                                   ],
@@ -345,16 +356,16 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppPalette.surface(context),
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Column(
           children: [
             Icon(icon, color: color, size: 24),
             const SizedBox(height: 8),
             Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color)),
-            Text(label, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+            Text(label, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context), fontWeight: FontWeight.w600)),
           ],
         ),
       ),
