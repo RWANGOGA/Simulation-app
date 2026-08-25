@@ -32,12 +32,20 @@ class Doctor {
   final String email;
   final String fullName;
   final bool isActive;
+  final String? role;
+  final String? licenseNumber;
+  final String? phone;
+  final String? hospitalName;
 
   const Doctor({
     required this.id,
     required this.email,
     required this.fullName,
     required this.isActive,
+    this.role,
+    this.licenseNumber,
+    this.phone,
+    this.hospitalName,
   });
 
   factory Doctor.fromJson(Map<String, dynamic> json) => Doctor(
@@ -45,6 +53,10 @@ class Doctor {
         email: json['email'] as String,
         fullName: json['full_name'] as String,
         isActive: json['is_active'] as bool,
+        role: json['role'] as String?,
+        licenseNumber: json['license_number'] as String?,
+        phone: json['phone'] as String?,
+        hospitalName: json['hospital_name'] as String?,
       );
 }
 
@@ -93,12 +105,29 @@ class PatientProfile {
   final String gender;
   final double weight;
   final double height;
+  // Optional personal demographics — the flow stays fast for anonymous
+  // walk-ins, but anything provided is stored and carried onto the
+  // clinical report / QR-scan lookup.
+  final String? fullName;
+  final DateTime? dateOfBirth;
+  final String? phone;
+  final String? address;
+  final String? nextOfKinName;
+  final String? nextOfKinPhone;
+  final String? hospitalName;
 
   const PatientProfile({
     required this.age,
     required this.gender,
     required this.weight,
     required this.height,
+    this.fullName,
+    this.dateOfBirth,
+    this.phone,
+    this.address,
+    this.nextOfKinName,
+    this.nextOfKinPhone,
+    this.hospitalName,
   });
 
   Map<String, dynamic> toJson() => {
@@ -106,6 +135,22 @@ class PatientProfile {
         'gender': gender,
         'weight': weight,
         'height': height,
+        if (fullName != null && fullName!.trim().isNotEmpty)
+          'full_name': fullName!.trim(),
+        if (dateOfBirth != null)
+          'date_of_birth':
+              '${dateOfBirth!.year.toString().padLeft(4, '0')}-'
+              '${dateOfBirth!.month.toString().padLeft(2, '0')}-'
+              '${dateOfBirth!.day.toString().padLeft(2, '0')}',
+        if (phone != null && phone!.trim().isNotEmpty) 'phone': phone!.trim(),
+        if (address != null && address!.trim().isNotEmpty)
+          'address': address!.trim(),
+        if (nextOfKinName != null && nextOfKinName!.trim().isNotEmpty)
+          'next_of_kin_name': nextOfKinName!.trim(),
+        if (nextOfKinPhone != null && nextOfKinPhone!.trim().isNotEmpty)
+          'next_of_kin_phone': nextOfKinPhone!.trim(),
+        if (hospitalName != null && hospitalName!.trim().isNotEmpty)
+          'hospital_name': hospitalName!.trim(),
       };
 }
 
@@ -128,6 +173,7 @@ class TriageReport {
   final String? direction;
   final String? depth;
   final double? heartRate;
+  final double? spo2;
   final int? patientId;
   final String? visitId;
 
@@ -138,6 +184,7 @@ class TriageReport {
     this.direction,
     this.depth,
     this.heartRate,
+    this.spo2,
     this.patientId,
     this.visitId,
   });
@@ -149,6 +196,7 @@ class TriageReport {
         if (direction != null) 'direction': direction,
         if (depth != null) 'depth': depth,
         if (heartRate != null) 'heart_rate': heartRate,
+        if (spo2 != null) 'spo2': spo2,
         if (patientId != null) 'patient_id': patientId,
         if (visitId != null) 'visit_id': visitId,
       };
@@ -162,6 +210,7 @@ class TriageResult {
   final String painType;
   final int severity;
   final double? heartRate;
+  final double? spo2;
   final String? direction;
   final String? depth;
   final String? visitId;
@@ -169,6 +218,26 @@ class TriageResult {
   final String? shapExplanation;
   final String? qrPayloadHash;
   final DateTime createdAt;
+  // Patient demographics — collected at intake and stored server-side, now
+  // joined onto every triage response so they can actually be displayed.
+  final int? patientAge;
+  final String? patientGender;
+  final double? patientWeight;
+  final double? patientHeight;
+  // Personal demographics carried through so the practitioner sees the
+  // patient's identity/contact when scanning the QR passport.
+  final String? patientName;
+  final String? patientDateOfBirth;
+  final String? patientPhone;
+  final String? patientAddress;
+  final String? patientNextOfKinName;
+  final String? patientNextOfKinPhone;
+  final String? patientHospitalName;
+  // Practitioner decision workflow (blueprint section 5).
+  final String status; // 'open' until reviewed, then 'closed'
+  final String? priority;
+  final List<String> actionsTaken;
+  final String? clinicalNotes;
 
   const TriageResult({
     required this.id,
@@ -178,6 +247,7 @@ class TriageResult {
     required this.painType,
     required this.severity,
     this.heartRate,
+    this.spo2,
     this.direction,
     this.depth,
     this.visitId,
@@ -185,6 +255,21 @@ class TriageResult {
     this.shapExplanation,
     this.qrPayloadHash,
     required this.createdAt,
+    this.patientAge,
+    this.patientGender,
+    this.patientWeight,
+    this.patientHeight,
+    this.patientName,
+    this.patientDateOfBirth,
+    this.patientPhone,
+    this.patientAddress,
+    this.patientNextOfKinName,
+    this.patientNextOfKinPhone,
+    this.patientHospitalName,
+    this.status = 'open',
+    this.priority,
+    this.actionsTaken = const [],
+    this.clinicalNotes,
   });
 
   String get riskLevel {
@@ -203,6 +288,7 @@ class TriageResult {
       painType: json['pain_type'] as String,
       severity: json['severity'] as int,
       heartRate: (json['heart_rate'] as num?)?.toDouble(),
+      spo2: (json['spo2'] as num?)?.toDouble(),
       direction: json['direction'] as String?,
       depth: json['depth'] as String?,
       visitId: json['visit_id'] as String?,
@@ -210,7 +296,35 @@ class TriageResult {
       shapExplanation: json['shap_explanation'] as String?,
       qrPayloadHash: json['qr_payload_hash'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
+      patientAge: json['patient_age'] as int?,
+      patientGender: json['patient_gender'] as String?,
+      patientWeight: (json['patient_weight'] as num?)?.toDouble(),
+      patientHeight: (json['patient_height'] as num?)?.toDouble(),
+      patientName: json['patient_name'] as String?,
+      patientDateOfBirth: json['patient_date_of_birth'] as String?,
+      patientPhone: json['patient_phone'] as String?,
+      patientAddress: json['patient_address'] as String?,
+      patientNextOfKinName: json['patient_next_of_kin_name'] as String?,
+      patientNextOfKinPhone: json['patient_next_of_kin_phone'] as String?,
+      patientHospitalName: json['patient_hospital_name'] as String?,
+      status: (json['status'] as String?) ?? 'open',
+      priority: json['priority'] as String?,
+      actionsTaken: _parseActionsTaken(json['actions_taken']),
+      clinicalNotes: json['clinical_notes'] as String?,
     );
+  }
+
+  // actions_taken travels as a JSON array string ("[\"a\", \"b\"]").
+  static List<String> _parseActionsTaken(dynamic raw) {
+    if (raw is String && raw.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is List) return decoded.map((e) => e.toString()).toList();
+      } catch (_) {
+        // Malformed JSON — treat as no actions rather than crashing.
+      }
+    }
+    return const [];
   }
 }
 
@@ -250,6 +364,44 @@ class ApiClient {
     }
     await tokenStorage.write(token);
     return getCurrentDoctor();
+  }
+
+  /// Creates a practitioner account, then logs in with the same
+  /// credentials so the user lands directly on the dashboard.
+  static Future<Doctor> register({
+    required String email,
+    required String password,
+    required String fullName,
+    String? role,
+    String? licenseNumber,
+    String? phone,
+    String? hospitalName,
+    DateTime? dateOfBirth,
+  }) async {
+    final response = await httpClient.post(
+      Uri.parse('$baseUrl/auth/register'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        'full_name': fullName,
+        if (role != null && role.isNotEmpty) 'role': role,
+        if (licenseNumber != null && licenseNumber.isNotEmpty)
+          'license_number': licenseNumber,
+        if (phone != null && phone.trim().isNotEmpty) 'phone': phone.trim(),
+        if (hospitalName != null && hospitalName.trim().isNotEmpty)
+          'hospital_name': hospitalName.trim(),
+        if (dateOfBirth != null)
+          'date_of_birth':
+              '${dateOfBirth.year.toString().padLeft(4, '0')}-'
+              '${dateOfBirth.month.toString().padLeft(2, '0')}-'
+              '${dateOfBirth.day.toString().padLeft(2, '0')}',
+      }),
+    );
+    if (response.statusCode != 201) {
+      throw ApiException.fromResponse(response.statusCode, response.body);
+    }
+    return login(email: email, password: password);
   }
 
   static Future<Doctor> getCurrentDoctor() async {
@@ -310,7 +462,11 @@ class ApiClient {
   }
 
   static Future<Map<String, dynamic>> getTriageStats() async {
-    final response = await http.get(Uri.parse('$baseUrl/triage/stats'));
+    // Doctor-only endpoint — must carry the JWT.
+    final response = await httpClient.get(
+      Uri.parse('$baseUrl/triage/stats'),
+      headers: await _authHeaders(),
+    );
     if (response.statusCode == 200) {
       return jsonDecode(response.body) as Map<String, dynamic>;
     }
@@ -322,17 +478,46 @@ class ApiClient {
     int offset = 0,
     String? patientCode,
     String? riskLevel,
+    String? status,
   }) async {
     final uri = Uri.parse('$baseUrl/triage/list').replace(queryParameters: {
       'limit': limit.toString(),
       'offset': offset.toString(),
       if (patientCode != null) 'patient_code': patientCode,
       if (riskLevel != null) 'risk_level': riskLevel,
+      if (status != null) 'status': status,
     });
-    final response = await http.get(uri);
+    // Doctor-only endpoint — must carry the JWT.
+    final response = await httpClient.get(uri, headers: await _authHeaders());
     if (response.statusCode == 200) {
       return List<Map<String, dynamic>>.from(jsonDecode(response.body));
     }
     throw Exception('Failed to load triage list: ${response.body}');
+  }
+
+  /// Practitioner review workflow: saves the decision (status, priority,
+  /// ticked actions, notes) on one triage session. Doctor-only endpoint —
+  /// must carry the JWT.
+  static Future<TriageResult> updateTriageDecision(
+    int sessionId, {
+    String? status,
+    String? priority,
+    List<String>? actionsTaken,
+    String? clinicalNotes,
+  }) async {
+    final response = await httpClient.patch(
+      Uri.parse('$baseUrl/triage/$sessionId/decision'),
+      headers: await _authHeaders(),
+      body: jsonEncode({
+        if (status != null) 'status': status,
+        if (priority != null) 'priority': priority,
+        if (actionsTaken != null) 'actions_taken': actionsTaken,
+        if (clinicalNotes != null) 'clinical_notes': clinicalNotes,
+      }),
+    );
+    if (response.statusCode == 200) {
+      return TriageResult.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    }
+    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
   }
 }

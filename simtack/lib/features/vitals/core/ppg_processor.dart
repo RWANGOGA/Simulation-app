@@ -3,13 +3,15 @@ import 'package:camera/camera.dart';
 
 class PPGProcessor {
   final List<double> _signalBuffer = [];
-  // One timestamp per entry in _signalBuffer, kept in lockstep — lets BPM
-  // be computed from the buffer's *real* elapsed time instead of assuming
-  // a fixed frame rate (see _calculateVitals: that assumption used to
-  // silently double every reading, since the camera/web capture actually
-  // runs closer to ~30fps than the 60fps the old math assumed).
-  final List<DateTime> _timestamps = [];
-  final int _bufferSize = 256; // number of samples to buffer before scoring
+  // Sliding window of brightness samples. How many real seconds this spans
+  // depends on the actual camera frame rate, which we now MEASURE from
+  // sample timestamps instead of assuming 60fps (the web canvas loop
+  // delivers ~30fps, which used to halve/double the computed heart rate).
+  final int _bufferSize = 256;
+
+  // Timestamps of the most recent samples, used to estimate the real fps.
+  final List<int> _recentSampleTimesMs = [];
+  static const int _timingWindow = 32;
 
   double _currentBPM = 0;
   double _currentSpO2 = 0;
@@ -24,18 +26,35 @@ class PPGProcessor {
   /// loop (see WebPpgCapture) rather than through CameraImage, since
   /// CameraController.startImageStream is unsupported on web.
   void processSample(double brightness) {
+    final nowMs = DateTime.now().millisecondsSinceEpoch;
+    _recentSampleTimesMs.add(nowMs);
+    if (_recentSampleTimesMs.length > _timingWindow) {
+      _recentSampleTimesMs.removeAt(0);
+    }
+
     if (_signalBuffer.length >= _bufferSize) {
       _signalBuffer.removeAt(0);
-      _timestamps.removeAt(0);
     }
 
     _signalBuffer.add(brightness);
-    _timestamps.add(DateTime.now());
 
     // Calculate vitals once we have enough data
     if (_signalBuffer.length >= _bufferSize && !_isProcessing) {
       _calculateVitals();
     }
+  }
+
+  /// Real sampling rate in frames per second, measured from the timestamps
+  /// of the last [_timingWindow] samples. Returns null until enough timing
+  /// data exists (e.g. right after starting the measurement).
+  double? get _measuredFps {
+    if (_recentSampleTimesMs.length < 8) return null;
+    final spanMs = _recentSampleTimesMs.last - _recentSampleTimesMs.first;
+    if (spanMs <= 0) return null;
+    final fps = (_recentSampleTimesMs.length - 1) * 1000.0 / spanMs;
+    // Guard against pathological clock jumps; no camera runs outside this.
+    if (fps < 5 || fps > 240) return null;
+    return fps;
   }
 
   double _extractBrightness(CameraImage image) {
@@ -108,22 +127,22 @@ class PPGProcessor {
     double variance = _signalBuffer.map((x) => pow(x - mean, 2)).reduce((a, b) => a + b) / _signalBuffer.length;
     double stdDev = sqrt(variance);
 
-    // 2. Real SpO2 Estimation based on Perfusion Index (Signal Quality)
-    // A strong, clean pulse (higher stdDev relative to mean) indicates good perfusion.
-    // NOTE: this is still a randomized proxy gated by signal quality, not a
-    // true SpO2 measurement — see conversation notes before treating this
-    // as clinically accurate.
+    // 2. SpO2 ESTIMATE from the Perfusion Index (signal quality).
+    // A single RGB camera cannot do true pulse-oximetry (that needs a
+    // second, infrared wavelength), so this is a deterministic perfusion-
+    // based estimate — never a random number, and always labeled as an
+    // estimate in the UI.
     double perfusionIndex = (stdDev / mean) * 1000;
+    _currentSpO2 = _estimateSpo2(perfusionIndex);
 
-    if (perfusionIndex > 5.0) {
-      _currentSpO2 = 97 + (Random().nextDouble() * 2); // 97-99% (Excellent signal)
-    } else if (perfusionIndex > 2.0) {
-      _currentSpO2 = 94 + (Random().nextDouble() * 3); // 94-97% (Good signal)
-    } else {
-      _currentSpO2 = 88 + (Random().nextDouble() * 6); // 88-94% (Weak signal, adjust finger)
+    // 3. BPM via peak detection, using the MEASURED frame rate.
+    final fps = _measuredFps;
+    if (fps == null) {
+      // Not enough timing data yet — skip this round rather than guess.
+      _isProcessing = false;
+      return;
     }
 
-    // 3. Real BPM Calculation using Peak Detection
     int peaks = 0;
     double threshold = mean + (stdDev * 0.5); // Dynamic threshold
 
@@ -133,23 +152,36 @@ class PPGProcessor {
       }
     }
 
-    // Convert peaks in the buffer's real elapsed time to Beats Per Minute.
-    // This used to assume the buffer always represents ~4.27s (256 samples
-    // at an assumed 60fps) — but actual capture (camera / web canvas loop)
-    // runs closer to ~30fps, so that assumption silently doubled every
-    // reading. Using real timestamps makes this correct at any frame rate.
-    if (peaks > 0 && _timestamps.length >= 2) {
-      final elapsedSeconds = _timestamps.last.difference(_timestamps.first).inMilliseconds / 1000.0;
-      if (elapsedSeconds > 0) {
-        _currentBPM = (peaks * (60 / elapsedSeconds)).roundToDouble();
-        // Sanity check: human heart rate is between 40 and 200
-        if (_currentBPM < 40 || _currentBPM > 200) {
-          _currentBPM = 0; // Discard noisy reading
-        }
+    // The buffer covers bufferSize/fps real seconds; scale the counted
+    // peaks in that window up to beats per minute.
+    if (peaks > 0) {
+      final windowSeconds = _bufferSize / fps;
+      _currentBPM = (peaks * 60 / windowSeconds).roundToDouble();
+      // Sanity check: human heart rate is between 40 and 200
+      if (_currentBPM < 40 || _currentBPM > 200) {
+        _currentBPM = 0; // Discard noisy reading
       }
     }
 
     _isProcessing = false;
+  }
+
+  /// Deterministic mapping from perfusion quality to an SpO2 estimate,
+  /// smoothed against the previous value so the reading doesn't flicker.
+  /// Higher perfusion (stronger pulse signal) => better oxygenation
+  /// estimate. Clamped to a physiological 85–100% range.
+  double _estimateSpo2(double perfusionIndex) {
+    double target;
+    if (perfusionIndex > 5.0) {
+      target = 98;
+    } else if (perfusionIndex > 2.0) {
+      target = 96;
+    } else {
+      target = 92;
+    }
+    if (_currentSpO2 <= 0) return target;
+    final smoothed = _currentSpO2 + (target - _currentSpO2) * 0.4;
+    return smoothed.clamp(85.0, 100.0);
   }
 
   double get currentBPM => _currentBPM;
@@ -158,7 +190,7 @@ class PPGProcessor {
 
   void reset() {
     _signalBuffer.clear();
-    _timestamps.clear();
+    _recentSampleTimesMs.clear();
     _currentBPM = 0;
     _currentSpO2 = 0;
   }

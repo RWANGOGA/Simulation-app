@@ -17,9 +17,20 @@ class TriageSession(Base):
     pain_type = Column(String)
     severity = Column(Integer)
     heart_rate = Column(Float, nullable=True)
+    spo2 = Column(Float, nullable=True)
     direction = Column(String, nullable=True)
     depth = Column(String, nullable=True)
     risk_score = Column(Float, nullable=True)
     shap_explanation = Column(Text, nullable=True)
     qr_payload_hash = Column(String, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    # ---- Practitioner decision workflow ----
+    # Lifecycle of a session: stays "open" until a practitioner reviews and
+    # closes it. DB-level default so old rows and patient-side inserts
+    # always carry a value.
+    status = Column(String, nullable=False, default="open", index=True)
+    # Confirmed priority label, e.g. "Review Immediately".
+    priority = Column(String, nullable=True)
+    # JSON array of the actions the practitioner ticked off.
+    actions_taken = Column(Text, nullable=True)
+    clinical_notes = Column(Text, nullable=True)
