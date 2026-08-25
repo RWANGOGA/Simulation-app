@@ -1,6 +1,8 @@
 # Tests talk straight to the real local database, and TestClient does NOT run
 # the app's lifespan (where create_all + schema-drift ALTERs normally happen),
 # so reconcile the schema here before any test module imports run.
+import os
+
 from sqlalchemy import text
 
 from app.core.database import Base, engine
@@ -15,9 +17,11 @@ with engine.begin() as conn:
 
 # Shared test practitioner credentials. Tests must import these instead of
 # hardcoding email/password literals, so the fixture account can be changed
-# in exactly one place.
-DOCTOR_EMAIL = "doctor@simtack.com"
-DOCTOR_PASSWORD = "Doctor123!"
+# in exactly one place. They default to the values seeded into the local
+# test database, and honor the same SEED_DOCTOR_* environment variables
+# as scripts/seed_doctor.py so both sides stay in sync.
+DOCTOR_EMAIL = os.getenv("SEED_DOCTOR_EMAIL", "doctor@simtack.com")
+DOCTOR_PASSWORD = os.getenv("SEED_DOCTOR_PASSWORD", "Doctor123!")
 DOCTOR_LOGIN = {"username": DOCTOR_EMAIL, "password": DOCTOR_PASSWORD}
 
 

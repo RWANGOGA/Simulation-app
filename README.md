@@ -147,7 +147,7 @@ Request ──▶ Pydantic schema validation ──▶ JWT auth (where required)
 
 - Python 3.11+
 - Docker (local PostgreSQL) **or** a Neon PostgreSQL connection string
-- Flutter SDK (the team pins **3.22.3**; see `flutter/` in the repo root)
+- Flutter SDK — the team works against a **3.22.3** stable checkout (this repo vendors one at `flutter/`; run commands via `../flutter/bin/flutter`, or verify with `flutter --version`). CI uses the stable channel (`.github/workflows/build.yml`); note the app must stay compatible with 3.22 APIs
 
 ### Backend
 
@@ -194,9 +194,10 @@ Backend (`Backend-fastapi/.env`, loaded by pydantic-settings):
 |---|---|
 | `DATABASE_URL` | SQLAlchemy connection string (PostgreSQL) |
 | `SECRET_KEY` | JWT signing key — **must** be overridden in production |
-| `SEED_DOCTOR_EMAIL` / `SEED_DOCTOR_PASSWORD` / `SEED_DOCTOR_NAME` | Required inputs for the seeding script |
+| `SEED_DOCTOR_EMAIL` / `SEED_DOCTOR_PASSWORD` | **Required** inputs for the seeding script |
+| `SEED_DOCTOR_NAME` | Optional display name (defaults to `Seeded Practitioner`) |
 
-> **Credential policy:** no email/password literals are hardcoded in app or seed code. Test credentials live in exactly one place per stack (`tests/conftest.py` for Python, `test/test_doctor_credentials.dart` for Flutter).
+> **Credential policy:** seed credentials come exclusively from environment variables (`SEED_DOCTOR_EMAIL` / `SEED_DOCTOR_PASSWORD` — both required). Test suites use shared test constants defined in one place per stack (`tests/conftest.py` for Python, `test/test_doctor_credentials.dart` for Flutter); the Python constants honor the same `SEED_DOCTOR_*` env vars so seeding and tests can never drift apart.
 
 ## API Reference
 
@@ -240,7 +241,7 @@ CI runs the Flutter analyze/test matrix and APK/Web builds on every push (`.gith
 - Passwords hashed with **bcrypt**; JWTs signed HS256 with short-lived expiry.
 - On-device tokens stored in **flutter_secure_storage** (Keychain / Keystore).
 - **QR codes carry only visit references** — no personal data leaves the phone in the code.
-- Credentials are never hardcoded; seeding and tests rely on environment/config.
+- Credentials are never hardcoded in app or seed code; seeding uses required environment variables, and test suites read shared credential constants (one file per stack, env-overridable on the backend).
 
 ## Contributing
 
