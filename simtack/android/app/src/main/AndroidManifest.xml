@@ -1,4 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Camera is used for the practitioner QR scanner (and PPG vitals). -->
+    <uses-permission android:name="android.permission.CAMERA" />
     <application
         android:label="atomybridge_app"
         android:name="${applicationName}"

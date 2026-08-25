@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/network/api_client.dart';
@@ -7,6 +8,7 @@ import '../../../core/network/auth_service.dart';
 import '../../auth/ui/login_screen.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import '../../../core/theme/app_page_route.dart';
+import 'qr_scan_screen.dart';
 
 class PractitionerDashboardScreen extends StatefulWidget {
   const PractitionerDashboardScreen({super.key});
@@ -87,6 +89,23 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
     );
   }
 
+  /// Blueprint section 2: point the camera at the patient's QR passport.
+  /// The scanner pops with the anonymous code, which opens the same report
+  /// screen a manual search would. Web has no camera API in this package,
+  /// so there the search field remains the entry point.
+  Future<void> _scanQr() async {
+    final code = await Navigator.of(context).push(
+      AppPageRoute(builder: (_) => const QrScanScreen()),
+    ) as String?;
+    if (code == null || !mounted) return;
+    await Navigator.of(context).push(
+      AppPageRoute(
+        builder: (_) => ClinicalReportScreen(patientId: code, practitionerMode: true),
+      ),
+    );
+    _loadData();
+  }
+
   String _getRiskLevel(double? score) {
     if (score == null) return 'UNKNOWN';
     if (score >= 0.7) return 'HIGH';
@@ -162,6 +181,23 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                           },
                         ),
                       ),
+                      // Camera entry point (blueprint: "Point camera to scan
+                      // the patients QR code"). Hidden on web where the
+                      // scanner package has no camera backend.
+                      if (!kIsWeb)
+                        Padding(
+                          padding: const EdgeInsets.only(left: 12),
+                          child: IconButton.filled(
+                            tooltip: 'Scan patient QR',
+                            style: IconButton.styleFrom(
+                              backgroundColor: const Color(0xFF6D28D9),
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            icon: const Icon(Icons.qr_code_scanner),
+                            onPressed: _scanQr,
+                          ),
+                        ),
                       const SizedBox(width: 12),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12),
