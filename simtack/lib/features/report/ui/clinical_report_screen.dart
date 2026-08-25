@@ -484,7 +484,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.35)),
+        border: Border.all(color: const Color(0xFF6D28D9).withValues(alpha: 0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -516,8 +516,8 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                     selected: _decisionStatus == value,
                     onSelected: (picked) => setState(() => _decisionStatus = value),
                     selectedColor: value == 'closed'
-                        ? const Color(0xFF16A34A).withOpacity(0.2)
-                        : const Color(0xFFF59E0B).withOpacity(0.2),
+                        ? const Color(0xFF16A34A).withValues(alpha: 0.2)
+                        : const Color(0xFFF59E0B).withValues(alpha: 0.2),
                     labelStyle: const TextStyle(fontSize: 12),
                   ),
                 ),
@@ -579,9 +579,9 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF6D28D9).withOpacity(0.06),
+        color: const Color(0xFF6D28D9).withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.2)),
+        border: Border.all(color: const Color(0xFF6D28D9).withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

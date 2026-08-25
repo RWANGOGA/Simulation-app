@@ -1,17 +1,17 @@
-// ignore_for_file: avoid_web_libraries_in_flutter
 import 'dart:async';
-import 'dart:html' as html;
+import 'dart:js_interop';
 import 'dart:ui_web' as ui_web;
+import 'package:web/web.dart' as web;
 
 /// Drives the browser camera directly via getUserMedia and samples frames
 /// on a timer, since the `camera` package's CameraController.startImageStream
 /// throws on web (it asserts Android/iOS only). This bypasses CameraController
 /// for frame capture but still gives a live preview via HtmlElementView.
 class WebPpgCapture {
-  html.MediaStream? _stream;
-  html.VideoElement? _video;
-  html.CanvasElement? _canvas;
-  html.CanvasRenderingContext2D? _ctx;
+  web.MediaStream? _stream;
+  web.HTMLVideoElement? _video;
+  web.HTMLCanvasElement? _canvas;
+  web.CanvasRenderingContext2D? _ctx;
   Timer? _timer;
 
   final String viewType;
@@ -20,12 +20,9 @@ class WebPpgCapture {
   WebPpgCapture() : viewType = 'ppg-video-view-${_viewCounter++}';
 
   Future<void> start({required void Function(double brightness) onSample}) async {
-    final mediaDevices = html.window.navigator.mediaDevices;
-    if (mediaDevices == null) {
-      throw StateError('Camera access is not available in this browser.');
-    }
+    final mediaDevices = web.window.navigator.mediaDevices;
 
-    _video = html.VideoElement()
+    _video = web.HTMLVideoElement()
       ..autoplay = true
       ..muted = true
       ..setAttribute('playsinline', 'true')
@@ -37,18 +34,26 @@ class WebPpgCapture {
     // HtmlElementView(viewType: this.viewType) in the widget tree.
     ui_web.platformViewRegistry.registerViewFactory(viewType, (int _) => _video!);
 
-    _stream = await mediaDevices.getUserMedia({
-      'video': {'facingMode': 'environment'},
-      'audio': false,
-    });
+    final constraints = web.MediaStreamConstraints(
+      video: {'facingMode': 'environment'}.jsify()!,
+      audio: false.toJS,
+    );
+    _stream = await mediaDevices.getUserMedia(constraints).toDart;
     _video!.srcObject = _stream;
-    await _video!.onLoadedMetadata.first;
-    await _video!.play();
+
+    final metadataLoaded = Completer<void>();
+    _video!.onloadedmetadata = (web.Event _) {
+      if (!metadataLoaded.isCompleted) metadataLoaded.complete();
+    }.toJS;
+    await metadataLoaded.future;
+    await _video!.play().toDart;
 
     // Small offscreen canvas — we only need average brightness, not full
     // resolution, so downscaling here keeps per-frame sampling cheap.
-    _canvas = html.CanvasElement(width: 64, height: 64);
-    _ctx = _canvas!.context2D;
+    _canvas = web.HTMLCanvasElement()
+      ..width = 64
+      ..height = 64;
+    _ctx = _canvas!.getContext('2d') as web.CanvasRenderingContext2D;
 
     // ~30fps sampling.
     _timer = Timer.periodic(const Duration(milliseconds: 33), (_) {
@@ -56,9 +61,9 @@ class WebPpgCapture {
       final ctx = _ctx;
       if (video == null || ctx == null || video.videoWidth == 0) return;
 
-      ctx.drawImageScaled(video, 0, 0, 64, 64);
+      ctx.drawImage(video, 0, 0, 64, 64);
       final imageData = ctx.getImageData(0, 0, 64, 64);
-      final data = imageData.data;
+      final data = imageData.data.toDart;
 
       double total = 0;
       int count = 0;
@@ -78,7 +83,7 @@ class WebPpgCapture {
     _timer?.cancel();
     _timer = null;
 
-    _stream?.getTracks().forEach((track) => track.stop());
+    _stream?.getTracks().toDart.forEach((track) => track.stop());
     _stream = null;
 
     _video?.remove();
