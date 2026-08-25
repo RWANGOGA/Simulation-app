@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 from app.core.database import get_db
 from app.crud import crud_triage, crud_patient
-from app.schemas import TriageCreate, TriageResponse, PatientCreate
+from app.schemas import TriageCreate, TriageResponse, TriageDecisionUpdate, PatientCreate
 from app.services import triage_service
 from app.models import Patient, TriageSession
 
@@ -15,7 +15,13 @@ router = APIRouter(prefix="/triage", tags=["triage"])
 # ==========================================
 @router.post("/", response_model=TriageResponse, status_code=201)
 def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
-    risk, contributions = triage_service.compute_risk(payload)
+    # If this pain point belongs to a multi-region visit, score it aware of
+    # whatever other regions the patient already reported in the same visit
+    # (e.g. chest pain scored alongside already-reported left arm pain).
+    sibling_regions = (
+        crud_triage.get_regions_in_visit(db, payload.visit_id) if payload.visit_id else None
+    )
+    risk, contributions = triage_service.compute_risk(payload, sibling_regions)
 
     patient_id = payload.patient_id
     anonymous_code = None
@@ -46,7 +52,9 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
         "heart_rate": session.heart_rate, "direction": session.direction, "depth": session.depth,
         "visit_id": session.visit_id,
         "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
-        "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at
+        "qr_payload_hash": session.qr_payload_hash,
+        "notes": session.notes, "status": session.status or "Open",
+        "created_at": session.created_at
     }
 
 # ==========================================
@@ -114,9 +122,43 @@ def list_triage_sessions(
             "pain_type": session.pain_type,
             "severity": session.severity,
             "risk_score": session.risk_score,
+            "shap_explanation": session.shap_explanation,
+            "notes": session.notes,
+            "status": session.status or "Open",
             "created_at": session.created_at.isoformat()
         })
     return result
+
+# ==========================================
+# 4b. UPDATE A SESSION'S PRACTITIONER DECISION (notes / Open-Closed status)
+# Saved from the dashboard's Triage Decision panel. A PATCH on
+# "/{session_id}/decision" never collides with the catch-all GET
+# "/{session_id}" below — different HTTP method, and an extra path
+# segment besides — but is kept up here with the other static-shaped
+# routes for readability.
+# ==========================================
+@router.patch("/{session_id}/decision", response_model=TriageResponse)
+def update_triage_decision(session_id: int, payload: TriageDecisionUpdate, db: Session = Depends(get_db)):
+    session = crud_triage.update_decision(db, session_id, payload.notes, payload.status)
+    if session is None:
+        raise HTTPException(status_code=404, detail="Triage session not found")
+
+    anon_code = None
+    if session.patient_id:
+        patient = db.query(Patient).filter(Patient.id == session.patient_id).first()
+        if patient:
+            anon_code = patient.anonymous_code
+
+    return {
+        "id": session.id, "patient_id": session.patient_id, "anonymous_code": anon_code,
+        "body_region": session.body_region, "pain_type": session.pain_type, "severity": session.severity,
+        "heart_rate": session.heart_rate, "direction": session.direction, "depth": session.depth,
+        "visit_id": session.visit_id,
+        "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
+        "qr_payload_hash": session.qr_payload_hash,
+        "notes": session.notes, "status": session.status or "Open",
+        "created_at": session.created_at
+    }
 
 # ==========================================
 # 5. GET LATEST VISIT BY PATIENT CODE (QR Scan / Patient views own report)
@@ -146,7 +188,9 @@ def get_triage_by_patient_code(patient_code: str, db: Session = Depends(get_db))
             "heart_rate": s.heart_rate, "direction": s.direction, "depth": s.depth,
             "visit_id": s.visit_id,
             "risk_score": s.risk_score, "shap_explanation": s.shap_explanation,
-            "qr_payload_hash": s.qr_payload_hash, "created_at": s.created_at
+            "qr_payload_hash": s.qr_payload_hash,
+            "notes": s.notes, "status": s.status or "Open",
+            "created_at": s.created_at
         }
         for s in sessions
     ]
@@ -176,5 +220,7 @@ def get_triage(session_id: int, db: Session = Depends(get_db)):
         "heart_rate": session.heart_rate, "direction": session.direction, "depth": session.depth,
         "visit_id": session.visit_id,
         "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
-        "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at
+        "qr_payload_hash": session.qr_payload_hash,
+        "notes": session.notes, "status": session.status or "Open",
+        "created_at": session.created_at
     }

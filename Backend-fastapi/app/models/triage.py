@@ -22,4 +22,9 @@ class TriageSession(Base):
     risk_score = Column(Float, nullable=True)
     shap_explanation = Column(Text, nullable=True)
     qr_payload_hash = Column(String, nullable=True)
+    # Set by a practitioner reviewing the case on the dashboard, not by the
+    # patient at submission time — both start unset/"Open" until a doctor
+    # records a decision.
+    notes = Column(Text, nullable=True)
+    status = Column(String, nullable=True, default="Open")
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

@@ -25,5 +25,14 @@ class TriageResponse(TriageBase):
     risk_score: Optional[float] = None
     shap_explanation: Optional[str] = None
     qr_payload_hash: Optional[str] = None
+    notes: Optional[str] = None
+    status: Optional[str] = "Open"
     created_at: datetime
     model_config = ConfigDict(from_attributes=True)
+
+class TriageDecisionUpdate(BaseModel):
+    """Practitioner-authored fields saved from the dashboard's Triage
+    Decision panel — distinct from TriageBase, which is patient-submitted
+    at triage time."""
+    notes: Optional[str] = None
+    status: Optional[str] = Field(None, pattern="^(Open|Closed)$")
