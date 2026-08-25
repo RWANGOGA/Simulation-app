@@ -11,3 +11,17 @@ Base.metadata.create_all(bind=engine)
 with engine.begin() as conn:
     for stmt in _SCHEMA_DRIFT_STATEMENTS:
         conn.execute(text(stmt))
+
+
+# Shared test practitioner credentials. Tests must import these instead of
+# hardcoding email/password literals, so the fixture account can be changed
+# in exactly one place.
+DOCTOR_EMAIL = "doctor@simtack.com"
+DOCTOR_PASSWORD = "Doctor123!"
+DOCTOR_LOGIN = {"username": DOCTOR_EMAIL, "password": DOCTOR_PASSWORD}
+
+
+def doctor_headers(client) -> dict:
+    """JWT auth headers for the seeded test practitioner."""
+    token = client.post("/api/v1/auth/login", data=DOCTOR_LOGIN).json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
