@@ -81,7 +81,8 @@ void main() {
 
     expect(find.text('Create Practitioner Account'), findsOneWidget);
     expect(find.text('Join Simtack Care'), findsOneWidget);
-    expect(find.byType(TextFormField), findsNWidgets(5));
+    // name, email, license, DOB (picker), phone, hospital, password, confirm
+    expect(find.byType(TextFormField), findsNWidgets(8));
     expect(find.text('Doctor'), findsWidgets); // dropdown default
     expect(find.text('Create Account'), findsOneWidget);
   });
@@ -106,9 +107,9 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: RegisterScreen()));
     await tester.pumpAndSettle();
 
-    // fields: name, email, license, password, confirm
-    await tester.enterText(find.byType(TextFormField).at(3), 'Passw0rd1');
-    await tester.enterText(find.byType(TextFormField).at(4), 'Different1');
+    // fields: name, email, license, DOB(picker), phone, hospital, password, confirm
+    await tester.enterText(find.byType(TextFormField).at(6), 'Passw0rd1');
+    await tester.enterText(find.byType(TextFormField).at(7), 'Different1');
 
     await tester.ensureVisible(find.text('Create Account'));
     await tester.tap(find.text('Create Account'));
@@ -129,11 +130,15 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: RegisterScreen()));
     await tester.pumpAndSettle();
 
+    // Field order: 0 name, 1 email, 2 license, 3 DOB (picker, skipped),
+    // 4 phone, 5 hospital, 6 password, 7 confirm.
     await tester.enterText(find.byType(TextFormField).at(0), 'Dr. New');
     await tester.enterText(find.byType(TextFormField).at(1), 'newdoc@test.com');
     await tester.enterText(find.byType(TextFormField).at(2), 'LIC-1');
-    await tester.enterText(find.byType(TextFormField).at(3), 'Passw0rd1');
-    await tester.enterText(find.byType(TextFormField).at(4), 'Passw0rd1');
+    await tester.enterText(find.byType(TextFormField).at(4), '+256700111222');
+    await tester.enterText(find.byType(TextFormField).at(5), 'Mulago Hospital');
+    await tester.enterText(find.byType(TextFormField).at(6), 'Passw0rd1');
+    await tester.enterText(find.byType(TextFormField).at(7), 'Passw0rd1');
 
     await tester.ensureVisible(find.text('Create Account'));
     await tester.tap(find.text('Create Account'));

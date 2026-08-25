@@ -24,9 +24,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _licenseController = TextEditingController();
+  final _phoneController = TextEditingController();
+  final _hospitalController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
   String? _role = _roles.first;
+  DateTime? _dateOfBirth;
   bool _isLoading = false;
   bool _obscurePassword = true;
   String? _errorMessage;
@@ -64,6 +67,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
             borderSide: const BorderSide(color: Color(0xFF6D28D9), width: 2)),
       );
 
+  Future<void> _pickDateOfBirth() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _dateOfBirth ?? DateTime(now.year - 35),
+      firstDate: DateTime(1930),
+      lastDate: now,
+      helpText: 'DATE OF BIRTH',
+    );
+    if (picked != null) setState(() => _dateOfBirth = picked);
+  }
+
+  String _formatDate(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-'
+      '${d.day.toString().padLeft(2, '0')}';
+
   Future<void> _register() async {
     setState(() => _errorMessage = null);
     if (!_formKey.currentState!.validate()) return;
@@ -76,6 +95,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         fullName: _nameController.text.trim(),
         role: _role,
         licenseNumber: _licenseController.text.trim(),
+        phone: _phoneController.text.trim(),
+        hospitalName: _hospitalController.text.trim(),
+        dateOfBirth: _dateOfBirth,
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -99,6 +121,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _licenseController.dispose();
+    _phoneController.dispose();
+    _hospitalController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
     super.dispose();
@@ -197,6 +221,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         'Self-declared for this deployment — verified out-of-band in real rollouts.',
                         style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                       ),
+                    ),
+                    const SizedBox(height: 16),
+                    GestureDetector(
+                      onTap: _pickDateOfBirth,
+                      child: AbsorbPointer(
+                        child: TextFormField(
+                          decoration: _fieldDecoration(
+                              label: 'Date of Birth (optional)', icon: Icons.cake_outlined),
+                          controller: TextEditingController(
+                            text: _dateOfBirth != null ? _formatDate(_dateOfBirth!) : '',
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      textInputAction: TextInputAction.next,
+                      decoration: _fieldDecoration(label: 'Contact Phone', icon: Icons.phone_outlined),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _hospitalController,
+                      textInputAction: TextInputAction.next,
+                      decoration:
+                          _fieldDecoration(label: 'Hospital / Facility', icon: Icons.local_hospital_outlined),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(

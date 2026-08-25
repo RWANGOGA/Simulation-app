@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from typing import Optional
 import re
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -32,6 +32,9 @@ class DoctorCreate(BaseModel):
     # Professional context — stored for audit/clinical display, self-declared.
     role: Optional[str] = None
     license_number: Optional[str] = None
+    phone: Optional[str] = None
+    hospital_name: Optional[str] = None
+    date_of_birth: Optional[date] = None
 
 # Minimal structural email check (we deliberately avoid the heavy
 # email-validator dependency for a simulation deployment).
@@ -131,6 +134,9 @@ def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
         full_name=full_name,
         role=(payload.role or "").strip() or None,
         license_number=(payload.license_number or "").strip() or None,
+        phone=(payload.phone or "").strip() or None,
+        hospital_name=(payload.hospital_name or "").strip() or None,
+        date_of_birth=payload.date_of_birth,
         is_active=True,
     )
     db.add(doctor)

@@ -33,6 +33,13 @@ def _session_payload(session: TriageSession, patient) -> dict:
         "patient_gender": patient.gender if patient else None,
         "patient_weight": patient.weight if patient else None,
         "patient_height": patient.height if patient else None,
+        "patient_name": patient.full_name if patient else None,
+        "patient_date_of_birth": patient.date_of_birth if patient else None,
+        "patient_phone": patient.phone if patient else None,
+        "patient_address": patient.address if patient else None,
+        "patient_next_of_kin_name": patient.next_of_kin_name if patient else None,
+        "patient_next_of_kin_phone": patient.next_of_kin_phone if patient else None,
+        "patient_hospital_name": patient.hospital_name if patient else None,
     }
 
 # ==========================================

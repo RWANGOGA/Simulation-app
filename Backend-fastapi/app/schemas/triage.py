@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import List, Optional
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -34,6 +34,15 @@ class TriageResponse(TriageBase):
     patient_gender: Optional[str] = None
     patient_weight: Optional[float] = None
     patient_height: Optional[float] = None
+    # Personal demographics (optional at intake) — carried through so the
+    # practitioner sees name/contact/next-of-kin when scanning the QR code.
+    patient_name: Optional[str] = None
+    patient_date_of_birth: Optional[date] = None
+    patient_phone: Optional[str] = None
+    patient_address: Optional[str] = None
+    patient_next_of_kin_name: Optional[str] = None
+    patient_next_of_kin_phone: Optional[str] = None
+    patient_hospital_name: Optional[str] = None
     # Practitioner decision workflow fields.
     status: Optional[str] = "open"
     priority: Optional[str] = None

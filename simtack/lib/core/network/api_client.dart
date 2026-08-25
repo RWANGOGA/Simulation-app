@@ -34,6 +34,8 @@ class Doctor {
   final bool isActive;
   final String? role;
   final String? licenseNumber;
+  final String? phone;
+  final String? hospitalName;
 
   const Doctor({
     required this.id,
@@ -42,6 +44,8 @@ class Doctor {
     required this.isActive,
     this.role,
     this.licenseNumber,
+    this.phone,
+    this.hospitalName,
   });
 
   factory Doctor.fromJson(Map<String, dynamic> json) => Doctor(
@@ -51,6 +55,8 @@ class Doctor {
         isActive: json['is_active'] as bool,
         role: json['role'] as String?,
         licenseNumber: json['license_number'] as String?,
+        phone: json['phone'] as String?,
+        hospitalName: json['hospital_name'] as String?,
       );
 }
 
@@ -99,12 +105,29 @@ class PatientProfile {
   final String gender;
   final double weight;
   final double height;
+  // Optional personal demographics — the flow stays fast for anonymous
+  // walk-ins, but anything provided is stored and carried onto the
+  // clinical report / QR-scan lookup.
+  final String? fullName;
+  final DateTime? dateOfBirth;
+  final String? phone;
+  final String? address;
+  final String? nextOfKinName;
+  final String? nextOfKinPhone;
+  final String? hospitalName;
 
   const PatientProfile({
     required this.age,
     required this.gender,
     required this.weight,
     required this.height,
+    this.fullName,
+    this.dateOfBirth,
+    this.phone,
+    this.address,
+    this.nextOfKinName,
+    this.nextOfKinPhone,
+    this.hospitalName,
   });
 
   Map<String, dynamic> toJson() => {
@@ -112,6 +135,22 @@ class PatientProfile {
         'gender': gender,
         'weight': weight,
         'height': height,
+        if (fullName != null && fullName!.trim().isNotEmpty)
+          'full_name': fullName!.trim(),
+        if (dateOfBirth != null)
+          'date_of_birth':
+              '${dateOfBirth!.year.toString().padLeft(4, '0')}-'
+              '${dateOfBirth!.month.toString().padLeft(2, '0')}-'
+              '${dateOfBirth!.day.toString().padLeft(2, '0')}',
+        if (phone != null && phone!.trim().isNotEmpty) 'phone': phone!.trim(),
+        if (address != null && address!.trim().isNotEmpty)
+          'address': address!.trim(),
+        if (nextOfKinName != null && nextOfKinName!.trim().isNotEmpty)
+          'next_of_kin_name': nextOfKinName!.trim(),
+        if (nextOfKinPhone != null && nextOfKinPhone!.trim().isNotEmpty)
+          'next_of_kin_phone': nextOfKinPhone!.trim(),
+        if (hospitalName != null && hospitalName!.trim().isNotEmpty)
+          'hospital_name': hospitalName!.trim(),
       };
 }
 
@@ -185,6 +224,15 @@ class TriageResult {
   final String? patientGender;
   final double? patientWeight;
   final double? patientHeight;
+  // Personal demographics carried through so the practitioner sees the
+  // patient's identity/contact when scanning the QR passport.
+  final String? patientName;
+  final String? patientDateOfBirth;
+  final String? patientPhone;
+  final String? patientAddress;
+  final String? patientNextOfKinName;
+  final String? patientNextOfKinPhone;
+  final String? patientHospitalName;
   // Practitioner decision workflow (blueprint section 5).
   final String status; // 'open' until reviewed, then 'closed'
   final String? priority;
@@ -211,6 +259,13 @@ class TriageResult {
     this.patientGender,
     this.patientWeight,
     this.patientHeight,
+    this.patientName,
+    this.patientDateOfBirth,
+    this.patientPhone,
+    this.patientAddress,
+    this.patientNextOfKinName,
+    this.patientNextOfKinPhone,
+    this.patientHospitalName,
     this.status = 'open',
     this.priority,
     this.actionsTaken = const [],
@@ -245,6 +300,13 @@ class TriageResult {
       patientGender: json['patient_gender'] as String?,
       patientWeight: (json['patient_weight'] as num?)?.toDouble(),
       patientHeight: (json['patient_height'] as num?)?.toDouble(),
+      patientName: json['patient_name'] as String?,
+      patientDateOfBirth: json['patient_date_of_birth'] as String?,
+      patientPhone: json['patient_phone'] as String?,
+      patientAddress: json['patient_address'] as String?,
+      patientNextOfKinName: json['patient_next_of_kin_name'] as String?,
+      patientNextOfKinPhone: json['patient_next_of_kin_phone'] as String?,
+      patientHospitalName: json['patient_hospital_name'] as String?,
       status: (json['status'] as String?) ?? 'open',
       priority: json['priority'] as String?,
       actionsTaken: _parseActionsTaken(json['actions_taken']),
@@ -312,6 +374,9 @@ class ApiClient {
     required String fullName,
     String? role,
     String? licenseNumber,
+    String? phone,
+    String? hospitalName,
+    DateTime? dateOfBirth,
   }) async {
     final response = await httpClient.post(
       Uri.parse('$baseUrl/auth/register'),
@@ -323,6 +388,14 @@ class ApiClient {
         if (role != null && role.isNotEmpty) 'role': role,
         if (licenseNumber != null && licenseNumber.isNotEmpty)
           'license_number': licenseNumber,
+        if (phone != null && phone.trim().isNotEmpty) 'phone': phone.trim(),
+        if (hospitalName != null && hospitalName.trim().isNotEmpty)
+          'hospital_name': hospitalName.trim(),
+        if (dateOfBirth != null)
+          'date_of_birth':
+              '${dateOfBirth.year.toString().padLeft(4, '0')}-'
+              '${dateOfBirth.month.toString().padLeft(2, '0')}-'
+              '${dateOfBirth.day.toString().padLeft(2, '0')}',
       }),
     );
     if (response.statusCode != 201) {

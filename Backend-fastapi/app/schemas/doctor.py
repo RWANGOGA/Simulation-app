@@ -1,3 +1,4 @@
+from datetime import date
 from typing import Optional
 from pydantic import BaseModel
 
@@ -7,6 +8,9 @@ class DoctorResponse(BaseModel):
     full_name: str
     role: Optional[str] = None
     license_number: Optional[str] = None
+    phone: Optional[str] = None
+    hospital_name: Optional[str] = None
+    date_of_birth: Optional[date] = None
     is_active: bool
 
     class Config:

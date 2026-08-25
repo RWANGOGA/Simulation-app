@@ -251,6 +251,16 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     );
   }
 
+  /// Renders an ISO date ("2018-03-14") as "14 Mar 2018"; falls back to
+  /// the raw string if it can't be parsed.
+  String _formatDob(String iso) {
+    final parsed = DateTime.tryParse(iso);
+    if (parsed == null) return iso;
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    return '${parsed.day} ${months[parsed.month - 1]} ${parsed.year}';
+  }
+
   Widget _buildPatientDemographics() {
     // All pain points in a visit belong to the same patient, so the first
     // record carries the demographics for the whole report.
@@ -258,10 +268,22 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     final hasAny = p.patientAge != null ||
         p.patientGender != null ||
         p.patientWeight != null ||
-        p.patientHeight != null;
+        p.patientHeight != null ||
+        (p.patientName?.isNotEmpty ?? false) ||
+        (p.patientDateOfBirth?.isNotEmpty ?? false) ||
+        (p.patientPhone?.isNotEmpty ?? false) ||
+        (p.patientAddress?.isNotEmpty ?? false) ||
+        (p.patientNextOfKinName?.isNotEmpty ?? false) ||
+        (p.patientHospitalName?.isNotEmpty ?? false);
     if (!hasAny) return const SizedBox.shrink();
 
     final chips = <Widget>[];
+    if (p.patientName != null && p.patientName!.isNotEmpty) {
+      chips.add(_demoChip(Icons.badge_outlined, 'Name', p.patientName!));
+    }
+    if (p.patientDateOfBirth != null && p.patientDateOfBirth!.isNotEmpty) {
+      chips.add(_demoChip(Icons.calendar_today_outlined, 'DOB', _formatDob(p.patientDateOfBirth!)));
+    }
     if (p.patientAge != null) {
       chips.add(_demoChip(Icons.cake_outlined, 'Age', '${p.patientAge} yrs'));
     }
@@ -273,6 +295,25 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     }
     if (p.patientHeight != null) {
       chips.add(_demoChip(Icons.height_outlined, 'Height', '${p.patientHeight!.toInt()} cm'));
+    }
+    if (p.patientPhone != null && p.patientPhone!.isNotEmpty) {
+      chips.add(_demoChip(Icons.phone_outlined, 'Phone', p.patientPhone!));
+    }
+    if (p.patientAddress != null && p.patientAddress!.isNotEmpty) {
+      chips.add(_demoChip(Icons.home_outlined, 'Address', p.patientAddress!));
+    }
+    // Next-of-kin matters most for children/dependents — show name and
+    // phone together so the practitioner can reach the guardian directly.
+    if ((p.patientNextOfKinName?.isNotEmpty ?? false) ||
+        (p.patientNextOfKinPhone?.isNotEmpty ?? false)) {
+      final kin = [
+        if (p.patientNextOfKinName != null && p.patientNextOfKinName!.isNotEmpty) p.patientNextOfKinName!,
+        if (p.patientNextOfKinPhone != null && p.patientNextOfKinPhone!.isNotEmpty) p.patientNextOfKinPhone!,
+      ].join(' · ');
+      chips.add(_demoChip(Icons.family_restroom, 'Next of kin', kin));
+    }
+    if (p.patientHospitalName != null && p.patientHospitalName!.isNotEmpty) {
+      chips.add(_demoChip(Icons.local_hospital_outlined, 'Hospital', p.patientHospitalName!));
     }
 
     return Container(

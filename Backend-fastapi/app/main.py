@@ -24,6 +24,16 @@ _SCHEMA_DRIFT_STATEMENTS = [
     "ON triage_sessions (visit_id)",
     "ALTER TABLE doctors ADD COLUMN IF NOT EXISTS role VARCHAR",
     "ALTER TABLE doctors ADD COLUMN IF NOT EXISTS license_number VARCHAR",
+    "ALTER TABLE doctors ADD COLUMN IF NOT EXISTS phone VARCHAR",
+    "ALTER TABLE doctors ADD COLUMN IF NOT EXISTS hospital_name VARCHAR",
+    "ALTER TABLE doctors ADD COLUMN IF NOT EXISTS date_of_birth DATE",
+    "ALTER TABLE patients ADD COLUMN IF NOT EXISTS full_name VARCHAR",
+    "ALTER TABLE patients ADD COLUMN IF NOT EXISTS date_of_birth DATE",
+    "ALTER TABLE patients ADD COLUMN IF NOT EXISTS phone VARCHAR",
+    "ALTER TABLE patients ADD COLUMN IF NOT EXISTS address TEXT",
+    "ALTER TABLE patients ADD COLUMN IF NOT EXISTS next_of_kin_name VARCHAR",
+    "ALTER TABLE patients ADD COLUMN IF NOT EXISTS next_of_kin_phone VARCHAR",
+    "ALTER TABLE patients ADD COLUMN IF NOT EXISTS hospital_name VARCHAR",
 ]
 
 @asynccontextmanager
