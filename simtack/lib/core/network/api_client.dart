@@ -420,7 +420,7 @@ class ApiClient {
   static Future<void> logout() => tokenStorage.delete();
 
   static Future<PatientResult> createPatient(PatientProfile profile) async {
-    final response = await http.post(
+    final response = await httpClient.post(
       Uri.parse('$baseUrl/patients/'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(profile.toJson()),
@@ -435,7 +435,7 @@ class ApiClient {
 
   static Future<TriageResult> sendTriage(TriageReport report) async {
     debugPrint('🚀 Sending to backend ($baseUrl): ${report.toJson()}');
-    final response = await http.post(
+    final response = await httpClient.post(
       Uri.parse('$baseUrl/triage/'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(report.toJson()),
@@ -449,7 +449,7 @@ class ApiClient {
   }
 
   static Future<List<TriageResult>> getLatestVisit(String patientCode) async {
-    final response = await http.get(
+    final response = await httpClient.get(
       Uri.parse('$baseUrl/triage/patient/$patientCode'),
     );
     if (response.statusCode == 200) {
