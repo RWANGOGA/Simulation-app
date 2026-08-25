@@ -32,12 +32,16 @@ class Doctor {
   final String email;
   final String fullName;
   final bool isActive;
+  final String? role;
+  final String? licenseNumber;
 
   const Doctor({
     required this.id,
     required this.email,
     required this.fullName,
     required this.isActive,
+    this.role,
+    this.licenseNumber,
   });
 
   factory Doctor.fromJson(Map<String, dynamic> json) => Doctor(
@@ -45,6 +49,8 @@ class Doctor {
         email: json['email'] as String,
         fullName: json['full_name'] as String,
         isActive: json['is_active'] as bool,
+        role: json['role'] as String?,
+        licenseNumber: json['license_number'] as String?,
       );
 }
 
@@ -296,6 +302,33 @@ class ApiClient {
     }
     await tokenStorage.write(token);
     return getCurrentDoctor();
+  }
+
+  /// Creates a practitioner account, then logs in with the same
+  /// credentials so the user lands directly on the dashboard.
+  static Future<Doctor> register({
+    required String email,
+    required String password,
+    required String fullName,
+    String? role,
+    String? licenseNumber,
+  }) async {
+    final response = await httpClient.post(
+      Uri.parse('$baseUrl/auth/register'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'email': email,
+        'password': password,
+        'full_name': fullName,
+        if (role != null && role.isNotEmpty) 'role': role,
+        if (licenseNumber != null && licenseNumber.isNotEmpty)
+          'license_number': licenseNumber,
+      }),
+    );
+    if (response.statusCode != 201) {
+      throw ApiException.fromResponse(response.statusCode, response.body);
+    }
+    return login(email: email, password: password);
   }
 
   static Future<Doctor> getCurrentDoctor() async {

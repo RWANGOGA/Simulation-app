@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Optional
+import re
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
@@ -28,6 +29,13 @@ class DoctorCreate(BaseModel):
     email: str
     password: str
     full_name: str
+    # Professional context — stored for audit/clinical display, self-declared.
+    role: Optional[str] = None
+    license_number: Optional[str] = None
+
+# Minimal structural email check (we deliberately avoid the heavy
+# email-validator dependency for a simulation deployment).
+_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     password_byte_enc = plain_password.encode('utf-8')
@@ -94,10 +102,22 @@ def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
     (invite code / admin-only) before any production use.
     """
     email = payload.email.strip().lower()
-    if len(payload.password) < 8:
+    full_name = payload.full_name.strip()
+    if not _EMAIL_RE.match(email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password must be at least 8 characters",
+            detail="Enter a valid email address",
+        )
+    if not full_name:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Full name is required",
+        )
+    password = payload.password
+    if len(password) < 8 or not re.search(r"[A-Za-z]", password) or not re.search(r"\d", password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 8 characters and contain a letter and a number",
         )
     existing = db.query(Doctor).filter(Doctor.email == email).first()
     if existing:
@@ -107,8 +127,10 @@ def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
         )
     doctor = Doctor(
         email=email,
-        hashed_password=get_password_hash(payload.password),
-        full_name=payload.full_name.strip(),
+        hashed_password=get_password_hash(password),
+        full_name=full_name,
+        role=(payload.role or "").strip() or None,
+        license_number=(payload.license_number or "").strip() or None,
         is_active=True,
     )
     db.add(doctor)

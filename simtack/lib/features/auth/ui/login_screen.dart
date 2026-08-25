@@ -3,6 +3,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/network/auth_service.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../dashboard/ui/practitioner_dashboard_screen.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -159,6 +160,22 @@ class _LoginScreenState extends State<LoginScreen> {
                         : const Text('Sign In',
                             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
                   ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('New practitioner?',
+                        style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
+                    TextButton(
+                      onPressed: _isLoading ? null : () => Navigator.of(context).push(
+                        AppPageRoute(builder: (_) => const RegisterScreen()),
+                      ),
+                      child: const Text('Create an account',
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6D28D9))),
+                    ),
+                  ],
                 ),
               ],
             ),

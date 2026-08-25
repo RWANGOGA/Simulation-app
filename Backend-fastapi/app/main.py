@@ -22,6 +22,8 @@ _SCHEMA_DRIFT_STATEMENTS = [
     "ALTER TABLE triage_sessions ADD COLUMN IF NOT EXISTS clinical_notes TEXT",
     "CREATE INDEX IF NOT EXISTS ix_triage_sessions_visit_id "
     "ON triage_sessions (visit_id)",
+    "ALTER TABLE doctors ADD COLUMN IF NOT EXISTS role VARCHAR",
+    "ALTER TABLE doctors ADD COLUMN IF NOT EXISTS license_number VARCHAR",
 ]
 
 @asynccontextmanager

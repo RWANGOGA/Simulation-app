@@ -107,7 +107,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
             left: 0,
             right: 0,
             bottom: 48,
-            child: const Text(
+            child: Text(
               'Point the camera at the patient\'s QR passport',
               textAlign: TextAlign.center,
               style: TextStyle(color: Colors.white70, fontSize: 14),
