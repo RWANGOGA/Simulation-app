@@ -2,7 +2,6 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import '../../../core/network/api_client.dart';
-import '../../../core/widgets/shap_explanation_card.dart';
 
 class ClinicalReportScreen extends StatefulWidget {
   final String patientId;
@@ -18,6 +17,11 @@ class ClinicalReportScreen extends StatefulWidget {
 
 class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
   List<TriageResult> _reports = [];
+  // Sessions grouped into visits (newest first). Practitioners can scrub
+  // through the patient's whole history; patients only ever get their
+  // latest visit from the backend.
+  List<List<TriageResult>> _visits = [];
+  int _selectedVisit = 0;
   bool _isLoading = true;
   String? _error;
 
@@ -26,7 +30,9 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
   final Set<String> _checkedActions = {};
   final TextEditingController _notesController = TextEditingController();
   bool _savingDecision = false;
-  bool _decisionInitialized = false;
+
+  List<TriageResult> get _currentVisit =>
+      _visits.isEmpty ? const <TriageResult>[] : _visits[_selectedVisit];
 
   @override
   void dispose() {
@@ -42,23 +48,20 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
 
   Future<void> _fetchReport() async {
     try {
-      // Uses ApiClient.getLatestVisit, which already decodes the backend's
-      // list response correctly (the endpoint now returns every pain point
-      // from the patient's most recent visit, not just one).
-      final results = await ApiClient.getLatestVisit(widget.patientId);
+      // Practitioners get the FULL history (visit timeline); patients keep
+      // the unauthenticated latest-visit route.
+      final results = widget.practitionerMode
+          ? await ApiClient.getPatientHistory(widget.patientId)
+          : await ApiClient.getLatestVisit(widget.patientId);
       setState(() {
         _reports = results;
+        _visits = _groupIntoVisits(results);
+        _selectedVisit = 0;
         _isLoading = false;
         // Pre-fill the decision form from whatever a practitioner saved
-        // on a previous review of this visit.
-        if (widget.practitionerMode && !_decisionInitialized && results.isNotEmpty) {
-          final worst = results.reduce(
-            (a, b) => (a.riskScore ?? 0.0) >= (b.riskScore ?? 0.0) ? a : b,
-          );
-          _decisionStatus = worst.status;
-          _notesController.text = worst.clinicalNotes ?? '';
-          _checkedActions.addAll(worst.actionsTaken);
-          _decisionInitialized = true;
+        // on a previous review of the selected (latest) visit.
+        if (widget.practitionerMode && _currentVisit.isNotEmpty) {
+          _applyDecisionFrom(_visitWorst(_currentVisit));
         }
       });
     } catch (e) {
@@ -67,6 +70,48 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
         _isLoading = false;
       });
     }
+  }
+
+  /// Groups sessions into visits, preserving the backend's newest-first
+  /// visit order. Rows without a visit_id (legacy submissions) each count
+  /// as a visit of one.
+  List<List<TriageResult>> _groupIntoVisits(List<TriageResult> sessions) {
+    final grouped = <String, List<TriageResult>>{};
+    final order = <String>[];
+    for (final s in sessions) {
+      final key = s.visitId ?? 'single-${s.id}';
+      if (!grouped.containsKey(key)) {
+        grouped[key] = [];
+        order.add(key);
+      }
+      // Insert at the front so sessions inside a visit read chronologically.
+      grouped[key]!.insert(0, s);
+    }
+    return order.map((k) => grouped[k]!).toList();
+  }
+
+  TriageResult _visitWorst(List<TriageResult> visit) => visit.reduce(
+        (a, b) => (a.riskScore ?? 0.0) >= (b.riskScore ?? 0.0) ? a : b,
+      );
+
+  /// Switching visits re-points the decision form at that visit's saved
+  /// outcome, so each visit is reviewed on its own terms.
+  void _applyDecisionFrom(TriageResult worst) {
+    _decisionStatus = worst.status;
+    _notesController.text = worst.clinicalNotes ?? '';
+    _checkedActions
+      ..clear()
+      ..addAll(worst.actionsTaken);
+  }
+
+  void _selectVisit(int index) {
+    if (index == _selectedVisit) return;
+    setState(() {
+      _selectedVisit = index;
+      if (_currentVisit.isNotEmpty) {
+        _applyDecisionFrom(_visitWorst(_currentVisit));
+      }
+    });
   }
 
   @override
@@ -85,7 +130,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                   style: TextStyle(
                     fontSize: 60,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black.withValues(alpha: 0.03),
+                    color: Colors.black.withOpacity(0.03),
                     letterSpacing: 10,
                   ),
                 ),
@@ -107,12 +152,13 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
   }
 
   Widget _buildReport() {
+    // Everything below reflects the SELECTED visit — practitioners scrub
+    // through the timeline, patients only ever have one visit loaded.
+    final visit = _currentVisit;
     // Overall banner uses the highest-risk pain point from the visit —
     // a patient's clinical priority is driven by their worst finding, not
     // an average across several unrelated regions.
-    final worst = _reports.reduce(
-      (a, b) => (a.riskScore ?? 0.0) >= (b.riskScore ?? 0.0) ? a : b,
-    );
+    final worst = _visitWorst(visit);
     final score = worst.riskScore ?? 0.0;
     final isHighRisk = score >= 0.7;
     final riskColor = isHighRisk ? const Color(0xFFDC2626) : const Color(0xFF16A34A);
@@ -127,7 +173,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: const Color(0xFF6D28D9).withValues(alpha: 0.1), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: const Color(0xFF6D28D9).withOpacity(0.1), shape: BoxShape.circle),
                 child: const Icon(Icons.medical_services, color: Color(0xFF6D28D9), size: 32),
               ),
               const SizedBox(width: 16),
@@ -162,10 +208,17 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           _buildPatientDemographics(),
           const SizedBox(height: 24),
 
+          // Visit timeline (blueprint section 3) — practitioner-only, and
+          // only meaningful once the patient has more than one visit.
+          if (widget.practitionerMode && _visits.length > 1) ...[
+            _buildVisitTimeline(),
+            const SizedBox(height: 24),
+          ],
+
           // Overall Risk Assessment Card (worst finding across the visit)
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: riskColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: riskColor)),
+            decoration: BoxDecoration(color: riskColor.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: riskColor)),
             child: Row(
               children: [
                 Icon(isHighRisk ? Icons.warning_amber_rounded : Icons.check_circle_outline, color: riskColor, size: 32),
@@ -176,12 +229,12 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                     children: [
                       Text('AI RISK ASSESSMENT (HIGHEST)', style: TextStyle(fontSize: 12, color: riskColor, fontWeight: FontWeight.bold)),
                       Text('${worst.riskLevel} (${(score * 100).toInt()}%)', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: riskColor)),
-                      if (_reports.length > 1)
+                      if (visit.length > 1)
                         Padding(
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
                             'Driven by: ${worst.bodyRegion}',
-                            style: TextStyle(fontSize: 12, color: riskColor.withValues(alpha: 0.8)),
+                            style: TextStyle(fontSize: 12, color: riskColor.withOpacity(0.8)),
                           ),
                         ),
                     ],
@@ -205,13 +258,13 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           ],
 
           Text(
-            _reports.length > 1 ? 'Clinical Details (${_reports.length} pain points)' : 'Clinical Details',
+            visit.length > 1 ? 'Clinical Details (${visit.length} pain points)' : 'Clinical Details',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
           ),
           const SizedBox(height: 16),
 
           // One card per pain point submitted in this visit.
-          ..._reports.asMap().entries.map((entry) {
+          ...visit.asMap().entries.map((entry) {
             final index = entry.key;
             final report = entry.value;
             return Padding(
@@ -227,7 +280,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    if (_reports.length > 1) ...[
+                    if (visit.length > 1) ...[
                       Text(
                         'Pain Point ${index + 1}',
                         style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9)),
@@ -242,7 +295,6 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                     _buildDetailRow('SpO2 (est.)', report.spo2 != null ? '${report.spo2!.toInt()}%' : 'N/A', Icons.air),
                     _buildDetailRow('Risk', '${report.riskLevel} (${((report.riskScore ?? 0.0) * 100).toInt()}%)', Icons.analytics),
                     _buildDetailRow('Reported At', report.createdAt.toString().substring(0, 16), Icons.access_time),
-                    _buildExplanation(report.shapExplanation),
                   ],
                 ),
               ),
@@ -250,18 +302,6 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           }),
         ],
       ),
-    );
-  }
-
-  // Renders the backend's risk-score breakdown — including any anatomical
-  // connectivity factors from body_graph.py (e.g. "Connected to reported
-  // Chest / Heart pain") — so a doctor can see *why* the score is what it
-  // is instead of just the final number. Shared with the patient's
-  // success screen via ShapExplanationCard.
-  Widget _buildExplanation(String? shapExplanation) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: ShapExplanationCard(shapExplanation: shapExplanation),
     );
   }
 
@@ -352,9 +392,128 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     );
   }
 
+  /// Horizontal timeline across the patient's visits (newest last in the
+  /// numbering, newest first in the row). Tapping a visit re-points the
+  /// whole report — risk banner, SHAP bars, decision card, pain cards.
+  Widget _buildVisitTimeline() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'VISIT TIMELINE',
+            style: TextStyle(fontSize: 12, color: Color(0xFF64748B), letterSpacing: 1.5, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            height: 100,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: _visits.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (context, index) => _visitCard(index),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _visitCard(int index) {
+    final visit = _visits[index];
+    final worst = _visitWorst(visit);
+    final score = worst.riskScore ?? 0.0;
+    final isSelected = index == _selectedVisit;
+    final riskColor = score >= 0.7
+        ? const Color(0xFFDC2626)
+        : score >= 0.4
+            ? const Color(0xFFF59E0B)
+            : const Color(0xFF16A34A);
+    // _visits is newest-first; label so the oldest reads as Visit 1.
+    final number = _visits.length - index;
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+        'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    final date = visit.first.createdAt;
+    final dateLabel = '${date.day} ${months[date.month - 1]} ${date.year}';
+
+    return GestureDetector(
+      onTap: () => _selectVisit(index),
+      child: Container(
+        width: 148,
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: isSelected ? const Color(0xFF6D28D9) : Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFE2E8F0),
+            width: 2,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Visit $number',
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+                color: isSelected ? Colors.white : const Color(0xFF1E293B),
+              ),
+            ),
+            Text(
+              dateLabel,
+              style: TextStyle(
+                fontSize: 11,
+                color: isSelected ? Colors.white70 : const Color(0xFF64748B),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.white.withOpacity(0.2) : riskColor.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    '${(score * 100).toInt()}%',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: isSelected ? Colors.white : riskColor,
+                    ),
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  '${visit.length} pt${visit.length > 1 ? 's' : ''}',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isSelected ? Colors.white70 : const Color(0xFF64748B),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Renders the per-factor risk breakdown (shap_explanation) that the
   /// backend computes and stores with every triage session. The format is a
-  /// JSON array of {"factor": "...", "shap": 0.xx}, sorted descending.
+  /// JSON array of {"factor": "...", "shap": 0.xx, "impact": "+"/"-"},
+  /// sorted descending. Each factor is drawn as a horizontal bar whose
+  /// length is proportional to its contribution relative to the biggest
+  /// factor, colored by whether it raises (+) or lowers (-) the risk.
   Widget _buildRiskExplanation(TriageResult report) {
     final raw = report.shapExplanation;
     if (raw == null || raw.isEmpty) return const SizedBox.shrink();
@@ -367,6 +526,22 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
       // Malformed JSON shouldn't break the report — just hide the section.
     }
     if (factors == null) return const SizedBox.shrink();
+
+    final parsed = factors.map((f) {
+      final factor = f is Map<String, dynamic> ? f : <String, dynamic>{};
+      final label = (factor['factor'] ?? 'Unknown factor').toString();
+      final shap = factor['shap'] is num ? (factor['shap'] as num).toDouble() : 0.0;
+      // Older records have no impact key — fall back to the shap sign.
+      final hasImpactKey = factor.containsKey('impact');
+      final impact = hasImpactKey
+          ? (factor['impact'] == '-' ? '-' : '+')
+          : (shap < 0 ? '-' : '+');
+      return (label: label, shap: shap, impact: impact);
+    }).toList();
+    final maxShap = parsed.fold<double>(
+      0.0,
+      (m, f) => f.shap.abs() > m ? f.shap.abs() : m,
+    );
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 24),
@@ -386,31 +561,64 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
               style: TextStyle(fontSize: 12, color: Color(0xFF64748B), letterSpacing: 1.5, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
-            ...factors.map((f) {
-              final factor = f is Map<String, dynamic>
-                  ? f
-                  : <String, dynamic>{};
-              final label = (factor['factor'] ?? 'Unknown factor').toString();
-              final shap = factor['shap'] is num ? (factor['shap'] as num).toDouble() : 0.0;
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6),
-                child: Row(
-                  children: [
-                    const Icon(Icons.insights_outlined, size: 16, color: Color(0xFF6D28D9)),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B))),
-                    ),
-                    Text(
-                      '+${(shap * 100).toInt()}%',
-                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9)),
-                    ),
-                  ],
-                ),
-              );
-            }),
+            ...parsed.map((f) => _shapBar(f.label, f.shap, f.impact, maxShap)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _shapBar(String label, double shap, String impact, double maxShap) {
+    final raises = impact == '+';
+    final magnitude = shap.abs();
+    final barColor = !raises
+        ? const Color(0xFF16A34A)
+        : magnitude >= 0.25
+            ? const Color(0xFFDC2626)
+            : magnitude >= 0.10
+                ? const Color(0xFFF59E0B)
+                : const Color(0xFF94A3B8);
+    final fraction = maxShap > 0 ? (magnitude / maxShap).clamp(0.04, 1.0) : 0.04;
+    final valueLabel = '${raises ? '+' : '-'}${(magnitude * 100).toInt()}%';
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Text(label,
+                    style: const TextStyle(fontSize: 13, color: Color(0xFF1E293B))),
+              ),
+              Text(
+                valueLabel,
+                style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: barColor),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: Stack(
+              children: [
+                Container(height: 8, color: const Color(0xFFF1F5F9)),
+                FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: fraction,
+                  child: Container(
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: barColor,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -433,12 +641,12 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     return ['Routine follow-up', 'Safety-net advice'];
   }
 
-  /// Saves the same decision onto every pain point of this visit, so the
-  /// whole visit flips to closed together.
+  /// Saves the same decision onto every pain point of the SELECTED visit,
+  /// so that visit flips to closed together.
   Future<void> _saveDecision(TriageResult worst) async {
     setState(() => _savingDecision = true);
     try {
-      for (final report in _reports) {
+      for (final report in _currentVisit) {
         await ApiClient.updateTriageDecision(
           report.id,
           status: _decisionStatus,

@@ -266,7 +266,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                               child: ListTile(
                                 contentPadding: const EdgeInsets.all(16),
                                 leading: CircleAvatar(
-                                  backgroundColor: riskColor.withValues(alpha: 0.1),
+                                  backgroundColor: riskColor.withOpacity(0.1),
                                   child: Icon(Icons.medical_services, color: riskColor, size: 24),
                                 ),
                                 title: Text(
@@ -296,9 +296,9 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                                     Container(
                                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                       decoration: BoxDecoration(
-                                        color: riskColor.withValues(alpha: 0.1),
+                                        color: riskColor.withOpacity(0.1),
                                         borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(color: riskColor.withValues(alpha: 0.3)),
+                                        border: Border.all(color: riskColor.withOpacity(0.3)),
                                       ),
                                       child: Text(
                                         riskLevel,
@@ -347,7 +347,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.03), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.03), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Column(
           children: [
