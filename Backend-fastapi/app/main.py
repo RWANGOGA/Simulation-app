@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from fastapi_offline import FastAPIOffline
 from fastapi.middleware.cors import CORSMiddleware
+from app.api.v1.endpoints import auth
 from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.database import Base, engine
@@ -24,7 +25,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.include_router(auth.router, prefix="/api/v1")
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.get("/")

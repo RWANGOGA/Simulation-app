@@ -5,6 +5,11 @@ import '../../patient_info/ui/patient_info_screen.dart';
 import '../../review/ui/review_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 
+// 🚨 IMPORTANT: Update this import path to match exactly where you saved your LoginScreen!
+// If it is in lib/features/auth/ui/, keep it as is. 
+// If you saved it directly in lib/, change it to: import '../../login_screen.dart';
+import '../../login_screen.dart'; 
+
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -105,10 +110,41 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top-right language pill
+              // 🚪 Top-right actions: Language Pill + Practitioner Login
               Align(
                 alignment: Alignment.centerRight,
-                child: _buildLanguagePill(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    _buildLanguagePill(),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.lock_outline, size: 16, color: Color(0xFF6D28D9)),
+                          SizedBox(width: 4),
+                          Text(
+                            'Practitioner Login',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF6D28D9),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 24),
 
