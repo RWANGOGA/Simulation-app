@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/network/api_client.dart';
+import '../../dashboard/ui/practitioner_dashboard_screen.dart';
+import '../../../core/theme/app_page_route.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -38,7 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.green,
         ),
       );
-      // TODO: Navigator.of(context).pushReplacementNamed('/dashboard');
+      Navigator.of(context).pushReplacement(
+        AppPageRoute(builder: (_) => PractitionerDashboardScreen(doctor: doctor)),
+      );
     } on ApiException catch (e) {
       setState(() => _errorMessage = e.message);
     } finally {

@@ -168,6 +168,8 @@ class TriageResult {
   final double? riskScore;
   final String? shapExplanation;
   final String? qrPayloadHash;
+  final String? notes;
+  final String status;
   final DateTime createdAt;
 
   const TriageResult({
@@ -184,6 +186,8 @@ class TriageResult {
     this.riskScore,
     this.shapExplanation,
     this.qrPayloadHash,
+    this.notes,
+    this.status = 'Open',
     required this.createdAt,
   });
 
@@ -209,6 +213,8 @@ class TriageResult {
       riskScore: (json['risk_score'] as num?)?.toDouble(),
       shapExplanation: json['shap_explanation'] as String?,
       qrPayloadHash: json['qr_payload_hash'] as String?,
+      notes: json['notes'] as String?,
+      status: json['status'] as String? ?? 'Open',
       createdAt: DateTime.parse(json['created_at'] as String),
     );
   }
@@ -315,6 +321,25 @@ class ApiClient {
       return jsonDecode(response.body) as Map<String, dynamic>;
     }
     throw Exception('Failed to load stats: ${response.body}');
+  }
+
+  static Future<TriageResult> updateTriageDecision(
+    int sessionId, {
+    String? notes,
+    String? status,
+  }) async {
+    final response = await httpClient.patch(
+      Uri.parse('$baseUrl/triage/$sessionId/decision'),
+      headers: await _authHeaders(),
+      body: jsonEncode({
+        if (notes != null) 'notes': notes,
+        if (status != null) 'status': status,
+      }),
+    );
+    if (response.statusCode == 200) {
+      return TriageResult.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    }
+    throw ApiException.fromResponse(response.statusCode, response.body);
   }
 
   static Future<List<Map<String, dynamic>>> getTriageList({

@@ -4,6 +4,7 @@ import '../../../core/storage/triage_draft.dart';
 import '../../patient_info/ui/patient_info_screen.dart';
 import '../../review/ui/review_screen.dart';
 import '../../../core/theme/app_page_route.dart';
+import '../../auth/ui/login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -178,6 +179,22 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
               const SizedBox(height: 8),
+
+              // Practitioner entry point — was only reachable before by
+              // typing "#/dashboard" into the browser's address bar.
+              Center(
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      AppPageRoute(builder: (_) => const LoginScreen()),
+                    );
+                  },
+                  child: const Text(
+                    'Practitioner Login',
+                    style: TextStyle(fontSize: 13, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
             ],
           ),
         ),

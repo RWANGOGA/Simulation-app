@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'core/theme/app_theme.dart';
-import 'features/dashboard/ui/practitioner_dashboard_screen.dart';
+import 'features/auth/ui/login_screen.dart';
 import 'features/onboarding/ui/welcome_screen.dart';
 import 'features/report/ui/clinical_report_screen.dart';
 
@@ -27,10 +27,13 @@ class AtomyBridgeApp extends StatelessWidget {
     }
 
     // 3. Determine the initial screen based on the URL
+    // '/dashboard' opens the practitioner login gate, not the dashboard
+    // itself — LoginScreen pushes on to PractitionerDashboardScreen only
+    // after a successful sign-in.
     final Widget initialScreen = isDashboard
-        ? const PractitionerDashboardScreen()
-        : (reportPatientId != null 
-            ? ClinicalReportScreen(patientId: reportPatientId) 
+        ? const LoginScreen()
+        : (reportPatientId != null
+            ? ClinicalReportScreen(patientId: reportPatientId)
             : const WelcomeScreen());
 
     // REAL APP: Use the dynamic routing we just tested
