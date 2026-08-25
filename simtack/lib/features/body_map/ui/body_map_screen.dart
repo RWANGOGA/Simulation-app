@@ -190,7 +190,13 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                         alt: 'OpenHuman 3D body model for pain mapping',
                         ar: false,
                         autoRotate: false,
-                        cameraControls: true,
+                        // Deliberately off: free drag-to-rotate let the camera
+                        // shift on any tap with the slightest drift, which
+                        // detached already-placed pain markers (flat 2D
+                        // overlays) from the body underneath them. The
+                        // dedicated Front/Back/Left/Right and Zoom buttons
+                        // already cover the same needs without that risk.
+                        cameraControls: false,
                         cameraOrbit: _getCameraOrbit(),
                         backgroundColor: const Color(0xFFF1F5F9),
                       ),
@@ -203,11 +209,11 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.92),
+                          color: Colors.white.withValues(alpha: 0.92),
                           borderRadius: BorderRadius.circular(24),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
+                              color: Colors.black.withValues(alpha: 0.08),
                               blurRadius: 12,
                               offset: const Offset(0, 4),
                             ),
@@ -280,7 +286,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                 height: 32 + (12 * _pulseController.value),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: const Color(0xFFEF4444).withOpacity(0.35 * (1 - _pulseController.value)),
+                                  color: const Color(0xFFEF4444).withValues(alpha: 0.35 * (1 - _pulseController.value)),
                                   border: Border.all(
                                     color: const Color(0xFFEF4444),
                                     width: 2,
@@ -319,7 +325,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                             borderRadius: BorderRadius.circular(24),
                             boxShadow: [
                               BoxShadow(
-                                color: const Color(0xFF6D28D9).withOpacity(0.3),
+                                color: const Color(0xFF6D28D9).withValues(alpha: 0.3),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
@@ -360,7 +366,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 8,
                   offset: const Offset(0, -2),
                 ),
@@ -398,7 +404,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                     backgroundColor: const Color(0xFF6D28D9),
                     disabledBackgroundColor: const Color(0xFFCBD5E1),
                     elevation: 3,
-                    shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
+                    shadowColor: const Color(0xFF6D28D9).withValues(alpha: 0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),

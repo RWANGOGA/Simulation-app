@@ -53,10 +53,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
       // One TriageReport per pain point (the backend's TriageSession model
       // is per-region), all sharing visitId and patientId so they're
-      // recognized as one visit.
-      TriageResult? lastResult;
+      // recognized as one visit. Each point is scored aware of whatever
+      // other regions were already submitted earlier in this same loop
+      // (see triage_service.compute_risk's sibling_regions), so collecting
+      // every result — not just the last one — is what lets the patient
+      // see the full picture, including any connectivity findings.
+      final results = <TriageResult>[];
       for (final point in widget.painPoints) {
-        lastResult = await ApiClient.sendTriage(TriageReport(
+        results.add(await ApiClient.sendTriage(TriageReport(
           bodyRegion: point.region,
           painType: point.painType,
           severity: point.severity,
@@ -65,10 +69,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
           heartRate: widget.heartRate,
           patientId: widget.patientId,
           visitId: visitId,
-        ));
+        )));
       }
 
-      if (lastResult == null) {
+      if (results.isEmpty) {
         throw Exception('No pain points to submit.');
       }
 
@@ -80,8 +84,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
       Navigator.of(context).pushReplacement(
         AppPageRoute(
           builder: (_) => SuccessScreen(
-            patientId: lastResult!.anonymousCode ?? 'P-UNKNOWN',
-            triageResult: lastResult,
+            patientId: results.first.anonymousCode ?? 'P-UNKNOWN',
+            allResults: results,
           ),
         ),
       );
@@ -261,7 +265,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         backgroundColor: const Color(0xFF6D28D9),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         elevation: 3,
-                        shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
+                        shadowColor: const Color(0xFF6D28D9).withValues(alpha: 0.4),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       child: _isSubmitting
@@ -285,7 +289,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Widget _buildSummaryRow(String label, String value, IconData icon) {
     return Row(
       children: [
-        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFF6D28D9).withOpacity(0.1), shape: BoxShape.circle),
+        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFF6D28D9).withValues(alpha: 0.1), shape: BoxShape.circle),
           child: Icon(icon, color: const Color(0xFF6D28D9), size: 20)),
         const SizedBox(width: 12),
         Expanded(
@@ -303,14 +307,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Widget _buildVitalMiniCard(String label, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.3))),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.3))),
       child: Row(
         children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(width: 8),
           Column(crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: TextStyle(fontSize: 11, color: color.withOpacity(0.8), fontWeight: FontWeight.w600)),
+              Text(label, style: TextStyle(fontSize: 11, color: color.withValues(alpha: 0.8), fontWeight: FontWeight.w600)),
               Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
             ],
           ),

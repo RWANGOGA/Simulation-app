@@ -23,6 +23,39 @@
 
   <!-- YOUR EXCELLENT 3D MODEL CLICK DETECTION SCRIPT -->
   <script type="module">
+    // Gives the body model a translucent, blue-tinted "X-ray" look instead
+    // of its plain grey material — no new 3D asset needed, this just edits
+    // the material already on the existing, known-good model files via
+    // model-viewer's live material API.
+    function applyXrayMaterial(viewer) {
+      const tint = () => {
+        const materials = viewer.model && viewer.model.materials;
+        if (!materials || materials.length === 0) return;
+
+        materials.forEach((material) => {
+          // Requires alpha blending to be turned on — a fully opaque
+          // material ignores the alpha channel below no matter what it's
+          // set to.
+          material.setAlphaMode('BLEND');
+          material.pbrMetallicRoughness.setBaseColorFactor([0.35, 0.65, 1.0, 0.4]);
+          material.pbrMetallicRoughness.setMetallicFactor(0.1);
+          material.pbrMetallicRoughness.setRoughnessFactor(0.4);
+          // A faint glow so the body doesn't just look like dim grey glass.
+          // Not every material configuration exposes this — skip quietly
+          // if it doesn't rather than breaking the rest of the tint.
+          try {
+            material.setEmissiveFactor([0.15, 0.35, 0.6]);
+          } catch (_) {}
+        });
+      };
+
+      if (viewer.loaded) {
+        tint();
+      } else {
+        viewer.addEventListener('load', tint, { once: true });
+      }
+    }
+
     function attachBodyTapListener(viewer) {
       if (viewer.dataset.atomybridgeListenerAttached === 'true') return;
 
@@ -33,6 +66,8 @@
 
       viewer.dataset.atomybridgeListenerAttached = 'true';
       console.log('✅ Found human body model-viewer, attaching listener...');
+
+      applyXrayMaterial(viewer);
 
       viewer.addEventListener('click', (event) => {
         const rect = viewer.getBoundingClientRect();
@@ -74,10 +109,20 @@
           }
         }
 
-        console.log('🩺 Model tapped! Part:', part, '| normalized rx/ry:', rx.toFixed(2), ry.toFixed(2));
+        // rx/ry (above) are fractions of the MODEL's own bounding box — good
+        // for classifying which body part was hit, but wrong for drawing
+        // the marker: the model rarely fills the canvas edge-to-edge (camera
+        // framing leaves margin), so "10% down the model" and "10% down the
+        // canvas" are different points. The marker needs to sit where the
+        // patient's finger/cursor actually was, so it uses the raw tap
+        // pixel position instead, as a fraction of the visible canvas.
+        const screenX = pixelX / rect.width;
+        const screenY = pixelY / rect.height;
+
+        console.log('🩺 Model tapped! Part:', part, '| body-space rx/ry:', rx.toFixed(2), ry.toFixed(2), '| screen x/y:', screenX.toFixed(2), screenY.toFixed(2));
 
         window.dispatchEvent(new CustomEvent('atomybridge-bodypart', {
-          detail: { part: part, x: rx, y: ry }
+          detail: { part: part, x: screenX, y: screenY }
         }));
       });
     }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/widgets/shap_explanation_card.dart';
 
 class ClinicalReportScreen extends StatefulWidget {
   final String patientId;
@@ -55,7 +56,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                   style: TextStyle(
                     fontSize: 60,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     letterSpacing: 10,
                   ),
                 ),
@@ -97,7 +98,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
             children: [
               Container(
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: const Color(0xFF6D28D9).withOpacity(0.1), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: const Color(0xFF6D28D9).withValues(alpha: 0.1), shape: BoxShape.circle),
                 child: const Icon(Icons.medical_services, color: Color(0xFF6D28D9), size: 32),
               ),
               const SizedBox(width: 16),
@@ -130,7 +131,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           // Overall Risk Assessment Card (worst finding across the visit)
           Container(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(color: riskColor.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: riskColor)),
+            decoration: BoxDecoration(color: riskColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: riskColor)),
             child: Row(
               children: [
                 Icon(isHighRisk ? Icons.warning_amber_rounded : Icons.check_circle_outline, color: riskColor, size: 32),
@@ -146,7 +147,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
                             'Driven by: ${worst.bodyRegion}',
-                            style: TextStyle(fontSize: 12, color: riskColor.withOpacity(0.8)),
+                            style: TextStyle(fontSize: 12, color: riskColor.withValues(alpha: 0.8)),
                           ),
                         ),
                     ],
@@ -194,6 +195,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                     _buildDetailRow('Heart Rate', '${report.heartRate?.toInt() ?? 0} BPM', Icons.favorite),
                     _buildDetailRow('Risk', '${report.riskLevel} (${((report.riskScore ?? 0.0) * 100).toInt()}%)', Icons.analytics),
                     _buildDetailRow('Reported At', report.createdAt.toString().substring(0, 16), Icons.access_time),
+                    _buildExplanation(report.shapExplanation),
                   ],
                 ),
               ),
@@ -201,6 +203,18 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           }),
         ],
       ),
+    );
+  }
+
+  // Renders the backend's risk-score breakdown — including any anatomical
+  // connectivity factors from body_graph.py (e.g. "Connected to reported
+  // Chest / Heart pain") — so a doctor can see *why* the score is what it
+  // is instead of just the final number. Shared with the patient's
+  // success screen via ShapExplanationCard.
+  Widget _buildExplanation(String? shapExplanation) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: ShapExplanationCard(shapExplanation: shapExplanation),
     );
   }
 

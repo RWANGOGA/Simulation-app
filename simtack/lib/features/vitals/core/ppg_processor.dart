@@ -3,7 +3,13 @@ import 'package:camera/camera.dart';
 
 class PPGProcessor {
   final List<double> _signalBuffer = [];
-  final int _bufferSize = 256; // ~4 seconds at 60fps
+  // One timestamp per entry in _signalBuffer, kept in lockstep — lets BPM
+  // be computed from the buffer's *real* elapsed time instead of assuming
+  // a fixed frame rate (see _calculateVitals: that assumption used to
+  // silently double every reading, since the camera/web capture actually
+  // runs closer to ~30fps than the 60fps the old math assumed).
+  final List<DateTime> _timestamps = [];
+  final int _bufferSize = 256; // number of samples to buffer before scoring
 
   double _currentBPM = 0;
   double _currentSpO2 = 0;
@@ -20,9 +26,11 @@ class PPGProcessor {
   void processSample(double brightness) {
     if (_signalBuffer.length >= _bufferSize) {
       _signalBuffer.removeAt(0);
+      _timestamps.removeAt(0);
     }
 
     _signalBuffer.add(brightness);
+    _timestamps.add(DateTime.now());
 
     // Calculate vitals once we have enough data
     if (_signalBuffer.length >= _bufferSize && !_isProcessing) {
@@ -125,12 +133,19 @@ class PPGProcessor {
       }
     }
 
-    // Convert peaks in 4 seconds to Beats Per Minute (peaks * 15)
-    if (peaks > 0) {
-      _currentBPM = (peaks * (60 / (_bufferSize / 60))).roundToDouble();
-      // Sanity check: human heart rate is between 40 and 200
-      if (_currentBPM < 40 || _currentBPM > 200) {
-        _currentBPM = 0; // Discard noisy reading
+    // Convert peaks in the buffer's real elapsed time to Beats Per Minute.
+    // This used to assume the buffer always represents ~4.27s (256 samples
+    // at an assumed 60fps) — but actual capture (camera / web canvas loop)
+    // runs closer to ~30fps, so that assumption silently doubled every
+    // reading. Using real timestamps makes this correct at any frame rate.
+    if (peaks > 0 && _timestamps.length >= 2) {
+      final elapsedSeconds = _timestamps.last.difference(_timestamps.first).inMilliseconds / 1000.0;
+      if (elapsedSeconds > 0) {
+        _currentBPM = (peaks * (60 / elapsedSeconds)).roundToDouble();
+        // Sanity check: human heart rate is between 40 and 200
+        if (_currentBPM < 40 || _currentBPM > 200) {
+          _currentBPM = 0; // Discard noisy reading
+        }
       }
     }
 
@@ -143,6 +158,7 @@ class PPGProcessor {
 
   void reset() {
     _signalBuffer.clear();
+    _timestamps.clear();
     _currentBPM = 0;
     _currentSpO2 = 0;
   }
