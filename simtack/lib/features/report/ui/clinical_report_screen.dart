@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/network/api_client.dart';
 
 class ClinicalReportScreen extends StatefulWidget {
@@ -117,7 +118,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppPalette.scaffold(context),
       body: Stack(
         children: [
           // THE WATERMARK
@@ -177,11 +178,11 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                 child: const Icon(Icons.medical_services, color: Color(0xFF6D28D9), size: 32),
               ),
               const SizedBox(width: 16),
-              const Column(
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Clinical Triage Report', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
-                  Text('AtomyBridge Care • Official Document', style: TextStyle(fontSize: 12, color: Color(0xFF64748B))),
+                  Text('Clinical Triage Report', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+                  Text('AtomyBridge Care • Official Document', style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context))),
                 ],
               ),
             ],
@@ -259,7 +260,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
 
           Text(
             visit.length > 1 ? 'Clinical Details (${visit.length} pain points)' : 'Clinical Details',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
           ),
           const SizedBox(height: 16),
 
@@ -273,9 +274,9 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: AppPalette.surface(context),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: AppPalette.border(context)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -374,16 +375,16 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppPalette.surface(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppPalette.border(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'PATIENT PROFILE',
-            style: TextStyle(fontSize: 12, color: Color(0xFF64748B), letterSpacing: 1.5, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), letterSpacing: 1.5, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Wrap(spacing: 12, runSpacing: 12, children: chips),
@@ -400,16 +401,16 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppPalette.surface(context),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppPalette.border(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'VISIT TIMELINE',
-            style: TextStyle(fontSize: 12, color: Color(0xFF64748B), letterSpacing: 1.5, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), letterSpacing: 1.5, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           SizedBox(
@@ -452,7 +453,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           color: isSelected ? const Color(0xFF6D28D9) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFE2E8F0),
+            color: isSelected ? const Color(0xFF6D28D9) : AppPalette.border(context),
             width: 2,
           ),
         ),
@@ -464,14 +465,14 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.bold,
-                color: isSelected ? Colors.white : const Color(0xFF1E293B),
+                color: isSelected ? Colors.white : AppPalette.textPrimary(context),
               ),
             ),
             Text(
               dateLabel,
               style: TextStyle(
                 fontSize: 11,
-                color: isSelected ? Colors.white70 : const Color(0xFF64748B),
+                color: isSelected ? Colors.white70 : AppPalette.textMuted(context),
               ),
             ),
             const SizedBox(height: 6),
@@ -497,7 +498,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                   '${visit.length} pt${visit.length > 1 ? 's' : ''}',
                   style: TextStyle(
                     fontSize: 11,
-                    color: isSelected ? Colors.white70 : const Color(0xFF64748B),
+                    color: isSelected ? Colors.white70 : AppPalette.textMuted(context),
                   ),
                 ),
               ],
@@ -549,16 +550,16 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppPalette.surface(context),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
+          border: Border.all(color: AppPalette.border(context)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'WHY THIS SCORE?',
-              style: TextStyle(fontSize: 12, color: Color(0xFF64748B), letterSpacing: 1.5, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), letterSpacing: 1.5, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             ...parsed.map((f) => _shapBar(f.label, f.shap, f.impact, maxShap)),
@@ -577,7 +578,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
             ? const Color(0xFFDC2626)
             : magnitude >= 0.10
                 ? const Color(0xFFF59E0B)
-                : const Color(0xFF94A3B8);
+                : AppPalette.textMuted(context);
     final fraction = maxShap > 0 ? (magnitude / maxShap).clamp(0.04, 1.0) : 0.04;
     final valueLabel = '${raises ? '+' : '-'}${(magnitude * 100).toInt()}%';
 
@@ -590,7 +591,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
             children: [
               Expanded(
                 child: Text(label,
-                    style: const TextStyle(fontSize: 13, color: Color(0xFF1E293B))),
+                    style: TextStyle(fontSize: 13, color: AppPalette.textPrimary(context))),
               ),
               Text(
                 valueLabel,
@@ -603,7 +604,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
             borderRadius: BorderRadius.circular(4),
             child: Stack(
               children: [
-                Container(height: 8, color: const Color(0xFFF1F5F9)),
+                Container(height: 8, color: AppPalette.subtleFill(context)),
                 FractionallySizedBox(
                   alignment: Alignment.centerLeft,
                   widthFactor: fraction,
@@ -690,23 +691,23 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppPalette.surface(context),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'TRIAGE DECISION',
-            style: TextStyle(fontSize: 12, color: Color(0xFF64748B), letterSpacing: 1.5, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), letterSpacing: 1.5, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 12),
           Row(
             children: [
-              const Icon(Icons.flag_outlined, size: 18, color: Color(0xFF64748B)),
+              Icon(Icons.flag_outlined, size: 18, color: AppPalette.textMuted(context)),
               const SizedBox(width: 8),
-              const Text('Suggested Priority', style: TextStyle(fontSize: 14, color: Color(0xFF1E293B))),
+              Text('Suggested Priority', style: TextStyle(fontSize: 14, color: AppPalette.textPrimary(context))),
               const Spacer(),
               Text(suggested, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: priorityColor)),
             ],
@@ -714,7 +715,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           const SizedBox(height: 12),
           Row(
             children: [
-              const Text('Status:', style: TextStyle(fontSize: 14, color: Color(0xFF1E293B))),
+              Text('Status:', style: TextStyle(fontSize: 14, color: AppPalette.textPrimary(context))),
               const SizedBox(width: 8),
               for (final value in const ['open', 'closed'])
                 Padding(
@@ -732,7 +733,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
             ],
           ),
           const SizedBox(height: 8),
-          const Text('Recommended Actions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+          Text('Recommended Actions', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppPalette.textPrimary(context))),
           ...allOptions.map(
             (action) => CheckboxListTile(
               value: _checkedActions.contains(action),
@@ -757,7 +758,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
             decoration: InputDecoration(
               hintText: 'Clinical notes...',
               filled: true,
-              fillColor: const Color(0xFFF8FAFC),
+              fillColor: AppPalette.scaffold(context),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
             ),
           ),
@@ -799,8 +800,8 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
-              Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+              Text(label, style: TextStyle(fontSize: 10, color: AppPalette.textMuted(context))),
+              Text(value, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: AppPalette.textPrimary(context))),
             ],
           ),
         ],
@@ -819,8 +820,8 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
-                Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+                Text(label, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context))),
+                Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppPalette.textPrimary(context))),
               ],
             ),
           ),

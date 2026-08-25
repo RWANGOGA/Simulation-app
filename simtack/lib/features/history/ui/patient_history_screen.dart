@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
 import 'package:intl/intl.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/auth_service.dart';
@@ -69,7 +70,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
   void _showProfileSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppPalette.surface(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -105,7 +106,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: const Color(0xFFE2E8F0),
+                      color: AppPalette.border(context),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -118,15 +119,15 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                   const SizedBox(height: 12),
                   Text(
                     doctor?.fullName ?? 'Practitioner',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
+                      color: AppPalette.textPrimary(context),
                     ),
                   ),
                   Text(
                     doctor?.email ?? error ?? '',
-                    style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                    style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context)),
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
@@ -166,18 +167,18 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
       case 'HIGH': return const Color(0xFFDC2626);
       case 'MEDIUM': return const Color(0xFFF59E0B);
       case 'LOW': return const Color(0xFF16A34A);
-      default: return const Color(0xFF64748B);
+      default: return AppPalette.textMuted(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppPalette.scaffold(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppPalette.surface(context),
         elevation: 0,
-        title: const Text('My Triage History', style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold)),
+        title: Text('My Triage History', style: TextStyle(color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
           IconButton(icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)), onPressed: _loadHistory),
@@ -186,7 +187,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _history.isEmpty
-              ? const Center(child: Text('No past history found.', style: TextStyle(color: Color(0xFF64748B))))
+              ? Center(child: Text('No past history found.', style: TextStyle(color: AppPalette.textMuted(context))))
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: _history.length,
@@ -205,13 +206,13 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                         contentPadding: const EdgeInsets.all(16),
                         title: Text(
                           session['body_region'] ?? 'Unknown Location',
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E293B)),
+                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppPalette.textPrimary(context)),
                         ),
                         subtitle: Padding(
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(
                             formattedDate,
-                            style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                            style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context)),
                           ),
                         ),
                         trailing: Container(
@@ -242,7 +243,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
         currentIndex: 2, // Highlight the History tab
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF6D28D9),
-        unselectedItemColor: const Color(0xFF94A3B8),
+        unselectedItemColor: AppPalette.textMuted(context),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'New'),

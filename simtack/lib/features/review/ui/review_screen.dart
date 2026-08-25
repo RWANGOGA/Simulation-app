@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/storage/draft_storage.dart';
@@ -134,12 +135,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppPalette.scaffold(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)), onPressed: () => Navigator.of(context).pop()),
-        title: const Text('5. Review & Submit', style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text('5. Review & Submit', style: TextStyle(color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold, fontSize: 18)),
         centerTitle: true,
         actions: [
           TextButton.icon(
@@ -154,19 +155,19 @@ class _ReviewScreenState extends State<ReviewScreen> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            color: Colors.white,
+            color: AppPalette.surface(context),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Column(crossAxisAlignment: CrossAxisAlignment.start,
+                Column(crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Anonymous Patient', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                    Text('Anonymous Patient', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
                     Text('ID generated on submit', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6D28D9))),
                   ],
                 ),
                 Column(crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    const Text('Timestamp', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                    Text('Timestamp', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
                     Text(_timestamp, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
                   ],
                 ),
@@ -181,7 +182,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Clinical Summary', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                  Text('Clinical Summary', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
                   const SizedBox(height: 16),
 
                   ...widget.painPoints.asMap().entries.map((entry) {
@@ -215,7 +216,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   }),
 
                   const SizedBox(height: 8),
-                  const Text('Vitals', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                  Text('Vitals', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
                   const SizedBox(height: 16),
                   AppCard(
                     width: double.infinity,
@@ -229,9 +230,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   ),
 
                   const SizedBox(height: 24),
-                  const Text(
+                  Text(
                     'By submitting, you consent to sharing this clinical data with the attending physician for triage purposes.',
-                    style: TextStyle(fontSize: 13, color: Color(0xFF64748B), fontStyle: FontStyle.italic),
+                    style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context), fontStyle: FontStyle.italic),
                   ),
                 ],
               ),
@@ -240,7 +241,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
           Container(
             padding: const EdgeInsets.all(20),
-            color: Colors.white,
+            color: AppPalette.surface(context),
             child: SafeArea(
               child: Row(
                 children: [
@@ -296,8 +297,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
         Expanded(
           child: Column(crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500)),
-              Text(value, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+              Text(label, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), fontWeight: FontWeight.w500)),
+              Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
             ],
           ),
         ),

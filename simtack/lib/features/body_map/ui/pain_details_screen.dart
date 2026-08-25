@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -86,9 +87,9 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
     final point = _currentPoint;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppPalette.scaffold(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
@@ -98,8 +99,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
           widget.painPoints.length > 1
               ? '3. Pain Details (${_currentIndex + 1} of ${widget.painPoints.length})'
               : '3. Pain Details',
-          style: const TextStyle(
-            color: Color(0xFF1E293B),
+          style: TextStyle(
+            color: AppPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -136,7 +137,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                       decoration: BoxDecoration(
                         color: isActive
                             ? const Color(0xFF6D28D9)
-                            : (isDone ? const Color(0xFF6D28D9).withOpacity(0.4) : const Color(0xFFE2E8F0)),
+                            : (isDone ? const Color(0xFF6D28D9).withOpacity(0.4) : AppPalette.border(context)),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -174,16 +175,16 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text(
+                              Text(
                                 'Pain Location',
-                                style: TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                                style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), fontWeight: FontWeight.w500),
                               ),
                               Text(
                                 point.region,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 17,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF1E293B),
+                                  color: AppPalette.textPrimary(context),
                                 ),
                               ),
                             ],
@@ -199,9 +200,9 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                     height: 260,
                     width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppPalette.surface(context),
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: AppPalette.border(context)),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.04),
@@ -228,7 +229,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                   ar: false,
                                   autoRotate: false,
                                   cameraControls: true,
-                                  backgroundColor: const Color(0xFFF8FAFC),
+                                  backgroundColor: AppPalette.scaffold(context),
                                 ),
                               ),
 
@@ -334,8 +335,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                           isDense: true,
                                           underline: const SizedBox(),
                                           icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6D28D9), size: 18),
-                                          style: const TextStyle(
-                                              fontSize: 12, color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                              fontSize: 12, color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold),
                                           onChanged: (val) {
                                             if (val != null) {
                                               HapticFeedback.selectionClick();
@@ -394,8 +395,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                           isDense: true,
                                           underline: const SizedBox(),
                                           icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6D28D9), size: 18),
-                                          style: const TextStyle(
-                                              fontSize: 12, color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
+                                          style: TextStyle(
+                                              fontSize: 12, color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold),
                                           onChanged: (val) {
                                             if (val != null) {
                                               HapticFeedback.selectionClick();
@@ -420,12 +421,12 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                   const SizedBox(height: 24),
 
                   // Pain Type Chips — bound to this point specifically.
-                  const Text(
+                  Text(
                     'Pain Type',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF1E293B),
+                      color: AppPalette.textPrimary(context),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -457,7 +458,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                               }
                             },
                             selectedColor: const Color(0xFF6D28D9),
-                            backgroundColor: Colors.white,
+                            backgroundColor: AppPalette.surface(context),
                             side: BorderSide(
                               color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFCBD5E1),
                             ),
@@ -478,12 +479,12 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
+                      Text(
                         'Pain Intensity',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
+                          color: AppPalette.textPrimary(context),
                         ),
                       ),
                       Container(
@@ -514,14 +515,14 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: AppPalette.surface(context),
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                      border: Border.all(color: AppPalette.border(context)),
                     ),
                     child: SliderTheme(
                       data: SliderThemeData(
                         activeTrackColor: const Color(0xFF6D28D9),
-                        inactiveTrackColor: const Color(0xFFE2E8F0),
+                        inactiveTrackColor: AppPalette.border(context),
                         thumbColor: const Color(0xFF6D28D9),
                         overlayColor: const Color(0xFF6D28D9).withOpacity(0.15),
                         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
@@ -549,7 +550,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
           // final point).
           Container(
             padding: const EdgeInsets.all(20),
-            color: Colors.white,
+            color: AppPalette.surface(context),
             child: SafeArea(
               child: Row(
                 children: [

@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:webview_flutter/webview_flutter.dart' show JavaScriptMessage;
@@ -250,20 +251,20 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppPalette.scaffold(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           'Body Map - Select Pain',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
+            color: AppPalette.textPrimary(context),
           ),
         ),
         centerTitle: true,
@@ -298,7 +299,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                         // already cover the same needs without that risk.
                         cameraControls: false,
                         cameraOrbit: _getCameraOrbit(),
-                        backgroundColor: const Color(0xFFF1F5F9),
+                        backgroundColor: AppPalette.subtleFill(context),
                         // Mobile-only tap bridge; on web the same job is
                         // done by web/index.html + WebInterop.
                         relatedJs: kIsWeb ? null : _mobileBodyTapJs,
@@ -474,7 +475,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppPalette.surface(context),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.04),
@@ -499,7 +500,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
           // otherwise.
           Container(
             padding: const EdgeInsets.all(20),
-            color: Colors.white,
+            color: AppPalette.surface(context),
             child: SafeArea(
               child: SizedBox(
                 width: double.infinity,
@@ -581,11 +582,11 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
           child: ElevatedButton(
             onPressed: () => _changeView(angle),
             style: ElevatedButton.styleFrom(
-              backgroundColor: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFF1F5F9),
+              backgroundColor: isSelected ? const Color(0xFF6D28D9) : AppPalette.subtleFill(context),
               foregroundColor: isSelected ? Colors.white : const Color(0xFF475569),
               elevation: isSelected ? 2 : 0,
               side: BorderSide(
-                color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFE2E8F0),
+                color: isSelected ? const Color(0xFF6D28D9) : AppPalette.border(context),
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -612,7 +613,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   void _showSelectedLocationsSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppPalette.surface(context),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
@@ -630,24 +631,24 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       child: Text(
                         'Pain Locations',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF1E293B),
+                          color: AppPalette.textPrimary(context),
                         ),
                       ),
                     ),
                     const SizedBox(height: 8),
                     if (_painPoints.isEmpty)
-                      const Padding(
+                      Padding(
                         padding: EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                         child: Text(
                           'No locations marked yet. Tap anywhere on the body to add one.',
-                          style: TextStyle(color: Color(0xFF64748B)),
+                          style: TextStyle(color: AppPalette.textMuted(context)),
                         ),
                       ),
                     ConstrainedBox(
@@ -712,7 +713,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppPalette.surface(context),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -723,14 +724,14 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Text(
                   'Select Pain Location',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: AppPalette.textPrimary(context),
                   ),
                 ),
               ),
@@ -746,13 +747,13 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                       dense: true,
                       leading: Icon(
                         alreadyAdded ? Icons.check_circle : Icons.location_on_outlined,
-                        color: alreadyAdded ? const Color(0xFF6D28D9) : const Color(0xFF94A3B8),
+                        color: alreadyAdded ? const Color(0xFF6D28D9) : AppPalette.textMuted(context),
                       ),
                       title: Text(
                         item,
                         style: TextStyle(
                           fontWeight: alreadyAdded ? FontWeight.bold : FontWeight.normal,
-                          color: alreadyAdded ? const Color(0xFF6D28D9) : const Color(0xFF334155),
+                          color: alreadyAdded ? const Color(0xFF6D28D9) : AppPalette.textSecondary(context),
                         ),
                       ),
                       onTap: () {

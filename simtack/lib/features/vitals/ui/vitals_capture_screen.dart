@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
 import 'package:camera/camera.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../core/ppg_processor.dart';
@@ -236,17 +237,17 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppPalette.surface(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           '4. Vitals Capture',
-          style: TextStyle(color: Color(0xFF1E293B), fontWeight: FontWeight.bold),
+          style: TextStyle(color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold),
         ),
       ),
       body: Padding(
@@ -271,9 +272,9 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: AppPalette.scaffold(context),
                   borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(color: AppPalette.border(context)),
                 ),
                 child: kIsWeb
                     ? (_webCapture != null
@@ -281,13 +282,13 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
                             borderRadius: BorderRadius.circular(16),
                             child: HtmlElementView(viewType: _webCapture!.viewType),
                           )
-                        : const Center(
+                        : Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.fingerprint, size: 64, color: Color(0xFF6D28D9)),
                                 SizedBox(height: 16),
-                                Text('Camera Ready', style: TextStyle(color: Color(0xFF64748B))),
+                                Text('Camera Ready', style: TextStyle(color: AppPalette.textMuted(context))),
                               ],
                             ),
                           ))
@@ -296,13 +297,13 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
                             borderRadius: BorderRadius.circular(16),
                             child: CameraPreview(_cameraController!),
                           )
-                        : const Center(
+                        : Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Icon(Icons.fingerprint, size: 64, color: Color(0xFF6D28D9)),
                                 SizedBox(height: 16),
-                                Text('Camera Ready', style: TextStyle(color: Color(0xFF64748B))),
+                                Text('Camera Ready', style: TextStyle(color: AppPalette.textMuted(context))),
                               ],
                             ),
                           )),
@@ -317,14 +318,14 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: _isMeasuring ? const Color(0xFF16A34A) : const Color(0xFF64748B),
+                color: _isMeasuring ? const Color(0xFF16A34A) : AppPalette.textMuted(context),
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Place your finger gently over the back camera and flash',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 14, color: Color(0xFF64748B)),
+              style: TextStyle(fontSize: 14, color: AppPalette.textMuted(context)),
             ),
 
             const SizedBox(height: 20),
@@ -383,7 +384,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color),
                 textAlign: TextAlign.center,
               ),
-              Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), fontWeight: FontWeight.w600)),
+              Text(label, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), fontWeight: FontWeight.w600)),
             ],
           ),
         ),

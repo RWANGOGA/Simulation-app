@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:qr_flutter/qr_flutter.dart';
@@ -146,9 +147,9 @@ class _SuccessScreenState extends State<SuccessScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   'Share Report',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -184,7 +185,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     _shareOption(
                       icon: Icons.copy,
                       label: 'Copy Link',
-                      color: const Color(0xFF64748B),
+                      color: AppPalette.textMuted(context),
                       onTap: () async {
                         await Clipboard.setData(ClipboardData(text: message));
                         if (sheetContext.mounted) Navigator.of(sheetContext).pop();
@@ -257,7 +258,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
         : 'Risk Assessment Pending';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppPalette.scaffold(context),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -277,9 +278,9 @@ class _SuccessScreenState extends State<SuccessScreen> {
 
               const SizedBox(height: 16),
 
-              const Text(
+              Text(
                 'Report Submitted!',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
               ),
 
               const SizedBox(height: 24),
@@ -293,14 +294,14 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Patient ID', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
-                        Text(widget.patientId, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF1E293B))),
+                        Text('Patient ID', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
+                        Text(widget.patientId, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
                       ],
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        const Text('Timestamp', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                        Text('Timestamp', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
                         Text(DateTime.now().toString().substring(0, 16), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
                       ],
                     ),
@@ -325,11 +326,11 @@ class _SuccessScreenState extends State<SuccessScreen> {
                         data: _reportUrl,
                         version: QrVersions.auto,
                         size: 180.0,
-                        backgroundColor: Colors.white,
+                        backgroundColor: AppPalette.surface(context),
                       ),
                       const SizedBox(height: 12),
-                      const Text('No internet required to view', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
-                      const Text('Show this QR code to the health worker', style: TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                      Text('No internet required to view', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
+                      Text('Show this QR code to the health worker', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
                     ],
                   ),
                 ),
@@ -437,7 +438,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
               // --- START NEW TRIAGE ---
               TextButton(
                 onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                child: const Text('Start New Triage', style: TextStyle(color: Color(0xFF64748B), fontSize: 14, fontWeight: FontWeight.w500)),
+                child: Text('Start New Triage', style: TextStyle(color: AppPalette.textMuted(context), fontSize: 14, fontWeight: FontWeight.w500)),
               ),
             ],
           ),
