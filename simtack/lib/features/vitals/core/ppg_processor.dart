@@ -190,6 +190,7 @@ class PPGProcessor {
 
   void reset() {
     _signalBuffer.clear();
+    _recentSampleTimesMs.clear();
     _currentBPM = 0;
     _currentSpO2 = 0;
   }

@@ -12,6 +12,7 @@ import '../../history/ui/patient_history_screen.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode, debugPrint;
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
+import '../../../core/widgets/shap_explanation_card.dart';
 
 // --- CONFIGURATION ---
 // Base URL of the Flutter web app that the QR / share links deep-link
@@ -40,13 +41,19 @@ String get kReportBaseUrl {
 
 class SuccessScreen extends StatefulWidget {
   final String patientId;
-  final TriageResult triageResult;
+  final List<TriageResult> allResults;
 
   const SuccessScreen({
     super.key,
     required this.patientId,
-    required this.triageResult,
+    required this.allResults,
   });
+
+  // The main risk banner should reflect the patient's worst finding across
+  // the whole visit, not whichever pain point happened to submit last.
+  TriageResult get worstResult => allResults.reduce(
+        (a, b) => (a.riskScore ?? 0.0) >= (b.riskScore ?? 0.0) ? a : b,
+      );
 
   @override
   State<SuccessScreen> createState() => _SuccessScreenState();
@@ -213,7 +220,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
           children: [
             CircleAvatar(
               radius: 26,
-              backgroundColor: color.withOpacity(0.1),
+              backgroundColor: color.withValues(alpha: 0.1),
               child: Icon(icon, color: color, size: 26),
             ),
             const SizedBox(height: 6),
@@ -240,12 +247,13 @@ class _SuccessScreenState extends State<SuccessScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final riskScore = widget.triageResult.riskScore;
+    final worst = widget.worstResult;
+    final riskScore = worst.riskScore;
     final hasScore = riskScore != null;
     final isHighRisk = hasScore && riskScore >= 0.7;
     final riskColor = isHighRisk ? const Color(0xFFDC2626) : const Color(0xFF16A34A);
     final riskLabel = hasScore
-        ? '${widget.triageResult.riskLevel} Risk (${(riskScore * 100).toInt()}%)'
+        ? '${worst.riskLevel} Risk (${(riskScore * 100).toInt()}%)'
         : 'Risk Assessment Pending';
 
     return Scaffold(
@@ -261,7 +269,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF16A34A).withOpacity(0.1),
+                  color: const Color(0xFF16A34A).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check_circle, color: Color(0xFF16A34A), size: 48),
@@ -333,7 +341,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: riskColor.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(color: riskColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
                 child: Row(
                   children: [
                     Icon(isHighRisk ? Icons.warning_amber_rounded : Icons.check_circle_outline, color: riskColor, size: 20),
@@ -342,6 +350,22 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   ],
                 ),
               ),
+
+              // "Why this score" — includes anatomical connectivity findings
+              // (e.g. chest + left arm reported together) when relevant.
+              if (widget.allResults.length > 1) ...[
+                const SizedBox(height: 12),
+                ...widget.allResults.map((r) => Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: ShapExplanationCard(
+                        shapExplanation: r.shapExplanation,
+                        title: r.bodyRegion.toUpperCase(),
+                      ),
+                    )),
+              ] else ...[
+                const SizedBox(height: 12),
+                ShapExplanationCard(shapExplanation: worst.shapExplanation),
+              ],
 
               const SizedBox(height: 24),
 

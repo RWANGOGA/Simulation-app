@@ -19,11 +19,6 @@ permissions:
   pages: write
   id-token: write
 
-# Only one Pages deployment at a time; a newer push cancels an in-flight one.
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
   build-apk:
     name: Build Android APK
@@ -94,6 +89,11 @@ jobs:
     needs: build-web
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    # Scoped to just this job — only one Pages deployment at a time, without
+    # cancelling unrelated in-flight APK/web build jobs.
+    concurrency:
+      group: pages
+      cancel-in-progress: true
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
