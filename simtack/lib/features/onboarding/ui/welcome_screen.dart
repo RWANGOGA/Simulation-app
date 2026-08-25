@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/storage/draft_storage.dart';
+import '../../../core/storage/draft_sync_service.dart';
 import '../../../core/storage/triage_draft.dart';
 import '../../patient_info/ui/patient_info_screen.dart';
 import '../../review/ui/review_screen.dart';
@@ -32,7 +33,29 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadDrafts();
+    _syncThenLoadDrafts();
+  }
+
+  // Auto-sync runs once, at startup, before the drafts are loaded for
+  // display — any draft that syncs successfully disappears from the
+  // banner/picker entirely rather than briefly flashing then vanishing.
+  Future<void> _syncThenLoadDrafts() async {
+    final syncedCount = await DraftSyncService.syncAll();
+    await _loadDrafts();
+    if (syncedCount > 0 && mounted) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(syncedCount == 1
+                ? '1 saved report submitted'
+                : '$syncedCount saved reports submitted'),
+            backgroundColor: const Color(0xFF16A34A),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      });
+    }
   }
 
   Future<void> _loadDrafts() async {
@@ -151,9 +174,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF6D28D9).withOpacity(0.08),
+        color: const Color(0xFF6D28D9).withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFF6D28D9).withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
