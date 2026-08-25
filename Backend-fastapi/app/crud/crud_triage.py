@@ -20,6 +20,16 @@ def list_triage(db: Session, limit: int = 50, patient_id: Optional[int] = None) 
 def get_triage(db: Session, session_id: int) -> Optional[TriageSession]:
     return db.get(TriageSession, session_id)
 
+def get_patient_history(db: Session, patient_id: int) -> List[TriageSession]:
+    """Every session the patient ever submitted, newest first — powers
+    the practitioner's visit timeline on the clinical report."""
+    stmt = (
+        select(TriageSession)
+        .where(TriageSession.patient_id == patient_id)
+        .order_by(TriageSession.created_at.desc())
+    )
+    return list(db.execute(stmt).scalars().all())
+
 def get_latest_visit(db: Session, patient_id: int) -> List[TriageSession]:
     """
     Returns every TriageSession from the patient's most recent visit.

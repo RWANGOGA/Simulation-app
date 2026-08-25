@@ -84,20 +84,20 @@ def compute_risk(
 ) -> Tuple[float, List[Dict[str, Any]]]:
     contributions: List[Dict[str, Any]] = []
     severity_c = round((data.severity / 10.0) * 0.50, 2)
-    contributions.append({"factor": f"Severity {data.severity}/10", "shap": severity_c})
+    contributions.append({"factor": f"Severity {data.severity}/10", "shap": severity_c, "impact": "+" if severity_c >= 0 else "-"})
     region_c = _region_weight(data.body_region)
-    contributions.append({"factor": f"Region: {data.body_region}", "shap": region_c})
+    contributions.append({"factor": f"Region: {data.body_region}", "shap": region_c, "impact": "+" if region_c >= 0 else "-"})
     pain_c = _pain_type_weight(data.pain_type)
-    contributions.append({"factor": f"Pain type: {data.pain_type}", "shap": pain_c})
+    contributions.append({"factor": f"Pain type: {data.pain_type}", "shap": pain_c, "impact": "+" if pain_c >= 0 else "-"})
     hr_c = _heart_rate_contribution(data.heart_rate)
     if hr_c:
-        contributions.append({"factor": f"Heart rate {data.heart_rate} bpm", "shap": hr_c})
+        contributions.append({"factor": f"Heart rate {data.heart_rate} bpm", "shap": hr_c, "impact": "+" if hr_c >= 0 else "-"})
     spo2_c = _spo2_contribution(data.spo2)
     if spo2_c:
-        contributions.append({"factor": f"SpO2 {data.spo2}%", "shap": spo2_c})
+        contributions.append({"factor": f"SpO2 {data.spo2}%", "shap": spo2_c, "impact": "+" if spo2_c >= 0 else "-"})
     bmi_c, bmi = _bmi_contribution(patient_weight, patient_height)
     if bmi_c:
-        contributions.append({"factor": f"BMI {bmi:.1f} (weight/height)", "shap": bmi_c})
+        contributions.append({"factor": f"BMI {bmi:.1f} (weight/height)", "shap": bmi_c, "impact": "+" if bmi_c >= 0 else "-"})
     risk = min(1.0, round(sum(c["shap"] for c in contributions), 2))
     contributions.sort(key=lambda c: c["shap"], reverse=True)
     return risk, contributions

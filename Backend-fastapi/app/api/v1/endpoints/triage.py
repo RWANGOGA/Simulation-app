@@ -208,6 +208,26 @@ def get_triage_by_patient_code(patient_code: str, db: Session = Depends(get_db))
     return [_session_payload(s, patient) for s in sessions]
 
 # ==========================================
+# 5b. FULL PATIENT HISTORY (Visit timeline)
+# Practitioner-only: every session the patient ever submitted, newest
+# first, so the report can render a timeline across visits. Patients
+# keep using the unauthenticated latest-visit route above.
+# Two path segments — safe relative to /{session_id}.
+# ==========================================
+@router.get("/patient/{patient_code}/history", response_model=List[TriageResponse])
+def get_patient_history(
+    patient_code: str,
+    db: Session = Depends(get_db),
+    current_doctor: Doctor = Depends(get_current_doctor),
+):
+    patient = crud_patient.get_patient_by_code(db, patient_code)
+    if not patient:
+        raise HTTPException(status_code=404, detail="Patient ID not found")
+
+    sessions = crud_triage.get_patient_history(db, patient.id)
+    return [_session_payload(s, patient) for s in sessions]
+
+# ==========================================
 # 6. GET SINGLE TRIAGE BY SESSION ID
 # MUST BE LAST. Any single dynamic path segment declared here
 # will catch every static single-segment route added below it
