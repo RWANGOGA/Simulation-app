@@ -12,6 +12,7 @@ dependencies:
     sdk: flutter
   http: ^1.2.0
   model_viewer_plus: ^1.7.0
+  webview_flutter: ^4.8.0    # JavaScriptMessage type for the mobile 3D tap bridge
   qr_flutter: ^4.1.0
   cupertino_icons: ^1.0.6
   camera: ^0.10.5
