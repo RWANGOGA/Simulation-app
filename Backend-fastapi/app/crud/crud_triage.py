@@ -20,12 +20,20 @@ def list_triage(db: Session, limit: int = 50, patient_id: Optional[int] = None) 
 def get_triage(db: Session, session_id: int) -> Optional[TriageSession]:
     return db.get(TriageSession, session_id)
 
-
 def get_regions_in_visit(db: Session, visit_id: str) -> List[str]:
     """Every body_region already submitted under this visit_id, so a new
     pain point being scored can be checked against what's already been
     reported in the same visit (see triage_service._connectivity_contributions)."""
     stmt = select(TriageSession.body_region).where(TriageSession.visit_id == visit_id)
+
+def get_patient_history(db: Session, patient_id: int) -> List[TriageSession]:
+    """Every session the patient ever submitted, newest first — powers
+    the practitioner's visit timeline on the clinical report."""
+    stmt = (
+        select(TriageSession)
+        .where(TriageSession.patient_id == patient_id)
+        .order_by(TriageSession.created_at.desc())
+    )
     return list(db.execute(stmt).scalars().all())
 
 def get_latest_visit(db: Session, patient_id: int) -> List[TriageSession]:

@@ -449,8 +449,26 @@ class ApiClient {
   }
 
   static Future<List<TriageResult>> getLatestVisit(String patientCode) async {
+    // Anonymous lookup — no JWT; routed through httpClient anyway so
+    // tests can inject a mock.
     final response = await httpClient.get(
       Uri.parse('$baseUrl/triage/patient/$patientCode'),
+    );
+    if (response.statusCode == 200) {
+      final list = jsonDecode(response.body) as List;
+      return list
+          .map((e) => TriageResult.fromJson(e as Map<String, dynamic>))
+          .toList();
+    }
+    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+  }
+
+  /// Practitioner-only: every session the patient ever submitted, newest
+  /// first. Powers the visit timeline on the clinical report.
+  static Future<List<TriageResult>> getPatientHistory(String patientCode) async {
+    final response = await httpClient.get(
+      Uri.parse('$baseUrl/triage/patient/$patientCode/history'),
+      headers: await _authHeaders(),
     );
     if (response.statusCode == 200) {
       final list = jsonDecode(response.body) as List;
