@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../../core/storage/draft_storage.dart';
 import '../../../core/storage/triage_draft.dart';
 import '../../patient_info/ui/patient_info_screen.dart';
@@ -16,7 +17,11 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   String _selectedLanguage = 'English';
-  TriageDraft? _draft;
+
+  // Every offline draft saved on this device, newest first. The banner
+  // shows the most recent one; when there are several, "Choose" opens a
+  // picker so none of them are hidden behind the latest.
+  List<TriageDraft> _drafts = [];
 
   final List<_LanguageOption> _languages = const [
     _LanguageOption('English', null),
@@ -28,17 +33,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadDraft();
+    _loadDrafts();
   }
 
-  Future<void> _loadDraft() async {
-    final draft = await DraftStorage.load();
-    if (mounted) setState(() => _draft = draft);
+  Future<void> _loadDrafts() async {
+    final drafts = await DraftStorage.loadAll();
+    if (mounted) setState(() => _drafts = drafts);
   }
 
-  void _resumeDraft() {
-    final draft = _draft;
-    if (draft == null || draft.painPoints.isEmpty) return;
+  void _resumeDraft(TriageDraft draft) {
+    if (draft.painPoints.isEmpty) return;
     Navigator.of(context).push(
       AppPageRoute(
         builder: (_) => ReviewScreen(
@@ -51,15 +55,98 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  Widget _buildResumeDraftBanner() {
-    final draft = _draft;
-    if (draft == null || draft.painPoints.isEmpty) return const SizedBox.shrink();
+  Future<void> _deleteDraft(TriageDraft draft) async {
+    await DraftStorage.remove(draft);
+    await _loadDrafts();
+  }
 
+  String _draftSubtitle(TriageDraft draft) {
     final first = draft.painPoints.first;
     final extraCount = draft.painPoints.length - 1;
-    final subtitle = extraCount > 0
+    final base = extraCount > 0
         ? '${first.region} · ${first.painType} (+$extraCount more)'
         : '${first.region} · ${first.painType}';
+    final savedOn = DateFormat('d MMM, HH:mm').format(draft.savedAt);
+    return '$base · saved $savedOn';
+  }
+
+  /// Lets the patient pick which of several saved drafts to resume.
+  void _showDraftPicker() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(24, 20, 24, 8),
+                child: Text(
+                  'Saved drafts',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+              ),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+                  itemCount: _drafts.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final draft = _drafts[index];
+                    return ListTile(
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                      leading: const Icon(Icons.history_edu_outlined, color: Color(0xFF6D28D9)),
+                      title: Text(
+                        _draftSubtitle(draft),
+                        style: const TextStyle(fontSize: 13, color: Color(0xFF1E293B)),
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(Icons.delete_outline, size: 20, color: Color(0xFF94A3B8)),
+                        tooltip: 'Delete draft',
+                        onPressed: () async {
+                          await _deleteDraft(draft);
+                          if (!sheetContext.mounted) return;
+                          if (_drafts.isEmpty) {
+                            Navigator.of(sheetContext).pop();
+                          } else {
+                            setSheetState(() {});
+                          }
+                        },
+                      ),
+                      onTap: () {
+                        Navigator.of(sheetContext).pop();
+                        _resumeDraft(draft);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResumeDraftBanner() {
+    if (_drafts.isEmpty) return const SizedBox.shrink();
+    final draft = _drafts.first;
+    if (draft.painPoints.isEmpty) return const SizedBox.shrink();
+
+    final title = _drafts.length == 1
+        ? 'You have a saved draft'
+        : 'You have ${_drafts.length} saved drafts';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -77,20 +164,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'You have a saved draft',
-                  style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                Text(
+                  title,
+                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
                 ),
                 Text(
-                  subtitle,
+                  _draftSubtitle(draft),
                   style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                 ),
               ],
             ),
           ),
           TextButton(
-            onPressed: _resumeDraft,
-            child: const Text('Resume'),
+            onPressed: _drafts.length == 1 ? () => _resumeDraft(draft) : _showDraftPicker,
+            child: Text(_drafts.length == 1 ? 'Resume' : 'Choose'),
           ),
         ],
       ),

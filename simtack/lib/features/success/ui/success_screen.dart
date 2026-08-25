@@ -9,12 +9,15 @@ import 'package:universal_html/html.dart' as html; // For web downloads
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/network/api_client.dart';
 import '../../history/ui/patient_history_screen.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
+import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode, debugPrint;
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
 
 // --- CONFIGURATION ---
-const String kReportBaseUrl = 'http://10.16.10.85:5000';
+// Base URL of the deployed Flutter web app that the QR deep-links into
+// (#/report/<patientId>). Was previously a hardcoded dev-machine LAN IP.
+String get kReportBaseUrl =>
+    kDebugMode ? 'http://localhost:5000' : 'https://rwangoga.github.io/Simulation-app';
 
 class SuccessScreen extends StatefulWidget {
   final String patientId;

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/auth_service.dart';
+import '../../auth/ui/login_screen.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 
@@ -47,6 +49,103 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
     if (score >= 0.7) return 'HIGH';
     if (score >= 0.4) return 'MEDIUM';
     return 'LOW';
+  }
+
+  /// Profile tab: shows the signed-in practitioner's account details and
+  /// the logout action (previously this tab was completely inert).
+  void _showProfileSheet() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        Doctor? doctor;
+        String? error;
+        var loaded = false;
+
+        Future<void> fetch() async {
+          try {
+            doctor = await ApiClient.getCurrentDoctor();
+          } catch (e) {
+            error = 'Could not load account details.';
+          }
+          loaded = true;
+        }
+
+        return FutureBuilder(
+          future: fetch(),
+          builder: (context, _) {
+            if (!loaded) {
+              return const Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(child: CircularProgressIndicator()),
+              );
+            }
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE2E8F0),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const CircleAvatar(
+                    radius: 28,
+                    backgroundColor: Color(0xFFEDE9FE),
+                    child: Icon(Icons.person, size: 30, color: Color(0xFF6D28D9)),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    doctor?.fullName ?? 'Practitioner',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E293B),
+                    ),
+                  ),
+                  Text(
+                    doctor?.email ?? error ?? '',
+                    style: const TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        await AuthService.instance.logout();
+                        if (!sheetContext.mounted) return;
+                        Navigator.of(sheetContext).pushAndRemoveUntil(
+                          AppPageRoute(builder: (_) => const LoginScreen()),
+                          (route) => false,
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: const Color(0xFFDC2626),
+                        side: const BorderSide(color: Color(0xFFFCA5A5)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      icon: const Icon(Icons.logout, size: 18),
+                      label: const Text('Log out', style: TextStyle(fontWeight: FontWeight.w600)),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   Color _getRiskColor(String level) {
@@ -142,6 +241,8 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
             Navigator.of(context).popUntil((route) => route.isFirst);
           } else if (index == 1) {
             Navigator.of(context).popUntil((route) => route.isFirst);
+          } else if (index == 3) {
+            _showProfileSheet();
           }
         },
       ),

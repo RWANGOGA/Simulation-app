@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/auth_service.dart';
+import '../../auth/ui/login_screen.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 
@@ -18,10 +22,20 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
   String _searchQuery = '';
   String? _selectedRisk;
 
+  // Debounces the patient-code search so we don't hammer the backend with
+  // one request per keystroke.
+  Timer? _searchDebounce;
+
   @override
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _searchDebounce?.cancel();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -59,6 +73,18 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
     return parts.isEmpty ? null : parts.join(' • ');
   }
 
+  /// Signs the practitioner out and returns to the login screen. The token
+  /// is wiped first, so even if the user backgrounds the app, main() won't
+  /// route them straight back into the dashboard.
+  Future<void> _logout() async {
+    await AuthService.instance.logout();
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      AppPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
   String _getRiskLevel(double? score) {
     if (score == null) return 'UNKNOWN';
     if (score >= 0.7) return 'HIGH';
@@ -86,6 +112,11 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
         centerTitle: true,
         actions: [
           IconButton(icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)), onPressed: _loadData),
+          IconButton(
+            icon: const Icon(Icons.logout, color: Color(0xFF6D28D9)),
+            tooltip: 'Log out',
+            onPressed: _logout,
+          ),
         ],
       ),
       body: _isLoading
@@ -124,7 +155,8 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                           ),
                           onChanged: (value) {
                             setState(() => _searchQuery = value.toUpperCase());
-                            _loadData(); // Debounce in production, immediate here for simplicity
+                            _searchDebounce?.cancel();
+                            _searchDebounce = Timer(const Duration(milliseconds: 400), _loadData);
                           },
                         ),
                       ),
