@@ -28,15 +28,28 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
   Future<void> _loadHistory() async {
     setState(() => _isLoading = true);
     try {
-      // Fetch only the sessions for this specific patient
-      final sessions = await ApiClient.getTriageList(patientCode: widget.patientId);
+      // Patient-scoped lookup (the anonymous code is the credential).
+      // The doctor-facing /triage/list endpoint is JWT-guarded now, and
+      // this screen belongs to the patient flow, which has no token.
+      final visits = await ApiClient.getLatestVisit(widget.patientId);
       setState(() {
-        _history = sessions;
+        _history = visits
+            .map((r) => <String, dynamic>{
+                  'body_region': r.bodyRegion,
+                  'risk_score': r.riskScore,
+                  'created_at': r.createdAt.toIso8601String(),
+                })
+            .toList();
         _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
-      if (mounted) {
+      setState(() {
+        _isLoading = false;
+        // 404 simply means this patient has no report yet — show the
+        // empty state instead of a scary error.
+        _history = [];
+      });
+      if (mounted && !e.toString().contains('404')) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error loading history: $e'), backgroundColor: Colors.red),
         );

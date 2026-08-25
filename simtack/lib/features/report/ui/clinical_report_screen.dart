@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import '../../../core/network/api_client.dart';
 
@@ -162,6 +164,11 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           ),
           const SizedBox(height: 24),
 
+          // WHY this risk score: the backend stores a per-factor breakdown
+          // (shap_explanation) on every session, but it was fetched and
+          // then never shown. Surface it under the headline assessment.
+          _buildRiskExplanation(worst),
+
           Text(
             _reports.length > 1 ? 'Clinical Details (${_reports.length} pain points)' : 'Clinical Details',
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
@@ -197,6 +204,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                     _buildDetailRow('Direction', report.direction ?? 'N/A', Icons.arrow_right_alt),
                     _buildDetailRow('Depth', report.depth ?? 'N/A', Icons.layers),
                     _buildDetailRow('Heart Rate', '${report.heartRate?.toInt() ?? 0} BPM', Icons.favorite),
+                    _buildDetailRow('SpO2 (est.)', report.spo2 != null ? '${report.spo2!.toInt()}%' : 'N/A', Icons.air),
                     _buildDetailRow('Risk', '${report.riskLevel} (${((report.riskScore ?? 0.0) * 100).toInt()}%)', Icons.analytics),
                     _buildDetailRow('Reported At', report.createdAt.toString().substring(0, 16), Icons.access_time),
                   ],
@@ -251,6 +259,69 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           const SizedBox(height: 12),
           Wrap(spacing: 12, runSpacing: 12, children: chips),
         ],
+      ),
+    );
+  }
+
+  /// Renders the per-factor risk breakdown (shap_explanation) that the
+  /// backend computes and stores with every triage session. The format is a
+  /// JSON array of {"factor": "...", "shap": 0.xx}, sorted descending.
+  Widget _buildRiskExplanation(TriageResult report) {
+    final raw = report.shapExplanation;
+    if (raw == null || raw.isEmpty) return const SizedBox.shrink();
+
+    List<dynamic>? factors;
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is List && decoded.isNotEmpty) factors = decoded;
+    } catch (_) {
+      // Malformed JSON shouldn't break the report — just hide the section.
+    }
+    if (factors == null) return const SizedBox.shrink();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: const Color(0xFFE2E8F0)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'WHY THIS SCORE?',
+              style: TextStyle(fontSize: 12, color: Color(0xFF64748B), letterSpacing: 1.5, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            ...factors.map((f) {
+              final factor = f is Map<String, dynamic>
+                  ? f
+                  : <String, dynamic>{};
+              final label = (factor['factor'] ?? 'Unknown factor').toString();
+              final shap = factor['shap'] is num ? (factor['shap'] as num).toDouble() : 0.0;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    const Icon(Icons.insights_outlined, size: 16, color: Color(0xFF6D28D9)),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(label, style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B))),
+                    ),
+                    Text(
+                      '+${(shap * 100).toInt()}%',
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9)),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
       ),
     );
   }

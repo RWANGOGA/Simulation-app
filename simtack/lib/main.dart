@@ -28,9 +28,12 @@ class AtomyBridgeApp extends StatelessWidget {
     // 1. Read the URL fragment (the part after the '#' symbol, used for deep linking)
     final String fragment = Uri.base.fragment;
     
-    // 2. Determine the route from the URL
+    // 2. Determine the route from the URL.
+    // The #/dashboard deep link only counts when the doctor is ACTUALLY
+    // logged in — previously anyone could open the dashboard by typing the
+    // URL, bypassing authentication entirely.
     String? reportPatientId;
-    bool isDashboardFromUrl = fragment == '/dashboard';
+    bool isDashboardFromUrl = fragment == '/dashboard' && isDoctorLoggedIn;
 
     if (fragment.startsWith('/report/')) {
       reportPatientId = fragment.replaceFirst('/report/', '');

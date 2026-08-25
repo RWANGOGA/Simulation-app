@@ -17,6 +17,7 @@ class TriageSession(Base):
     pain_type = Column(String)
     severity = Column(Integer)
     heart_rate = Column(Float, nullable=True)
+    spo2 = Column(Float, nullable=True)
     direction = Column(String, nullable=True)
     depth = Column(String, nullable=True)
     risk_score = Column(Float, nullable=True)

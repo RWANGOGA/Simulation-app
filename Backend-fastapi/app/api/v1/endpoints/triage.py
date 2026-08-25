@@ -6,17 +6,19 @@ from app.core.database import get_db
 from app.crud import crud_triage, crud_patient
 from app.schemas import TriageCreate, TriageResponse, PatientCreate
 from app.services import triage_service
-from app.models import Patient, TriageSession
+from app.models import Patient, TriageSession, Doctor
+from app.api.v1.endpoints.auth import get_current_doctor
 
 router = APIRouter(prefix="/triage", tags=["triage"])
 
 # ==========================================
 # 1. CREATE TRIAGE (Patient submits data)
+# Left unauthenticated on purpose: patients submit anonymously from the
+# mobile/web app with no account. The doctor-facing READ endpoints below
+# are JWT-guarded instead.
 # ==========================================
 @router.post("/", response_model=TriageResponse, status_code=201)
 def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
-    risk, contributions = triage_service.compute_risk(payload)
-
     patient_id = payload.patient_id
     anonymous_code = None
     patient_obj = None
@@ -29,9 +31,21 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
         patient_obj = new_patient
     else:
         existing_patient = db.query(Patient).filter(Patient.id == patient_id).first()
+        if not existing_patient:
+            # Reject dangling references: previously an unknown patient_id
+            # still created a session row pointing at nothing (orphaned
+            # record that could never be joined back to a patient).
+            raise HTTPException(status_code=404, detail="Patient not found")
         patient_obj = existing_patient
-        if existing_patient:
-            anonymous_code = existing_patient.anonymous_code
+        anonymous_code = existing_patient.anonymous_code
+
+    # Weight/height feed the BMI risk factor; scoring needs the patient
+    # resolved first, so risk is computed after the lookup above.
+    risk, contributions = triage_service.compute_risk(
+        payload,
+        patient_weight=patient_obj.weight if patient_obj else None,
+        patient_height=patient_obj.height if patient_obj else None,
+    )
 
     session_data = payload.model_dump()
     session_data["patient_id"] = patient_id
@@ -46,7 +60,8 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
     return {
         "id": session.id, "patient_id": session.patient_id, "anonymous_code": anonymous_code,
         "body_region": session.body_region, "pain_type": session.pain_type, "severity": session.severity,
-        "heart_rate": session.heart_rate, "direction": session.direction, "depth": session.depth,
+        "heart_rate": session.heart_rate, "spo2": session.spo2,
+        "direction": session.direction, "depth": session.depth,
         "visit_id": session.visit_id,
         "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
         "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at,
@@ -58,9 +73,16 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
 
 # ==========================================
 # 2. LIST ALL TRIAGES (Original Route)
+# Doctor-only: exposes every patient's submissions, so it requires a valid
+# JWT (issue: data endpoints were previously fully open).
 # ==========================================
 @router.get("/", response_model=List[TriageResponse])
-def list_triage(limit: int = 50, patient_id: Optional[int] = None, db: Session = Depends(get_db)):
+def list_triage(
+    limit: int = 50,
+    patient_id: Optional[int] = None,
+    db: Session = Depends(get_db),
+    current_doctor: Doctor = Depends(get_current_doctor),
+):
     return crud_triage.list_triage(db, limit=limit, patient_id=patient_id)
 
 # ==========================================
@@ -70,7 +92,10 @@ def list_triage(limit: int = 50, patient_id: Optional[int] = None, db: Session =
 # swallow "/stats" as if it were a session_id.
 # ==========================================
 @router.get("/stats")
-def get_triage_stats(db: Session = Depends(get_db)):
+def get_triage_stats(
+    db: Session = Depends(get_db),
+    current_doctor: Doctor = Depends(get_current_doctor),
+):
     total_sessions = db.query(func.count(TriageSession.id)).scalar() or 0
     high_risk_sessions = db.query(func.count(TriageSession.id)).filter(TriageSession.risk_score >= 0.7).scalar() or 0
     medium_risk_sessions = db.query(func.count(TriageSession.id)).filter(
@@ -94,7 +119,8 @@ def list_triage_sessions(
     offset: int = Query(default=0, ge=0),
     patient_code: Optional[str] = Query(default=None),
     risk_level: Optional[str] = Query(default=None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_doctor: Doctor = Depends(get_current_doctor),
 ):
     query = db.query(
         TriageSession,
@@ -142,6 +168,8 @@ def list_triage_sessions(
 # Safe relative to /{session_id} since it has two path segments
 # ("/patient/...") and can't collide with a single-segment route,
 # but keeping it above /{session_id} anyway for readability.
+# Kept unauthenticated on purpose: the 12-char anonymous code IS the
+# patient's credential — they reach this via QR scan with no account.
 # ==========================================
 @router.get("/patient/{patient_code}", response_model=List[TriageResponse])
 def get_triage_by_patient_code(patient_code: str, db: Session = Depends(get_db)):
@@ -157,7 +185,8 @@ def get_triage_by_patient_code(patient_code: str, db: Session = Depends(get_db))
         {
             "id": s.id, "patient_id": s.patient_id, "anonymous_code": patient.anonymous_code,
             "body_region": s.body_region, "pain_type": s.pain_type, "severity": s.severity,
-            "heart_rate": s.heart_rate, "direction": s.direction, "depth": s.depth,
+            "heart_rate": s.heart_rate, "spo2": s.spo2,
+            "direction": s.direction, "depth": s.depth,
             "visit_id": s.visit_id,
             "risk_score": s.risk_score, "shap_explanation": s.shap_explanation,
             "qr_payload_hash": s.qr_payload_hash, "created_at": s.created_at,
@@ -175,7 +204,11 @@ def get_triage_by_patient_code(patient_code: str, db: Session = Depends(get_db))
 # "/stats" and "/list" did). Add new static routes ABOVE this one.
 # ==========================================
 @router.get("/{session_id}", response_model=TriageResponse)
-def get_triage(session_id: int, db: Session = Depends(get_db)):
+def get_triage(
+    session_id: int,
+    db: Session = Depends(get_db),
+    current_doctor: Doctor = Depends(get_current_doctor),
+):
     session = crud_triage.get_triage(db, session_id)
     if session is None:
         raise HTTPException(status_code=404, detail="Triage session not found")
@@ -190,7 +223,8 @@ def get_triage(session_id: int, db: Session = Depends(get_db)):
     return {
         "id": session.id, "patient_id": session.patient_id, "anonymous_code": anon_code,
         "body_region": session.body_region, "pain_type": session.pain_type, "severity": session.severity,
-        "heart_rate": session.heart_rate, "direction": session.direction, "depth": session.depth,
+        "heart_rate": session.heart_rate, "spo2": session.spo2,
+        "direction": session.direction, "depth": session.depth,
         "visit_id": session.visit_id,
         "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
         "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at,

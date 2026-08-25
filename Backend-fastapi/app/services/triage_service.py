@@ -55,7 +55,33 @@ def _heart_rate_contribution(heart_rate: Optional[float]) -> float:
         return 0.10
     return 0.0
 
-def compute_risk(data: TriageCreate) -> Tuple[float, List[Dict[str, Any]]]:
+def _spo2_contribution(spo2: Optional[float]) -> float:
+    """Low blood-oxygen estimates raise the triage priority."""
+    if spo2 is None or spo2 <= 0:
+        return 0.0
+    if spo2 < 92:
+        return 0.15
+    if spo2 < 95:
+        return 0.10
+    return 0.0
+
+def _bmi_contribution(weight_kg: Optional[float], height_cm: Optional[float]) -> Tuple[float, Optional[float]]:
+    """
+    Weight/height were collected at intake but never influenced the score.
+    Extreme BMI values add a small risk factor. Returns (contribution, bmi).
+    """
+    if not weight_kg or not height_cm or height_cm <= 0:
+        return 0.0, None
+    bmi = weight_kg / ((height_cm / 100.0) ** 2)
+    if bmi >= 30 or bmi < 18.5:
+        return 0.05, bmi
+    return 0.0, bmi
+
+def compute_risk(
+    data: TriageCreate,
+    patient_weight: Optional[float] = None,
+    patient_height: Optional[float] = None,
+) -> Tuple[float, List[Dict[str, Any]]]:
     contributions: List[Dict[str, Any]] = []
     severity_c = round((data.severity / 10.0) * 0.50, 2)
     contributions.append({"factor": f"Severity {data.severity}/10", "shap": severity_c})
@@ -66,6 +92,12 @@ def compute_risk(data: TriageCreate) -> Tuple[float, List[Dict[str, Any]]]:
     hr_c = _heart_rate_contribution(data.heart_rate)
     if hr_c:
         contributions.append({"factor": f"Heart rate {data.heart_rate} bpm", "shap": hr_c})
+    spo2_c = _spo2_contribution(data.spo2)
+    if spo2_c:
+        contributions.append({"factor": f"SpO2 {data.spo2}%", "shap": spo2_c})
+    bmi_c, bmi = _bmi_contribution(patient_weight, patient_height)
+    if bmi_c:
+        contributions.append({"factor": f"BMI {bmi:.1f} (weight/height)", "shap": bmi_c})
     risk = min(1.0, round(sum(c["shap"] for c in contributions), 2))
     contributions.sort(key=lambda c: c["shap"], reverse=True)
     return risk, contributions

@@ -63,6 +63,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           direction: point.direction,
           depth: point.depth,
           heartRate: widget.heartRate,
+          spo2: widget.spo2,
           patientId: widget.patientId,
           visitId: visitId,
         ));
@@ -218,7 +219,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       children: [
                         Expanded(child: _buildVitalMiniCard('Heart Rate', '${widget.heartRate.toInt()} BPM', Icons.favorite, const Color(0xFF6D28D9))),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildVitalMiniCard('SpO2', '${widget.spo2.toInt()}%', Icons.air, Colors.green)),
+                        Expanded(child: _buildVitalMiniCard('SpO2 (est.)', '${widget.spo2.toInt()}%', Icons.air, Colors.green)),
                       ],
                     ),
                   ),

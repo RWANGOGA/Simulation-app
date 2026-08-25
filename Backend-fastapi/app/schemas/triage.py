@@ -7,6 +7,7 @@ class TriageBase(BaseModel):
     pain_type: str = Field(..., description="e.g., sharp, burning, throbbing")
     severity: int = Field(..., ge=1, le=10)
     heart_rate: Optional[float] = Field(None, description="BPM from camera PPG")
+    spo2: Optional[float] = Field(None, description="SpO2 estimate (%) from camera PPG — perfusion-based proxy, not clinical pulse-oximetry")
     direction: Optional[str] = Field(None, description="e.g., Towards Back, Radiating Down")
     depth: Optional[str] = Field(None, description="e.g., Superficial, Moderate, Deep")
     # Client-generated id shared by every pain point submitted in the same

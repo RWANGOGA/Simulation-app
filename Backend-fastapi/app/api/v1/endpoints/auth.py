@@ -24,6 +24,11 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+class DoctorCreate(BaseModel):
+    email: str
+    password: str
+    full_name: str
+
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     password_byte_enc = plain_password.encode('utf-8')
     hashed_password_byte_enc = hashed_password.encode('utf-8')
@@ -78,6 +83,38 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     )
     
     return {"access_token": access_token, "token_type": "bearer"}
+
+@router.post("/register", response_model=DoctorResponse, status_code=status.HTTP_201_CREATED)
+def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
+    """
+    Creates a practitioner account. Previously there was no way to create
+    a doctor at all (no endpoint, no seed script), so login could never
+    succeed on a fresh database.
+    NOTE: registration is open by design for this deployment — gate it
+    (invite code / admin-only) before any production use.
+    """
+    email = payload.email.strip().lower()
+    if len(payload.password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 8 characters",
+        )
+    existing = db.query(Doctor).filter(Doctor.email == email).first()
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A doctor with this email already exists",
+        )
+    doctor = Doctor(
+        email=email,
+        hashed_password=get_password_hash(payload.password),
+        full_name=payload.full_name.strip(),
+        is_active=True,
+    )
+    db.add(doctor)
+    db.commit()
+    db.refresh(doctor)
+    return doctor
 
 @router.get("/me", response_model=DoctorResponse)
 def read_users_me(current_doctor: Doctor = Depends(get_current_doctor)):
