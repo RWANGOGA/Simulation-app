@@ -2,14 +2,13 @@ import json
 
 from fastapi.testclient import TestClient
 from app.main import app
+from tests.conftest import DOCTOR_LOGIN
 
 client = TestClient(app)
 
-DOCTOR = {"username": "doctor@simtack.com", "password": "Doctor123!"}
-
 
 def _auth_headers():
-    login = client.post("/api/v1/auth/login", data=DOCTOR)
+    login = client.post("/api/v1/auth/login", data=DOCTOR_LOGIN)
     assert login.status_code == 200
     return {"Authorization": f"Bearer {login.json()['access_token']}"}
 

@@ -2,10 +2,9 @@ import json
 import uuid
 from fastapi.testclient import TestClient
 from app.main import app
+from tests.conftest import DOCTOR_LOGIN
 
 client = TestClient(app)
-
-DOCTOR_LOGIN = {"username": "doctor@simtack.com", "password": "Doctor123!"}
 
 
 def _doctor_headers() -> dict:
