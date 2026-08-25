@@ -169,6 +169,12 @@ class TriageResult {
   final String? shapExplanation;
   final String? qrPayloadHash;
   final DateTime createdAt;
+  // Patient demographics — collected at intake and stored server-side, now
+  // joined onto every triage response so they can actually be displayed.
+  final int? patientAge;
+  final String? patientGender;
+  final double? patientWeight;
+  final double? patientHeight;
 
   const TriageResult({
     required this.id,
@@ -185,6 +191,10 @@ class TriageResult {
     this.shapExplanation,
     this.qrPayloadHash,
     required this.createdAt,
+    this.patientAge,
+    this.patientGender,
+    this.patientWeight,
+    this.patientHeight,
   });
 
   String get riskLevel {
@@ -210,6 +220,10 @@ class TriageResult {
       shapExplanation: json['shap_explanation'] as String?,
       qrPayloadHash: json['qr_payload_hash'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
+      patientAge: json['patient_age'] as int?,
+      patientGender: json['patient_gender'] as String?,
+      patientWeight: (json['patient_weight'] as num?)?.toDouble(),
+      patientHeight: (json['patient_height'] as num?)?.toDouble(),
     );
   }
 }

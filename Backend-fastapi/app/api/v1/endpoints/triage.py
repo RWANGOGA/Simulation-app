@@ -19,14 +19,17 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
 
     patient_id = payload.patient_id
     anonymous_code = None
+    patient_obj = None
 
     if patient_id is None:
         new_patient_data = PatientCreate(age=None, gender=None, preferred_language="en")
         new_patient = crud_patient.create_patient(db, new_patient_data)
         patient_id = new_patient.id
         anonymous_code = new_patient.anonymous_code
+        patient_obj = new_patient
     else:
         existing_patient = db.query(Patient).filter(Patient.id == patient_id).first()
+        patient_obj = existing_patient
         if existing_patient:
             anonymous_code = existing_patient.anonymous_code
 
@@ -46,7 +49,11 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
         "heart_rate": session.heart_rate, "direction": session.direction, "depth": session.depth,
         "visit_id": session.visit_id,
         "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
-        "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at
+        "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at,
+        "patient_age": patient_obj.age if patient_obj else None,
+        "patient_gender": patient_obj.gender if patient_obj else None,
+        "patient_weight": patient_obj.weight if patient_obj else None,
+        "patient_height": patient_obj.height if patient_obj else None
     }
 
 # ==========================================
@@ -89,7 +96,12 @@ def list_triage_sessions(
     risk_level: Optional[str] = Query(default=None),
     db: Session = Depends(get_db)
 ):
-    query = db.query(TriageSession, Patient.anonymous_code).join(
+    query = db.query(
+        TriageSession,
+        Patient.anonymous_code,
+        Patient.age,
+        Patient.gender,
+    ).join(
         Patient, TriageSession.patient_id == Patient.id, isouter=True
     ).order_by(TriageSession.created_at.desc())
 
@@ -106,7 +118,7 @@ def list_triage_sessions(
     sessions = query.offset(offset).limit(limit).all()
 
     result = []
-    for session, anon_code in sessions:
+    for session, anon_code, age, gender in sessions:
         result.append({
             "id": session.id,
             "anonymous_code": anon_code or "Unknown",
@@ -114,6 +126,8 @@ def list_triage_sessions(
             "pain_type": session.pain_type,
             "severity": session.severity,
             "risk_score": session.risk_score,
+            "patient_age": age,
+            "patient_gender": gender,
             "created_at": session.created_at.isoformat()
         })
     return result
@@ -146,7 +160,9 @@ def get_triage_by_patient_code(patient_code: str, db: Session = Depends(get_db))
             "heart_rate": s.heart_rate, "direction": s.direction, "depth": s.depth,
             "visit_id": s.visit_id,
             "risk_score": s.risk_score, "shap_explanation": s.shap_explanation,
-            "qr_payload_hash": s.qr_payload_hash, "created_at": s.created_at
+            "qr_payload_hash": s.qr_payload_hash, "created_at": s.created_at,
+            "patient_age": patient.age, "patient_gender": patient.gender,
+            "patient_weight": patient.weight, "patient_height": patient.height
         }
         for s in sessions
     ]
@@ -165,6 +181,7 @@ def get_triage(session_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Triage session not found")
 
     anon_code = None
+    patient = None
     if session.patient_id:
         patient = db.query(Patient).filter(Patient.id == session.patient_id).first()
         if patient:
@@ -176,5 +193,9 @@ def get_triage(session_id: int, db: Session = Depends(get_db)):
         "heart_rate": session.heart_rate, "direction": session.direction, "depth": session.depth,
         "visit_id": session.visit_id,
         "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
-        "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at
+        "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at,
+        "patient_age": patient.age if patient else None,
+        "patient_gender": patient.gender if patient else None,
+        "patient_weight": patient.weight if patient else None,
+        "patient_height": patient.height if patient else None
     }

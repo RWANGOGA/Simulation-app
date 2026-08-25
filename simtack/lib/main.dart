@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-// 🚨 IMPORTANT: Since auth.dart is directly in the lib/ folder, we import it like this:
-import 'auth.dart'; 
+import 'core/network/auth_service.dart';
 
 import 'core/theme/app_theme.dart';
 import 'features/dashboard/ui/practitioner_dashboard_screen.dart';
@@ -13,7 +12,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // 2. Check if the doctor is already logged in before the app even draws the first pixel
-  final bool isDoctorLoggedIn = await AuthService().isLoggedIn();
+  final bool isDoctorLoggedIn = await AuthService.instance.isLoggedIn;
   
   // 3. Pass this state to the root widget
   runApp(AtomyBridgeApp(isDoctorLoggedIn: isDoctorLoggedIn));

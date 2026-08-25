@@ -26,4 +26,11 @@ class TriageResponse(TriageBase):
     shap_explanation: Optional[str] = None
     qr_payload_hash: Optional[str] = None
     created_at: datetime
+    # Patient demographics joined from the patients table so the clinical
+    # report / dashboard can show who a reading belongs to. Collected at
+    # intake and stored, but previously never returned by any endpoint.
+    patient_age: Optional[int] = None
+    patient_gender: Optional[str] = None
+    patient_weight: Optional[float] = None
+    patient_height: Optional[float] = None
     model_config = ConfigDict(from_attributes=True)

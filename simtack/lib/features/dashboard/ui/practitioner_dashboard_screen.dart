@@ -47,6 +47,18 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
     }
   }
 
+  /// "34 yrs • Male" style summary for a session, or null if the backend
+  /// returned no demographics for that patient.
+  String? _demoLine(Map<String, dynamic> session) {
+    final age = session['patient_age'];
+    final gender = session['patient_gender'];
+    final parts = <String>[
+      if (age != null) '$age yrs',
+      if (gender is String && gender.isNotEmpty) gender,
+    ];
+    return parts.isEmpty ? null : parts.join(' • ');
+  }
+
   String _getRiskLevel(double? score) {
     if (score == null) return 'UNKNOWN';
     if (score >= 0.7) return 'HIGH';
@@ -175,6 +187,13 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                                   children: [
                                     const SizedBox(height: 4),
                                     Text('${session['body_region']} • ${session['pain_type']} (${session['severity']}/10)'),
+                                    if (_demoLine(session) != null) ...[
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        _demoLine(session)!,
+                                        style: const TextStyle(fontSize: 12, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600),
+                                      ),
+                                    ],
                                     const SizedBox(height: 4),
                                     Text(formattedDate, style: const TextStyle(fontSize: 12, color: Color(0xFF64748B))),
                                   ],

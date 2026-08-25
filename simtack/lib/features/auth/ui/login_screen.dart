@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/auth_service.dart';
+import '../../../core/theme/app_page_route.dart';
+import '../../dashboard/ui/practitioner_dashboard_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     try {
-      final doctor = await ApiClient.login(email: email, password: password);
+      final doctor = await AuthService.instance.login(email: email, password: password);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -38,7 +41,9 @@ class _LoginScreenState extends State<LoginScreen> {
           backgroundColor: Colors.green,
         ),
       );
-      // TODO: Navigator.of(context).pushReplacementNamed('/dashboard');
+      Navigator.of(context).pushReplacement(
+        AppPageRoute(builder: (_) => const PractitionerDashboardScreen()),
+      );
     } on ApiException catch (e) {
       setState(() => _errorMessage = e.message);
     } finally {

@@ -125,6 +125,11 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
               ],
             ),
           ),
+          const SizedBox(height: 16),
+
+          // Patient demographics — collected at intake and stored, now surfaced
+          // here so the reading is tied to who the patient actually is.
+          _buildPatientDemographics(),
           const SizedBox(height: 24),
 
           // Overall Risk Assessment Card (worst finding across the visit)
@@ -199,6 +204,77 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
               ),
             );
           }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPatientDemographics() {
+    // All pain points in a visit belong to the same patient, so the first
+    // record carries the demographics for the whole report.
+    final p = _reports.first;
+    final hasAny = p.patientAge != null ||
+        p.patientGender != null ||
+        p.patientWeight != null ||
+        p.patientHeight != null;
+    if (!hasAny) return const SizedBox.shrink();
+
+    final chips = <Widget>[];
+    if (p.patientAge != null) {
+      chips.add(_demoChip(Icons.cake_outlined, 'Age', '${p.patientAge} yrs'));
+    }
+    if (p.patientGender != null && p.patientGender!.isNotEmpty) {
+      chips.add(_demoChip(Icons.person_outline, 'Gender', p.patientGender!));
+    }
+    if (p.patientWeight != null) {
+      chips.add(_demoChip(Icons.monitor_weight_outlined, 'Weight', '${p.patientWeight!.toInt()} kg'));
+    }
+    if (p.patientHeight != null) {
+      chips.add(_demoChip(Icons.height_outlined, 'Height', '${p.patientHeight!.toInt()} cm'));
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'PATIENT PROFILE',
+            style: TextStyle(fontSize: 12, color: Color(0xFF64748B), letterSpacing: 1.5, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Wrap(spacing: 12, runSpacing: 12, children: chips),
+        ],
+      ),
+    );
+  }
+
+  Widget _demoChip(IconData icon, String label, String value) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFF6D28D9).withOpacity(0.06),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.2)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: const Color(0xFF6D28D9), size: 18),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: const TextStyle(fontSize: 10, color: Color(0xFF64748B))),
+              Text(value, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, color: Color(0xFF1E293B))),
+            ],
+          ),
         ],
       ),
     );

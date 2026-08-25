@@ -5,10 +5,7 @@ import '../../patient_info/ui/patient_info_screen.dart';
 import '../../review/ui/review_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 
-// 🚨 IMPORTANT: Update this import path to match exactly where you saved your LoginScreen!
-// If it is in lib/features/auth/ui/, keep it as is. 
-// If you saved it directly in lib/, change it to: import '../../login_screen.dart';
-import '../../login_screen.dart'; 
+import '../../auth/ui/login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -167,15 +164,31 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
               const SizedBox(height: 24),
 
-              _buildResumeDraftBanner(),
+              // Scrollable middle: the draft banner + language list can grow
+              // past short viewports without pushing the footer off-screen.
+              // Wrapping these in Expanded is what fixed the RenderFlex
+              // overflow the fixed-height Spacer used to cause on small
+              // screens.
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildResumeDraftBanner(),
 
-              // Language Selector
-              ..._languages.map((lang) => Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: _buildLanguageOption(lang),
-                  )),
+                      // Language Selector
+                      ..._languages.map((lang) => Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: _buildLanguageOption(lang),
+                          )),
+                    ],
+                  ),
+                ),
+              ),
 
-              const Spacer(),
+              // Spacer removed — the Expanded above absorbs leftover space,
+              // keeping the footer pinned to the bottom on tall screens.
+              const SizedBox(height: 16),
 
               // Continue Button
               SizedBox(
