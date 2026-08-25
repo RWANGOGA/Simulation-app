@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta, date
 from typing import Optional
-import re
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
@@ -36,9 +35,17 @@ class DoctorCreate(BaseModel):
     hospital_name: Optional[str] = None
     date_of_birth: Optional[date] = None
 
-# Minimal structural email check (we deliberately avoid the heavy
-# email-validator dependency for a simulation deployment).
-_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+def _is_valid_email(value: str) -> bool:
+    if " " in value:
+        return False
+    local, sep, domain = value.partition("@")
+    if not sep or not local or not domain:
+        return False
+    if "." not in domain:
+        return False
+    if domain.startswith(".") or domain.endswith(".") or ".." in domain:
+        return False
+    return True
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     password_byte_enc = plain_password.encode('utf-8')
@@ -106,7 +113,7 @@ def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
     """
     email = payload.email.strip().lower()
     full_name = payload.full_name.strip()
-    if not _EMAIL_RE.match(email):
+    if not _is_valid_email(email):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Enter a valid email address",
