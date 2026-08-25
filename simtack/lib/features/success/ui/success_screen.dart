@@ -220,7 +220,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
           children: [
             CircleAvatar(
               radius: 26,
-              backgroundColor: color.withValues(alpha: 0.1),
+              backgroundColor: color.withOpacity(0.1),
               child: Icon(icon, color: color, size: 26),
             ),
             const SizedBox(height: 6),
@@ -269,7 +269,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF16A34A).withValues(alpha: 0.1),
+                  color: const Color(0xFF16A34A).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.check_circle, color: Color(0xFF16A34A), size: 48),
@@ -341,7 +341,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: riskColor.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(color: riskColor.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
                 child: Row(
                   children: [
                     Icon(isHighRisk ? Icons.warning_amber_rounded : Icons.check_circle_outline, color: riskColor, size: 20),
