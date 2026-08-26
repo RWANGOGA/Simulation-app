@@ -265,8 +265,8 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              color: Color(0xFF6D28D9),
+            decoration: BoxDecoration(
+              color: const Color(0xFF6D28D9),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -356,7 +356,6 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           const SizedBox(height: 16),
 
           ...visit.asMap().entries.map((entry) {
-            final index = entry.key;
             final report = entry.value;
             return Padding(
               padding: const EdgeInsets.only(bottom: 20),
