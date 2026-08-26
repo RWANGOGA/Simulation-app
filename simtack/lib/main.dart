@@ -84,8 +84,8 @@ class _AtomyBridgeAppState extends State<AtomyBridgeApp> {
     // Otherwise, respect the patient deep links (report) or default to the Welcome Screen.
     final Widget initialScreen = widget.isDoctorLoggedIn || isDashboardFromUrl
         ? const PractitionerDashboardScreen()
-        : (reportPatientId != null 
-            ? ClinicalReportScreen(patientId: reportPatientId) 
+        : (reportPatientId != null
+            ? ClinicalReportScreen(patientId: reportPatientId)
             : const WelcomeScreen());
 
     return A11yScope(

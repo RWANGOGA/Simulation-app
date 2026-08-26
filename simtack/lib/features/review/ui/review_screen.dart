@@ -49,6 +49,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
     HapticFeedback.heavyImpact();
     setState(() => _isSubmitting = true);
 
+    // Declared outside the try so the catch block below can tell how many
+    // pain points already made it to the backend before a failure — only
+    // the remainder should ever be saved/retried, or a retry would
+    // resubmit points that already succeeded as duplicates.
+    final results = <TriageResult>[];
+
     try {
       final visitId = _generateVisitId();
 
@@ -59,7 +65,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
       // (see triage_service.compute_risk's sibling_regions), so collecting
       // every result — not just the last one — is what lets the patient
       // see the full picture, including any connectivity findings.
-      final results = <TriageResult>[];
       for (final point in widget.painPoints) {
         results.add(await ApiClient.sendTriage(TriageReport(
           bodyRegion: point.region,
@@ -93,8 +98,34 @@ class _ReviewScreenState extends State<ReviewScreen> {
       );
     } catch (e) {
       if (!mounted) return;
+      // A failed submit (most commonly no connection) used to just lose
+      // the data — the patient had to notice and manually hit "Save
+      // Draft" themselves. Now it's saved automatically, and DraftSyncService
+      // picks it up and retries the next time the app opens.
+      try {
+        // Only the pain points NOT already in `results` — everything up
+        // to `results.length` already made it to the backend.
+        final remaining = widget.painPoints.skip(results.length).toList();
+        if (remaining.isNotEmpty) {
+          await DraftStorage.save(TriageDraft(
+            painPoints: remaining,
+            heartRate: widget.heartRate,
+            spo2: widget.spo2,
+            patientId: widget.patientId,
+            savedAt: DateTime.now(),
+          ));
+        }
+      } catch (_) {
+        // If even the local save fails, fall through to the plain error
+        // below rather than hiding the original submit failure.
+      }
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('⚠️ Error: $e'), backgroundColor: const Color(0xFFF59E0B)),
+        SnackBar(
+          content: Text('⚠️ Could not submit — saved offline, will retry automatically: $e'),
+          backgroundColor: const Color(0xFFF59E0B),
+          duration: const Duration(seconds: 5),
+        ),
       );
     } finally {
       if (mounted) setState(() => _isSubmitting = false);

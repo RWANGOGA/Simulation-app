@@ -75,7 +75,7 @@ void main() {
   });
 
   group('AccessibilitySettingsScreen', () {
-    Widget _wrap(AccessibilityController controller) {
+    Widget wrapScreen(AccessibilityController controller) {
       return A11yScope(
         controller: controller,
         child: const MaterialApp(home: AccessibilitySettingsScreen()),
@@ -88,7 +88,7 @@ void main() {
 
     testWidgets('tapping a text-size chip updates the controller', (tester) async {
       final controller = await AccessibilityController.load();
-      await tester.pumpWidget(_wrap(controller));
+      await tester.pumpWidget(wrapScreen(controller));
 
       expect(controller.fontScale, 1.0);
       await tester.tap(find.text('Large'));
@@ -102,7 +102,7 @@ void main() {
 
     testWidgets('A+/A- buttons enlarge and reduce text', (tester) async {
       final controller = await AccessibilityController.load();
-      await tester.pumpWidget(_wrap(controller));
+      await tester.pumpWidget(wrapScreen(controller));
 
       await tester.tap(find.byTooltip('Enlarge text size'));
       await tester.pumpAndSettle();
@@ -115,7 +115,7 @@ void main() {
 
     testWidgets('choosing Dark switches the theme mode', (tester) async {
       final controller = await AccessibilityController.load();
-      await tester.pumpWidget(_wrap(controller));
+      await tester.pumpWidget(wrapScreen(controller));
 
       expect(controller.themeMode, ThemeMode.system);
       await tester.tap(find.text('Dark'));

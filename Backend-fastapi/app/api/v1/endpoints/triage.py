@@ -50,15 +50,20 @@ def _session_payload(session: TriageSession, patient) -> dict:
 # ==========================================
 @router.post("/", response_model=TriageResponse, status_code=201)
 def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
+    # If this pain point belongs to a multi-region visit, score it aware of
+    # whatever other regions the patient already reported in the same visit
+    # (e.g. chest pain scored alongside already-reported left arm pain).
+    sibling_regions = (
+        crud_triage.get_regions_in_visit(db, payload.visit_id) if payload.visit_id else None
+    )
+
     patient_id = payload.patient_id
-    anonymous_code = None
     patient_obj = None
 
     if patient_id is None:
         new_patient_data = PatientCreate(age=None, gender=None, preferred_language="en")
         new_patient = crud_patient.create_patient(db, new_patient_data)
         patient_id = new_patient.id
-        anonymous_code = new_patient.anonymous_code
         patient_obj = new_patient
     else:
         existing_patient = db.query(Patient).filter(Patient.id == patient_id).first()
@@ -68,12 +73,12 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
             # record that could never be joined back to a patient).
             raise HTTPException(status_code=404, detail="Patient not found")
         patient_obj = existing_patient
-        anonymous_code = existing_patient.anonymous_code
 
     # Weight/height feed the BMI risk factor; scoring needs the patient
     # resolved first, so risk is computed after the lookup above.
     risk, contributions = triage_service.compute_risk(
         payload,
+        sibling_regions=sibling_regions,
         patient_weight=patient_obj.weight if patient_obj else None,
         patient_height=patient_obj.height if patient_obj else None,
     )
@@ -175,6 +180,7 @@ def list_triage_sessions(
             "pain_type": session.pain_type,
             "severity": session.severity,
             "risk_score": session.risk_score,
+            "shap_explanation": session.shap_explanation,
             "patient_age": age,
             "patient_gender": gender,
             "status": session.status or "open",

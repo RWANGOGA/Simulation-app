@@ -1,6 +1,7 @@
 import uuid
 from fastapi.testclient import TestClient
 from app.main import app
+from tests.conftest import DOCTOR_EMAIL
 
 client = TestClient(app)
 
@@ -74,7 +75,8 @@ def test_triage_response_carries_patient_demographics():
 
 
 def test_register_stores_contact_and_hospital():
-    email = f"newdoc-{uuid.uuid4().hex[:8]}@simtack.com"
+    domain = DOCTOR_EMAIL.split("@")[1]
+    email = f"newdoc-{uuid.uuid4().hex[:8]}@{domain}"
     response = client.post(
         "/api/v1/auth/register",
         json={

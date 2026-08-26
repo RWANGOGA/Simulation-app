@@ -8,5 +8,5 @@ python-dotenv
 python-multipart
 fastapi-offline
 psycopg2-binary==2.9.9
-bcrypt
 python-jose[cryptography]
+bcrypt
