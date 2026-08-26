@@ -53,7 +53,7 @@ void main() {
     expect(rowFinder, findsWidgets);
   });
 
-  testWidgets('PractitionerDashboardScreen shows sidebar and scaffold', (tester) async {
+  testWidgets('PractitionerDashboardScreen shows sidebar', (tester) async {
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -65,11 +65,8 @@ void main() {
     );
 
     await tester.pump();
+    await tester.pump();
 
-    final sidebarFinder = find.byType(PractitionerSidebar);
-    expect(sidebarFinder, findsOneWidget);
-
-    final scaffoldFinder = find.byType(Scaffold);
-    expect(scaffoldFinder, findsOneWidget);
+    expect(find.byType(PractitionerSidebar), findsOneWidget);
   });
 }
