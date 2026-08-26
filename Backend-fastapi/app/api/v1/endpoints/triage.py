@@ -96,6 +96,68 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
     return _session_payload(session, patient_obj)
 
 # ==========================================
+# 4b. PAGINATED SESSION HISTORY (Practitioner History Screen)
+# Returns the FULL rich payload (via _session_payload) and pagination 
+# metadata. Must come before dynamic routes like /patient/{code}.
+# ==========================================
+@router.get("/history")
+def get_triage_history(
+    page: int = Query(default=1, ge=1, description="Page number"),
+    limit: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    risk_level: Optional[str] = Query(default=None, description="HIGH, MEDIUM, or LOW"),
+    status: Optional[str] = Query(default=None, pattern="^(open|closed)$"),
+    body_region: Optional[str] = Query(default=None),
+    patient_code: Optional[str] = Query(default=None),
+    db: Session = Depends(get_db),
+    current_doctor: Doctor = Depends(get_current_doctor),
+):
+    offset = (page - 1) * limit
+    
+    # 1. Base query joining Patient to get demographics and anonymous_code
+    base_query = db.query(TriageSession).join(
+        Patient, TriageSession.patient_id == Patient.id, isouter=True
+    )
+    
+    # 2. Apply Filters dynamically
+    if patient_code:
+        base_query = base_query.filter(Patient.anonymous_code.ilike(f"%{patient_code}%"))
+    if body_region:
+        base_query = base_query.filter(TriageSession.body_region.ilike(f"%{body_region}%"))
+    if risk_level == "HIGH":
+        base_query = base_query.filter(TriageSession.risk_score >= 0.7)
+    elif risk_level == "MEDIUM":
+        base_query = base_query.filter((TriageSession.risk_score >= 0.4) & (TriageSession.risk_score < 0.7))
+    elif risk_level == "LOW":
+        base_query = base_query.filter(TriageSession.risk_score < 0.4)
+    if status:
+        base_query = base_query.filter(TriageSession.status == status)
+        
+    # 3. Get total count of records matching the filters (for pagination math)
+    total_records = base_query.count()
+    total_pages = (total_records + limit - 1) // limit if total_records > 0 else 0
+    
+    # 4. Execute the query with offset, limit, and ordering (newest first)
+    sessions = base_query.order_by(TriageSession.created_at.desc()).offset(offset).limit(limit).all()
+    
+    # 5. Build the rich payload using your existing helper!
+    items = []
+    for session in sessions:
+        # Fetch the patient object for the payload helper
+        patient = db.query(Patient).filter(Patient.id == session.patient_id).first() if session.patient_id else None
+        items.append(_session_payload(session, patient))
+        
+    # 6. Return the structured JSON response
+    return {
+        "items": items,
+        "pagination": {
+            "total": total_records,
+            "page": page,
+            "limit": limit,
+            "total_pages": total_pages,
+        }
+    }    
+
+# ==========================================
 # 2. LIST ALL TRIAGES (Original Route)
 # Doctor-only: exposes every patient's submissions, so it requires a valid
 # JWT (issue: data endpoints were previously fully open).
