@@ -27,6 +27,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _licenseController = TextEditingController();
   final _phoneController = TextEditingController();
   final _hospitalController = TextEditingController();
+  final _inviteCodeController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
   String? _role = _roles.first;
@@ -99,6 +100,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         phone: _phoneController.text.trim(),
         hospitalName: _hospitalController.text.trim(),
         dateOfBirth: _dateOfBirth,
+        inviteCode: _inviteCodeController.text.trim(),
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -124,6 +126,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _licenseController.dispose();
     _phoneController.dispose();
     _hospitalController.dispose();
+    _inviteCodeController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
     super.dispose();
@@ -249,6 +252,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       textInputAction: TextInputAction.next,
                       decoration:
                           _fieldDecoration(label: 'Hospital / Facility', icon: Icons.local_hospital_outlined),
+                    ),
+                    const SizedBox(height: 16),
+                    // Only required when the deployment has set an invite
+                    // code (see Settings.INVITE_CODE); a blank submission
+                    // is fine otherwise — the backend is the source of truth.
+                    TextFormField(
+                      controller: _inviteCodeController,
+                      textInputAction: TextInputAction.next,
+                      decoration: _fieldDecoration(label: 'Invite Code (if required)', icon: Icons.vpn_key_outlined),
                     ),
                     const SizedBox(height: 16),
                     TextFormField(

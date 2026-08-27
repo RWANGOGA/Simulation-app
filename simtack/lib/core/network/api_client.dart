@@ -377,6 +377,7 @@ class ApiClient {
     String? phone,
     String? hospitalName,
     DateTime? dateOfBirth,
+    String? inviteCode,
   }) async {
     final response = await httpClient.post(
       Uri.parse('$baseUrl/auth/register'),
@@ -396,6 +397,8 @@ class ApiClient {
               '${dateOfBirth.year.toString().padLeft(4, '0')}-'
               '${dateOfBirth.month.toString().padLeft(2, '0')}-'
               '${dateOfBirth.day.toString().padLeft(2, '0')}',
+        if (inviteCode != null && inviteCode.trim().isNotEmpty)
+          'invite_code': inviteCode.trim(),
       }),
     );
     if (response.statusCode != 201) {
@@ -431,6 +434,21 @@ class ApiClient {
       );
     }
     throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+  }
+
+  /// Practitioner-only correction of a patient's demographics — sends only
+  /// the fields the caller actually set on [profile] (see
+  /// PatientProfile.toJson), so an edit to just one field doesn't clobber
+  /// the rest. JWT-guarded on the backend.
+  static Future<void> updatePatientDemographics(String anonymousCode, PatientProfile profile) async {
+    final response = await httpClient.patch(
+      Uri.parse('$baseUrl/patients/$anonymousCode'),
+      headers: await _authHeaders(),
+      body: jsonEncode(profile.toJson()),
+    );
+    if (response.statusCode != 200) {
+      throw ApiException.fromResponse(response.statusCode, response.body);
+    }
   }
 
   static Future<TriageResult> sendTriage(TriageReport report) async {
