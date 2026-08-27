@@ -189,60 +189,65 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppPalette.scaffold(context),
-      body: Row(
+    return PractitionerScaffold(
+      currentRoute: '/patients',
+      contentBuilder: (context, openDrawer) => Column(
         children: [
-          const PractitionerSidebar(currentRoute: '/patients'),
-          Expanded(
-            child: Column(
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            decoration: BoxDecoration(
+              color: AppPalette.surface(context),
+              border: Border(bottom: BorderSide(color: AppPalette.border(context))),
+            ),
+            child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: AppPalette.surface(context),
-                    border: Border(bottom: BorderSide(color: AppPalette.border(context))),
+                if (openDrawer != null) ...[
+                  IconButton(
+                    icon: const Icon(Icons.menu),
+                    tooltip: 'Menu',
+                    onPressed: openDrawer,
                   ),
-                  child: Row(
+                  const SizedBox(width: 4),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Patient Overview',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: AppPalette.textPrimary(context),
-                            ),
-                          ),
-                          Text(
-                            'Review patient history, body map, and triage data.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppPalette.textMuted(context),
-                            ),
-                          ),
-                        ],
+                      Text(
+                        'Patient Overview',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppPalette.textPrimary(context),
+                        ),
                       ),
-                      const Spacer(),
-                      IconButton(
-                        icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)),
-                        tooltip: 'Refresh Data',
-                        onPressed: _enteredCode.isNotEmpty ? () => _loadHistory(_enteredCode) : null,
+                      Text(
+                        'Review patient history, body map, and triage data.',
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppPalette.textMuted(context),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.all(24),
-                    child: MediaQuery.of(context).size.width >= 700 
-                        ? _buildWide() 
-                        : _buildNarrow(),
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)),
+                  tooltip: 'Refresh Data',
+                  onPressed: _enteredCode.isNotEmpty ? () => _loadHistory(_enteredCode) : null,
                 ),
               ],
+            ),
+          ),
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: MediaQuery.of(context).size.width >= 700
+                  ? _buildWide()
+                  : _buildNarrow(),
             ),
           ),
         ],
@@ -301,13 +306,9 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
               child: OutlinedButton.icon(
                 key: const Key('scan_qr_button'),
                 onPressed: _scanQr,
-                icon: const Icon(Icons.qr_code_scanner, size: 18, color: Color(0xFF6D28D9)),
-                label: const Text('Scan Patient QR', style: TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFF6D28D9)),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
+                icon: const Icon(Icons.qr_code_scanner, size: 18),
+                label: const Text('Scan Patient QR'),
+                style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
               ),
             ),
           if (_enteredCode.isNotEmpty) ...[

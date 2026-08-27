@@ -31,5 +31,55 @@
   "continueButton": "Continue",
   "@continueButton": {
     "description": "Button that proceeds from the language & consent screen."
+  },
+  "displayAccessibilityTooltip": "Display & accessibility",
+  "@displayAccessibilityTooltip": {
+    "description": "Tooltip on the icon that opens text-size/theme settings."
+  },
+  "practitionerLogin": "Practitioner Login",
+  "@practitionerLogin": {
+    "description": "Link that opens the practitioner login screen."
+  },
+  "welcomeTitle": "Welcome",
+  "@welcomeTitle": {
+    "description": "Welcome screen's main heading."
+  },
+  "welcomeSubtitle": "Let's get started",
+  "@welcomeSubtitle": {
+    "description": "Welcome screen's subheading."
+  },
+  "privacyCaption": "Your data stays on this device.\nYou are in control.",
+  "@privacyCaption": {
+    "description": "Privacy reassurance shown under the Continue button."
+  },
+  "savedDraftsTitle": "Saved drafts",
+  "@savedDraftsTitle": {
+    "description": "Title of the bottom sheet listing multiple saved drafts."
+  },
+  "deleteDraftTooltip": "Delete draft",
+  "@deleteDraftTooltip": {
+    "description": "Tooltip on the delete icon for a saved draft."
+  },
+  "resumeButton": "Resume",
+  "@resumeButton": {
+    "description": "Button that resumes the single saved draft."
+  },
+  "chooseButton": "Choose",
+  "@chooseButton": {
+    "description": "Button that opens the picker when there are several saved drafts."
+  },
+  "savedDraftBanner": "{count, plural, =1{You have a saved draft} other{You have {count} saved drafts}}",
+  "@savedDraftBanner": {
+    "description": "Banner announcing saved offline draft(s) on the Welcome screen.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
+  },
+  "draftsSyncedSnackbar": "{count, plural, =1{1 saved report submitted} other{{count} saved reports submitted}}",
+  "@draftsSyncedSnackbar": {
+    "description": "Snackbar shown after offline drafts auto-sync successfully on launch.",
+    "placeholders": {
+      "count": {"type": "int"}
+    }
   }
 }

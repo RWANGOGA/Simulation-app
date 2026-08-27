@@ -145,6 +145,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Continue'**
   String get continueButton;
+
+  /// Tooltip on the icon that opens text-size/theme settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Display & accessibility'**
+  String get displayAccessibilityTooltip;
+
+  /// Link that opens the practitioner login screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Practitioner Login'**
+  String get practitionerLogin;
+
+  /// Welcome screen's main heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome'**
+  String get welcomeTitle;
+
+  /// Welcome screen's subheading.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s get started'**
+  String get welcomeSubtitle;
+
+  /// Privacy reassurance shown under the Continue button.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data stays on this device.\nYou are in control.'**
+  String get privacyCaption;
+
+  /// Title of the bottom sheet listing multiple saved drafts.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved drafts'**
+  String get savedDraftsTitle;
+
+  /// Tooltip on the delete icon for a saved draft.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete draft'**
+  String get deleteDraftTooltip;
+
+  /// Button that resumes the single saved draft.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get resumeButton;
+
+  /// Button that opens the picker when there are several saved drafts.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose'**
+  String get chooseButton;
+
+  /// Banner announcing saved offline draft(s) on the Welcome screen.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{You have a saved draft} other{You have {count} saved drafts}}'**
+  String savedDraftBanner(int count);
+
+  /// Snackbar shown after offline drafts auto-sync successfully on launch.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 saved report submitted} other{{count} saved reports submitted}}'**
+  String draftsSyncedSnackbar(int count);
 }
 
 class _AppLocalizationsDelegate

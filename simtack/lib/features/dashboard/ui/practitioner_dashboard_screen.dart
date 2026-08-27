@@ -172,74 +172,75 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppPalette.scaffold(context),
-      body: Row(
+    return PractitionerScaffold(
+      currentRoute: '/dashboard',
+      contentBuilder: (context, openDrawer) => Column(
         children: [
-          const PractitionerSidebar(currentRoute: '/dashboard'),
-          Expanded(
-            child: Column(
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+            decoration: BoxDecoration(
+              color: AppPalette.surface(context),
+              border: Border(bottom: BorderSide(color: AppPalette.border(context))),
+            ),
+            child: Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: AppPalette.surface(context),
-                    border: Border(bottom: BorderSide(color: AppPalette.border(context))),
+                if (openDrawer != null) ...[
+                  IconButton(
+                    icon: const Icon(Icons.menu),
+                    tooltip: 'Menu',
+                    onPressed: openDrawer,
                   ),
-                  child: Row(
+                  const SizedBox(width: 4),
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Dashboard Overview',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: AppPalette.textPrimary(context),
-                              ),
-                            ),
-                            Text(
-                              'Monitor active triage sessions and patient risk levels.',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppPalette.textMuted(context),
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
+                      Text(
+                        'Dashboard Overview',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppPalette.textPrimary(context),
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)),
-                        tooltip: 'Refresh Data',
-                        onPressed: () async {
-                          await _loadData();
-                          await _refreshStats();
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        icon: const Icon(Icons.tune, color: Color(0xFF6D28D9)),
-                        tooltip: 'Display & accessibility',
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const AccessibilitySettingsScreen()),
-                          );
-                        },
+                      Text(
+                        'Monitor active triage sessions and patient risk levels.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppPalette.textMuted(context),
+                        ),
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
-                Expanded(
-                  child: _isLoading
-                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
-                      : _buildMainContent(),
+                IconButton(
+                  icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)),
+                  tooltip: 'Refresh Data',
+                  onPressed: () async {
+                    await _loadData();
+                    await _refreshStats();
+                  },
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.tune, color: Color(0xFF6D28D9)),
+                  tooltip: 'Display & accessibility',
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const AccessibilitySettingsScreen()),
+                    );
+                  },
                 ),
               ],
             ),
+          ),
+          Expanded(
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
+                : _buildMainContent(),
           ),
         ],
       ),

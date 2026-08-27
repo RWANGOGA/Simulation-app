@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 
-/// Brightness-aware palette for the app's recurring slate tones.
-///
-/// Screens used to hardcode the light palette (white cards, 0xFFF8FAFC
-/// backgrounds, 0xFF1E293B text), which made dark mode impossible. Every
-/// surface/text/border color now resolves through these helpers against
-/// the ambient theme brightness, so toggling dark mode repaints the whole
-/// app without touching any screen again.
+/// Brightness-aware palette for the app's recurring slate tones. Every
+/// surface/text/border color resolves through these helpers against the
+/// ambient theme brightness, so toggling dark mode repaints the whole app.
 ///
 /// Brand accents (purple 0xFF6D28D9, risk reds/ambers/greens) are NOT
 /// here on purpose — they read well on both backgrounds and carry

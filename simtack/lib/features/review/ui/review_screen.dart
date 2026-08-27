@@ -98,10 +98,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      // A failed submit (most commonly no connection) used to just lose
-      // the data — the patient had to notice and manually hit "Save
-      // Draft" themselves. Now it's saved automatically, and DraftSyncService
-      // picks it up and retries the next time the app opens.
+      // Save automatically on failure (most commonly no connection) —
+      // DraftSyncService retries this the next time the app opens.
       try {
         // Only the pain points NOT already in `results` — everything up
         // to `results.length` already made it to the backend.
@@ -279,14 +277,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   Expanded(
                     child: OutlinedButton(
                       onPressed: _isSavingDraft ? null : _saveDraft,
-                      style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: Color(0xFFCBD5E1)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-                      ),
                       child: _isSavingDraft
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Text('Save Draft', style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Color(0xFF475569))),
+                        : const Text('Save Draft'),
                     ),
                   ),
                   const SizedBox(width: 16),

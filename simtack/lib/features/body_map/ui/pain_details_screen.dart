@@ -559,13 +559,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                       height: 54,
                       child: OutlinedButton(
                         onPressed: _goToPreviousPoint,
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFF6D28D9)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                        ),
+                        style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20)),
                         child: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
                       ),
                     ),

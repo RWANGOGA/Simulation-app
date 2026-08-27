@@ -6,6 +6,54 @@ import '../../../core/network/auth_service.dart';
 import '../../../core/network/api_client.dart';
 import 'practitioner_dashboard_screen.dart';
 import 'patient_overview_pane.dart';
+import 'reports_screen.dart';
+
+/// Shared shell for the practitioner screens: sidebar sits fixed in a Row on
+/// wide screens, but on narrow screens a fixed 260px sidebar alongside
+/// content leaves almost no room to render anything usably — so instead it
+/// becomes a slide-out Drawer, opened via the menu button `contentBuilder`
+/// receives in place of the fixed sidebar.
+class PractitionerScaffold extends StatelessWidget {
+  final String currentRoute;
+  final Widget Function(BuildContext context, VoidCallback? openDrawer) contentBuilder;
+
+  const PractitionerScaffold({
+    super.key,
+    required this.currentRoute,
+    required this.contentBuilder,
+  });
+
+  static const double _breakpoint = 900;
+
+  @override
+  Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width >= _breakpoint;
+    if (isWide) {
+      return Scaffold(
+        backgroundColor: AppPalette.scaffold(context),
+        body: Row(
+          children: [
+            PractitionerSidebar(currentRoute: currentRoute),
+            Expanded(child: contentBuilder(context, null)),
+          ],
+        ),
+      );
+    }
+    return Scaffold(
+      backgroundColor: AppPalette.scaffold(context),
+      drawer: Drawer(
+        width: 260,
+        child: PractitionerSidebar(currentRoute: currentRoute),
+      ),
+      body: Builder(
+        builder: (innerContext) => contentBuilder(
+          innerContext,
+          () => Scaffold.of(innerContext).openDrawer(),
+        ),
+      ),
+    );
+  }
+}
 
 class PractitionerSidebar extends StatefulWidget {
   final String currentRoute;
@@ -54,7 +102,14 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
       case '/patients':
         screen = const PatientOverviewScreen();
         break;
+      case '/reports':
+        screen = const ReportsScreen();
+        break;
       default:
+        // Triage Sessions / Settings / Help have no screen yet.
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Coming soon')),
+        );
         return;
     }
     Navigator.of(context).pushAndRemoveUntil(

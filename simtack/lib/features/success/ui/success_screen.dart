@@ -18,8 +18,6 @@ import '../../../core/widgets/shap_explanation_card.dart';
 // --- CONFIGURATION ---
 // Base URL of the Flutter web app that the QR / share links deep-link
 // into (#/report/<patientId>, parsed by main.dart via Uri.base.fragment).
-// Was previously a hardcoded dev-machine LAN IP, which produced dead QR
-// codes for anyone not on that exact Wi-Fi network.
 String get kReportBaseUrl {
   if (kIsWeb) {
     // On web, link into the very deployment the patient is already using
@@ -395,13 +393,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     child: OutlinedButton.icon(
                       onPressed: _isProcessing ? null : () => _captureAndShare(isSave: false),
                       icon: const Icon(Icons.share, size: 20),
-                      label: const Text('Share', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF6D28D9),
-                        side: const BorderSide(color: Color(0xFF6D28D9), width: 2),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
+                      label: const Text('Share'),
                     ),
                   ),
                 ],
@@ -421,15 +413,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.history, color: Color(0xFF6D28D9), size: 22),
-                  label: const Text(
-                    'View My Triage History',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9)),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF6D28D9), width: 2),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
+                  icon: const Icon(Icons.history, size: 22),
+                  label: const Text('View My Triage History'),
                 ),
               ),
 

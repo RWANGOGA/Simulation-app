@@ -18,6 +18,12 @@ class AppTheme {
   static ThemeData _build(Brightness brightness) {
     return ThemeData(
       useMaterial3: true,
+      // Sets the default font for every Text widget in the app that
+      // doesn't specify its own fontFamily — which is nearly all of them,
+      // since screens build their TextStyles with fontSize/color only.
+      // Was the platform default (Roboto) before; Inter reads noticeably
+      // better at small sizes, which matters for a low-literacy audience.
+      fontFamily: 'Inter',
       // Blueprint Primary: Deep Purple
       colorScheme: ColorScheme.fromSeed(
         seedColor: const Color(0xFF6D28D9),
@@ -32,6 +38,17 @@ class AppTheme {
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+      // Shared style for secondary actions (Save Draft, Share, View
+      // History, ...) so every screen reads "secondary action" the same way.
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: const Color(0xFF6D28D9),
+          side: const BorderSide(color: Color(0xFF6D28D9), width: 1.5),
+          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
