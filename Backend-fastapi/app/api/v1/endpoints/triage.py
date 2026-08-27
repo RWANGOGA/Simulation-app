@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
@@ -68,9 +69,8 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
     else:
         existing_patient = db.query(Patient).filter(Patient.id == patient_id).first()
         if not existing_patient:
-            # Reject dangling references: previously an unknown patient_id
-            # still created a session row pointing at nothing (orphaned
-            # record that could never be joined back to a patient).
+            # Reject dangling references rather than creating an orphaned
+            # session row pointing at a nonexistent patient.
             raise HTTPException(status_code=404, detail="Patient not found")
         patient_obj = existing_patient
 
@@ -159,8 +159,7 @@ def get_triage_history(
 
 # ==========================================
 # 2. LIST ALL TRIAGES (Original Route)
-# Doctor-only: exposes every patient's submissions, so it requires a valid
-# JWT (issue: data endpoints were previously fully open).
+# Doctor-only: exposes every patient's submissions, so it requires a valid JWT.
 # ==========================================
 @router.get("/", response_model=List[TriageResponse])
 def list_triage(
@@ -193,6 +192,69 @@ def get_triage_stats(
         "high_risk": high_risk_sessions,
         "medium_risk": medium_risk_sessions,
         "low_risk": total_sessions - high_risk_sessions - medium_risk_sessions
+    }
+
+# ==========================================
+# 3b. GET PRACTITIONER REPORTS (aggregate breakdowns for the Reports page)
+# Separate from /stats above so nothing that already depends on that
+# endpoint's shape is affected. Also must come before /{session_id}.
+# ==========================================
+@router.get("/reports")
+def get_triage_reports(
+    period: str = Query(default="all", pattern="^(week|month|all)$"),
+    db: Session = Depends(get_db),
+    current_doctor: Doctor = Depends(get_current_doctor),
+):
+    query = db.query(TriageSession)
+    period_start = None
+    if period == "week":
+        period_start = datetime.now(timezone.utc) - timedelta(days=7)
+    elif period == "month":
+        period_start = datetime.now(timezone.utc) - timedelta(days=30)
+    if period_start is not None:
+        query = query.filter(TriageSession.created_at >= period_start)
+
+    session_ids = [row.id for row in query.with_entities(TriageSession.id).all()]
+    total_sessions = len(session_ids)
+
+    def _scoped(q):
+        return q.filter(TriageSession.id.in_(session_ids)) if period_start is not None else q
+
+    status_rows = (
+        _scoped(db.query(TriageSession.status, func.count(TriageSession.id)))
+        .group_by(TriageSession.status)
+        .all()
+    )
+    # Rows created before the decision workflow existed have status=NULL —
+    # they're "open" in every practical sense (never reviewed/closed).
+    open_count = sum(count for status, count in status_rows if status != "closed")
+    closed_count = sum(count for status, count in status_rows if status == "closed")
+
+    region_rows = (
+        _scoped(db.query(TriageSession.body_region, func.count(TriageSession.id).label("n")))
+        .group_by(TriageSession.body_region)
+        .order_by(func.count(TriageSession.id).desc())
+        .all()
+    )
+    pain_type_rows = (
+        _scoped(db.query(TriageSession.pain_type, func.count(TriageSession.id).label("n")))
+        .group_by(TriageSession.pain_type)
+        .order_by(func.count(TriageSession.id).desc())
+        .all()
+    )
+
+    avg_severity = _scoped(db.query(func.avg(TriageSession.severity))).scalar()
+    avg_risk_score = _scoped(db.query(func.avg(TriageSession.risk_score))).scalar()
+
+    return {
+        "period": period,
+        "total": total_sessions,
+        "open_count": open_count,
+        "closed_count": closed_count,
+        "by_region": [{"region": region, "count": n} for region, n in region_rows],
+        "by_pain_type": [{"pain_type": pt, "count": n} for pt, n in pain_type_rows],
+        "avg_severity": round(avg_severity, 1) if avg_severity is not None else None,
+        "avg_risk_score": round(avg_risk_score, 2) if avg_risk_score is not None else None,
     }
 
 # ==========================================

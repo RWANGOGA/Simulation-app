@@ -4,7 +4,7 @@ from typing import Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.models import Patient
-from app.schemas import PatientCreate
+from app.schemas import PatientCreate, PatientBase
 
 def generate_unique_patient_id(db: Session) -> str:
     """
@@ -43,3 +43,17 @@ def create_patient(db: Session, data: PatientCreate) -> Patient:
 def get_patient_by_code(db: Session, code: str) -> Optional[Patient]:
     stmt = select(Patient).where(Patient.anonymous_code == code)
     return db.execute(stmt).scalar_one_or_none()
+
+def update_patient(db: Session, code: str, data: PatientBase) -> Optional[Patient]:
+    """Applies a practitioner's correction to a patient's demographics.
+    exclude_unset means a field the client never included in the request
+    body is left untouched — sending just {"phone": "..."} doesn't wipe
+    out every other field back to its schema default."""
+    patient = get_patient_by_code(db, code)
+    if patient is None:
+        return None
+    for field, value in data.model_dump(exclude_unset=True).items():
+        setattr(patient, field, value)
+    db.commit()
+    db.refresh(patient)
+    return patient
