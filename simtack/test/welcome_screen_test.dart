@@ -1,36 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simtack/features/onboarding/ui/welcome_screen.dart';
 
 void main() {
   group('WelcomeScreen Widget Tests', () {
-    testWidgets('renders title, subtitle, languages, and continue button', (WidgetTester tester) async {
+    setUp(() {
+      SharedPreferences.setMockInitialValues({});
+    });
+
+    testWidgets('renders title, subtitle, and continue button', (WidgetTester tester) async {
+      // Language is now chosen once, earlier, on LanguageScreen (see
+      // language_screen_test.dart) — WelcomeScreen no longer has its own
+      // language picker.
       await tester.pumpWidget(const MaterialApp(
         home: WelcomeScreen(),
       ));
       await tester.pumpAndSettle();
 
       expect(find.text('Welcome'), findsOneWidget);
-      expect(find.text('Choose your language'), findsOneWidget);
-      expect(find.text('English'), findsWidgets);
-      expect(find.text('Uganda Sign Language'), findsOneWidget);
-      expect(find.text('Luganda'), findsOneWidget);
-      expect(find.text('Lusoga'), findsOneWidget);
+      expect(find.text("Let's get started"), findsOneWidget);
       expect(find.text('Continue'), findsOneWidget);
-    });
-
-    testWidgets('tapping a language changes active selection', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: WelcomeScreen(),
-      ));
-      await tester.pumpAndSettle();
-
-      // Tap on Luganda
-      await tester.tap(find.text('Luganda'));
-      await tester.pumpAndSettle();
-
-      // Verify check icon or language pill update
-      expect(find.text('Luganda'), findsWidgets);
+      expect(find.text('Practitioner Login'), findsOneWidget);
     });
   });
 }

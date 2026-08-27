@@ -18,19 +18,10 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
-  String _selectedLanguage = 'English';
-
   // Every offline draft saved on this device, newest first. The banner
   // shows the most recent one; when there are several, "Choose" opens a
   // picker so none of them are hidden behind the latest.
   List<TriageDraft> _drafts = [];
-
-  final List<_LanguageOption> _languages = const [
-    _LanguageOption('English', null),
-    _LanguageOption('Uganda Sign Language', Icons.back_hand_outlined),
-    _LanguageOption('Luganda', null),
-    _LanguageOption('Lusoga', null),
-  ];
 
   @override
   void initState() {
@@ -218,7 +209,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🚪 Top-right actions: Language Pill + Practitioner Login
+              // 🚪 Top-right actions: Accessibility + Practitioner Login.
+              // Language is chosen once, earlier, on LanguageScreen.
               Align(
                 alignment: Alignment.centerRight,
                 child: Column(
@@ -236,7 +228,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         );
                       },
                     ),
-                    _buildLanguagePill(),
                     const SizedBox(height: 8),
                     TextButton(
                       onPressed: () {
@@ -279,7 +270,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Choose your language',
+                "Let's get started",
                 style: TextStyle(
                   fontSize: 15,
                   color: AppPalette.textMuted(context),
@@ -287,25 +278,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Scrollable middle: the draft banner + language list can grow
-              // past short viewports without pushing the footer off-screen.
-              // Wrapping these in Expanded is what fixed the RenderFlex
-              // overflow the fixed-height Spacer used to cause on small
-              // screens.
+              // Scrollable middle: the draft banner can grow past short
+              // viewports without pushing the footer off-screen. Wrapping
+              // it in Expanded is what fixed the RenderFlex overflow the
+              // fixed-height Spacer used to cause on small screens.
               Expanded(
                 child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildResumeDraftBanner(),
-
-                      // Language Selector
-                      ..._languages.map((lang) => Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _buildLanguageOption(lang),
-                          )),
-                    ],
-                  ),
+                  child: _buildResumeDraftBanner(),
                 ),
               ),
 
@@ -357,90 +336,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  Widget _buildLanguagePill() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      decoration: BoxDecoration(
-        color: AppPalette.surface(context),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppPalette.border(context)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            _selectedLanguage,
-            style: TextStyle(
-              fontSize: 13,
-              fontWeight: FontWeight.w500,
-              color: AppPalette.textPrimary(context),
-            ),
-          ),
-          const SizedBox(width: 4),
-          Icon(Icons.keyboard_arrow_down, size: 16, color: AppPalette.textMuted(context)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLanguageOption(_LanguageOption option) {
-    final isSelected = _selectedLanguage == option.name;
-    return GestureDetector(
-      onTap: () {
-        setState(() => _selectedLanguage = option.name);
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF6D28D9) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? const Color(0xFF6D28D9) : AppPalette.border(context),
-            width: 2,
-          ),
-        ),
-        child: Row(
-          children: [
-            if (option.icon != null) ...[
-              Icon(
-                option.icon,
-                size: 20,
-                color: isSelected ? Colors.white : AppPalette.textMuted(context),
-              ),
-              const SizedBox(width: 10),
-            ],
-            Expanded(
-              child: Text(
-                option.name,
-                textAlign: option.icon == null ? TextAlign.center : TextAlign.start,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : AppPalette.textPrimary(context),
-                ),
-              ),
-            ),
-            if (isSelected)
-              const Icon(
-                Icons.check_circle,
-                color: Colors.white,
-                size: 20,
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
   void _navigateToPatientInfo() {
     Navigator.of(context).push(
       AppPageRoute(builder: (_) => const PatientInfoScreen()),
     );
   }
-}
-
-class _LanguageOption {
-  final String name;
-  final IconData? icon;
-  const _LanguageOption(this.name, this.icon);
 }

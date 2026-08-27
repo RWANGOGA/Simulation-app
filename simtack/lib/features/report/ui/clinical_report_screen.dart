@@ -414,7 +414,10 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
         (p.patientAddress?.isNotEmpty ?? false) ||
         (p.patientNextOfKinName?.isNotEmpty ?? false) ||
         (p.patientHospitalName?.isNotEmpty ?? false);
-    if (!hasAny) return const SizedBox.shrink();
+    // A practitioner can still open the edit sheet to ADD demographics
+    // that were never captured (anonymous walk-in) — only patients with
+    // literally nothing to show AND no edit capability skip the card.
+    if (!hasAny && !widget.practitionerMode) return const SizedBox.shrink();
 
     final chips = <Widget>[];
     if (p.patientName != null && p.patientName!.isNotEmpty) {
@@ -463,15 +466,47 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'PATIENT PROFILE',
-            style: TextStyle(fontSize: 12, color: Color(0xFF64748B), letterSpacing: 1.5, fontWeight: FontWeight.bold),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'PATIENT PROFILE',
+                style: TextStyle(fontSize: 12, color: Color(0xFF64748B), letterSpacing: 1.5, fontWeight: FontWeight.bold),
+              ),
+              if (widget.practitionerMode)
+                InkWell(
+                  borderRadius: BorderRadius.circular(8),
+                  onTap: () => _showEditDemographicsSheet(p),
+                  child: const Padding(
+                    padding: EdgeInsets.all(4),
+                    child: Icon(Icons.edit_outlined, size: 18, color: Color(0xFF6D28D9)),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(height: 12),
-          Wrap(spacing: 12, runSpacing: 12, children: chips),
+          if (chips.isEmpty)
+            const Text('No demographics on file yet.', style: TextStyle(fontSize: 13, color: Color(0xFF94A3B8)))
+          else
+            Wrap(spacing: 12, runSpacing: 12, children: chips),
         ],
       ),
     );
+  }
+
+  Future<void> _showEditDemographicsSheet(TriageResult p) async {
+    final anonymousCode = p.anonymousCode;
+    if (anonymousCode == null) return;
+    final saved = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (_) => _EditDemographicsSheet(anonymousCode: anonymousCode, current: p),
+    );
+    if (saved == true) _fetchReport();
   }
 
   Widget _buildVisitTimeline() {
@@ -869,6 +904,252 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Practitioner-only form for correcting a patient's demographics.
+/// Pre-filled from the currently displayed report; pops `true` on a
+/// successful save so the caller knows to refetch.
+class _EditDemographicsSheet extends StatefulWidget {
+  final String anonymousCode;
+  final TriageResult current;
+
+  const _EditDemographicsSheet({required this.anonymousCode, required this.current});
+
+  @override
+  State<_EditDemographicsSheet> createState() => _EditDemographicsSheetState();
+}
+
+class _EditDemographicsSheetState extends State<_EditDemographicsSheet> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _nameController;
+  late final TextEditingController _ageController;
+  late final TextEditingController _weightController;
+  late final TextEditingController _heightController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _addressController;
+  late final TextEditingController _nextOfKinNameController;
+  late final TextEditingController _nextOfKinPhoneController;
+  late final TextEditingController _hospitalController;
+  String? _gender;
+  DateTime? _dateOfBirth;
+  bool _isSaving = false;
+  String? _error;
+
+  static const _genders = ['Male', 'Female', 'Other'];
+
+  @override
+  void initState() {
+    super.initState();
+    final p = widget.current;
+    _nameController = TextEditingController(text: p.patientName ?? '');
+    _ageController = TextEditingController(text: p.patientAge?.toString() ?? '');
+    _weightController = TextEditingController(text: p.patientWeight?.toString() ?? '');
+    _heightController = TextEditingController(text: p.patientHeight?.toString() ?? '');
+    _phoneController = TextEditingController(text: p.patientPhone ?? '');
+    _addressController = TextEditingController(text: p.patientAddress ?? '');
+    _nextOfKinNameController = TextEditingController(text: p.patientNextOfKinName ?? '');
+    _nextOfKinPhoneController = TextEditingController(text: p.patientNextOfKinPhone ?? '');
+    _hospitalController = TextEditingController(text: p.patientHospitalName ?? '');
+    _gender = (p.patientGender?.isNotEmpty ?? false) && _genders.contains(p.patientGender)
+        ? p.patientGender
+        : null;
+    _dateOfBirth = p.patientDateOfBirth != null ? DateTime.tryParse(p.patientDateOfBirth!) : null;
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _ageController.dispose();
+    _weightController.dispose();
+    _heightController.dispose();
+    _phoneController.dispose();
+    _addressController.dispose();
+    _nextOfKinNameController.dispose();
+    _nextOfKinPhoneController.dispose();
+    _hospitalController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _pickDateOfBirth() async {
+    final now = DateTime.now();
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _dateOfBirth ?? DateTime(now.year - 30),
+      firstDate: DateTime(1900),
+      lastDate: now,
+      helpText: 'DATE OF BIRTH',
+    );
+    if (picked != null) setState(() => _dateOfBirth = picked);
+  }
+
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+    final age = int.tryParse(_ageController.text.trim());
+    final weight = double.tryParse(_weightController.text.trim());
+    final height = double.tryParse(_heightController.text.trim());
+    if (age == null || _gender == null || weight == null || height == null) {
+      setState(() => _error = 'Age, gender, weight, and height are required.');
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+      _error = null;
+    });
+    try {
+      await ApiClient.updatePatientDemographics(
+        widget.anonymousCode,
+        PatientProfile(
+          age: age,
+          gender: _gender!,
+          weight: weight,
+          height: height,
+          fullName: _nameController.text.trim(),
+          dateOfBirth: _dateOfBirth,
+          phone: _phoneController.text.trim(),
+          address: _addressController.text.trim(),
+          nextOfKinName: _nextOfKinNameController.text.trim(),
+          nextOfKinPhone: _nextOfKinPhoneController.text.trim(),
+          hospitalName: _hospitalController.text.trim(),
+        ),
+      );
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Could not save: $e';
+          _isSaving = false;
+        });
+      }
+    }
+  }
+
+  InputDecoration _decoration(String label) => InputDecoration(
+        labelText: label,
+        isDense: true,
+        filled: true,
+        fillColor: const Color(0xFFF8FAFC),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      child: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Edit Patient Demographics',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(widget.anonymousCode, style: const TextStyle(fontSize: 12, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
+                  const SizedBox(height: 16),
+                  if (_error != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(color: const Color(0xFFFEE2E2), borderRadius: BorderRadius.circular(8)),
+                      child: Text(_error!, style: const TextStyle(color: Color(0xFFB91C1C), fontSize: 13)),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  TextFormField(controller: _nameController, decoration: _decoration('Full Name')),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _ageController,
+                          keyboardType: TextInputType.number,
+                          decoration: _decoration('Age'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: DropdownButtonFormField<String>(
+                          initialValue: _gender,
+                          decoration: _decoration('Gender'),
+                          items: _genders.map((g) => DropdownMenuItem(value: g, child: Text(g))).toList(),
+                          onChanged: (value) => setState(() => _gender = value),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _weightController,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          decoration: _decoration('Weight (kg)'),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextFormField(
+                          controller: _heightController,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          decoration: _decoration('Height (cm)'),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  InkWell(
+                    onTap: _pickDateOfBirth,
+                    child: InputDecorator(
+                      decoration: _decoration('Date of Birth'),
+                      child: Text(
+                        _dateOfBirth == null
+                            ? 'Not set'
+                            : '${_dateOfBirth!.year.toString().padLeft(4, '0')}-${_dateOfBirth!.month.toString().padLeft(2, '0')}-${_dateOfBirth!.day.toString().padLeft(2, '0')}',
+                        style: TextStyle(color: _dateOfBirth == null ? const Color(0xFF94A3B8) : const Color(0xFF1E293B)),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(controller: _phoneController, keyboardType: TextInputType.phone, decoration: _decoration('Phone')),
+                  const SizedBox(height: 12),
+                  TextFormField(controller: _addressController, decoration: _decoration('Address')),
+                  const SizedBox(height: 12),
+                  TextFormField(controller: _nextOfKinNameController, decoration: _decoration('Next of Kin Name')),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: _nextOfKinPhoneController,
+                    keyboardType: TextInputType.phone,
+                    decoration: _decoration('Next of Kin Phone'),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(controller: _hospitalController, decoration: _decoration('Hospital / Facility')),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: _isSaving ? null : _save,
+                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6D28D9), foregroundColor: Colors.white),
+                      child: _isSaving
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                          : const Text('Save Changes', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

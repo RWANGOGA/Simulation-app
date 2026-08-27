@@ -1,0 +1,35 @@
+{
+  "@@locale": "en",
+  "chooseLanguageTitle": "Choose Your Language",
+  "@chooseLanguageTitle": {
+    "description": "Title of the language & consent screen, shown before onboarding starts."
+  },
+  "chooseLanguageSubtitle": "Select the language you're most comfortable with",
+  "@chooseLanguageSubtitle": {
+    "description": "Subtitle under the language & consent screen's title."
+  },
+  "languageEnglish": "English",
+  "@languageEnglish": {
+    "description": "Label for the English language option."
+  },
+  "languageLuganda": "Luganda",
+  "@languageLuganda": {
+    "description": "Label for the Luganda language option."
+  },
+  "languageSignLanguage": "Sign Language",
+  "@languageSignLanguage": {
+    "description": "Label for the sign-language option."
+  },
+  "consentText": "I understand this app will process my health information on this device to help assess my condition. My data stays on this device unless I choose to share it.",
+  "@consentText": {
+    "description": "Consent checkbox label the patient must accept before continuing."
+  },
+  "consentRequiredError": "Please accept to continue",
+  "@consentRequiredError": {
+    "description": "Shown when Continue is tapped without accepting consent."
+  },
+  "continueButton": "Continue",
+  "@continueButton": {
+    "description": "Button that proceeds from the language & consent screen."
+  }
+}
