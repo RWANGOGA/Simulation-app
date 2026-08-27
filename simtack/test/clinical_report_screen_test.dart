@@ -63,7 +63,7 @@ void main() {
         home: ClinicalReportScreen(patientId: 'TEST-12345'),
       ));
 
-      expect(find.text('ATOMYBRIDGE CARE'), findsOneWidget);
+      expect(find.text('SIMTACK CARE'), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
   });

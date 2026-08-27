@@ -188,27 +188,30 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                   ),
                   child: Row(
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Dashboard Overview',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: AppPalette.textPrimary(context),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'Dashboard Overview',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: AppPalette.textPrimary(context),
+                              ),
                             ),
-                          ),
-                          Text(
-                            'Monitor active triage sessions and patient risk levels.',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppPalette.textMuted(context),
+                            Text(
+                              'Monitor active triage sessions and patient risk levels.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppPalette.textMuted(context),
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                      const Spacer(),
                       IconButton(
                         icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)),
                         tooltip: 'Refresh Data',
@@ -449,7 +452,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: riskColor.withOpacity(0.1),
+                color: riskColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(Icons.medical_services, color: riskColor, size: 20),
@@ -476,7 +479,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: riskColor.withOpacity(0.1),
+                    color: riskColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(riskLevel, style: TextStyle(fontWeight: FontWeight.bold, color: riskColor, fontSize: 11)),
@@ -512,7 +515,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
           child: ListTile(
             contentPadding: const EdgeInsets.all(16),
             leading: CircleAvatar(
-              backgroundColor: riskColor.withOpacity(0.1),
+              backgroundColor: riskColor.withValues(alpha: 0.1),
               child: Icon(Icons.medical_services, color: riskColor, size: 24),
             ),
             title: Text(
@@ -540,9 +543,9 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
-                    color: riskColor.withOpacity(0.1),
+                    color: riskColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: riskColor.withOpacity(0.3)),
+                    border: Border.all(color: riskColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(riskLevel, style: TextStyle(fontWeight: FontWeight.bold, color: riskColor, fontSize: 12)),
                 ),
@@ -578,22 +581,25 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
           color: AppPalette.surface(context),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppPalette.border(context)),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))],
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
               child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(width: 16),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
-                Text(label, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), fontWeight: FontWeight.w600)),
-              ],
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color), overflow: TextOverflow.ellipsis),
+                  Text(label, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+                ],
+              ),
             ),
           ],
         ),
@@ -614,13 +620,13 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
               color: AppPalette.surface(context),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: AppPalette.border(context)),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2))],
+              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))],
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
                   child: Icon(icon, color: color, size: 24),
                 ),
                 const SizedBox(width: 16),
@@ -838,7 +844,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
                                 child: ListTile(
                                   contentPadding: const EdgeInsets.all(16),
                                   leading: CircleAvatar(
-                                    backgroundColor: riskColor.withOpacity(0.1),
+                                    backgroundColor: riskColor.withValues(alpha: 0.1),
                                     child: Icon(Icons.medical_services, color: riskColor),
                                   ),
                                   title: Text(
@@ -856,7 +862,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
                                   trailing: Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: riskColor.withOpacity(0.1),
+                                      color: riskColor.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(riskLevel, style: TextStyle(color: riskColor, fontWeight: FontWeight.bold, fontSize: 11)),

@@ -334,7 +334,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.30), width: 2),
+                  border: Border.all(color: const Color(0xFF6D28D9).withValues(alpha: 0.30), width: 2),
                 ),
                 child: QrImageView(
                   data: _qrUrl(_enteredCode),
@@ -431,7 +431,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                                     color: color,
                                     shape: BoxShape.circle,
                                     border: Border.all(color: Colors.white, width: 1.5),
-                                    boxShadow: [BoxShadow(color: color.withOpacity(0.55), blurRadius: 6, spreadRadius: 1)],
+                                    boxShadow: [BoxShadow(color: color.withValues(alpha: 0.55), blurRadius: 6, spreadRadius: 1)],
                                   ),
                                 ),
                               ),
@@ -445,7 +445,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                               alignment: const Alignment(0, 0.7),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(color: Colors.black.withOpacity(0.40), borderRadius: BorderRadius.circular(8)),
+                                decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.40), borderRadius: BorderRadius.circular(8)),
                                 child: Text(
                                   _loading ? 'Loading...' : 'Enter a patient code to see pain points',
                                   style: const TextStyle(fontSize: 11, color: Colors.white70),
@@ -498,7 +498,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: const Color(0xFF6D28D9).withOpacity(0.10), borderRadius: BorderRadius.circular(8)),
+                  decoration: BoxDecoration(color: const Color(0xFF6D28D9).withValues(alpha: 0.10), borderRadius: BorderRadius.circular(8)),
                   child: Text('${_sessions.length} session${_sessions.length == 1 ? '' : 's'}', style: const TextStyle(fontSize: 11, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
                 ),
               ],
@@ -576,7 +576,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
             const SizedBox(width: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(color: color.withOpacity(0.10), borderRadius: BorderRadius.circular(6), border: Border.all(color: color.withOpacity(0.25))),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.10), borderRadius: BorderRadius.circular(6), border: Border.all(color: color.withValues(alpha: 0.25))),
               child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color)),
             ),
             const SizedBox(width: 8),
@@ -592,7 +592,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: const Color(0xFF6D28D9).withOpacity(0.10), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(color: const Color(0xFF6D28D9).withValues(alpha: 0.10), borderRadius: BorderRadius.circular(8)),
             child: Icon(icon, color: const Color(0xFF6D28D9), size: 18),
           ),
           const SizedBox(width: 10),

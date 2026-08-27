@@ -123,33 +123,39 @@ class AccessibilitySettingsScreen extends StatelessWidget {
             _sectionLabel(context, 'APPEARANCE'),
             _card(
               context,
-              child: Column(
-                children: [
-                  _themeTile(
-                    context,
-                    controller,
-                    mode: ThemeMode.light,
-                    icon: Icons.light_mode_outlined,
-                    title: 'Light',
-                    subtitle: 'Always use the light theme',
-                  ),
-                  _themeTile(
-                    context,
-                    controller,
-                    mode: ThemeMode.dark,
-                    icon: Icons.dark_mode_outlined,
-                    title: 'Dark',
-                    subtitle: 'Easier on the eyes in low light',
-                  ),
-                  _themeTile(
-                    context,
-                    controller,
-                    mode: ThemeMode.system,
-                    icon: Icons.brightness_auto_outlined,
-                    title: 'Follow device',
-                    subtitle: 'Match the phone\'s own setting',
-                  ),
-                ],
+              child: RadioGroup<ThemeMode>(
+                groupValue: controller.themeMode,
+                onChanged: (value) {
+                  if (value != null) controller.setThemeMode(value);
+                },
+                child: Column(
+                  children: [
+                    _themeTile(
+                      context,
+                      controller,
+                      mode: ThemeMode.light,
+                      icon: Icons.light_mode_outlined,
+                      title: 'Light',
+                      subtitle: 'Always use the light theme',
+                    ),
+                    _themeTile(
+                      context,
+                      controller,
+                      mode: ThemeMode.dark,
+                      icon: Icons.dark_mode_outlined,
+                      title: 'Dark',
+                      subtitle: 'Easier on the eyes in low light',
+                    ),
+                    _themeTile(
+                      context,
+                      controller,
+                      mode: ThemeMode.system,
+                      icon: Icons.brightness_auto_outlined,
+                      title: 'Follow device',
+                      subtitle: 'Match the phone\'s own setting',
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -182,7 +188,15 @@ class AccessibilitySettingsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: AppPalette.border(context)),
       ),
-      child: child,
+      // A RadioListTile (see _themeTile) paints its background and ink
+      // splashes on the nearest Material ancestor — without this, this
+      // Container's own background color hides those effects. Transparent
+      // Material adds the painting surface without changing how anything
+      // looks; cards with no ListTile-family child are unaffected.
+      child: Material(
+        type: MaterialType.transparency,
+        child: child,
+      ),
     );
   }
 
@@ -220,10 +234,6 @@ class AccessibilitySettingsScreen extends StatelessWidget {
     final selected = controller.themeMode == mode;
     return RadioListTile<ThemeMode>(
       value: mode,
-      groupValue: controller.themeMode,
-      onChanged: (value) {
-        if (value != null) controller.setThemeMode(value);
-      },
       activeColor: const Color(0xFF6D28D9),
       secondary: Icon(
         icon,

@@ -161,7 +161,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                   'Practitioner Mode',
                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
                 ),
-                backgroundColor: const Color(0xFF6D28D9).withOpacity(0.1),
+                backgroundColor: const Color(0xFF6D28D9).withValues(alpha: 0.1),
                 side: const BorderSide(color: Color(0xFF6D28D9)),
               ),
             ),
@@ -179,7 +179,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                   style: TextStyle(
                     fontSize: 60,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     letterSpacing: 10,
                   ),
                 ),
@@ -238,7 +238,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6D28D9).withOpacity(0.1),
+                  color: const Color(0xFF6D28D9).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(Icons.medical_services, color: Color(0xFF6D28D9), size: 32),
@@ -302,7 +302,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: riskColor.withOpacity(0.1),
+              color: riskColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: riskColor),
             ),
@@ -331,7 +331,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                           padding: const EdgeInsets.only(top: 4),
                           child: Text(
                             'Driven by: ${worst.bodyRegion}',
-                            style: TextStyle(fontSize: 12, color: riskColor.withOpacity(0.8)),
+                            style: TextStyle(fontSize: 12, color: riskColor.withValues(alpha: 0.8)),
                           ),
                         ),
                     ],
@@ -554,7 +554,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.white.withOpacity(0.2) : riskColor.withOpacity(0.12),
+                    color: isSelected ? Colors.white.withValues(alpha: 0.2) : riskColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -730,7 +730,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.35)),
+        border: Border.all(color: const Color(0xFF6D28D9).withValues(alpha: 0.35)),
       ),
       child: Material(
         type: MaterialType.transparency,
@@ -764,8 +764,8 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                       selected: _decisionStatus == value,
                       onSelected: (picked) => setState(() => _decisionStatus = value),
                       selectedColor: value == 'closed'
-                          ? const Color(0xFF16A34A).withOpacity(0.2)
-                          : const Color(0xFFF59E0B).withOpacity(0.2),
+                          ? const Color(0xFF16A34A).withValues(alpha: 0.2)
+                          : const Color(0xFFF59E0B).withValues(alpha: 0.2),
                       labelStyle: const TextStyle(fontSize: 12),
                     ),
                   ),
@@ -831,9 +831,9 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: const Color(0xFF6D28D9).withOpacity(0.06),
+        color: const Color(0xFF6D28D9).withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.2)),
+        border: Border.all(color: const Color(0xFF6D28D9).withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,

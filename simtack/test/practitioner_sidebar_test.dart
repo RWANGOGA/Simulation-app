@@ -5,12 +5,12 @@ import 'package:simtack/features/dashboard/ui/practitioner_sidebar.dart';
 void main() {
   testWidgets('PractitionerSidebar renders correctly with dashboard route', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: Row(
             children: [
               PractitionerSidebar(currentRoute: '/dashboard'),
-              const Expanded(child: Placeholder()),
+              Expanded(child: Placeholder()),
             ],
           ),
         ),
@@ -27,12 +27,12 @@ void main() {
 
   testWidgets('PractitionerSidebar shows active state for current route', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: Row(
             children: [
               PractitionerSidebar(currentRoute: '/dashboard'),
-              const Expanded(child: Placeholder()),
+              Expanded(child: Placeholder()),
             ],
           ),
         ),
@@ -45,12 +45,12 @@ void main() {
 
   testWidgets('PractitionerSidebar has all navigation items', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: Row(
             children: [
               PractitionerSidebar(currentRoute: '/patients'),
-              const Expanded(child: Placeholder()),
+              Expanded(child: Placeholder()),
             ],
           ),
         ),
@@ -67,12 +67,12 @@ void main() {
 
   testWidgets('PractitionerSidebar shows loading state initially', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: Row(
             children: [
               PractitionerSidebar(currentRoute: '/dashboard'),
-              const Expanded(child: Placeholder()),
+              Expanded(child: Placeholder()),
             ],
           ),
         ),
@@ -84,12 +84,12 @@ void main() {
 
   testWidgets('PractitionerSidebar has logout button in footer', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
+      const MaterialApp(
         home: Scaffold(
           body: Row(
             children: [
               PractitionerSidebar(currentRoute: '/dashboard'),
-              const Expanded(child: Placeholder()),
+              Expanded(child: Placeholder()),
             ],
           ),
         ),

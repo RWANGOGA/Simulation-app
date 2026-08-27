@@ -218,9 +218,9 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                         trailing: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
-                            color: riskColor.withOpacity(0.1),
+                            color: riskColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: riskColor.withOpacity(0.3)),
+                            border: Border.all(color: riskColor.withValues(alpha: 0.3)),
                           ),
                           child: Text(
                             riskLevel,
