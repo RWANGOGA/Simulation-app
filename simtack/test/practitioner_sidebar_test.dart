@@ -1,20 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_sidebar.dart';
+import 'package:simtack/l10n/app_localizations.dart';
+
+Widget _wrap(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(
+        body: Row(
+          children: [
+            child,
+            const Expanded(child: Placeholder()),
+          ],
+        ),
+      ),
+    );
 
 void main() {
   testWidgets('PractitionerSidebar renders correctly with dashboard route', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: Row(
-            children: [
-              PractitionerSidebar(currentRoute: '/dashboard'),
-              Expanded(child: Placeholder()),
-            ],
-          ),
-        ),
-      ),
+      _wrap(const PractitionerSidebar(currentRoute: '/dashboard')),
     );
 
     expect(find.byType(PractitionerSidebar), findsOneWidget);
@@ -27,16 +32,7 @@ void main() {
 
   testWidgets('PractitionerSidebar shows active state for current route', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: Row(
-            children: [
-              PractitionerSidebar(currentRoute: '/dashboard'),
-              Expanded(child: Placeholder()),
-            ],
-          ),
-        ),
-      ),
+      _wrap(const PractitionerSidebar(currentRoute: '/dashboard')),
     );
 
     final dashboardNavItem = find.text('Dashboard');
@@ -45,16 +41,7 @@ void main() {
 
   testWidgets('PractitionerSidebar has all navigation items', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: Row(
-            children: [
-              PractitionerSidebar(currentRoute: '/patients'),
-              Expanded(child: Placeholder()),
-            ],
-          ),
-        ),
-      ),
+      _wrap(const PractitionerSidebar(currentRoute: '/patients')),
     );
 
     expect(find.text('Dashboard'), findsOneWidget);
@@ -67,16 +54,7 @@ void main() {
 
   testWidgets('PractitionerSidebar shows loading state initially', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: Row(
-            children: [
-              PractitionerSidebar(currentRoute: '/dashboard'),
-              Expanded(child: Placeholder()),
-            ],
-          ),
-        ),
-      ),
+      _wrap(const PractitionerSidebar(currentRoute: '/dashboard')),
     );
 
     expect(find.text('Loading...'), findsOneWidget);
@@ -84,16 +62,7 @@ void main() {
 
   testWidgets('PractitionerSidebar has logout button in footer', (tester) async {
     await tester.pumpWidget(
-      const MaterialApp(
-        home: Scaffold(
-          body: Row(
-            children: [
-              PractitionerSidebar(currentRoute: '/dashboard'),
-              Expanded(child: Placeholder()),
-            ],
-          ),
-        ),
-      ),
+      _wrap(const PractitionerSidebar(currentRoute: '/dashboard')),
     );
 
     await tester.pumpAndSettle();

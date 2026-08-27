@@ -8,6 +8,10 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "change-me-in-production"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 8
+    # Gates practitioner self-registration. Empty (default) means
+    # registration stays open, matching current behavior — set this once
+    # real deployment starts, so signup requires knowing the invite code.
+    INVITE_CODE: str = ""
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
 settings = Settings()

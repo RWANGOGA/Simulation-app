@@ -9,6 +9,7 @@ import 'package:printing/printing.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
+import '../../../l10n/app_localizations.dart';
 import 'practitioner_sidebar.dart';
 
 const List<Color> _chartPalette = [
@@ -93,19 +94,20 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return PractitionerScaffold(
       currentRoute: '/reports',
       contentBuilder: (context, openDrawer) => Column(
         children: [
           AppHeaderBar(
-            title: 'Reports',
-            subtitle: 'Aggregate breakdown across every triage session on record.',
+            title: t.reportsTitle,
+            subtitle: t.reportsSubtitle,
             onMenuTap: openDrawer,
             actions: [
               if (_reports != null && (_reports!['total'] as int? ?? 0) > 0)
                 AppHeaderIconButton(
                   icon: Icons.download_outlined,
-                  tooltip: 'Download PDF report',
+                  tooltip: t.downloadPdfTooltip,
                   onPressed: _isExporting ? null : _exportPdf,
                   loadingChild: _isExporting
                       ? const SizedBox(
@@ -117,7 +119,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 ),
               AppHeaderIconButton(
                 icon: Icons.refresh,
-                tooltip: 'Refresh',
+                tooltip: t.refreshTooltip,
                 onPressed: _loadReports,
               ),
             ],
@@ -143,7 +145,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           const SizedBox(height: 16),
           Text(message, style: const TextStyle(color: Colors.red, fontSize: 14), textAlign: TextAlign.center),
           const SizedBox(height: 24),
-          ElevatedButton(onPressed: _loadReports, child: const Text('Retry')),
+          ElevatedButton(onPressed: _loadReports, child: Text(AppLocalizations.of(context)!.retryButton)),
         ],
       ),
     );
@@ -167,17 +169,19 @@ class _ReportsScreenState extends State<ReportsScreen> {
       );
     }
 
+    final t = AppLocalizations.of(context)!;
     return Wrap(
       spacing: 8,
       children: [
-        chip('week', 'This Week'),
-        chip('month', 'This Month'),
-        chip('all', 'All Time'),
+        chip('week', t.periodThisWeek),
+        chip('month', t.periodThisMonth),
+        chip('all', t.periodAllTime),
       ],
     );
   }
 
   Widget _buildContent(Map<String, dynamic> reports) {
+    final t = AppLocalizations.of(context)!;
     final total = reports['total'] as int? ?? 0;
     final openCount = reports['open_count'] as int? ?? 0;
     final closedCount = reports['closed_count'] as int? ?? 0;
@@ -210,7 +214,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     child: const Icon(Icons.inbox_outlined, size: 32, color: Color(0xFF6D28D9)),
                   ),
                   const SizedBox(height: 12),
-                  Text('No triage sessions in this period.', style: TextStyle(color: AppPalette.textMuted(context))),
+                  Text(t.noSessionsInPeriodMessage, style: TextStyle(color: AppPalette.textMuted(context))),
                 ],
               ),
             ),
@@ -233,42 +237,42 @@ class _ReportsScreenState extends State<ReportsScreen> {
               spacing: 16,
               runSpacing: 16,
               children: [
-                _statCard('Total Sessions', '$total', const Color(0xFF6D28D9), Icons.people),
-                _statCard('Open', '$openCount', const Color(0xFF0EA5E9), Icons.folder_open),
-                _statCard('Closed', '$closedCount', const Color(0xFF16A34A), Icons.check_circle),
+                _statCard(t.statTotalSessionsLabel, '$total', const Color(0xFF6D28D9), Icons.people),
+                _statCard(t.statusOpenLabel, '$openCount', const Color(0xFF0EA5E9), Icons.folder_open),
+                _statCard(t.statusClosedLabel, '$closedCount', const Color(0xFF16A34A), Icons.check_circle),
                 if (avgSeverity != null)
-                  _statCard('Avg. Severity', '${avgSeverity.toStringAsFixed(1)}/10', const Color(0xFFF59E0B), Icons.speed),
+                  _statCard(t.statAvgSeverityLabel, '${avgSeverity.toStringAsFixed(1)}/10', const Color(0xFFF59E0B), Icons.speed),
                 if (avgRiskScore != null)
-                  _statCard('Avg. Risk Score', avgRiskScore.toStringAsFixed(2), const Color(0xFFDC2626), Icons.warning_amber),
+                  _statCard(t.statAvgRiskScoreLabel, avgRiskScore.toStringAsFixed(2), const Color(0xFFDC2626), Icons.warning_amber),
               ],
             ),
             const SizedBox(height: 32),
             if (openCount + closedCount > 0) ...[
-              _sectionTitle('Session Status'),
+              _sectionTitle(t.sessionStatusTitle),
               const SizedBox(height: 12),
               _donutWithLegend(
                 [
-                  {'label': 'Open', 'count': openCount},
-                  {'label': 'Closed', 'count': closedCount},
+                  {'label': t.statusOpenLabel, 'count': openCount},
+                  {'label': t.statusClosedLabel, 'count': closedCount},
                 ],
                 colors: const [Color(0xFF0EA5E9), Color(0xFF16A34A)],
               ),
               const SizedBox(height: 32),
             ],
             if (byRegion.isNotEmpty) ...[
-              _sectionTitle('Most Reported Body Regions'),
+              _sectionTitle(t.mostReportedRegionsTitle),
               const SizedBox(height: 12),
               _donutWithLegend(
-                byRegion.map((r) => {'label': r['region'] as String? ?? 'Unknown', 'count': r['count'] as int}).toList(),
+                byRegion.map((r) => {'label': r['region'] as String? ?? t.unknownLabel, 'count': r['count'] as int}).toList(),
                 colors: _chartPalette,
               ),
               const SizedBox(height: 32),
             ],
             if (byPainType.isNotEmpty) ...[
-              _sectionTitle('Pain Type Breakdown'),
+              _sectionTitle(t.painTypeBreakdownTitle),
               const SizedBox(height: 12),
               _donutWithLegend(
-                byPainType.map((r) => {'label': r['pain_type'] as String? ?? 'Unknown', 'count': r['count'] as int}).toList(),
+                byPainType.map((r) => {'label': r['pain_type'] as String? ?? t.unknownLabel, 'count': r['count'] as int}).toList(),
                 colors: _chartPalette,
               ),
             ],
@@ -331,7 +335,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     if (rows.length > 6) {
       sliceRows.addAll(rows.take(6));
       final otherCount = rows.skip(6).fold<int>(0, (sum, r) => sum + (r['count'] as int));
-      sliceRows.add({'label': 'Other', 'count': otherCount});
+      sliceRows.add({'label': AppLocalizations.of(context)!.otherLabel, 'count': otherCount});
     } else {
       sliceRows.addAll(rows);
     }

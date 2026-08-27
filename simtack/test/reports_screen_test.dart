@@ -6,6 +6,13 @@ import 'package:http/testing.dart';
 
 import 'package:simtack/core/network/api_client.dart';
 import 'package:simtack/features/dashboard/ui/reports_screen.dart';
+import 'package:simtack/l10n/app_localizations.dart';
+
+Widget _wrap(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: child,
+    );
 
 /// In-memory token storage so tests never touch platform secure storage —
 /// the real SecureTokenStorage's method channel isn't mocked in widget
@@ -58,7 +65,7 @@ void main() {
       return http.Response('Not found', 404);
     });
 
-    await tester.pumpWidget(const MaterialApp(home: ReportsScreen()));
+    await tester.pumpWidget(_wrap(const ReportsScreen()));
     await tester.pumpAndSettle();
 
     // Matches both the screen's own header and the sidebar's "Reports" nav label.
@@ -87,7 +94,7 @@ void main() {
       );
     });
 
-    await tester.pumpWidget(const MaterialApp(home: ReportsScreen()));
+    await tester.pumpWidget(_wrap(const ReportsScreen()));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('No triage sessions in this period'), findsOneWidget);
@@ -96,7 +103,7 @@ void main() {
   testWidgets('shows an error with retry when the request fails', (tester) async {
     ApiClient.httpClient = MockClient((request) async => http.Response('Server error', 500));
 
-    await tester.pumpWidget(const MaterialApp(home: ReportsScreen()));
+    await tester.pumpWidget(_wrap(const ReportsScreen()));
     await tester.pumpAndSettle();
 
     expect(find.text('Retry'), findsOneWidget);
