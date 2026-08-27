@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simtack/features/patient_info/ui/patient_info_screen.dart';
+import 'package:simtack/l10n/app_localizations.dart';
+
+Widget _wrap(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: child,
+    );
 
 void main() {
   group('PatientInfoScreen Widget Tests', () {
     testWidgets('renders patient profile header, inputs, and submit button', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: PatientInfoScreen(),
-      ));
+      await tester.pumpWidget(_wrap(const PatientInfoScreen()));
       await tester.pumpAndSettle();
 
       expect(find.text('Patient Profile'), findsOneWidget);
@@ -20,9 +25,7 @@ void main() {
     });
 
     testWidgets('shows validation error when submitting empty form', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: PatientInfoScreen(),
-      ));
+      await tester.pumpWidget(_wrap(const PatientInfoScreen()));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Continue'));
@@ -34,9 +37,7 @@ void main() {
     });
 
     testWidgets('validates out of range values', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: PatientInfoScreen(),
-      ));
+      await tester.pumpWidget(_wrap(const PatientInfoScreen()));
       await tester.pumpAndSettle();
 
       // Enter invalid age (first TextFormField)

@@ -3,7 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:simtack/features/body_map/ui/pain_details_screen.dart';
 import 'package:simtack/features/body_map/ui/pain_point.dart';
+import 'package:simtack/l10n/app_localizations.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
+
+Widget _wrap(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: child,
+    );
 
 class FakeWebViewPlatform extends WebViewPlatform with MockPlatformInterfaceMixin {
   @override
@@ -66,13 +73,11 @@ void main() {
         PainPoint(region: 'Chest / Heart', x: 0.5, y: 0.4, severity: 8, painType: 'Sharp'),
       ];
 
-      await tester.pumpWidget(MaterialApp(
-        home: PainDetailsScreen(
+      await tester.pumpWidget(_wrap(PainDetailsScreen(
           painPoints: points,
           patientId: 1,
           modelAsset: 'assets/models/human_body_female.glb',
-        ),
-      ));
+        )));
       await tester.pump();
 
       expect(find.text('Chest / Heart'), findsOneWidget);
@@ -91,13 +96,11 @@ void main() {
         PainPoint(region: 'Right Leg / Knee', x: 0.7, y: 0.8, severity: 4, painType: 'Dull'),
       ];
 
-      await tester.pumpWidget(MaterialApp(
-        home: PainDetailsScreen(
+      await tester.pumpWidget(_wrap(PainDetailsScreen(
           painPoints: points,
           patientId: 1,
           modelAsset: 'assets/models/human_body_female.glb',
-        ),
-      ));
+        )));
       await tester.pump();
 
       expect(find.text('Chest / Heart'), findsOneWidget);
