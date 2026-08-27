@@ -7,6 +7,7 @@ import 'package:http/testing.dart';
 import 'package:simtack/core/network/api_client.dart';
 import 'package:simtack/features/auth/ui/login_screen.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_dashboard_screen.dart';
+import 'package:simtack/l10n/app_localizations.dart';
 
 /// In-memory token storage so tests never touch platform secure storage.
 class FakeTokenStorage implements TokenStorage {
@@ -124,7 +125,11 @@ void main() {
     testWidgets('successful login navigates to PractitionerDashboardScreen', (tester) async {
       ApiClient.httpClient = _fullFlowClient();
 
-      await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const LoginScreen(),
+      ));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField).first, 'doc@test.com');

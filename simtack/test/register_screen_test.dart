@@ -8,6 +8,7 @@ import 'package:simtack/core/network/api_client.dart';
 import 'package:simtack/features/auth/ui/register_screen.dart';
 import 'package:simtack/features/auth/ui/login_screen.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_dashboard_screen.dart';
+import 'package:simtack/l10n/app_localizations.dart';
 
 /// In-memory token storage so tests never touch platform secure storage.
 class FakeTokenStorage implements TokenStorage {
@@ -127,7 +128,11 @@ void main() {
 
     ApiClient.httpClient = _registerFlowClient();
 
-    await tester.pumpWidget(const MaterialApp(home: RegisterScreen()));
+    await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: const RegisterScreen(),
+    ));
     await tester.pumpAndSettle();
 
     // Field order: 0 name, 1 email, 2 license, 3 DOB (picker, skipped),

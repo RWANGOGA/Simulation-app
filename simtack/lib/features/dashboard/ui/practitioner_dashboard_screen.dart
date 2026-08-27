@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
 import '../../../core/network/api_client.dart';
@@ -171,20 +172,31 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
     }
   }
 
+  String _riskDisplayLabel(BuildContext context, String level) {
+    final t = AppLocalizations.of(context)!;
+    switch (level) {
+      case 'HIGH': return t.statHighRiskLabel.toUpperCase();
+      case 'MEDIUM': return t.statMediumRiskLabel.toUpperCase();
+      case 'LOW': return t.statLowRiskLabel.toUpperCase();
+      default: return t.unknownLabel.toUpperCase();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return PractitionerScaffold(
       currentRoute: '/dashboard',
       contentBuilder: (context, openDrawer) => Column(
         children: [
           AppHeaderBar(
-            title: 'Dashboard Overview',
-            subtitle: 'Monitor active triage sessions and patient risk levels.',
+            title: t.dashboardTitle,
+            subtitle: t.dashboardSubtitle,
             onMenuTap: openDrawer,
             actions: [
               AppHeaderIconButton(
                 icon: Icons.refresh,
-                tooltip: 'Refresh Data',
+                tooltip: t.refreshDataTooltip,
                 onPressed: () async {
                   await _loadData();
                   await _refreshStats();
@@ -192,7 +204,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
               ),
               AppHeaderIconButton(
                 icon: Icons.tune,
-                tooltip: 'Display & accessibility',
+                tooltip: t.displayAccessibilityTooltip,
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(builder: (_) => const AccessibilitySettingsScreen()),
@@ -212,6 +224,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
   }
 
   Widget _buildMainContent() {
+    final t = AppLocalizations.of(context)!;
     return RefreshIndicator(
       onRefresh: () async {
         await _loadData();
@@ -227,10 +240,10 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                 spacing: 16,
                 runSpacing: 16,
                 children: [
-                  _buildStatCard('Total', _stats!['total'].toString(), const Color(0xFF6D28D9), Icons.people),
-                  _buildStatCard('High Risk', _stats!['high_risk'].toString(), const Color(0xFFDC2626), Icons.warning),
-                  _buildStatCard('Medium Risk', _stats!['medium_risk'].toString(), const Color(0xFFF59E0B), Icons.trending_up),
-                  _buildStatCard('Low Risk', _stats!['low_risk'].toString(), const Color(0xFF16A34A), Icons.check_circle),
+                  _buildStatCard(t.statTotalLabel, _stats!['total'].toString(), const Color(0xFF6D28D9), Icons.people),
+                  _buildStatCard(t.statHighRiskLabel, _stats!['high_risk'].toString(), const Color(0xFFDC2626), Icons.warning),
+                  _buildStatCard(t.statMediumRiskLabel, _stats!['medium_risk'].toString(), const Color(0xFFF59E0B), Icons.trending_up),
+                  _buildStatCard(t.statLowRiskLabel, _stats!['low_risk'].toString(), const Color(0xFF16A34A), Icons.check_circle),
                 ],
               ),
 
@@ -241,15 +254,15 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
               runSpacing: 16,
               children: [
                 _buildActionCard(
-                  'Patient Lookup',
-                  'Search patients and view history',
+                  t.patientLookupTitle,
+                  t.actionPatientLookupSubtitle,
                   Icons.person_search,
                   const Color(0xFF6D28D9),
                   () => _navigateToPatientOverview(),
                 ),
                 _buildActionCard(
-                  'New Triage',
-                  'Start a new patient triage session',
+                  t.actionNewTriageTitle,
+                  t.actionNewTriageSubtitle,
                   Icons.add_circle_outline,
                   const Color(0xFF16A34A),
                   () => _navigateToNewTriage(),
@@ -277,7 +290,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                   width: 260,
                   child: TextField(
                     decoration: InputDecoration(
-                      hintText: 'Search Patient ID (e.g., P-...)',
+                      hintText: t.searchPatientIdHint,
                       prefixIcon: Icon(Icons.search, color: AppPalette.textMuted(context)),
                       filled: true,
                       fillColor: AppPalette.inputFill(context),
@@ -295,7 +308,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                 ),
                 if (!kIsWeb)
                   IconButton.filled(
-                    tooltip: 'Scan patient QR',
+                    tooltip: t.scanPatientQrTooltip,
                     style: IconButton.styleFrom(
                       backgroundColor: const Color(0xFF6D28D9),
                       foregroundColor: Colors.white,
@@ -319,11 +332,11 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
 
             Row(
               children: [
-                Text('Triage Sessions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+                Text(t.navTriageSessions, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
                 const Spacer(),
                 TextButton(
                   onPressed: _navigateToSessionList,
-                  child: const Text('View All', style: TextStyle(fontSize: 14, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
+                  child: Text(t.viewAllButton, style: const TextStyle(fontSize: 14, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
                 ),
               ],
             ),
@@ -345,7 +358,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                         child: const Icon(Icons.inbox_outlined, size: 32, color: Color(0xFF6D28D9)),
                       ),
                       const SizedBox(height: 16),
-                      Text('No triage sessions found.', style: TextStyle(color: AppPalette.textMuted(context))),
+                      Text(t.noTriageSessionsFoundMessage, style: TextStyle(color: AppPalette.textMuted(context))),
                     ],
                   ),
                 ),
@@ -362,7 +375,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                     icon: _isLoadingMore
                         ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.expand_more),
-                    label: Text(_isLoadingMore ? 'Loading...' : 'Load More'),
+                    label: Text(_isLoadingMore ? t.loadingEllipsis : t.loadMoreButton),
                   ),
                 ),
               ),
@@ -374,17 +387,18 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
 
   Widget _buildRecentSessionsSection() {
     if (_recentSessions.isEmpty) return const SizedBox.shrink();
+    final t = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            Text('Recent Activity', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+            Text(t.recentActivityTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
             const Spacer(),
             TextButton(
               onPressed: _navigateToSessionList,
-              child: const Text('See All', style: TextStyle(fontSize: 14, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
+              child: Text(t.seeAllButton, style: const TextStyle(fontSize: 14, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
             ),
           ],
         ),
@@ -440,7 +454,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    session['anonymous_code'] ?? 'Unknown',
+                    session['anonymous_code'] ?? AppLocalizations.of(context)!.unknownLabel,
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E293B)),
                   ),
                   Text(
@@ -459,7 +473,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                     color: riskColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text(riskLevel, style: TextStyle(fontWeight: FontWeight.bold, color: riskColor, fontSize: 11)),
+                  child: Text(_riskDisplayLabel(context, riskLevel), style: TextStyle(fontWeight: FontWeight.bold, color: riskColor, fontSize: 11)),
                 ),
                 const SizedBox(height: 4),
                 Text(formattedDate, style: TextStyle(fontSize: 10, color: AppPalette.textMuted(context))),
@@ -496,7 +510,7 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
               child: Icon(Icons.medical_services, color: riskColor, size: 24),
             ),
             title: Text(
-              session['anonymous_code'] ?? 'Unknown ID',
+              session['anonymous_code'] ?? AppLocalizations.of(context)!.unknownIdLabel,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E293B)),
             ),
             subtitle: Column(
@@ -524,11 +538,11 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: riskColor.withValues(alpha: 0.3)),
                   ),
-                  child: Text(riskLevel, style: TextStyle(fontWeight: FontWeight.bold, color: riskColor, fontSize: 12)),
+                  child: Text(_riskDisplayLabel(context, riskLevel), style: TextStyle(fontWeight: FontWeight.bold, color: riskColor, fontSize: 12)),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isClosed ? 'Closed' : 'Open',
+                  isClosed ? AppLocalizations.of(context)!.statusClosedLabel : AppLocalizations.of(context)!.statusOpenLabel,
                   style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isClosed ? AppPalette.textMuted(context) : const Color(0xFFF59E0B)),
                 ),
               ],
@@ -596,46 +610,59 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
 
   Widget _buildActionCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
     // Same fixed-width-inside-Wrap reasoning as _buildStatCard above.
+    // The colored left accent is a separate Container inside a ClipRRect,
+    // not a Border side — Flutter's Border.paint refuses a borderRadius on
+    // a border whose sides aren't all the same color.
     return SizedBox(
       width: 280,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           child: Container(
-            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppPalette.surface(context),
               borderRadius: BorderRadius.circular(14),
-              border: Border(
-                left: BorderSide(color: color, width: 4),
-                top: BorderSide(color: AppPalette.border(context)),
-                right: BorderSide(color: AppPalette.border(context)),
-                bottom: BorderSide(color: AppPalette.border(context)),
-              ),
+              border: Border.all(color: AppPalette.border(context)),
               boxShadow: [BoxShadow(color: color.withValues(alpha: 0.10), blurRadius: 10, offset: const Offset(0, 3))],
             ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
-                  child: Icon(icon, color: color, size: 24),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(13),
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Container(width: 4, color: color),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
+                              child: Icon(icon, color: color, size: 24),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+                                  const SizedBox(height: 4),
+                                  Text(subtitle, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context))),
+                                ],
+                              ),
+                            ),
+                            Icon(Icons.arrow_forward_ios, size: 14, color: AppPalette.textMuted(context)),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
-                      const SizedBox(height: 4),
-                      Text(subtitle, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context))),
-                    ],
-                  ),
-                ),
-                Icon(Icons.arrow_forward_ios, size: 14, color: AppPalette.textMuted(context)),
-              ],
+              ),
             ),
           ),
         ),
@@ -743,14 +770,25 @@ class _SessionListScreenState extends State<SessionListScreen> {
     }
   }
 
+  String _riskDisplayLabel(BuildContext context, String level) {
+    final t = AppLocalizations.of(context)!;
+    switch (level) {
+      case 'HIGH': return t.statHighRiskLabel.toUpperCase();
+      case 'MEDIUM': return t.statMediumRiskLabel.toUpperCase();
+      case 'LOW': return t.statLowRiskLabel.toUpperCase();
+      default: return t.unknownLabel.toUpperCase();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppPalette.scaffold(context),
       appBar: AppBar(
         backgroundColor: AppPalette.surface(context),
         elevation: 0,
-        title: Text('All Triage Sessions', style: TextStyle(color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold)),
+        title: Text(t.allTriageSessionsTitle, style: TextStyle(color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppPalette.textPrimary(context)),
           onPressed: () => Navigator.of(context).pop(),
@@ -799,14 +837,14 @@ class _SessionListScreenState extends State<SessionListScreen> {
                             });
                             _loadSessions();
                           },
-                          child: const Text('Clear All'),
+                          child: Text(t.clearAllButton),
                         ),
                       ],
                     ),
                   ),
                 Expanded(
                   child: _sessions.isEmpty
-                      ? Center(child: Text('No sessions found.', style: TextStyle(color: AppPalette.textMuted(context))))
+                      ? Center(child: Text(t.noSessionsFoundMessage, style: TextStyle(color: AppPalette.textMuted(context))))
                       : RefreshIndicator(
                           onRefresh: _loadSessions,
                           child: ListView.builder(
@@ -821,7 +859,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
                                         ? const CircularProgressIndicator()
                                         : TextButton(
                                             onPressed: _loadMore,
-                                            child: const Text('Load More'),
+                                            child: Text(t.loadMoreButton),
                                           ),
                                   ),
                                 );
@@ -842,7 +880,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
                                     child: Icon(Icons.medical_services, color: riskColor),
                                   ),
                                   title: Text(
-                                    session['anonymous_code'] ?? 'Unknown',
+                                    session['anonymous_code'] ?? t.unknownLabel,
                                     style: const TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                   subtitle: Column(
@@ -859,7 +897,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
                                       color: riskColor.withValues(alpha: 0.1),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
-                                    child: Text(riskLevel, style: TextStyle(color: riskColor, fontWeight: FontWeight.bold, fontSize: 11)),
+                                    child: Text(_riskDisplayLabel(context, riskLevel), style: TextStyle(color: riskColor, fontWeight: FontWeight.bold, fontSize: 11)),
                                   ),
                                   onTap: () async {
                                     await Navigator.of(context).push(
@@ -884,6 +922,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
   }
 
   void _showFilterSheet() {
+    final t = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: AppPalette.surface(context),
@@ -895,9 +934,9 @@ class _SessionListScreenState extends State<SessionListScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text('Filter Sessions', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(t.filterSessionsTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 24),
-              const Text('Risk Level', style: TextStyle(fontWeight: FontWeight.w600)),
+              Text(t.riskLevelLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -913,7 +952,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
                 }).toList(),
               ),
               const SizedBox(height: 24),
-              const Text('Status', style: TextStyle(fontWeight: FontWeight.w600)),
+              Text(t.statusLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
@@ -938,7 +977,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
                     _loadSessions();
                   },
                   style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6D28D9)),
-                  child: const Text('Apply Filters'),
+                  child: Text(t.applyFiltersButton),
                 ),
               ),
             ],

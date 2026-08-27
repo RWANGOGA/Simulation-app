@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../auth/ui/login_screen.dart';
@@ -108,7 +109,7 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
       default:
         // Triage Sessions / Settings / Help have no screen yet.
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Coming soon')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.comingSoonMessage)),
         );
         return;
     }
@@ -159,10 +160,10 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Column(
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Simtack',
                       style: TextStyle(
                         fontSize: 18,
@@ -171,8 +172,8 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
                       ),
                     ),
                     Text(
-                      'Practitioner',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.sidebarRoleLabel,
+                      style: const TextStyle(
                         fontSize: 11,
                         color: Color(0xFF64748B),
                         fontWeight: FontWeight.w500,
@@ -189,13 +190,13 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
-                _buildNavItem(context, Icons.dashboard_outlined, 'Dashboard', '/dashboard'),
-                _buildNavItem(context, Icons.people_outline, 'Patients', '/patients'),
-                _buildNavItem(context, Icons.medical_services_outlined, 'Triage Sessions', '/sessions'),
-                _buildNavItem(context, Icons.assessment_outlined, 'Reports', '/reports'),
+                _buildNavItem(context, Icons.dashboard_outlined, AppLocalizations.of(context)!.navDashboard, '/dashboard'),
+                _buildNavItem(context, Icons.people_outline, AppLocalizations.of(context)!.navPatients, '/patients'),
+                _buildNavItem(context, Icons.medical_services_outlined, AppLocalizations.of(context)!.navTriageSessions, '/sessions'),
+                _buildNavItem(context, Icons.assessment_outlined, AppLocalizations.of(context)!.navReports, '/reports'),
                 const Divider(height: 24, color: Color(0xFFE2E8F0)),
-                _buildNavItem(context, Icons.settings_outlined, 'Settings', '/settings'),
-                _buildNavItem(context, Icons.help_outline, 'Help & Support', '/help'),
+                _buildNavItem(context, Icons.settings_outlined, AppLocalizations.of(context)!.navSettings, '/settings'),
+                _buildNavItem(context, Icons.help_outline, AppLocalizations.of(context)!.navHelpSupport, '/help'),
               ],
             ),
           ),
@@ -275,14 +276,14 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
               const SizedBox(width: 10),
               Expanded(
                 child: _isLoadingUser
-                    ? const Column(
+                    ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Loading...',
-                            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
+                            AppLocalizations.of(context)!.loadingEllipsis,
+                            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                           ),
-                          Text(
+                          const Text(
                             '',
                             style: TextStyle(fontSize: 11, color: Color(0xFF64748B)),
                           ),
@@ -292,7 +293,7 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            _doctor?.fullName ?? 'Unknown',
+                            _doctor?.fullName ?? AppLocalizations.of(context)!.unknownLabel,
                             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B)),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -324,7 +325,7 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
                 }
               },
               icon: const Icon(Icons.logout, size: 16),
-              label: const Text('Logout'),
+              label: Text(AppLocalizations.of(context)!.logoutButton),
               style: OutlinedButton.styleFrom(
                 foregroundColor: const Color(0xFFDC2626),
                 side: const BorderSide(color: Color(0xFFDC2626)),

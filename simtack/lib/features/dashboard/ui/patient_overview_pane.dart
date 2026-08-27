@@ -12,6 +12,7 @@ import '../../../core/theme/app_card.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import 'qr_scan_screen.dart';
 import 'practitioner_sidebar.dart';
@@ -188,20 +189,30 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
     return 'LOW';
   }
 
+  String _riskDisplayLabel(BuildContext context, String level) {
+    final t = AppLocalizations.of(context)!;
+    switch (level) {
+      case 'HIGH': return t.statHighRiskLabel.toUpperCase();
+      case 'MEDIUM': return t.statMediumRiskLabel.toUpperCase();
+      default: return t.statLowRiskLabel.toUpperCase();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return PractitionerScaffold(
       currentRoute: '/patients',
       contentBuilder: (context, openDrawer) => Column(
         children: [
           AppHeaderBar(
-            title: 'Patient Overview',
-            subtitle: 'Review patient history, body map, and triage data.',
+            title: t.patientOverviewTitle,
+            subtitle: t.patientOverviewSubtitle,
             onMenuTap: openDrawer,
             actions: [
               AppHeaderIconButton(
                 icon: Icons.refresh,
-                tooltip: 'Refresh Data',
+                tooltip: t.refreshDataTooltip,
                 onPressed: _enteredCode.isNotEmpty ? () => _loadHistory(_enteredCode) : null,
               ),
             ],
@@ -237,11 +248,12 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
       );
 
   Widget _leftPanel() {
+    final t = AppLocalizations.of(context)!;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionHeader(Icons.qr_code_2, 'Patient Lookup'),
+          _sectionHeader(Icons.qr_code_2, t.patientLookupTitle),
           const SizedBox(height: 16),
           TextField(
             key: const Key('patient_code_field'),
@@ -253,7 +265,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
               letterSpacing: 1.2,
             ),
             decoration: InputDecoration(
-              hintText: 'Enter patient code e.g. P-770043',
+              hintText: t.patientCodeHint,
               hintStyle: TextStyle(color: AppPalette.textDisabled(context), fontWeight: FontWeight.normal, letterSpacing: 0),
               prefixIcon: Icon(Icons.search, color: AppPalette.textMuted(context)),
               filled: true,
@@ -271,7 +283,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 key: const Key('scan_qr_button'),
                 onPressed: _scanQr,
                 icon: const Icon(Icons.qr_code_scanner, size: 18),
-                label: const Text('Scan Patient QR'),
+                label: Text(t.scanPatientQrButton),
                 style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
               ),
             ),
@@ -285,7 +297,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
               decoration: BoxDecoration(color: const Color(0xFF6D28D9), borderRadius: BorderRadius.circular(10)),
               child: Column(
                 children: [
-                  const Text('PATIENT ANONYMOUS ID', style: TextStyle(fontSize: 10, color: Colors.white70, letterSpacing: 2, fontWeight: FontWeight.w600)),
+                  Text(t.patientAnonymousIdLabel, style: const TextStyle(fontSize: 10, color: Colors.white70, letterSpacing: 2, fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
                   Text(_enteredCode, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2)),
                 ],
@@ -312,7 +324,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text('Encrypted QR Passport', textAlign: TextAlign.center, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+            Text(t.encryptedQrPassportLabel, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
@@ -320,7 +332,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 key: const Key('open_report_button'),
                 onPressed: () => _openReport(_enteredCode),
                 icon: const Icon(Icons.open_in_new, size: 16),
-                label: const Text('Open Full Clinical Report'),
+                label: Text(t.openFullClinicalReportButton),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6D28D9),
                   foregroundColor: Colors.white,
@@ -345,12 +357,13 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
       );
 
   Widget _bodyMapCard() {
+    final t = AppLocalizations.of(context)!;
     return AppCard(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionHeader(Icons.accessibility_new, '3D Body Map'),
+          _sectionHeader(Icons.accessibility_new, t.bodyMapTitle),
           const SizedBox(height: 16),
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
@@ -387,7 +400,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                             top: top.clamp(0, constraints.maxHeight - 14),
                             child: IgnorePointer(
                               child: Tooltip(
-                                message: '${s.bodyRegion}\n${_getRiskLabel(s.riskScore)} RISK (${((s.riskScore ?? 0) * 100).toInt()}%)',
+                                message: '${s.bodyRegion}\n${_riskDisplayLabel(context, _getRiskLabel(s.riskScore))} (${((s.riskScore ?? 0) * 100).toInt()}%)',
                                 child: Container(
                                   key: Key('pain_dot_${s.id}'),
                                   width: 14,
@@ -412,7 +425,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.40), borderRadius: BorderRadius.circular(8)),
                                 child: Text(
-                                  _loading ? 'Loading...' : 'Enter a patient code to see pain points',
+                                  _loading ? t.loadingEllipsis : t.bodyMapEmptyHint,
                                   style: const TextStyle(fontSize: 11, color: Colors.white70),
                                 ),
                               ),
@@ -430,11 +443,11 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _legendDot(const Color(0xFFDC2626), 'High Risk'),
+                _legendDot(const Color(0xFFDC2626), t.statHighRiskLabel),
                 const SizedBox(width: 16),
-                _legendDot(const Color(0xFFF59E0B), 'Medium Risk'),
+                _legendDot(const Color(0xFFF59E0B), t.statMediumRiskLabel),
                 const SizedBox(width: 16),
-                _legendDot(const Color(0xFF16A34A), 'Low Risk'),
+                _legendDot(const Color(0xFF16A34A), t.statLowRiskLabel),
               ],
             ),
           ],
@@ -452,19 +465,20 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
       );
 
   Widget _timelineCard() {
+    final t = AppLocalizations.of(context)!;
     return AppCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              _sectionHeader(Icons.timeline, 'Visit History'),
+              _sectionHeader(Icons.timeline, t.visitHistoryTitle),
               if (_sessions.isNotEmpty) ...[
                 const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(color: const Color(0xFF6D28D9).withValues(alpha: 0.10), borderRadius: BorderRadius.circular(8)),
-                  child: Text('${_sessions.length} session${_sessions.length == 1 ? '' : 's'}', style: const TextStyle(fontSize: 11, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
+                  child: Text(t.sessionCountLabel(_sessions.length), style: const TextStyle(fontSize: 11, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
                 ),
               ],
             ],
@@ -475,9 +489,9 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
           else if (_error != null)
             _errorRow(_error!)
           else if (_sessions.isEmpty && _enteredCode.isEmpty)
-            _emptyHint('Enter a patient code above to view visit history')
+            _emptyHint(t.enterCodeForHistoryHint)
           else if (_sessions.isEmpty)
-            _emptyHint('No visits found for $_enteredCode')
+            _emptyHint(t.noVisitsFoundHint(_enteredCode))
           else
             ListView.separated(
               shrinkWrap: true,
@@ -492,10 +506,11 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
   }
 
   Widget _sessionRow(int index, int sessionNumber) {
+    final t = AppLocalizations.of(context)!;
     final session = _sessions[index];
     final score = session.riskScore ?? 0.0;
     final color = _getRiskColor(score);
-    final label = _getRiskLabel(score);
+    final label = _riskDisplayLabel(context, _getRiskLabel(score));
     final date = session.createdAt;
     final dateStr = DateFormat('dd MMM yyyy, HH:mm').format(date);
 
@@ -516,7 +531,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 children: [
                   Row(
                     children: [
-                      Text('Session $sessionNumber', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+                      Text(t.sessionNumberLabel(sessionNumber), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
                       const SizedBox(width: 8),
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -525,7 +540,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          session.status == 'closed' ? 'Closed' : 'Open',
+                          session.status == 'closed' ? t.statusClosedLabel : t.statusOpenLabel,
                           style: TextStyle(fontSize: 10, color: AppPalette.textMuted(context)),
                         ),
                       ),

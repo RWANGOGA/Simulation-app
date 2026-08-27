@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_dashboard_screen.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_sidebar.dart';
+import 'package:simtack/l10n/app_localizations.dart';
+
+Widget _wrap(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: child,
+    );
 
 void main() {
   testWidgets('PractitionerDashboardScreen renders with sidebar', (tester) async {
@@ -10,9 +17,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: PractitionerDashboardScreen(),
-      ),
+      _wrap(const PractitionerDashboardScreen()),
     );
 
     await tester.pump();
@@ -26,9 +31,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: PractitionerDashboardScreen(),
-      ),
+      _wrap(const PractitionerDashboardScreen()),
     );
 
     await tester.pump();
@@ -42,9 +45,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: PractitionerDashboardScreen(),
-      ),
+      _wrap(const PractitionerDashboardScreen()),
     );
 
     await tester.pump();
@@ -59,9 +60,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      const MaterialApp(
-        home: PractitionerDashboardScreen(),
-      ),
+      _wrap(const PractitionerDashboardScreen()),
     );
 
     await tester.pump();

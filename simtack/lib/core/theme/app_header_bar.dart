@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Gradient header banner shared by every practitioner screen — replaces
 /// the old flat white bar so each screen reads as a distinct, branded
@@ -36,7 +37,7 @@ class AppHeaderBar extends StatelessWidget {
           if (onMenuTap != null) ...[
             IconButton(
               icon: const Icon(Icons.menu, color: Colors.white),
-              tooltip: 'Menu',
+              tooltip: AppLocalizations.of(context)!.menuTooltip,
               onPressed: onMenuTap,
             ),
             const SizedBox(width: 4),
