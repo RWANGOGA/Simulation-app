@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'app_palette.dart';
 
-/// Shared card style used across the app — a rounded, subtly
-/// shadowed container. Centralizes the border/shadow/radius values that
-/// were previously copy-pasted into a fresh Container on every screen, so
-/// they can be tuned once instead of in a dozen places. Surface and
-/// border resolve from AppPalette so the card follows dark mode.
+/// Shared card style used across the app — a rounded, subtly shadowed
+/// container. Surface and border resolve from AppPalette so the card
+/// follows dark mode.
 class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;

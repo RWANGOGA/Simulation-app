@@ -27,8 +27,7 @@ class BodyMapScreen extends StatefulWidget {
 
   /// Picks the body model variant matching the patient's gender.
   /// BMI (weightKg/heightCm) isn't used yet — there's only one build per
-  /// gender today. Once BMI-varied versions of these models exist, branch
-  /// on bmi here the same way the old slim/average/heavy logic did.
+  /// gender today.
   String get modelAsset {
     final file = gender == 'Male' ? 'human_body_male.glb' : 'human_body_female.glb';
     return kIsWeb ? 'models/$file' : 'assets/models/$file';
@@ -607,9 +606,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   }
 
   /// Shows every currently-marked location with a remove button, plus an
-  /// "Add another location" entry point into the same preset-region list
-  /// the old single-select picker used (now additive instead of
-  /// overwriting the selection).
+  /// "Add another location" entry point into the preset-region list —
+  /// additive, doesn't overwrite the existing selection.
   void _showSelectedLocationsSheet() {
     showModalBottomSheet(
       context: context,

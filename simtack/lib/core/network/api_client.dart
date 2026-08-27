@@ -509,6 +509,18 @@ class ApiClient {
     throw Exception('Failed to load stats: ${response.body}');
   }
 
+  static Future<Map<String, dynamic>> getTriageReports({String period = 'all'}) async {
+    // Doctor-only endpoint — must carry the JWT.
+    final response = await httpClient.get(
+      Uri.parse('$baseUrl/triage/reports?period=$period'),
+      headers: await _authHeaders(),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+    throw ApiException.fromResponse(response.statusCode, response.body);
+  }
+
   static Future<List<Map<String, dynamic>>> getTriageList({
     int limit = 50,
     int offset = 0,

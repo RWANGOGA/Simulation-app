@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_header_bar.dart';
 import '../../../core/network/api_client.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
@@ -172,74 +173,38 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppPalette.scaffold(context),
-      body: Row(
+    return PractitionerScaffold(
+      currentRoute: '/dashboard',
+      contentBuilder: (context, openDrawer) => Column(
         children: [
-          const PractitionerSidebar(currentRoute: '/dashboard'),
+          AppHeaderBar(
+            title: 'Dashboard Overview',
+            subtitle: 'Monitor active triage sessions and patient risk levels.',
+            onMenuTap: openDrawer,
+            actions: [
+              AppHeaderIconButton(
+                icon: Icons.refresh,
+                tooltip: 'Refresh Data',
+                onPressed: () async {
+                  await _loadData();
+                  await _refreshStats();
+                },
+              ),
+              AppHeaderIconButton(
+                icon: Icons.tune,
+                tooltip: 'Display & accessibility',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const AccessibilitySettingsScreen()),
+                  );
+                },
+              ),
+            ],
+          ),
           Expanded(
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: AppPalette.surface(context),
-                    border: Border(bottom: BorderSide(color: AppPalette.border(context))),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'Dashboard Overview',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: AppPalette.textPrimary(context),
-                              ),
-                            ),
-                            Text(
-                              'Monitor active triage sessions and patient risk levels.',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppPalette.textMuted(context),
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)),
-                        tooltip: 'Refresh Data',
-                        onPressed: () async {
-                          await _loadData();
-                          await _refreshStats();
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        icon: const Icon(Icons.tune, color: Color(0xFF6D28D9)),
-                        tooltip: 'Display & accessibility',
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const AccessibilitySettingsScreen()),
-                          );
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: _isLoading
-                      ? const Center(child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
-                      : _buildMainContent(),
-                ),
-              ],
-            ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
+                : _buildMainContent(),
           ),
         ],
       ),
@@ -370,7 +335,15 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                   padding: const EdgeInsets.all(40),
                   child: Column(
                     children: [
-                      Icon(Icons.inbox_outlined, size: 48, color: AppPalette.textMuted(context)),
+                      Container(
+                        width: 72,
+                        height: 72,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF6D28D9).withValues(alpha: 0.10),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.inbox_outlined, size: 32, color: Color(0xFF6D28D9)),
+                      ),
                       const SizedBox(height: 16),
                       Text('No triage sessions found.', style: TextStyle(color: AppPalette.textMuted(context))),
                     ],
@@ -588,16 +561,20 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppPalette.surface(context),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppPalette.border(context)),
-          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))],
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [color.withValues(alpha: 0.10), color.withValues(alpha: 0.03)],
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
+          boxShadow: [BoxShadow(color: color.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 3))],
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
               child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(width: 16),
@@ -630,15 +607,20 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppPalette.surface(context),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppPalette.border(context)),
-              boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.02), blurRadius: 8, offset: const Offset(0, 2))],
+              borderRadius: BorderRadius.circular(14),
+              border: Border(
+                left: BorderSide(color: color, width: 4),
+                top: BorderSide(color: AppPalette.border(context)),
+                right: BorderSide(color: AppPalette.border(context)),
+                bottom: BorderSide(color: AppPalette.border(context)),
+              ),
+              boxShadow: [BoxShadow(color: color.withValues(alpha: 0.10), blurRadius: 10, offset: const Offset(0, 3))],
             ),
             child: Row(
               children: [
                 Container(
                   padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+                  decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(10)),
                   child: Icon(icon, color: color, size: 24),
                 ),
                 const SizedBox(width: 16),

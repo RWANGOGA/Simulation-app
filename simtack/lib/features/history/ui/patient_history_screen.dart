@@ -66,7 +66,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
   }
 
   /// Profile tab: shows the signed-in practitioner's account details and
-  /// the logout action (previously this tab was completely inert).
+  /// the logout action.
   void _showProfileSheet() {
     showModalBottomSheet(
       context: context,

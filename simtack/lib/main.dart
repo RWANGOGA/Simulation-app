@@ -89,8 +89,7 @@ class _AtomyBridgeAppState extends State<AtomyBridgeApp> {
     
     // 2. Determine the route from the URL.
     // The #/dashboard deep link only counts when the doctor is ACTUALLY
-    // logged in — previously anyone could open the dashboard by typing the
-    // URL, bypassing authentication entirely.
+    // logged in, so typing the URL alone can't bypass authentication.
     String? reportPatientId;
     bool isDashboardFromUrl = fragment == '/dashboard' && widget.isDoctorLoggedIn;
 

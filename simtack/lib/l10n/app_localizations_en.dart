@@ -33,4 +33,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get continueButton => 'Continue';
+
+  @override
+  String get displayAccessibilityTooltip => 'Display & accessibility';
+
+  @override
+  String get practitionerLogin => 'Practitioner Login';
+
+  @override
+  String get welcomeTitle => 'Welcome';
+
+  @override
+  String get welcomeSubtitle => 'Let\'s get started';
+
+  @override
+  String get privacyCaption =>
+      'Your data stays on this device.\nYou are in control.';
+
+  @override
+  String get savedDraftsTitle => 'Saved drafts';
+
+  @override
+  String get deleteDraftTooltip => 'Delete draft';
+
+  @override
+  String get resumeButton => 'Resume';
+
+  @override
+  String get chooseButton => 'Choose';
+
+  @override
+  String savedDraftBanner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You have $count saved drafts',
+      one: 'You have a saved draft',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String draftsSyncedSnackbar(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count saved reports submitted',
+      one: '1 saved report submitted',
+    );
+    return '$_temp0';
+  }
 }

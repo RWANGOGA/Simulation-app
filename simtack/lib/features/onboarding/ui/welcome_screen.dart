@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../../core/storage/draft_storage.dart';
 import '../../../core/storage/draft_sync_service.dart';
 import '../../../core/storage/triage_draft.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../patient_info/ui/patient_info_screen.dart';
 import '../../review/ui/review_screen.dart';
 import '../../../core/theme/app_page_route.dart';
@@ -40,9 +41,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(syncedCount == 1
-                ? '1 saved report submitted'
-                : '$syncedCount saved reports submitted'),
+            content: Text(AppLocalizations.of(context)!.draftsSyncedSnackbar(syncedCount)),
             backgroundColor: const Color(0xFF16A34A),
             behavior: SnackBarBehavior.floating,
           ),
@@ -87,6 +86,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   /// Lets the patient pick which of several saved drafts to resume.
   void _showDraftPicker() {
+    final t = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: AppPalette.surface(context),
@@ -103,7 +103,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
                 child: Text(
-                  'Saved drafts',
+                  t.savedDraftsTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -128,7 +128,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                       trailing: IconButton(
                         icon: Icon(Icons.delete_outline, size: 20, color: AppPalette.textMuted(context)),
-                        tooltip: 'Delete draft',
+                        tooltip: t.deleteDraftTooltip,
                         onPressed: () async {
                           await _deleteDraft(draft);
                           if (!sheetContext.mounted) return;
@@ -159,9 +159,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final draft = _drafts.first;
     if (draft.painPoints.isEmpty) return const SizedBox.shrink();
 
-    final title = _drafts.length == 1
-        ? 'You have a saved draft'
-        : 'You have ${_drafts.length} saved drafts';
+    final title = AppLocalizations.of(context)!.savedDraftBanner(_drafts.length);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -192,7 +190,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
           TextButton(
             onPressed: _drafts.length == 1 ? () => _resumeDraft(draft) : _showDraftPicker,
-            child: Text(_drafts.length == 1 ? 'Resume' : 'Choose'),
+            child: Text(_drafts.length == 1
+                ? AppLocalizations.of(context)!.resumeButton
+                : AppLocalizations.of(context)!.chooseButton),
           ),
         ],
       ),
@@ -201,6 +201,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppPalette.scaffold(context),
       body: SafeArea(
@@ -218,7 +219,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   children: [
                     // Display & accessibility: enlarge/reduce text, dark mode.
                     IconButton(
-                      tooltip: 'Display & accessibility',
+                      tooltip: t.displayAccessibilityTooltip,
                       icon: Icon(Icons.tune, color: AppPalette.textMuted(context)),
                       onPressed: () {
                         Navigator.of(context).push(
@@ -238,14 +239,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       style: TextButton.styleFrom(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                       ),
-                      child: const Row(
+                      child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.lock_outline, size: 16, color: Color(0xFF6D28D9)),
-                          SizedBox(width: 4),
+                          const Icon(Icons.lock_outline, size: 16, color: Color(0xFF6D28D9)),
+                          const SizedBox(width: 4),
                           Text(
-                            'Practitioner Login',
-                            style: TextStyle(
+                            t.practitionerLogin,
+                            style: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: Color(0xFF6D28D9),
@@ -261,7 +262,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
               // Header
               Text(
-                'Welcome',
+                t.welcomeTitle,
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
@@ -270,7 +271,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                "Let's get started",
+                t.welcomeSubtitle,
                 style: TextStyle(
                   fontSize: 15,
                   color: AppPalette.textMuted(context),
@@ -279,9 +280,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               const SizedBox(height: 24),
 
               // Scrollable middle: the draft banner can grow past short
-              // viewports without pushing the footer off-screen. Wrapping
-              // it in Expanded is what fixed the RenderFlex overflow the
-              // fixed-height Spacer used to cause on small screens.
+              // viewports without pushing the footer off-screen.
               Expanded(
                 child: SingleChildScrollView(
                   child: _buildResumeDraftBanner(),
@@ -305,9 +304,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Continue',
-                    style: TextStyle(
+                  child: Text(
+                    t.continueButton,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -320,7 +319,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               // Privacy caption
               Center(
                 child: Text(
-                  'Your data stays on this device.\nYou are in control.',
+                  t.privacyCaption,
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,

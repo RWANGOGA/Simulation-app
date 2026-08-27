@@ -7,5 +7,16 @@
   "languageSignLanguage": "Olulimi lw'Emikono",
   "consentText": "Ntegeera nti app eno ejja kukozesa amawulire gange ag'obulamu ku kaweefube kano okunnyamba okwekenneenya embeera yange. Amawulire gange gasigala ku kaweefube kano okuggyako nga nsazeewo okugabana nago.",
   "consentRequiredError": "Tukusaba okukkiriza okusobola okweyongerayo",
-  "continueButton": "Weyongereyo"
+  "continueButton": "Weyongereyo",
+  "displayAccessibilityTooltip": "Enjawulo n'obuyambi",
+  "practitionerLogin": "Okuyingira kw'Omusawo",
+  "welcomeTitle": "Tukwaniriza",
+  "welcomeSubtitle": "Tutandike",
+  "privacyCaption": "Amawulire go gasigala ku kaweefube kano.\nOli mu buyinza.",
+  "savedDraftsTitle": "Ebiwandiiko ebiterekeddwa",
+  "deleteDraftTooltip": "Sazaamu ekiwandiiko",
+  "resumeButton": "Ddirira",
+  "chooseButton": "Londa",
+  "savedDraftBanner": "{count, plural, =1{Olina ekiwandiiko ekiterekeddwa} other{Olina ebiwandiiko {count} ebiterekeddwa}}",
+  "draftsSyncedSnackbar": "{count, plural, =1{Lipoota 1 etuweereddwa} other{Lipoota {count} ziweereddwa}}"
 }

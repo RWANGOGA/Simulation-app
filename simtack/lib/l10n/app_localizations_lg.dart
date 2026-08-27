@@ -33,4 +33,54 @@ class AppLocalizationsLg extends AppLocalizations {
 
   @override
   String get continueButton => 'Weyongereyo';
+
+  @override
+  String get displayAccessibilityTooltip => 'Enjawulo n\'obuyambi';
+
+  @override
+  String get practitionerLogin => 'Okuyingira kw\'Omusawo';
+
+  @override
+  String get welcomeTitle => 'Tukwaniriza';
+
+  @override
+  String get welcomeSubtitle => 'Tutandike';
+
+  @override
+  String get privacyCaption =>
+      'Amawulire go gasigala ku kaweefube kano.\nOli mu buyinza.';
+
+  @override
+  String get savedDraftsTitle => 'Ebiwandiiko ebiterekeddwa';
+
+  @override
+  String get deleteDraftTooltip => 'Sazaamu ekiwandiiko';
+
+  @override
+  String get resumeButton => 'Ddirira';
+
+  @override
+  String get chooseButton => 'Londa';
+
+  @override
+  String savedDraftBanner(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Olina ebiwandiiko $count ebiterekeddwa',
+      one: 'Olina ekiwandiiko ekiterekeddwa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String draftsSyncedSnackbar(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Lipoota $count ziweereddwa',
+      one: 'Lipoota 1 etuweereddwa',
+    );
+    return '$_temp0';
+  }
 }

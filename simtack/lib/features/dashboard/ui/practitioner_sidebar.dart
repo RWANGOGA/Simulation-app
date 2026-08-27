@@ -6,6 +6,54 @@ import '../../../core/network/auth_service.dart';
 import '../../../core/network/api_client.dart';
 import 'practitioner_dashboard_screen.dart';
 import 'patient_overview_pane.dart';
+import 'reports_screen.dart';
+
+/// Shared shell for the practitioner screens: sidebar sits fixed in a Row on
+/// wide screens, but on narrow screens a fixed 260px sidebar alongside
+/// content leaves almost no room to render anything usably — so instead it
+/// becomes a slide-out Drawer, opened via the menu button `contentBuilder`
+/// receives in place of the fixed sidebar.
+class PractitionerScaffold extends StatelessWidget {
+  final String currentRoute;
+  final Widget Function(BuildContext context, VoidCallback? openDrawer) contentBuilder;
+
+  const PractitionerScaffold({
+    super.key,
+    required this.currentRoute,
+    required this.contentBuilder,
+  });
+
+  static const double _breakpoint = 900;
+
+  @override
+  Widget build(BuildContext context) {
+    final isWide = MediaQuery.of(context).size.width >= _breakpoint;
+    if (isWide) {
+      return Scaffold(
+        backgroundColor: AppPalette.scaffold(context),
+        body: Row(
+          children: [
+            PractitionerSidebar(currentRoute: currentRoute),
+            Expanded(child: contentBuilder(context, null)),
+          ],
+        ),
+      );
+    }
+    return Scaffold(
+      backgroundColor: AppPalette.scaffold(context),
+      drawer: Drawer(
+        width: 260,
+        child: PractitionerSidebar(currentRoute: currentRoute),
+      ),
+      body: Builder(
+        builder: (innerContext) => contentBuilder(
+          innerContext,
+          () => Scaffold.of(innerContext).openDrawer(),
+        ),
+      ),
+    );
+  }
+}
 
 class PractitionerSidebar extends StatefulWidget {
   final String currentRoute;
@@ -54,7 +102,14 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
       case '/patients':
         screen = const PatientOverviewScreen();
         break;
+      case '/reports':
+        screen = const ReportsScreen();
+        break;
       default:
+        // Triage Sessions / Settings / Help have no screen yet.
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Coming soon')),
+        );
         return;
     }
     Navigator.of(context).pushAndRemoveUntil(
@@ -87,8 +142,15 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
                   width: 40,
                   height: 40,
                   decoration: const BoxDecoration(
-                    color: Color(0xFF6D28D9),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF6D28D9), Color(0xFF8B5CF6)],
+                    ),
                     shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(color: Color(0x406D28D9), blurRadius: 10, offset: Offset(0, 3)),
+                    ],
                   ),
                   child: const Icon(
                     Icons.medical_services,
@@ -158,11 +220,24 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
             decoration: BoxDecoration(
               color: isActive ? const Color(0xFF6D28D9).withValues(alpha: 0.10) : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
+              border: Border(
+                left: BorderSide(
+                  color: isActive ? const Color(0xFF6D28D9) : Colors.transparent,
+                  width: 3,
+                ),
+              ),
             ),
             child: Row(
               children: [
-                Icon(icon, size: 20, color: isActive ? const Color(0xFF6D28D9) : AppPalette.textMuted(context)),
-                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: isActive ? const Color(0xFF6D28D9).withValues(alpha: 0.15) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, size: 18, color: isActive ? const Color(0xFF6D28D9) : AppPalette.textMuted(context)),
+                ),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     label,
