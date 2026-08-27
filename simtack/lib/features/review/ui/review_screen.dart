@@ -193,7 +193,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 Column(crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Anonymous Patient', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
-                    Text('ID generated on submit', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6D28D9))),
+                    const Text('ID generated on submit', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6D28D9))),
                   ],
                 ),
                 Column(crossAxisAlignment: CrossAxisAlignment.end,
@@ -298,7 +298,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         backgroundColor: const Color(0xFF6D28D9),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         elevation: 3,
-                        shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
+                        shadowColor: const Color(0xFF6D28D9).withValues(alpha: 0.4),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
                       ),
                       child: _isSubmitting
@@ -322,7 +322,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Widget _buildSummaryRow(String label, String value, IconData icon) {
     return Row(
       children: [
-        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFF6D28D9).withOpacity(0.1), shape: BoxShape.circle),
+        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFF6D28D9).withValues(alpha: 0.1), shape: BoxShape.circle),
           child: Icon(icon, color: const Color(0xFF6D28D9), size: 20)),
         const SizedBox(width: 12),
         Expanded(
@@ -340,14 +340,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Widget _buildVitalMiniCard(String label, String value, IconData icon, Color color) {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.3))),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withValues(alpha: 0.3))),
       child: Row(
         children: [
           Icon(icon, color: color, size: 20),
           const SizedBox(width: 8),
           Column(crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: TextStyle(fontSize: 11, color: color.withOpacity(0.8), fontWeight: FontWeight.w600)),
+              Text(label, style: TextStyle(fontSize: 11, color: color.withValues(alpha: 0.8), fontWeight: FontWeight.w600)),
               Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
             ],
           ),

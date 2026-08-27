@@ -110,7 +110,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: EdgeInsets.fromLTRB(24, 20, 24, 8),
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
                 child: Text(
                   'Saved drafts',
                   style: TextStyle(
@@ -176,9 +176,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF6D28D9).withOpacity(0.08),
+        color: const Color(0xFF6D28D9).withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.3)),
+        border: Border.all(color: const Color(0xFF6D28D9).withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [

@@ -197,7 +197,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      value: _role,
+                      initialValue: _role,
                       decoration: _fieldDecoration(label: 'Role / Title', icon: Icons.badge_outlined),
                       items: _roles
                           .map((role) => DropdownMenuItem(value: role, child: Text(role)))
@@ -217,7 +217,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           : null,
                     ),
                     Padding(
-                      padding: EdgeInsets.only(top: 6, left: 4),
+                      padding: const EdgeInsets.only(top: 6, left: 4),
                       child: Text(
                         'Self-declared for this deployment — verified out-of-band in real rollouts.',
                         style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context)),

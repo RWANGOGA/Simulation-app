@@ -286,8 +286,8 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.fingerprint, size: 64, color: Color(0xFF6D28D9)),
-                                SizedBox(height: 16),
+                                const Icon(Icons.fingerprint, size: 64, color: Color(0xFF6D28D9)),
+                                const SizedBox(height: 16),
                                 Text('Camera Ready', style: TextStyle(color: AppPalette.textMuted(context))),
                               ],
                             ),
@@ -301,8 +301,8 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.fingerprint, size: 64, color: Color(0xFF6D28D9)),
-                                SizedBox(height: 16),
+                                const Icon(Icons.fingerprint, size: 64, color: Color(0xFF6D28D9)),
+                                const SizedBox(height: 16),
                                 Text('Camera Ready', style: TextStyle(color: AppPalette.textMuted(context))),
                               ],
                             ),
