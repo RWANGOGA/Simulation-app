@@ -7,6 +7,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+psycopg://atomy:atomy123@localhost:5432/atomybridge"
     SECRET_KEY: str = "change-me-in-production"
     QR_SECRET_KEY: str = "change-me-in-production"
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 8
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
 settings = Settings()

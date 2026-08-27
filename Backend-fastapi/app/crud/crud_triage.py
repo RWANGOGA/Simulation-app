@@ -26,3 +26,52 @@ def update_triage_qr_hash(db: Session, session: TriageSession, qr_hash: str) -> 
     db.refresh(session)
     return session
 #to save the qr hash after generation
+def get_regions_in_visit(db: Session, visit_id: str) -> List[str]:
+    """Every body_region already submitted under this visit_id, so a new
+    pain point being scored can be checked against what's already been
+    reported in the same visit (see triage_service._connectivity_contributions)."""
+    stmt = select(TriageSession.body_region).where(TriageSession.visit_id == visit_id)
+    return list(db.execute(stmt).scalars().all())
+
+def get_patient_history(db: Session, patient_id: int) -> List[TriageSession]:
+    """Every session the patient ever submitted, newest first — powers
+    the practitioner's visit timeline on the clinical report."""
+    stmt = (
+        select(TriageSession)
+        .where(TriageSession.patient_id == patient_id)
+        .order_by(TriageSession.created_at.desc())
+    )
+    return list(db.execute(stmt).scalars().all())
+
+def get_latest_visit(db: Session, patient_id: int) -> List[TriageSession]:
+    """
+    Returns every TriageSession from the patient's most recent visit.
+
+    "Most recent visit" = every row sharing the visit_id of the patient's
+    newest submission. For older rows created before visit_id existed
+    (visit_id is NULL), this naturally falls back to just that single row,
+    since NULL never matches another NULL in the equality filter below —
+    each null-visit_id row is effectively its own visit of one.
+    """
+    latest_stmt = (
+        select(TriageSession)
+        .where(TriageSession.patient_id == patient_id)
+        .order_by(TriageSession.created_at.desc())
+        .limit(1)
+    )
+    latest = db.execute(latest_stmt).scalar_one_or_none()
+    if latest is None:
+        return []
+
+    if latest.visit_id is None:
+        return [latest]
+
+    stmt = (
+        select(TriageSession)
+        .where(
+            TriageSession.patient_id == patient_id,
+            TriageSession.visit_id == latest.visit_id,
+        )
+        .order_by(TriageSession.created_at.asc())
+    )
+    return list(db.execute(stmt).scalars().all())
