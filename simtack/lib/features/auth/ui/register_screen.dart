@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../dashboard/ui/practitioner_dashboard_screen.dart';
@@ -58,10 +59,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
         labelText: label,
         prefixIcon: Icon(icon, color: const Color(0xFF6D28D9)),
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppPalette.inputFill(context),
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+            borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppPalette.border(context))),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: const BorderSide(color: Color(0xFF6D28D9), width: 2)),
@@ -131,11 +132,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppPalette.scaffold(context),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF8FAFC),
+        backgroundColor: AppPalette.scaffold(context),
         elevation: 0,
-        foregroundColor: const Color(0xFF1E293B),
+        foregroundColor: AppPalette.textPrimary(context),
         title: const Text('Create Practitioner Account'),
       ),
       body: SafeArea(
@@ -151,10 +152,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   children: [
                     const Icon(Icons.medical_services_rounded, size: 56, color: Color(0xFF6D28D9)),
                     const SizedBox(height: 12),
-                    const Text(
+                    Text(
                       'Join Simtack Care',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
                     ),
                     const SizedBox(height: 24),
                     if (_errorMessage != null) ...[
@@ -196,7 +197,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      initialValue: _role,
+                      value: _role,
                       decoration: _fieldDecoration(label: 'Role / Title', icon: Icons.badge_outlined),
                       items: _roles
                           .map((role) => DropdownMenuItem(value: role, child: Text(role)))
@@ -215,11 +216,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ? 'Enter your license or registration number.'
                           : null,
                     ),
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.only(top: 6, left: 4),
                       child: Text(
                         'Self-declared for this deployment — verified out-of-band in real rollouts.',
-                        style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                        style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context)),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -258,7 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         suffixIcon: IconButton(
                           icon: Icon(
                               _obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                              color: const Color(0xFF64748B)),
+                              color: AppPalette.textMuted(context)),
                           onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                         ),
                       ),

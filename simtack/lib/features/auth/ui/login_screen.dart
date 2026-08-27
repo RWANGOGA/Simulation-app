@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/auth_service.dart';
 import '../../../core/theme/app_page_route.dart';
@@ -62,7 +63,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppPalette.scaffold(context),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -73,16 +74,16 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 const Icon(Icons.medical_services_rounded, size: 80, color: Color(0xFF6D28D9)),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'Practitioner Portal',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                  style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'Simtack Care',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, color: Color(0xFF64748B), fontWeight: FontWeight.w500),
+                  style: TextStyle(fontSize: 16, color: AppPalette.textMuted(context), fontWeight: FontWeight.w500),
                 ),
                 const SizedBox(height: 48),
                 if (_errorMessage != null)
@@ -111,10 +112,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     labelText: 'Email Address',
                     prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFF6D28D9)),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: AppPalette.inputFill(context),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                     enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                        borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppPalette.border(context))),
                     focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(color: Color(0xFF6D28D9), width: 2)),
@@ -130,14 +131,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFF6D28D9)),
                     suffixIcon: IconButton(
                       icon: Icon(_obscurePassword ? Icons.visibility_outlined : Icons.visibility_off_outlined,
-                          color: const Color(0xFF64748B)),
+                          color: AppPalette.textMuted(context)),
                       onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                     ),
                     filled: true,
-                    fillColor: Colors.white,
+                    fillColor: AppPalette.inputFill(context),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
                     enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFE2E8F0))),
+                        borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: AppPalette.border(context))),
                     focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: const BorderSide(color: Color(0xFF6D28D9), width: 2)),
@@ -165,8 +166,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text('New practitioner?',
-                        style: TextStyle(fontSize: 14, color: Color(0xFF64748B))),
+                    Text('New practitioner?',
+                        style: TextStyle(fontSize: 14, color: AppPalette.textMuted(context))),
                     TextButton(
                       onPressed: _isLoading ? null : () => Navigator.of(context).push(
                         AppPageRoute(builder: (_) => const RegisterScreen()),

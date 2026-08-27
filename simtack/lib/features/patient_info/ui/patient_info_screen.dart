@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
 import '../../body_map/ui/body_map_screen.dart';
@@ -69,14 +70,14 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         prefixIcon: icon != null ? Icon(icon, color: const Color(0xFF6D28D9)) : null,
         helperText: helper,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppPalette.inputFill(context),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderSide: BorderSide(color: AppPalette.border(context)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderSide: BorderSide(color: AppPalette.border(context)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -87,9 +88,9 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppPalette.scaffold(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
@@ -104,18 +105,18 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
+                Text(
                   'Patient Profile',
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: AppPalette.textPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   'This helps us build your body map',
-                  style: TextStyle(fontSize: 15, color: Color(0xFF64748B)),
+                  style: TextStyle(fontSize: 15, color: AppPalette.textMuted(context)),
                 ),
                 const SizedBox(height: 24),
 
@@ -150,20 +151,20 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
 
                       // ----- Optional personal details -----
                       const SizedBox(height: 28),
-                      const Text(
+                      Text(
                         'CONTACT & IDENTITY (OPTIONAL)',
                         style: TextStyle(
                           fontSize: 12,
                           letterSpacing: 1.5,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF64748B),
+                          color: AppPalette.textMuted(context),
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
+                      Text(
                         'Add these so the practitioner can identify and reach you. '
                         'Skip them to stay fully anonymous.',
-                        style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                        style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context)),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
@@ -298,7 +299,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
           color: isSelected ? const Color(0xFF6D28D9) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFE2E8F0),
+            color: isSelected ? const Color(0xFF6D28D9) : AppPalette.border(context),
             width: 2,
           ),
         ),
@@ -308,7 +309,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : const Color(0xFF1E293B),
+            color: isSelected ? Colors.white : AppPalette.textPrimary(context),
           ),
         ),
       ),
@@ -330,10 +331,10 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         labelText: label,
         suffixText: suffix,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppPalette.inputFill(context),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderSide: BorderSide(color: AppPalette.border(context)),
         ),
       ),
       validator: (value) {

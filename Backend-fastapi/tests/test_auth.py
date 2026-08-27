@@ -2,13 +2,14 @@ import uuid
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
+from tests.conftest import DOCTOR_EMAIL, DOCTOR_LOGIN
 
 client = TestClient(app)
 
 def test_login_success():
     response = client.post(
         "/api/v1/auth/login",
-        data={"username": "doctor@simtack.com", "password": "Doctor123!"}
+        data=DOCTOR_LOGIN
     )
     assert response.status_code == 200
     data = response.json()
@@ -18,7 +19,7 @@ def test_login_success():
 def test_login_invalid_password():
     response = client.post(
         "/api/v1/auth/login",
-        data={"username": "doctor@simtack.com", "password": "WrongPassword!"}
+        data={"username": DOCTOR_EMAIL, "password": "WrongPassword!"}
     )
     assert response.status_code == 401
     assert response.json()["detail"] == "Incorrect email or password"
@@ -26,7 +27,7 @@ def test_login_invalid_password():
 def test_read_users_me_success():
     login_response = client.post(
         "/api/v1/auth/login",
-        data={"username": "doctor@simtack.com", "password": "Doctor123!"}
+        data=DOCTOR_LOGIN
     )
     token = login_response.json()["access_token"]
     
@@ -35,11 +36,12 @@ def test_read_users_me_success():
     
     assert response.status_code == 200
     data = response.json()
-    assert data["email"] == "doctor@simtack.com"
+    assert data["email"] == DOCTOR_EMAIL
 
 
 def _unique_email() -> str:
-    return f"newdoc-{uuid.uuid4().hex[:8]}@simtack.com"
+    domain = DOCTOR_EMAIL.split("@")[1]
+    return f"newdoc-{uuid.uuid4().hex[:8]}@{domain}"
 
 
 def test_register_success_with_professional_fields():
@@ -86,7 +88,8 @@ def test_register_rejects_weak_password():
 
 
 def test_register_rejects_invalid_email():
-    for bad in ("not-an-email", "doctor@simtack", "doctor simtack.com"):
+    local = DOCTOR_EMAIL.split("@")[0]
+    for bad in ("not-an-email", f"{local}@simtack", f"{local} simtack.com"):
         response = client.post(
             "/api/v1/auth/register",
             json={"email": bad, "password": "Secure123", "full_name": "Bad Email"},

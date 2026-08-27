@@ -5,6 +5,8 @@ import 'package:http/testing.dart';
 
 import 'package:simtack/core/network/api_client.dart';
 
+import 'test_doctor_credentials.dart';
+
 class FakeTokenStorage implements TokenStorage {
   String? _token;
 
@@ -65,8 +67,8 @@ void main() {
           expect(request.method, 'POST');
           expect(request.headers['Content-Type'], contains('x-www-form-urlencoded'));
           final body = Uri.splitQueryString(request.body);
-          expect(body['username'], 'doctor@simtack.com');
-          expect(body['password'], 'Doctor123!');
+          expect(body['username'], doctorEmail);
+          expect(body['password'], doctorPassword);
           return http.Response(
             jsonEncode({'access_token': 'fake.jwt.token', 'token_type': 'bearer'}),
             200,
@@ -77,7 +79,7 @@ void main() {
           return http.Response(
             jsonEncode({
               'id': 1,
-              'email': 'doctor@simtack.com',
+              'email': doctorEmail,
               'full_name': 'Dr. Jonan',
               'is_active': true,
             }),
@@ -87,9 +89,9 @@ void main() {
         return http.Response('Not found', 404);
       });
 
-      final doctor = await ApiClient.login(email: 'doctor@simtack.com', password: 'Doctor123!');
+      final doctor = await ApiClient.login(email: doctorEmail, password: doctorPassword);
 
-      expect(doctor.email, 'doctor@simtack.com');
+      expect(doctor.email, doctorEmail);
       expect(doctor.fullName, 'Dr. Jonan');
       expect(await storage.read(), 'fake.jwt.token');
       expect(await ApiClient.isLoggedIn, isTrue);
@@ -103,7 +105,7 @@ void main() {
       });
 
       expect(
-        () => ApiClient.login(email: 'doctor@simtack.com', password: 'WrongPassword!'),
+        () => ApiClient.login(email: doctorEmail, password: 'WrongPassword!'),
         throwsA(isA<ApiException>().having((e) => e.isUnauthorized, 'isUnauthorized', isTrue)),
       );
       expect(await storage.read(), isNull);

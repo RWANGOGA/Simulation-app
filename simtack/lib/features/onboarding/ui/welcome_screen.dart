@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
+import '../../settings/ui/accessibility_settings_screen.dart';
 import 'package:intl/intl.dart';
 import '../../../core/storage/draft_storage.dart';
 import '../../../core/storage/draft_sync_service.dart';
@@ -96,7 +98,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void _showDraftPicker() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.white,
+      backgroundColor: AppPalette.surface(context),
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -107,14 +109,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Padding(
+              Padding(
                 padding: EdgeInsets.fromLTRB(24, 20, 24, 8),
                 child: Text(
                   'Saved drafts',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: AppPalette.textPrimary(context),
                   ),
                 ),
               ),
@@ -131,10 +133,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       leading: const Icon(Icons.history_edu_outlined, color: Color(0xFF6D28D9)),
                       title: Text(
                         _draftSubtitle(draft),
-                        style: const TextStyle(fontSize: 13, color: Color(0xFF1E293B)),
+                        style: TextStyle(fontSize: 13, color: AppPalette.textPrimary(context)),
                       ),
                       trailing: IconButton(
-                        icon: const Icon(Icons.delete_outline, size: 20, color: Color(0xFF94A3B8)),
+                        icon: Icon(Icons.delete_outline, size: 20, color: AppPalette.textMuted(context)),
                         tooltip: 'Delete draft',
                         onPressed: () async {
                           await _deleteDraft(draft);
@@ -174,9 +176,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF6D28D9).withValues(alpha: 0.08),
+        color: const Color(0xFF6D28D9).withOpacity(0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF6D28D9).withValues(alpha: 0.3)),
+        border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.3)),
       ),
       child: Row(
         children: [
@@ -188,11 +190,11 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF1E293B)),
+                  style: TextStyle(fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
                 ),
                 Text(
                   _draftSubtitle(draft),
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context)),
                 ),
               ],
             ),
@@ -209,7 +211,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppPalette.scaffold(context),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -222,6 +224,18 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    // Display & accessibility: enlarge/reduce text, dark mode.
+                    IconButton(
+                      tooltip: 'Display & accessibility',
+                      icon: Icon(Icons.tune, color: AppPalette.textMuted(context)),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const AccessibilitySettingsScreen(),
+                          ),
+                        );
+                      },
+                    ),
                     _buildLanguagePill(),
                     const SizedBox(height: 8),
                     TextButton(
@@ -255,20 +269,20 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               const SizedBox(height: 24),
 
               // Header
-              const Text(
+              Text(
                 'Welcome',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
+                  color: AppPalette.textPrimary(context),
                 ),
               ),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'Choose your language',
                 style: TextStyle(
                   fontSize: 15,
-                  color: Color(0xFF64748B),
+                  color: AppPalette.textMuted(context),
                 ),
               ),
               const SizedBox(height: 24),
@@ -325,13 +339,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               const SizedBox(height: 12),
 
               // Privacy caption
-              const Center(
+              Center(
                 child: Text(
                   'Your data stays on this device.\nYou are in control.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
-                    color: Color(0xFF94A3B8),
+                    color: AppPalette.textMuted(context),
                   ),
                 ),
               ),
@@ -347,23 +361,23 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppPalette.surface(context),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppPalette.border(context)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             _selectedLanguage,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
-              color: Color(0xFF1E293B),
+              color: AppPalette.textPrimary(context),
             ),
           ),
           const SizedBox(width: 4),
-          const Icon(Icons.keyboard_arrow_down, size: 16, color: Color(0xFF64748B)),
+          Icon(Icons.keyboard_arrow_down, size: 16, color: AppPalette.textMuted(context)),
         ],
       ),
     );
@@ -381,7 +395,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           color: isSelected ? const Color(0xFF6D28D9) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFE2E8F0),
+            color: isSelected ? const Color(0xFF6D28D9) : AppPalette.border(context),
             width: 2,
           ),
         ),
@@ -391,7 +405,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               Icon(
                 option.icon,
                 size: 20,
-                color: isSelected ? Colors.white : const Color(0xFF64748B),
+                color: isSelected ? Colors.white : AppPalette.textMuted(context),
               ),
               const SizedBox(width: 10),
             ],
@@ -402,7 +416,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
-                  color: isSelected ? Colors.white : const Color(0xFF1E293B),
+                  color: isSelected ? Colors.white : AppPalette.textPrimary(context),
                 ),
               ),
             ),
