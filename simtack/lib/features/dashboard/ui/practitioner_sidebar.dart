@@ -142,8 +142,15 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
                   width: 40,
                   height: 40,
                   decoration: const BoxDecoration(
-                    color: Color(0xFF6D28D9),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFF6D28D9), Color(0xFF8B5CF6)],
+                    ),
                     shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(color: Color(0x406D28D9), blurRadius: 10, offset: Offset(0, 3)),
+                    ],
                   ),
                   child: const Icon(
                     Icons.medical_services,
@@ -213,11 +220,24 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
             decoration: BoxDecoration(
               color: isActive ? const Color(0xFF6D28D9).withValues(alpha: 0.10) : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
+              border: Border(
+                left: BorderSide(
+                  color: isActive ? const Color(0xFF6D28D9) : Colors.transparent,
+                  width: 3,
+                ),
+              ),
             ),
             child: Row(
               children: [
-                Icon(icon, size: 20, color: isActive ? const Color(0xFF6D28D9) : AppPalette.textMuted(context)),
-                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: isActive ? const Color(0xFF6D28D9).withValues(alpha: 0.15) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(icon, size: 18, color: isActive ? const Color(0xFF6D28D9) : AppPalette.textMuted(context)),
+                ),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Text(
                     label,

@@ -11,6 +11,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/theme/app_card.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_header_bar.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import 'qr_scan_screen.dart';
 import 'practitioner_sidebar.dart';
@@ -193,54 +194,17 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
       currentRoute: '/patients',
       contentBuilder: (context, openDrawer) => Column(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            decoration: BoxDecoration(
-              color: AppPalette.surface(context),
-              border: Border(bottom: BorderSide(color: AppPalette.border(context))),
-            ),
-            child: Row(
-              children: [
-                if (openDrawer != null) ...[
-                  IconButton(
-                    icon: const Icon(Icons.menu),
-                    tooltip: 'Menu',
-                    onPressed: openDrawer,
-                  ),
-                  const SizedBox(width: 4),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Patient Overview',
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppPalette.textPrimary(context),
-                        ),
-                      ),
-                      Text(
-                        'Review patient history, body map, and triage data.',
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppPalette.textMuted(context),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)),
-                  tooltip: 'Refresh Data',
-                  onPressed: _enteredCode.isNotEmpty ? () => _loadHistory(_enteredCode) : null,
-                ),
-              ],
-            ),
+          AppHeaderBar(
+            title: 'Patient Overview',
+            subtitle: 'Review patient history, body map, and triage data.',
+            onMenuTap: openDrawer,
+            actions: [
+              AppHeaderIconButton(
+                icon: Icons.refresh,
+                tooltip: 'Refresh Data',
+                onPressed: _enteredCode.isNotEmpty ? () => _loadHistory(_enteredCode) : null,
+              ),
+            ],
           ),
           Expanded(
             child: SingleChildScrollView(
@@ -607,6 +571,24 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
       );
 
   Widget _emptyHint(String text) => Center(
-        child: Padding(padding: const EdgeInsets.symmetric(vertical: 24), child: Text(text, textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context)))),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF6D28D9).withValues(alpha: 0.10),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.history, color: Color(0xFF6D28D9), size: 26),
+              ),
+              const SizedBox(height: 12),
+              Text(text, textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context))),
+            ],
+          ),
+        ),
       );
 }

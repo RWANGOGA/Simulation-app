@@ -8,6 +8,7 @@ import 'package:printing/printing.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/app_header_bar.dart';
 import 'practitioner_sidebar.dart';
 
 const List<Color> _chartPalette = [
@@ -96,54 +97,30 @@ class _ReportsScreenState extends State<ReportsScreen> {
       currentRoute: '/reports',
       contentBuilder: (context, openDrawer) => Column(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            decoration: BoxDecoration(
-              color: AppPalette.surface(context),
-              border: Border(bottom: BorderSide(color: AppPalette.border(context))),
-            ),
-            child: Row(
-              children: [
-                if (openDrawer != null) ...[
-                  IconButton(
-                    icon: const Icon(Icons.menu),
-                    tooltip: 'Menu',
-                    onPressed: openDrawer,
-                  ),
-                  const SizedBox(width: 4),
-                ],
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Reports',
-                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
-                      ),
-                      Text(
-                        'Aggregate breakdown across every triage session on record.',
-                        style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context)),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
+          AppHeaderBar(
+            title: 'Reports',
+            subtitle: 'Aggregate breakdown across every triage session on record.',
+            onMenuTap: openDrawer,
+            actions: [
+              if (_reports != null && (_reports!['total'] as int? ?? 0) > 0)
+                AppHeaderIconButton(
+                  icon: Icons.download_outlined,
+                  tooltip: 'Download PDF report',
+                  onPressed: _isExporting ? null : _exportPdf,
+                  loadingChild: _isExporting
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        )
+                      : null,
                 ),
-                if (_reports != null && (_reports!['total'] as int? ?? 0) > 0)
-                  IconButton(
-                    icon: _isExporting
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(Icons.download_outlined, color: Color(0xFF6D28D9)),
-                    tooltip: 'Download PDF report',
-                    onPressed: _isExporting ? null : _exportPdf,
-                  ),
-                IconButton(
-                  icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)),
-                  tooltip: 'Refresh',
-                  onPressed: _loadReports,
-                ),
-              ],
-            ),
+              AppHeaderIconButton(
+                icon: Icons.refresh,
+                tooltip: 'Refresh',
+                onPressed: _loadReports,
+              ),
+            ],
           ),
           Expanded(
             child: _isLoading
@@ -223,7 +200,15 @@ class _ReportsScreenState extends State<ReportsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.inbox_outlined, size: 48, color: AppPalette.textMuted(context)),
+                  Container(
+                    width: 72,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF6D28D9).withValues(alpha: 0.10),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.inbox_outlined, size: 32, color: Color(0xFF6D28D9)),
+                  ),
                   const SizedBox(height: 12),
                   Text('No triage sessions in this period.', style: TextStyle(color: AppPalette.textMuted(context))),
                 ],
@@ -304,15 +289,20 @@ class _ReportsScreenState extends State<ReportsScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppPalette.surface(context),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppPalette.border(context)),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [color.withValues(alpha: 0.10), color.withValues(alpha: 0.03)],
+          ),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: color.withValues(alpha: 0.25)),
+          boxShadow: [BoxShadow(color: color.withValues(alpha: 0.08), blurRadius: 10, offset: const Offset(0, 3))],
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: color.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(10)),
               child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(width: 12),
