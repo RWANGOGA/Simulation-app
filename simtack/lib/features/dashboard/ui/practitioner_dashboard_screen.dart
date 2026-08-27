@@ -258,21 +258,22 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (_stats != null)
-              Row(
+              Wrap(
+                spacing: 16,
+                runSpacing: 16,
                 children: [
                   _buildStatCard('Total', _stats!['total'].toString(), const Color(0xFF6D28D9), Icons.people),
-                  const SizedBox(width: 16),
                   _buildStatCard('High Risk', _stats!['high_risk'].toString(), const Color(0xFFDC2626), Icons.warning),
-                  const SizedBox(width: 16),
                   _buildStatCard('Medium Risk', _stats!['medium_risk'].toString(), const Color(0xFFF59E0B), Icons.trending_up),
-                  const SizedBox(width: 16),
                   _buildStatCard('Low Risk', _stats!['low_risk'].toString(), const Color(0xFF16A34A), Icons.check_circle),
                 ],
               ),
 
             const SizedBox(height: 24),
 
-            Row(
+            Wrap(
+              spacing: 16,
+              runSpacing: 16,
               children: [
                 _buildActionCard(
                   'Patient Lookup',
@@ -281,7 +282,6 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                   const Color(0xFF6D28D9),
                   () => _navigateToPatientOverview(),
                 ),
-                const SizedBox(width: 16),
                 _buildActionCard(
                   'New Triage',
                   'Start a new patient triage session',
@@ -298,9 +298,18 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
 
             const SizedBox(height: 24),
 
-            Row(
+            // Wrap, not Row: the search field + QR button + two dropdown
+            // filters have a combined minimum width that can exceed a
+            // narrow window on its own, before the sidebar even takes its
+            // share — a plain Row can't shrink the fixed-width filters,
+            // so it overflows outright rather than squeezing gracefully.
+            Wrap(
+              spacing: 12,
+              runSpacing: 12,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                Expanded(
+                SizedBox(
+                  width: 260,
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: 'Search Patient ID (e.g., P-...)',
@@ -320,25 +329,20 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                   ),
                 ),
                 if (!kIsWeb)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 12),
-                    child: IconButton.filled(
-                      tooltip: 'Scan patient QR',
-                      style: IconButton.styleFrom(
-                        backgroundColor: const Color(0xFF6D28D9),
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
-                      icon: const Icon(Icons.qr_code_scanner),
-                      onPressed: _scanQr,
+                  IconButton.filled(
+                    tooltip: 'Scan patient QR',
+                    style: IconButton.styleFrom(
+                      backgroundColor: const Color(0xFF6D28D9),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
+                    icon: const Icon(Icons.qr_code_scanner),
+                    onPressed: _scanQr,
                   ),
-                const SizedBox(width: 12),
                 _buildDropdownFilter(_selectedRisk, Icons.filter_list, ['All', 'High', 'Med', 'Low'], (value) {
                   setState(() => _selectedRisk = value == 'All' ? null : value);
                   _loadData();
                 }),
-                const SizedBox(width: 12),
                 _buildDropdownFilter(_selectedStatus, Icons.folder_open, ['Any', 'Open', 'Closed'], (value) {
                   setState(() => _selectedStatus = value == 'Any' ? null : value?.toLowerCase());
                   _loadData();
@@ -574,7 +578,13 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
   }
 
   Widget _buildStatCard(String label, String value, Color color, IconData icon) {
-    return Expanded(
+    // A fixed minimum width inside a Wrap (see the call site) instead of
+    // Expanded inside a Row — on a narrow window the fixed-width sidebar
+    // can leave almost no room for 4 Expanded cards, squeezing each one
+    // toward zero width and wrapping their text one letter per line. Wrap
+    // lets cards that don't fit drop to a new line instead of collapsing.
+    return SizedBox(
+      width: 180,
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -608,7 +618,9 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
   }
 
   Widget _buildActionCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
-    return Expanded(
+    // Same fixed-width-inside-Wrap reasoning as _buildStatCard above.
+    return SizedBox(
+      width: 280,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
