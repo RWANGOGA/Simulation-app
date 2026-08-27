@@ -4,9 +4,9 @@ import 'package:camera/camera.dart';
 class PPGProcessor {
   final List<double> _signalBuffer = [];
   // Sliding window of brightness samples. How many real seconds this spans
-  // depends on the actual camera frame rate, which we now MEASURE from
-  // sample timestamps instead of assuming 60fps (the web canvas loop
-  // delivers ~30fps, which used to halve/double the computed heart rate).
+  // depends on the actual camera frame rate, which is measured from sample
+  // timestamps rather than assumed, since actual capture rate varies by
+  // device/browser.
   final int _bufferSize = 256;
 
   // Timestamps of the most recent samples, used to estimate the real fps.

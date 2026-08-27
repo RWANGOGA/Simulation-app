@@ -10,6 +10,7 @@ import 'pain_details_screen.dart';
 import 'pain_point.dart';
 import 'web_interop.dart';
 import '../../../core/theme/app_page_route.dart';
+import '../../../l10n/app_localizations.dart';
 
 class BodyMapScreen extends StatefulWidget {
   final int patientId;
@@ -27,8 +28,7 @@ class BodyMapScreen extends StatefulWidget {
 
   /// Picks the body model variant matching the patient's gender.
   /// BMI (weightKg/heightCm) isn't used yet — there's only one build per
-  /// gender today. Once BMI-varied versions of these models exist, branch
-  /// on bmi here the same way the old slim/average/heavy logic did.
+  /// gender today.
   String get modelAsset {
     final file = gender == 'Male' ? 'human_body_male.glb' : 'human_body_female.glb';
     return kIsWeb ? 'models/$file' : 'assets/models/$file';
@@ -250,6 +250,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppPalette.scaffold(context),
       appBar: AppBar(
@@ -260,7 +261,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          'Body Map - Select Pain',
+          t.bodyMapSelectPainTitle,
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -336,7 +337,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                           children: [
                             _buildOverlayTool(
                               icon: Icons.center_focus_strong_outlined,
-                              tooltip: 'Reset View',
+                              tooltip: t.resetViewTooltip,
                               onTap: () {
                                 HapticFeedback.lightImpact();
                                 setState(() {
@@ -349,7 +350,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                             const SizedBox(height: 8),
                             _buildOverlayTool(
                               icon: Icons.sync,
-                              tooltip: 'Rotate Model',
+                              tooltip: t.rotateModelTooltip,
                               onTap: () {
                                 final angles = ['front', 'right', 'back', 'left'];
                                 final currentIndex = angles.indexOf(_viewAngle);
@@ -359,7 +360,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                             const SizedBox(height: 8),
                             _buildOverlayTool(
                               icon: Icons.add,
-                              tooltip: 'Zoom In',
+                              tooltip: t.zoomInTooltip,
                               onTap: () {
                                 HapticFeedback.selectionClick();
                                 setState(() => _zoomLevel = (_zoomLevel + 0.15).clamp(0.7, 2.0));
@@ -369,7 +370,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                             const SizedBox(height: 8),
                             _buildOverlayTool(
                               icon: Icons.remove,
-                              tooltip: 'Zoom Out',
+                              tooltip: t.zoomOutTooltip,
                               onTap: () {
                                 HapticFeedback.selectionClick();
                                 setState(() => _zoomLevel = (_zoomLevel - 0.15).clamp(0.7, 2.0));
@@ -450,8 +451,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                               const SizedBox(width: 6),
                               Text(
                                 _painPoints.isEmpty
-                                    ? 'Tap a body part'
-                                    : '${_painPoints.length} location${_painPoints.length == 1 ? '' : 's'} selected',
+                                    ? t.tapABodyPartLabel
+                                    : t.locationsSelectedLabel(_painPoints.length),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -487,10 +488,10 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildViewButton('Front', 'front'),
-                _buildViewButton('Back', 'back'),
-                _buildViewButton('Left', 'left'),
-                _buildViewButton('Right', 'right'),
+                _buildViewButton(t.viewFront, 'front'),
+                _buildViewButton(t.viewBack, 'back'),
+                _buildViewButton(t.viewLeft, 'left'),
+                _buildViewButton(t.viewRight, 'right'),
               ],
             ),
           ),
@@ -526,8 +527,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                     children: [
                       Text(
                         _painPoints.isEmpty
-                            ? 'Tap the body to mark pain'
-                            : 'Continue to Pain Details (${_painPoints.length})',
+                            ? t.tapBodyToMarkPain
+                            : t.continueToPainDetailsButton(_painPoints.length),
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -607,10 +608,10 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   }
 
   /// Shows every currently-marked location with a remove button, plus an
-  /// "Add another location" entry point into the same preset-region list
-  /// the old single-select picker used (now additive instead of
-  /// overwriting the selection).
+  /// "Add another location" entry point into the preset-region list —
+  /// additive, doesn't overwrite the existing selection.
   void _showSelectedLocationsSheet() {
+    final t = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
       backgroundColor: AppPalette.surface(context),
@@ -634,7 +635,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       child: Text(
-                        'Pain Locations',
+                        t.painLocationsSheetTitle,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -647,7 +648,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
                         child: Text(
-                          'No locations marked yet. Tap anywhere on the body to add one.',
+                          t.noLocationsMarkedHint,
                           style: TextStyle(color: AppPalette.textMuted(context)),
                         ),
                       ),
@@ -664,7 +665,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                             title: Text(point.region),
                             trailing: IconButton(
                               icon: const Icon(Icons.close, color: Color(0xFFEF4444)),
-                              tooltip: 'Remove',
+                              tooltip: t.removeTooltip,
                               onPressed: () {
                                 _removePainPointAt(index);
                                 sheetSetState(() {});
@@ -677,9 +678,9 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                     const Divider(height: 24),
                     ListTile(
                       leading: const Icon(Icons.add_circle_outline, color: Color(0xFF6D28D9)),
-                      title: const Text(
-                        'Add another location',
-                        style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF6D28D9)),
+                      title: Text(
+                        t.addAnotherLocationLabel,
+                        style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF6D28D9)),
                       ),
                       onTap: () {
                         Navigator.of(sheetContext).pop();
@@ -697,6 +698,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   }
 
   void _showRegionPickerModal() {
+    final t = AppLocalizations.of(context)!;
     final regions = [
       'Abdomen (Lower Right)',
       'Abdomen (Lower Left)',
@@ -727,7 +729,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Text(
-                  'Select Pain Location',
+                  t.selectPainLocationTitle,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -774,36 +776,37 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   }
 
   void _showHelp() {
+    final t = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.help_outline, color: Color(0xFF6D28D9)),
-            SizedBox(width: 8),
-            Text('How to use Body Map'),
+            const Icon(Icons.help_outline, color: Color(0xFF6D28D9)),
+            const SizedBox(width: 8),
+            Text(t.bodyMapHelpTitle),
           ],
         ),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('• 3D Body (OpenHuman model): Rotate & inspect in 360°.'),
-            SizedBox(height: 8),
-            Text('• Tap on body parts to mark pain locations — tap as many as you need.'),
-            SizedBox(height: 8),
-            Text('• Tap the same spot again to remove that marker.'),
-            SizedBox(height: 8),
-            Text('• Use camera tools on the left overlay to zoom in/out or reset.'),
-            SizedBox(height: 8),
-            Text('• Toggle Front, Back, Left, or Right views with bottom tabs.'),
+            Text(t.bodyMapHelpBullet1),
+            const SizedBox(height: 8),
+            Text(t.bodyMapHelpBullet2),
+            const SizedBox(height: 8),
+            Text(t.bodyMapHelpBullet3),
+            const SizedBox(height: 8),
+            Text(t.bodyMapHelpBullet4),
+            const SizedBox(height: 8),
+            Text(t.bodyMapHelpBullet5),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Got it', style: TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
+            child: Text(t.gotItButton, style: const TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
           ),
         ],
       ),

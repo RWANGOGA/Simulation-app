@@ -14,12 +14,11 @@ import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode, debugPrint;
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
 import '../../../core/widgets/shap_explanation_card.dart';
+import '../../../l10n/app_localizations.dart';
 
 // --- CONFIGURATION ---
 // Base URL of the Flutter web app that the QR / share links deep-link
 // into (#/report/<patientId>, parsed by main.dart via Uri.base.fragment).
-// Was previously a hardcoded dev-machine LAN IP, which produced dead QR
-// codes for anyone not on that exact Wi-Fi network.
 String get kReportBaseUrl {
   if (kIsWeb) {
     // On web, link into the very deployment the patient is already using
@@ -134,6 +133,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
   // the relevant app/service using url_launcher.
   Future<void> _showWebShareSheet(BuildContext context) async {
     final message = 'Clinical Report for Patient ${widget.patientId}: $_reportUrl';
+    final t = AppLocalizations.of(context)!;
 
     await showModalBottomSheet(
       context: context,
@@ -148,7 +148,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Share Report',
+                  t.shareReportSheetTitle,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
                 ),
                 const SizedBox(height: 20),
@@ -157,7 +157,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   children: [
                     _shareOption(
                       icon: Icons.chat,
-                      label: 'WhatsApp',
+                      label: t.whatsappLabel,
                       color: const Color(0xFF25D366),
                       onTap: () => _launchAndClose(
                         sheetContext,
@@ -166,7 +166,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     ),
                     _shareOption(
                       icon: Icons.email,
-                      label: 'Email',
+                      label: t.emailLabel,
                       color: const Color(0xFF6D28D9),
                       onTap: () => _launchAndClose(
                         sheetContext,
@@ -175,7 +175,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     ),
                     _shareOption(
                       icon: Icons.sms,
-                      label: 'SMS',
+                      label: t.smsLabel,
                       color: const Color(0xFF0EA5E9),
                       onTap: () => _launchAndClose(
                         sheetContext,
@@ -184,14 +184,14 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     ),
                     _shareOption(
                       icon: Icons.copy,
-                      label: 'Copy Link',
+                      label: t.copyLinkLabel,
                       color: AppPalette.textMuted(context),
                       onTap: () async {
                         await Clipboard.setData(ClipboardData(text: message));
                         if (sheetContext.mounted) Navigator.of(sheetContext).pop();
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Link copied to clipboard')),
+                            SnackBar(content: Text(t.linkCopiedSnackbar)),
                           );
                         }
                       },
@@ -248,14 +248,25 @@ class _SuccessScreenState extends State<SuccessScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final worst = widget.worstResult;
     final riskScore = worst.riskScore;
     final hasScore = riskScore != null;
     final isHighRisk = hasScore && riskScore >= 0.7;
     final riskColor = isHighRisk ? const Color(0xFFDC2626) : const Color(0xFF16A34A);
+    // worst.riskLevel already reads "HIGH RISK"/"MEDIUM RISK"/"LOW RISK" —
+    // build the localized level word from the same thresholds directly
+    // rather than appending another translated "Risk" onto that string.
+    final riskWord = !hasScore
+        ? null
+        : riskScore >= 0.7
+            ? t.statHighRiskLabel
+            : riskScore >= 0.4
+                ? t.statMediumRiskLabel
+                : t.statLowRiskLabel;
     final riskLabel = hasScore
-        ? '${worst.riskLevel} Risk (${(riskScore * 100).toInt()}%)'
-        : 'Risk Assessment Pending';
+        ? '$riskWord (${(riskScore * 100).toInt()}%)'
+        : t.riskAssessmentPendingLabel;
 
     return Scaffold(
       backgroundColor: AppPalette.scaffold(context),
@@ -279,7 +290,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
               const SizedBox(height: 16),
 
               Text(
-                'Report Submitted!',
+                t.reportSubmittedTitle,
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
               ),
 
@@ -294,14 +305,14 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Patient ID', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
+                        Text(t.patientIdLabel, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
                         Text(widget.patientId, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
                       ],
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text('Timestamp', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
+                        Text(t.timestampLabel, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
                         Text(DateTime.now().toString().substring(0, 16), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
                       ],
                     ),
@@ -320,7 +331,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   borderWidth: 2,
                   child: Column(
                     children: [
-                      const Text('Encrypted QR Passport', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9), letterSpacing: 1)),
+                      Text(t.encryptedQrPassportLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9), letterSpacing: 1)),
                       const SizedBox(height: 12),
                       QrImageView(
                         data: _reportUrl,
@@ -329,8 +340,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
                         backgroundColor: AppPalette.surface(context),
                       ),
                       const SizedBox(height: 12),
-                      Text('No internet required to view', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
-                      Text('Show this QR code to the health worker', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
+                      Text(t.noInternetRequiredHint, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
+                      Text(t.showQrToHealthWorkerHint, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
                     ],
                   ),
                 ),
@@ -347,7 +358,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   children: [
                     Icon(isHighRisk ? Icons.warning_amber_rounded : Icons.check_circle_outline, color: riskColor, size: 20),
                     const SizedBox(width: 8),
-                    Text('AI Assessment: $riskLabel', style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: riskColor)),
+                    Text(t.aiAssessmentLabel(riskLabel), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: riskColor)),
                   ],
                 ),
               ),
@@ -380,7 +391,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                       icon: _isProcessing
                           ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
                           : const Icon(Icons.download, size: 20),
-                      label: const Text('Save', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      label: Text(t.saveButton, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6D28D9),
                         foregroundColor: Colors.white,
@@ -395,13 +406,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     child: OutlinedButton.icon(
                       onPressed: _isProcessing ? null : () => _captureAndShare(isSave: false),
                       icon: const Icon(Icons.share, size: 20),
-                      label: const Text('Share', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFF6D28D9),
-                        side: const BorderSide(color: Color(0xFF6D28D9), width: 2),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
+                      label: Text(t.shareButton),
                     ),
                   ),
                 ],
@@ -421,15 +426,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.history, color: Color(0xFF6D28D9), size: 22),
-                  label: const Text(
-                    'View My Triage History',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9)),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: Color(0xFF6D28D9), width: 2),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
+                  icon: const Icon(Icons.history, size: 22),
+                  label: Text(t.viewHistoryButton),
                 ),
               ),
 
@@ -438,7 +436,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
               // --- START NEW TRIAGE ---
               TextButton(
                 onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                child: Text('Start New Triage', style: TextStyle(color: AppPalette.textMuted(context), fontSize: 14, fontWeight: FontWeight.w500)),
+                child: Text(t.startNewTriageButton, style: TextStyle(color: AppPalette.textMuted(context), fontSize: 14, fontWeight: FontWeight.w500)),
               ),
             ],
           ),

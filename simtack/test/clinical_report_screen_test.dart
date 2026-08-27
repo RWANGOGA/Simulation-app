@@ -6,6 +6,13 @@ import 'package:http/testing.dart';
 
 import 'package:simtack/core/network/api_client.dart';
 import 'package:simtack/features/report/ui/clinical_report_screen.dart';
+import 'package:simtack/l10n/app_localizations.dart';
+
+Widget _wrap(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: child,
+    );
 
 Map<String, dynamic> _session({
   required int id,
@@ -59,9 +66,7 @@ void main() {
 
   group('ClinicalReportScreen Widget Tests', () {
     testWidgets('renders initial loading indicator and watermark', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: ClinicalReportScreen(patientId: 'TEST-12345'),
-      ));
+      await tester.pumpWidget(_wrap(const ClinicalReportScreen(patientId: 'TEST-12345')));
 
       expect(find.text('SIMTACK CARE'), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -89,9 +94,7 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(const MaterialApp(
-        home: ClinicalReportScreen(patientId: 'P-TEST12345678', practitionerMode: true),
-      ));
+      await tester.pumpWidget(_wrap(const ClinicalReportScreen(patientId: 'P-TEST12345678', practitionerMode: true)));
       await tester.pumpAndSettle();
 
       expect(find.text('VISIT TIMELINE'), findsOneWidget);
@@ -122,9 +125,7 @@ void main() {
         return http.Response('Not found', 404);
       });
 
-      await tester.pumpWidget(const MaterialApp(
-        home: ClinicalReportScreen(patientId: 'P-TEST12345678'),
-      ));
+      await tester.pumpWidget(_wrap(const ClinicalReportScreen(patientId: 'P-TEST12345678')));
       await tester.pumpAndSettle();
 
       expect(find.text('VISIT TIMELINE'), findsNothing);
@@ -152,9 +153,7 @@ void main() {
         return http.Response('Not found', 404);
       });
 
-      await tester.pumpWidget(const MaterialApp(
-        home: ClinicalReportScreen(patientId: 'P-TEST12345678'),
-      ));
+      await tester.pumpWidget(_wrap(const ClinicalReportScreen(patientId: 'P-TEST12345678')));
       await tester.pumpAndSettle();
 
       expect(find.text('WHY THIS SCORE?'), findsOneWidget);
@@ -183,9 +182,7 @@ void main() {
         return http.Response('Not found', 404);
       });
 
-      await tester.pumpWidget(const MaterialApp(
-        home: ClinicalReportScreen(patientId: 'P-TEST12345678'),
-      ));
+      await tester.pumpWidget(_wrap(const ClinicalReportScreen(patientId: 'P-TEST12345678')));
       await tester.pumpAndSettle();
 
       expect(find.text('+40%'), findsOneWidget);

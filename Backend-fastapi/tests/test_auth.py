@@ -2,6 +2,7 @@ import uuid
 import pytest
 from fastapi.testclient import TestClient
 from app.main import app
+from app.core.config import settings
 from tests.conftest import DOCTOR_EMAIL, DOCTOR_LOGIN
 
 client = TestClient(app)
@@ -105,3 +106,56 @@ def test_register_rejects_blank_name():
     )
     assert response.status_code == 400
     assert response.json()["detail"] == "Full name is required"
+
+
+@pytest.fixture
+def invite_code_required():
+    """Temporarily requires an invite code, restoring the original
+    (open-by-default) setting afterward regardless of test outcome."""
+    original = settings.INVITE_CODE
+    settings.INVITE_CODE = "LET-ME-IN"
+    yield "LET-ME-IN"
+    settings.INVITE_CODE = original
+
+
+def test_register_open_when_invite_code_unset():
+    assert settings.INVITE_CODE == ""
+    response = client.post(
+        "/api/v1/auth/register",
+        json={"email": _unique_email(), "password": "Secure123", "full_name": "No Gate"},
+    )
+    assert response.status_code == 201
+
+
+def test_register_rejects_missing_invite_code(invite_code_required):
+    response = client.post(
+        "/api/v1/auth/register",
+        json={"email": _unique_email(), "password": "Secure123", "full_name": "Gate Test"},
+    )
+    assert response.status_code == 403
+
+
+def test_register_rejects_wrong_invite_code(invite_code_required):
+    response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": _unique_email(),
+            "password": "Secure123",
+            "full_name": "Gate Test",
+            "invite_code": "WRONG-CODE",
+        },
+    )
+    assert response.status_code == 403
+
+
+def test_register_accepts_correct_invite_code(invite_code_required):
+    response = client.post(
+        "/api/v1/auth/register",
+        json={
+            "email": _unique_email(),
+            "password": "Secure123",
+            "full_name": "Gate Test",
+            "invite_code": invite_code_required,
+        },
+    )
+    assert response.status_code == 201

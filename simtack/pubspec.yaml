@@ -10,6 +10,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   http: ^1.2.0
   model_viewer_plus: ^1.7.0
   webview_flutter: ^4.8.0    # JavaScriptMessage type for the mobile 3D tap bridge
@@ -23,11 +25,14 @@ dependencies:
   universal_html: ^2.2.4     # REQUIRED: For triggering web downloads
   cross_file: ^0.3.4+2
   pointer_interceptor: ^0.10.1
-  intl: ^0.19.0     # REQUIRED: For handling file data in share_plus
+  intl: ^0.19.0     # REQUIRED: For handling file data in share_plus, and by flutter_localizations
   url_launcher: ^6.2.5
   shared_preferences: ^2.3.3
   flutter_secure_storage: ^10.3.1
   web: ^1.1.0                # dart:html/dart:js_util replacement (js_util was removed from the SDK)
+  fl_chart: ^0.69.0
+  pdf: ^3.11.1
+  printing: ^5.13.3
 
 dev_dependencies:
   flutter_test:
@@ -38,6 +43,23 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
   assets:
     - assets/models/
     - assets/avatars/
+  fonts:
+    # Inter (SIL OFL) — bundled as an asset, not fetched at runtime, since
+    # the app has to work fully offline. It's a variable font: every weight
+    # below maps to the same file, and Skia picks the right instance.
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-Variable.ttf
+          weight: 400
+        - asset: assets/fonts/Inter-Variable.ttf
+          weight: 500
+        - asset: assets/fonts/Inter-Variable.ttf
+          weight: 600
+        - asset: assets/fonts/Inter-Variable.ttf
+          weight: 700
+        - asset: assets/fonts/Inter-Variable.ttf
+          weight: 800

@@ -7,6 +7,7 @@ import 'pain_point.dart';
 import '../../vitals/ui/vitals_capture_screen.dart'; // <-- Import for the next screen
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
+import '../../../l10n/app_localizations.dart';
 
 class PainDetailsScreen extends StatefulWidget {
   final List<PainPoint> painPoints;
@@ -85,6 +86,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
   @override
   Widget build(BuildContext context) {
     final point = _currentPoint;
+    final t = AppLocalizations.of(context)!;
 
     return Scaffold(
       backgroundColor: AppPalette.scaffold(context),
@@ -97,8 +99,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
         ),
         title: Text(
           widget.painPoints.length > 1
-              ? '3. Pain Details (${_currentIndex + 1} of ${widget.painPoints.length})'
-              : '3. Pain Details',
+              ? t.painDetailsTitleWithProgress(_currentIndex + 1, widget.painPoints.length)
+              : t.painDetailsTitle,
           style: TextStyle(
             color: AppPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
@@ -176,7 +178,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Pain Location',
+                                t.painLocationLabel,
                                 style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), fontWeight: FontWeight.w500),
                               ),
                               Text(
@@ -314,14 +316,14 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Row(
+                                        Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Icon(Icons.north_east_outlined, size: 16, color: Color(0xFF6D28D9)),
-                                            SizedBox(width: 4),
+                                            const Icon(Icons.north_east_outlined, size: 16, color: Color(0xFF6D28D9)),
+                                            const SizedBox(width: 4),
                                             Text(
-                                              'Direction',
-                                              style: TextStyle(
+                                              t.directionLabel,
+                                              style: const TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.bold,
                                                 color: Color(0xFF6D28D9),
@@ -374,14 +376,14 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.end,
                                       children: [
-                                        const Row(
+                                        Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            Icon(Icons.layers_outlined, size: 16, color: Color(0xFF6D28D9)),
-                                            SizedBox(width: 4),
+                                            const Icon(Icons.layers_outlined, size: 16, color: Color(0xFF6D28D9)),
+                                            const SizedBox(width: 4),
                                             Text(
-                                              'Depth',
-                                              style: TextStyle(
+                                              t.depthLabel,
+                                              style: const TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.bold,
                                                 color: Color(0xFF6D28D9),
@@ -422,7 +424,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
 
                   // Pain Type Chips — bound to this point specifically.
                   Text(
-                    'Pain Type',
+                    t.painTypeLabel,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -480,7 +482,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Pain Intensity',
+                        t.painIntensityLabel,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -559,13 +561,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                       height: 54,
                       child: OutlinedButton(
                         onPressed: _goToPreviousPoint,
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(color: Color(0xFF6D28D9)),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 20),
-                        ),
+                        style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20)),
                         child: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
                       ),
                     ),
@@ -588,7 +584,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              _isLastPoint ? 'Next: Measure Vitals' : 'Next Location',
+                              _isLastPoint ? t.nextMeasureVitalsButton : t.nextLocationButton,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -612,36 +608,37 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
   }
 
   void _showHelp() {
+    final t = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.help_outline, color: Color(0xFF6D28D9)),
-            SizedBox(width: 8),
-            Text('Pain Details Guide'),
+            const Icon(Icons.help_outline, color: Color(0xFF6D28D9)),
+            const SizedBox(width: 8),
+            Text(t.painDetailsHelpTitle),
           ],
         ),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('• If you marked more than one location, you\'ll fill in details for each one in turn.'),
-            SizedBox(height: 8),
-            Text('• Use the Direction dropdown to specify where the pain moves (e.g. Towards Back).'),
-            SizedBox(height: 8),
-            Text('• Use the Depth dropdown to specify how deep the pain feels (Deep, Moderate, Superficial).'),
-            SizedBox(height: 8),
-            Text('• Tap pain type chips (Sharp, Dull, Burning, Cramping).'),
-            SizedBox(height: 8),
-            Text('• Slide to set pain intensity scale from 1 to 10 — each location can be different.'),
+            Text(t.painDetailsHelpBullet1),
+            const SizedBox(height: 8),
+            Text(t.painDetailsHelpBullet2),
+            const SizedBox(height: 8),
+            Text(t.painDetailsHelpBullet3),
+            const SizedBox(height: 8),
+            Text(t.painDetailsHelpBullet4),
+            const SizedBox(height: 8),
+            Text(t.painDetailsHelpBullet5),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Got it', style: TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
+            child: Text(t.gotItButton, style: const TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
           ),
         ],
       ),

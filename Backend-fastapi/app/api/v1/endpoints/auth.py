@@ -35,6 +35,8 @@ class DoctorCreate(BaseModel):
     phone: Optional[str] = None
     hospital_name: Optional[str] = None
     date_of_birth: Optional[date] = None
+    # Required only once settings.INVITE_CODE is set — see register_doctor.
+    invite_code: Optional[str] = None
 
 def _is_valid_email(value: str) -> bool:
     if " " in value:
@@ -112,6 +114,11 @@ def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
     NOTE: registration is open by design for this deployment — gate it
     (invite code / admin-only) before any production use.
     """
+    if settings.INVITE_CODE and payload.invite_code != settings.INVITE_CODE:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Invalid or missing invite code",
+        )
     email = payload.email.strip().lower()
     full_name = payload.full_name.strip()
     if not _is_valid_email(email):
