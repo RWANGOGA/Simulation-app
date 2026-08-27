@@ -71,7 +71,7 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
         color: AppPalette.surface(context),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 20,
             offset: const Offset(4, 0),
           ),
@@ -156,7 +156,7 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: isActive ? const Color(0xFF6D28D9).withValues(alpha: 0.10) : Colors.transparent,
+              color: isActive ? const Color(0xFF6D28D9).withOpacity(0.10) : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Row(
