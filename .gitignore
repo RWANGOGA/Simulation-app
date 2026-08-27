@@ -13,11 +13,17 @@ Backend-fastapi/.env
 Backend-fastapi/**/__pycache__/
 Backend-fastapi/**/*.pyc
 
-# Flutter frontend
-atomybridge_patient/.dart_tool/
-atomybridge_patient/build/
-atomybridge_patient/.flutter-plugins
-atomybridge_patient/.flutter-plugins-dependencies
-atomybridge_patient/android/.gradle
-atomybridge_patient/ios/Pods/
-atomybridge_patient/ios/.symlinks/
+# Flutter frontend (app folder is now named simtack)
+simtack/.dart_tool/
+simtack/build/
+simtack/.flutter-plugins
+simtack/.flutter-plugins-dependencies
+simtack/android/.gradle
+simtack/ios/Pods/
+simtack/ios/.symlinks/
+
+# Qoder / IDE tooling cache
+.qoder/
+
+# Local 3D model tooling/scratch (not part of the app)
+model-source/
