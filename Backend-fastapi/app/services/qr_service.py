@@ -16,7 +16,7 @@ _fernet = Fernet(settings.QR_SECRET_KEY.encode())
 def generate_qr_payload(triage_session) -> str:
     """Builds and encrypts the compact passport payload for a triage session."""
     payload = {
-        "patient_id": triage_session.patient.anonymous_code,   # e.g. "P-7FQ0A3"
+        "patient_id": triage_session.patient.anonymous_code,  
         "triage_id": triage_session.id,
         "risk_score": triage_session.risk_score,
         "priority": risk_level(triage_session.risk_score).capitalize(),
