@@ -9,6 +9,7 @@ import 'package:simtack/core/network/api_client.dart';
 import 'package:simtack/core/storage/draft_storage.dart';
 import 'package:simtack/features/body_map/ui/pain_point.dart';
 import 'package:simtack/features/review/ui/review_screen.dart';
+import 'package:simtack/l10n/app_localizations.dart';
 
 void main() {
   final defaultClient = ApiClient.httpClient;
@@ -51,6 +52,8 @@ void main() {
       });
 
       await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: ReviewScreen(
           painPoints: [
             PainPoint(region: 'Chest / Heart', x: 0.5, y: 0.3),

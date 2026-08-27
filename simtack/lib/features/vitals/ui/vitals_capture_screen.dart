@@ -8,6 +8,7 @@ import '../core/web_ppg_capture.dart';
 import '../../body_map/ui/pain_point.dart';
 import '../../review/ui/review_screen.dart';
 import '../../../core/theme/app_page_route.dart';
+import '../../../l10n/app_localizations.dart';
 
 class VitalsCaptureScreen extends StatefulWidget {
   // All pain locations the patient marked, each already carrying its own
@@ -35,7 +36,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
   bool _hasPermission = false;
   double _currentBPM = 0;
   double _currentSpO2 = 0;
-  String _statusMessage = 'Tap "Start Measurement"';
+  String? _statusMessage;
 
   @override
   void initState() {
@@ -87,7 +88,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
               _currentBPM = _ppgProcessor!.currentBPM;
               _currentSpO2 = _ppgProcessor!.currentSpO2;
               _isMeasuring = true;
-              _statusMessage = 'Measuring... Keep finger steady';
+              _statusMessage = AppLocalizations.of(context)!.measuringKeepFingerSteadyStatus;
             });
           }
         },
@@ -96,7 +97,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
       if (mounted) {
         setState(() {
           _isMeasuring = true;
-          _statusMessage = 'Measuring... Keep finger steady over the camera';
+          _statusMessage = AppLocalizations.of(context)!.measuringKeepFingerSteadyStatus;
         });
       }
 
@@ -126,8 +127,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
       if (!status.isGranted) {
         if (mounted) {
           setState(() {
-            _statusMessage =
-                'Camera permission is needed to measure your heart rate. Please allow camera access and try again.';
+            _statusMessage = AppLocalizations.of(context)!.cameraPermissionNeededStatus;
           });
         }
         return;
@@ -160,7 +160,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
 
       if (mounted) {
         setState(() {
-          _statusMessage = 'Measuring... Keep finger steady';
+          _statusMessage = AppLocalizations.of(context)!.measuringKeepFingerSteadyStatus;
         });
       }
 
@@ -176,7 +176,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
               _currentBPM = _ppgProcessor!.currentBPM;
               _currentSpO2 = _ppgProcessor!.currentSpO2;
               _isMeasuring = true;
-              _statusMessage = 'Measuring... Keep finger steady';
+              _statusMessage = AppLocalizations.of(context)!.measuringKeepFingerSteadyStatus;
             });
           }
         }
@@ -221,7 +221,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
     if (mounted) {
       setState(() {
         _isMeasuring = false;
-        _statusMessage = 'Measurement complete!';
+        _statusMessage = AppLocalizations.of(context)!.measurementCompleteStatus;
       });
     }
   }
@@ -236,6 +236,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppPalette.surface(context),
       appBar: AppBar(
@@ -246,7 +247,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
-          '4. Vitals Capture',
+          t.vitalsCaptureTitle,
           style: TextStyle(color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold),
         ),
       ),
@@ -260,7 +261,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildVitalCircle('Signal Quality', _currentSpO2 > 0 ? _signalQualityLabel(_currentSpO2) : '--', Colors.teal, Icons.graphic_eq),
+                _buildVitalCircle(t.signalQualityLabel, _currentSpO2 > 0 ? _signalQualityLabel(context, _currentSpO2) : '--', Colors.teal, Icons.graphic_eq),
                 _buildVitalCircle('BPM', _currentBPM > 0 ? '${_currentBPM.toInt()}' : '--', const Color(0xFF6D28D9), Icons.favorite),
               ],
             ),
@@ -288,7 +289,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
                               children: [
                                 const Icon(Icons.fingerprint, size: 64, color: Color(0xFF6D28D9)),
                                 const SizedBox(height: 16),
-                                Text('Camera Ready', style: TextStyle(color: AppPalette.textMuted(context))),
+                                Text(t.cameraReadyLabel, style: TextStyle(color: AppPalette.textMuted(context))),
                               ],
                             ),
                           ))
@@ -303,7 +304,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
                               children: [
                                 const Icon(Icons.fingerprint, size: 64, color: Color(0xFF6D28D9)),
                                 const SizedBox(height: 16),
-                                Text('Camera Ready', style: TextStyle(color: AppPalette.textMuted(context))),
+                                Text(t.cameraReadyLabel, style: TextStyle(color: AppPalette.textMuted(context))),
                               ],
                             ),
                           )),
@@ -313,7 +314,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
             const SizedBox(height: 30),
 
             Text(
-              _statusMessage,
+              _statusMessage ?? t.tapStartMeasurementStatus,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 16,
@@ -323,7 +324,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Place your finger gently over the back camera and flash',
+              t.placeFingerHint,
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: AppPalette.textMuted(context)),
             ),
@@ -342,7 +343,7 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(
-                  _currentBPM > 0 ? 'Next: Review & Submit' : (_isMeasuring ? 'Measuring...' : 'Start Measurement'),
+                  _currentBPM > 0 ? t.nextReviewSubmitButton : (_isMeasuring ? t.measuringEllipsisButton : t.startMeasurementButton),
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white),
                 ),
               ),
@@ -358,10 +359,11 @@ class _VitalsCaptureScreenState extends State<VitalsCaptureScreen> {
   // can't measure blood oxygen without a second/infrared wavelength).
   // Shown as a qualitative signal-quality label so it's never mistaken for
   // a clinical SpO2 percentage.
-  String _signalQualityLabel(double proxyValue) {
-    if (proxyValue >= 97) return 'Excellent';
-    if (proxyValue >= 94) return 'Good';
-    return 'Weak';
+  String _signalQualityLabel(BuildContext context, double proxyValue) {
+    final t = AppLocalizations.of(context)!;
+    if (proxyValue >= 97) return t.signalExcellent;
+    if (proxyValue >= 94) return t.signalGood;
+    return t.signalWeak;
   }
 
   Widget _buildVitalCircle(String label, String value, Color color, IconData icon) {

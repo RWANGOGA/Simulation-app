@@ -9,6 +9,7 @@ import '../../success/ui/success_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
 import '../../body_map/ui/pain_point.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ReviewScreen extends StatefulWidget {
   final List<PainPoint> painPoints;
@@ -120,7 +121,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('⚠️ Could not submit — saved offline, will retry automatically: $e'),
+          content: Text(AppLocalizations.of(context)!.submitFailedSavedOfflineSnackbar('$e')),
           backgroundColor: const Color(0xFFF59E0B),
           duration: const Duration(seconds: 5),
         ),
@@ -145,9 +146,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('✅ Draft saved offline successfully!'),
-          backgroundColor: Color(0xFF16A34A),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.draftSavedSnackbar),
+          backgroundColor: const Color(0xFF16A34A),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -163,19 +164,20 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: AppPalette.scaffold(context),
       appBar: AppBar(
         backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)), onPressed: () => Navigator.of(context).pop()),
-        title: Text('5. Review & Submit', style: TextStyle(color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold, fontSize: 18)),
+        title: Text(t.reviewSubmitTitle, style: TextStyle(color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold, fontSize: 18)),
         centerTitle: true,
         actions: [
           TextButton.icon(
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(Icons.edit_outlined, color: Color(0xFF6D28D9), size: 18),
-            label: const Text('Edit', style: TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
+            label: Text(t.editButton, style: const TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -190,13 +192,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
               children: [
                 Column(crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Anonymous Patient', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
-                    const Text('ID generated on submit', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6D28D9))),
+                    Text(t.anonymousPatientLabel, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
+                    Text(t.idGeneratedOnSubmitLabel, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6D28D9))),
                   ],
                 ),
                 Column(crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text('Timestamp', style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
+                    Text(t.timestampLabel, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
                     Text(_timestamp, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
                   ],
                 ),
@@ -211,7 +213,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Clinical Summary', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+                  Text(t.clinicalSummaryTitle, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
                   const SizedBox(height: 16),
 
                   ...widget.painPoints.asMap().entries.map((entry) {
@@ -225,19 +227,19 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Pain Point ${index + 1}',
+                              t.painPointNumberLabel(index + 1),
                               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9)),
                             ),
                             const SizedBox(height: 12),
-                            _buildSummaryRow('Location', point.region, Icons.location_on),
+                            _buildSummaryRow(t.locationLabel, point.region, Icons.location_on),
                             const Divider(height: 24),
-                            _buildSummaryRow('Pain Type', point.painType, Icons.sick),
+                            _buildSummaryRow(t.painTypeLabel, point.painType, Icons.sick),
                             const Divider(height: 24),
-                            _buildSummaryRow('Intensity', '${point.severity} / 10', Icons.straighten),
+                            _buildSummaryRow(t.intensityLabel, '${point.severity} / 10', Icons.straighten),
                             const Divider(height: 24),
-                            _buildSummaryRow('Direction', point.direction, Icons.arrow_right_alt),
+                            _buildSummaryRow(t.directionLabel, point.direction, Icons.arrow_right_alt),
                             const Divider(height: 24),
-                            _buildSummaryRow('Depth', point.depth, Icons.layers),
+                            _buildSummaryRow(t.depthLabel, point.depth, Icons.layers),
                           ],
                         ),
                       ),
@@ -245,22 +247,22 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   }),
 
                   const SizedBox(height: 8),
-                  Text('Vitals', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+                  Text(t.vitalsTitle, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
                   const SizedBox(height: 16),
                   AppCard(
                     width: double.infinity,
                     child: Row(
                       children: [
-                        Expanded(child: _buildVitalMiniCard('Heart Rate', '${widget.heartRate.toInt()} BPM', Icons.favorite, const Color(0xFF6D28D9))),
+                        Expanded(child: _buildVitalMiniCard(t.heartRateLabel, '${widget.heartRate.toInt()} BPM', Icons.favorite, const Color(0xFF6D28D9))),
                         const SizedBox(width: 12),
-                        Expanded(child: _buildVitalMiniCard('SpO2 (est.)', '${widget.spo2.toInt()}%', Icons.air, Colors.green)),
+                        Expanded(child: _buildVitalMiniCard(t.spo2EstLabel, '${widget.spo2.toInt()}%', Icons.air, Colors.green)),
                       ],
                     ),
                   ),
 
                   const SizedBox(height: 24),
                   Text(
-                    'By submitting, you consent to sharing this clinical data with the attending physician for triage purposes.',
+                    t.consentSubmitNotice,
                     style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context), fontStyle: FontStyle.italic),
                   ),
                 ],
@@ -279,7 +281,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       onPressed: _isSavingDraft ? null : _saveDraft,
                       child: _isSavingDraft
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Text('Save Draft'),
+                        : Text(t.saveDraftButton),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -296,10 +298,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       ),
                       child: _isSubmitting
                         ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                        : const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Text('Submit', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                            SizedBox(width: 8),
-                            Icon(Icons.send, color: Colors.white, size: 20),
+                        : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                            Text(t.submitButton, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
+                            const SizedBox(width: 8),
+                            const Icon(Icons.send, color: Colors.white, size: 20),
                           ]),
                     ),
                   ),
