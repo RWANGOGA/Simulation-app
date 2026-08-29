@@ -11,7 +11,7 @@ import '../../report/ui/clinical_report_screen.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import 'qr_scan_screen.dart';
-import 'practitioner_sidebar.dart';
+import 'practitioner_scaffold.dart';
 import 'patient_overview_pane.dart';
 import '../../onboarding/ui/welcome_screen.dart';
 
