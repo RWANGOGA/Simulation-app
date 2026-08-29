@@ -4,7 +4,8 @@ import '../../../core/theme/app_page_route.dart';
 import '../../auth/ui/login_screen.dart';
 import '../../../core/network/auth_service.dart';
 import 'practitioner_dashboard_screen.dart';
-import '..../settings/accessibility_settings_screen.dart';
+import 'patient_overview_pane.dart';
+import '../../settings/ui/accessibility_settings_screen.dart';
 
 class PractitionerSidebar extends StatelessWidget {
   final String currentRoute;
@@ -287,7 +288,7 @@ class PractitionerSidebar extends StatelessWidget {
         break;
       case '/patients':
         Navigator.of(context).push(
-          AppPageRoute(builder: (_) => const PatientOverviewPane()),
+          AppPageRoute(builder: (_) => const PatientOverviewScreen()),
         );
         break;
       case '/settings':
