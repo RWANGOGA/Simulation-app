@@ -15,7 +15,7 @@ import '../../../core/theme/app_header_bar.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import 'qr_scan_screen.dart';
-import 'practitioner_sidebar.dart';
+import 'practitioner_scaffold.dart';
 
 const _regionPositions = <String, Offset>{
   'Headache / Cranial': Offset(0.50, 0.08),
