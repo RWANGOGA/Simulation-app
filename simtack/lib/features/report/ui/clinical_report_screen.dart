@@ -988,6 +988,15 @@ class _EditDemographicsSheetState extends State<_EditDemographicsSheet> {
     super.dispose();
   }
 
+  int _calculateAge(DateTime dob) {
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+    return age;
+  }
+
   Future<void> _pickDateOfBirth() async {
     final now = DateTime.now();
     final picked = await showDatePicker(
@@ -997,7 +1006,12 @@ class _EditDemographicsSheetState extends State<_EditDemographicsSheet> {
       lastDate: now,
       helpText: AppLocalizations.of(context)!.dateOfBirthHelpText,
     );
-    if (picked != null) setState(() => _dateOfBirth = picked);
+    if (picked != null) {
+      setState(() {
+        _dateOfBirth = picked;
+        _ageController.text = _calculateAge(picked).toString();
+      });
+    }
   }
 
   Future<void> _save() async {
@@ -1134,11 +1148,11 @@ class _EditDemographicsSheetState extends State<_EditDemographicsSheet> {
                   InkWell(
                     onTap: _pickDateOfBirth,
                     child: InputDecorator(
-                      decoration: _decoration(t.dateOfBirthLabel),
+                      decoration: _decoration(t.ageLabel),
                       child: Text(
                         _dateOfBirth == null
                             ? t.notSetLabel
-                            : '${_dateOfBirth!.year.toString().padLeft(4, '0')}-${_dateOfBirth!.month.toString().padLeft(2, '0')}-${_dateOfBirth!.day.toString().padLeft(2, '0')}',
+                            : '${_calculateAge(_dateOfBirth!)} ${t.yearsSuffix}',
                         style: TextStyle(color: _dateOfBirth == null ? const Color(0xFF94A3B8) : const Color(0xFF1E293B)),
                       ),
                     ),

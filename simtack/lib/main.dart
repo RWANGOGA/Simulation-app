@@ -110,9 +110,11 @@ class _AtomyBridgeAppState extends State<AtomyBridgeApp> {
                 ? const WelcomeScreen()
                 : LanguageScreen(localeController: _locale)));
 
-    return A11yScope(
-      controller: _accessibility,
-      child: MaterialApp(
+    return LocaleScope(
+      controller: _locale,
+      child: A11yScope(
+        controller: _accessibility,
+        child: MaterialApp(
         title: 'Simtack',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
@@ -148,8 +150,9 @@ class _AtomyBridgeAppState extends State<AtomyBridgeApp> {
         },
         
         // 4. The app starts exactly where it is supposed to!
-        home: initialScreen, 
+        home: initialScreen,
       ),
-    );
+    ),
+  );
   }
 }

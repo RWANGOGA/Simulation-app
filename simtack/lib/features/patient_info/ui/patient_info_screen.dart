@@ -44,10 +44,14 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
     super.dispose();
   }
 
-  String _formatDob(DateTime dob) =>
-      '${dob.year.toString().padLeft(4, '0')}-'
-      '${dob.month.toString().padLeft(2, '0')}-'
-      '${dob.day.toString().padLeft(2, '0')}';
+  int _calculateAge(DateTime dob) {
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+    return age;
+  }
 
   Future<void> _pickDateOfBirth() async {
     final now = DateTime.now();
@@ -58,7 +62,12 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
       lastDate: now,
       helpText: AppLocalizations.of(context)!.dateOfBirthHelpText,
     );
-    if (picked != null) setState(() => _dateOfBirth = picked);
+    if (picked != null) {
+      setState(() {
+        _dateOfBirth = picked;
+        _ageController.text = _calculateAge(picked).toString();
+      });
+    }
   }
 
   InputDecoration _fieldDecoration({
@@ -182,11 +191,11 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                         child: AbsorbPointer(
                           child: TextFormField(
                             decoration: _fieldDecoration(
-                              label: t.dateOfBirthLabel,
+                              label: t.ageLabel,
                               icon: Icons.cake_outlined,
                             ),
                             controller: TextEditingController(
-                              text: _dateOfBirth != null ? _formatDob(_dateOfBirth!) : '',
+                              text: _dateOfBirth != null ? '${_calculateAge(_dateOfBirth!)} ${t.yearsSuffix}' : '',
                             ),
                           ),
                         ),

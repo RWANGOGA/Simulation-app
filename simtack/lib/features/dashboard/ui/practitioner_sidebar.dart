@@ -9,13 +9,43 @@ import '../../settings/ui/accessibility_settings_screen.dart';
 // 🌟 ADDED: Import for the new Session History screen
 import '../../history/ui/practitioner_session_history_screen.dart';
 
-class PractitionerSidebar extends StatelessWidget {
+class PractitionerSidebar extends StatefulWidget {
   final String currentRoute;
 
   const PractitionerSidebar({
     super.key,
     required this.currentRoute,
   });
+
+  @override
+  State<PractitionerSidebar> createState() => _PractitionerSidebarState();
+}
+
+class _PractitionerSidebarState extends State<PractitionerSidebar> {
+  String? _doctorName;
+  String? _doctorEmail;
+  String? _hospitalName;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDoctor();
+  }
+
+  Future<void> _loadDoctor() async {
+    try {
+      final doctor = await AuthService.instance.getCurrentDoctor();
+      if (mounted) {
+        setState(() {
+          _doctorName = doctor.fullName;
+          _doctorEmail = doctor.email;
+          _hospitalName = doctor.hospitalName;
+        });
+      }
+    } catch (_) {
+      // Keep fallbacks if the fetch fails
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +179,7 @@ class PractitionerSidebar extends StatelessWidget {
     required String route,
     VoidCallback? onTap,
   }) {
-    final isActive = currentRoute == route;
+    final isActive = widget.currentRoute == route;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
@@ -210,6 +240,10 @@ class PractitionerSidebar extends StatelessWidget {
   }
 
   Widget _buildFooter(BuildContext context) {
+    final displayName = _doctorName?.trim().isNotEmpty == true ? _doctorName!.trim() : 'Dr. Practitioner';
+    final displayEmail = _doctorEmail?.trim().isNotEmpty == true ? _doctorEmail!.trim() : 'doctor@simtack.com';
+    final displayHospital = _hospitalName?.trim().isNotEmpty == true ? _hospitalName!.trim() : null;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -218,7 +252,6 @@ class PractitionerSidebar extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // User info
           Row(
             children: [
               const CircleAvatar(
@@ -235,16 +268,24 @@ class PractitionerSidebar extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Dr. Practitioner',
-                      style: TextStyle(
+                    Text(
+                      displayName,
+                      style: const TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF1E293B),
                       ),
                     ),
+                    if (displayHospital != null)
+                      Text(
+                        displayHospital,
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: AppPalette.textMuted(context),
+                        ),
+                      ),
                     Text(
-                      'doctor@simtack.com',
+                      displayEmail,
                       style: TextStyle(
                         fontSize: 11,
                         color: AppPalette.textMuted(context),

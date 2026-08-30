@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../core/accessibility/accessibility_controller.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../../core/locale/locale_controller.dart';
+import '../../../l10n/app_localizations.dart';
+import 'language_picker_sheet.dart';
 
 /// Scope that exposes the app-wide [AccessibilityController] to every
 /// screen below the root MaterialApp, so settings can be read or changed
@@ -36,6 +39,7 @@ class AccessibilitySettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = A11yScope.of(context);
+    final localeController = LocaleScope.of(context);
     return Scaffold(
       backgroundColor: AppPalette.scaffold(context),
       appBar: AppBar(
@@ -152,6 +156,48 @@ class AccessibilitySettingsScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 24),
+            _sectionLabel(context, 'LANGUAGE'),
+            _card(
+              context,
+              child: FutureBuilder<LocaleController>(
+                future: Future.value(localeController),
+                builder: (context, snapshot) {
+                  final lc = snapshot.data ?? localeController;
+                  final currentCode = lc.locale?.languageCode ?? (lc.isSignLanguage ? LocaleController.signLanguageCode : 'en');
+                  return ListTile(
+                    leading: const Icon(Icons.translate, color: Color(0xFF6D28D9)),
+                    title: Text(
+                      'App Language',
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: AppPalette.textPrimary(context),
+                      ),
+                    ),
+                    subtitle: Text(
+                      _languageName(context, currentCode),
+                      style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context)),
+                    ),
+                    trailing: const Icon(Icons.chevron_right, color: Color(0xFF6D28D9)),
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: Colors.white,
+                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+                        builder: (ctx) => LanguagePickerSheet(
+                          currentCode: currentCode,
+                          onChanged: (code) async {
+                            final controller = LocaleController.load();
+                            await controller.then((c) => c.setLanguage(code));
+                          },
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -246,9 +292,29 @@ class AccessibilitySettingsScreen extends StatelessWidget {
         ),
       ),
       subtitle: Text(
-        subtitle,
+         subtitle,
         style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context)),
       ),
     );
+  }
+
+  String _languageName(BuildContext context, String code) {
+    final t = AppLocalizations.of(context)!;
+    switch (code) {
+      case 'en':
+        return t.languageEnglish;
+      case 'lg':
+        return t.languageLuganda;
+      case 'nyn':
+        return t.languageRunyankole;
+      case 'xog':
+        return t.languageLusoga;
+      case 'sw':
+        return t.languageKiswahili;
+      case LocaleController.signLanguageCode:
+        return t.languageSignLanguage;
+      default:
+        return code;
+    }
   }
 }

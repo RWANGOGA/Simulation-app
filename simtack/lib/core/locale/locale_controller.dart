@@ -58,4 +58,30 @@ class LocaleController extends ChangeNotifier {
       await prefs.setBool(_consentKey, consented);
     } catch (_) {}
   }
+
+  Future<void> setLanguage(String languageCode) async {
+    _isSignLanguage = languageCode == signLanguageCode;
+    _locale = _isSignLanguage ? null : Locale(languageCode);
+    notifyListeners();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_localeKey, languageCode);
+    } catch (_) {}
+  }
+}
+
+/// Inherited widget that exposes [LocaleController] to the subtree so any
+/// screen can read or change the current language without prop drilling.
+class LocaleScope extends InheritedNotifier<LocaleController> {
+  const LocaleScope({
+    super.key,
+    required LocaleController controller,
+    required super.child,
+  }) : super(notifier: controller);
+
+  static LocaleController of(BuildContext context) {
+    final scope = context.dependOnInheritedWidgetOfExactType<LocaleScope>();
+    assert(scope != null, 'LocaleScope missing — wrap the MaterialApp in LocaleScope');
+    return scope!.notifier!;
+  }
 }
