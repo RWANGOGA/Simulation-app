@@ -194,7 +194,13 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onTap ?? () => _navigateToRoute(context, route),
+          onTap: () {
+            if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
+              Navigator.of(context).pop();
+            }
+            onTap?.call();
+            if (onTap == null) _navigateToRoute(context, route);
+          },
           borderRadius: BorderRadius.circular(10),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),

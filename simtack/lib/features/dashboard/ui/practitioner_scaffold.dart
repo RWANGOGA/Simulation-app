@@ -14,19 +14,33 @@ class PractitionerScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppPalette.scaffold(context),
-      body: Row(
-        children: [
-          PractitionerSidebar(currentRoute: currentRoute),
-          Expanded(
-            child: contentBuilder(context, () {
-              // Drawer is always visible on desktop, but this callback
-              // can be used for mobile drawer toggling in the future.
-            }),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isWide = constraints.maxWidth > 600;
+
+        return Scaffold(
+          backgroundColor: AppPalette.scaffold(context),
+          drawer: isWide
+              ? null
+              : Drawer(
+                  width: MediaQuery.of(context).size.width * 0.75,
+                  child: PractitionerSidebar(currentRoute: currentRoute),
+                ),
+          body: Row(
+            children: [
+              if (isWide)
+                PractitionerSidebar(currentRoute: currentRoute),
+              Expanded(
+                child: contentBuilder(context, () {
+                  if (!isWide) {
+                    Scaffold.maybeOf(context)?.openDrawer();
+                  }
+                }),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
