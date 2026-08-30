@@ -3,7 +3,7 @@ description: "Simtack: A Tactile Human Digital Twin Architecture for Accessible 
 publish_to: 'none'
 version: 1.0.0+1
 environment:
-  sdk: '>=3.9.0 <4.0.0'
+  sdk: '>=3.4.4 <4.0.0'
 dependencies:
   flutter:
     sdk: flutter
@@ -20,7 +20,7 @@ dependencies:
   universal_html: ^2.2.4     # REQUIRED: For triggering web downloads
   cross_file: ^0.3.4+2
   pointer_interceptor: ^0.10.1
-  intl: ^0.20.3     # REQUIRED: For handling file data in share_plus, and by flutter_localizations
+  intl: ^0.19.0     # REQUIRED: For handling file data in share_plus, and by flutter_localizations
   url_launcher: ^6.2.5
   shared_preferences: ^2.3.3
   flutter_secure_storage: ^10.3.1

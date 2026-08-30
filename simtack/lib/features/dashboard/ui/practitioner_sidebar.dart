@@ -345,6 +345,7 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
         break;
       case '/patients':
         Navigator.of(context).push(
+          // 🌟 FIXED: Matched the class name to the imported file
           AppPageRoute(builder: (_) => const PatientOverviewScreen()),
         );
         break;
