@@ -12,8 +12,6 @@ import 'package:simtack/features/body_map/ui/pain_point.dart';
 
 TriageDraft _draft({List<PainPoint>? painPoints, DateTime? savedAt}) => TriageDraft(
       painPoints: painPoints ?? [PainPoint(region: 'Chest / Heart', x: 0.5, y: 0.3)],
-      heartRate: 78,
-      spo2: 97,
       patientId: 42,
       savedAt: savedAt ?? DateTime.now(),
     );

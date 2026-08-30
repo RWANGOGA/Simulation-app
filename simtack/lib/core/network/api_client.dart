@@ -172,8 +172,6 @@ class TriageReport {
   final int severity;
   final String? direction;
   final String? depth;
-  final double? heartRate;
-  final double? spo2;
   final int? patientId;
   final String? visitId;
 
@@ -183,8 +181,6 @@ class TriageReport {
     required this.severity,
     this.direction,
     this.depth,
-    this.heartRate,
-    this.spo2,
     this.patientId,
     this.visitId,
   });
@@ -195,8 +191,6 @@ class TriageReport {
         'severity': severity,
         if (direction != null) 'direction': direction,
         if (depth != null) 'depth': depth,
-        if (heartRate != null) 'heart_rate': heartRate,
-        if (spo2 != null) 'spo2': spo2,
         if (patientId != null) 'patient_id': patientId,
         if (visitId != null) 'visit_id': visitId,
       };
@@ -209,8 +203,6 @@ class TriageResult {
   final String bodyRegion;
   final String painType;
   final int severity;
-  final double? heartRate;
-  final double? spo2;
   final String? direction;
   final String? depth;
   final String? visitId;
@@ -246,8 +238,6 @@ class TriageResult {
     required this.bodyRegion,
     required this.painType,
     required this.severity,
-    this.heartRate,
-    this.spo2,
     this.direction,
     this.depth,
     this.visitId,
@@ -287,8 +277,6 @@ class TriageResult {
       bodyRegion: json['body_region'] as String,
       painType: json['pain_type'] as String,
       severity: json['severity'] as int,
-      heartRate: (json['heart_rate'] as num?)?.toDouble(),
-      spo2: (json['spo2'] as num?)?.toDouble(),
       direction: json['direction'] as String?,
       depth: json['depth'] as String?,
       visitId: json['visit_id'] as String?,

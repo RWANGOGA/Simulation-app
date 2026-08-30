@@ -48,27 +48,29 @@ void main() {
     expect(find.byType(LanguageScreen), findsNothing);
   });
 
-  testWidgets('running under the Luganda locale does not crash with "No MaterialLocalizations found"',
+  testWidgets('running under Luganda, Runyankore, or Lusoga does not crash with "No MaterialLocalizations found"',
       (WidgetTester tester) async {
-    // Flutter's own Material/Cupertino localizations don't ship Luganda —
-    // without the fallback delegates in main.dart, setting the app's
-    // locale to "lg" throws the moment any framework widget (a button,
-    // the drafts bottom sheet) needs its default strings. This is a
-    // regression test for that exact crash.
+    // Flutter's own Material/Cupertino localizations don't ship these
+    // codes — without the fallback delegates in main.dart, setting the
+    // app locale throws the moment any framework widget needs default
+    // strings. Kiswahili (`sw`) is shipped by the SDK and is not listed.
     await useTallSurface(tester);
 
-    final locale = LocaleController();
-    await locale.setLanguageAndConsent(languageCode: 'lg', consented: true);
+    for (final code in ['lg', 'nyn', 'xog']) {
+      final locale = LocaleController();
+      await locale.setLanguageAndConsent(languageCode: code, consented: true);
 
-    final errors = <FlutterErrorDetails>[];
-    final originalOnError = FlutterError.onError;
-    FlutterError.onError = (details) => errors.add(details);
-    addTearDown(() => FlutterError.onError = originalOnError);
+      final errors = <FlutterErrorDetails>[];
+      final originalOnError = FlutterError.onError;
+      FlutterError.onError = (details) => errors.add(details);
 
-    await tester.pumpWidget(AtomyBridgeApp(isDoctorLoggedIn: false, locale: locale));
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(AtomyBridgeApp(isDoctorLoggedIn: false, locale: locale));
+      await tester.pumpAndSettle();
 
-    expect(errors, isEmpty);
-    expect(find.byType(WelcomeScreen), findsOneWidget);
+      FlutterError.onError = originalOnError;
+
+      expect(errors, isEmpty, reason: 'locale $code');
+      expect(find.byType(WelcomeScreen), findsOneWidget, reason: 'locale $code');
+    }
   });
 }

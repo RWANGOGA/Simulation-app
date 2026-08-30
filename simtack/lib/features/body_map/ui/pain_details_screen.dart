@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'pain_point.dart';
-import '../../vitals/ui/vitals_capture_screen.dart'; // <-- Import for the next screen
+import '../../review/ui/review_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
 import '../../../l10n/app_localizations.dart';
@@ -70,12 +70,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
     }
 
     // All locations have their details filled in — hand the whole list
-    // forward. Vitals (heart rate / signal quality) are captured once per
-    // visit, not per pain location, so this only happens after the last
-    // point.
+    // forward to the review screen.
     Navigator.of(context).push(
       AppPageRoute(
-        builder: (_) => VitalsCaptureScreen(
+        builder: (_) => ReviewScreen(
           painPoints: widget.painPoints,
           patientId: widget.patientId,
         ),

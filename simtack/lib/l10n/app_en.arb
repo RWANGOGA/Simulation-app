@@ -16,6 +16,18 @@
   "@languageLuganda": {
     "description": "Label for the Luganda language option."
   },
+  "languageRunyankole": "Runyankore",
+  "@languageRunyankole": {
+    "description": "Label for the Runyankore language option (Flutter locale nyn, Sunbird nyn)."
+  },
+  "languageLusoga": "Lusoga",
+  "@languageLusoga": {
+    "description": "Label for the Lusoga language option (Flutter locale xog, Sunbird xog)."
+  },
+  "languageKiswahili": "Kiswahili",
+  "@languageKiswahili": {
+    "description": "Label for the Kiswahili language option (Flutter locale sw, Sunbird swa)."
+  },
   "languageSignLanguage": "Sign Language",
   "@languageSignLanguage": {
     "description": "Label for the sign-language option."
