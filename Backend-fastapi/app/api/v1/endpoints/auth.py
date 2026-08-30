@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.doctor import Doctor
-from app.schemas.doctor import DoctorResponse
+from app.schemas.doctor import DoctorResponse, DoctorUpdate
 
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
@@ -161,4 +161,22 @@ def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
 
 @router.get("/me", response_model=DoctorResponse)
 def read_users_me(current_doctor: Doctor = Depends(get_current_doctor)):
+    return current_doctor
+
+@router.patch("/me", response_model=DoctorResponse)
+def update_users_me(payload: DoctorUpdate, current_doctor: Doctor = Depends(get_current_doctor), db: Session = Depends(get_db)):
+    if payload.full_name is not None:
+        current_doctor.full_name = payload.full_name.strip()
+    if payload.role is not None:
+        current_doctor.role = payload.role.strip() or None
+    if payload.license_number is not None:
+        current_doctor.license_number = payload.license_number.strip() or None
+    if payload.phone is not None:
+        current_doctor.phone = payload.phone.strip() or None
+    if payload.hospital_name is not None:
+        current_doctor.hospital_name = payload.hospital_name.strip() or None
+    if payload.date_of_birth is not None:
+        current_doctor.date_of_birth = payload.date_of_birth
+    db.commit()
+    db.refresh(current_doctor)
     return current_doctor

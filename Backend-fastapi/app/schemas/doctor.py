@@ -15,3 +15,11 @@ class DoctorResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class DoctorUpdate(BaseModel):
+    full_name: Optional[str] = None
+    role: Optional[str] = None
+    license_number: Optional[str] = None
+    phone: Optional[str] = None
+    hospital_name: Optional[str] = None
+    date_of_birth: Optional[date] = None

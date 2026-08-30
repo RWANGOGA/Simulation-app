@@ -8,6 +8,7 @@ import 'patient_overview_pane.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
 // 🌟 ADDED: Import for the new Session History screen
 import '../../history/ui/practitioner_session_history_screen.dart';
+import '../../profile/ui/practitioner_profile_screen.dart';
 
 class PractitionerSidebar extends StatefulWidget {
   final String currentRoute;
@@ -104,6 +105,13 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
                   onTap: () => _scanQR(context),
                 ),
                 const Divider(height: 24, color: Color(0xFFE2E8F0)),
+                _buildNavItem(
+                  context,
+                  icon: Icons.person_outline,
+                  label: 'Profile',
+                  route: '/profile',
+                  onTap: () => _navigateToProfile(context),
+                ),
                 _buildNavItem(
                   context,
                   icon: Icons.settings_outlined,
@@ -331,12 +339,10 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
         break;
       case '/patients':
         Navigator.of(context).push(
-          // 🌟 FIXED: Matched the class name to the imported file
           AppPageRoute(builder: (_) => const PatientOverviewScreen()),
         );
         break;
       case '/sessions':
-        // 🌟 ADDED: Navigate to the new Session History screen
         Navigator.of(context).push(
           AppPageRoute(builder: (_) => const PractitionerSessionHistoryScreen()),
         );
@@ -348,7 +354,13 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
           ),
         );
         break;
-      // Add more routes as we build screens
+      case '/profile':
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const PractitionerProfileScreen(),
+          ),
+        );
+        break;
       default:
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -357,6 +369,10 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
           ),
         );
     }
+  }
+
+  void _navigateToProfile(BuildContext context) {
+    _navigateToRoute(context, '/profile');
   }
 
   void _scanQR(BuildContext context) {
