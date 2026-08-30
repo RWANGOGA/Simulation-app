@@ -556,4 +556,31 @@ class ApiClient {
     }
     throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
   }
+
+  static Future<Doctor> updateDoctorProfile({
+    String? fullName,
+    String? role,
+    String? licenseNumber,
+    String? phone,
+    String? hospitalName,
+    DateTime? dateOfBirth,
+  }) async {
+    final body = <String, dynamic>{};
+    if (fullName != null) body['full_name'] = fullName.trim();
+    if (role != null) body['role'] = role.trim().isEmpty ? null : role.trim();
+    if (licenseNumber != null) body['license_number'] = licenseNumber.trim().isEmpty ? null : licenseNumber.trim();
+    if (phone != null) body['phone'] = phone.trim().isEmpty ? null : phone.trim();
+    if (hospitalName != null) body['hospital_name'] = hospitalName.trim().isEmpty ? null : hospitalName.trim();
+    if (dateOfBirth != null) body['date_of_birth'] = '${dateOfBirth.year.toString().padLeft(4, '0')}-${dateOfBirth.month.toString().padLeft(2, '0')}-${dateOfBirth.day.toString().padLeft(2, '0')}';
+
+    final response = await httpClient.patch(
+      Uri.parse('$baseUrl/auth/me'),
+      headers: await _authHeaders(),
+      body: jsonEncode(body),
+    );
+    if (response.statusCode == 200) {
+      return Doctor.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    }
+    throw ApiException.fromResponse(response.statusCode, response.body);
+  }
 }
