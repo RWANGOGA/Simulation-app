@@ -61,8 +61,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       AppPageRoute(
         builder: (_) => ReviewScreen(
           painPoints: draft.painPoints,
-          heartRate: draft.heartRate,
-          spo2: draft.spo2,
+         
           patientId: draft.patientId,
         ),
       ),

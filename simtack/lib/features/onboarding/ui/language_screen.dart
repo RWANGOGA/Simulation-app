@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/locale/app_languages.dart';
 import '../../../core/locale/locale_controller.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_page_route.dart';
@@ -23,16 +24,18 @@ class _LanguageScreenState extends State<LanguageScreen> {
   bool _consented = false;
   bool _showConsentError = false;
 
-  static const _options = [
-    ('en', Icons.language, null),
-    ('lg', Icons.translate, null),
-    (LocaleController.signLanguageCode, Icons.back_hand_outlined, null),
-  ];
+  static const _options = AppLanguages.pickerOptions;
 
   String _labelFor(AppLocalizations t, String code) {
     switch (code) {
       case 'lg':
         return t.languageLuganda;
+      case 'nyn':
+        return t.languageRunyankole;
+      case 'xog':
+        return t.languageLusoga;
+      case 'sw':
+        return t.languageKiswahili;
       case LocaleController.signLanguageCode:
         return t.languageSignLanguage;
       default:
@@ -90,7 +93,12 @@ class _LanguageScreenState extends State<LanguageScreen> {
                       for (final option in _options)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 12),
-                          child: _languageOption(context, code: option.$1, icon: option.$2, label: _labelFor(t, option.$1)),
+                          child: _languageOption(
+                            context,
+                            code: option.flutterCode,
+                            icon: option.icon,
+                            label: _labelFor(t, option.flutterCode),
+                          ),
                         ),
                       const SizedBox(height: 16),
                       _consentCheckbox(context, t),

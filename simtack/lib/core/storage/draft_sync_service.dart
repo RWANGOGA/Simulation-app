@@ -31,8 +31,6 @@ class DraftSyncService {
             severity: point.severity,
             direction: point.direction,
             depth: point.depth,
-            heartRate: draft.heartRate,
-            spo2: draft.spo2,
             patientId: draft.patientId,
             visitId: visitId,
           ));

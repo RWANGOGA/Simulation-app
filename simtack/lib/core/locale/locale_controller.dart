@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'app_languages.dart';
+
 /// Tracks the patient's chosen app language and whether they've accepted
 /// the data-processing consent shown on the language & consent screen
 /// (blueprint §1). Persisted in SharedPreferences: once consent is given,
@@ -14,14 +16,14 @@ class LocaleController extends ChangeNotifier {
   /// written "sl" translation — it selects sign-language *content*
   /// elsewhere in the app, not a text locale), so it's tracked separately
   /// from [locale] rather than stuffed into supportedLocales.
-  static const signLanguageCode = 'sign';
+  static const signLanguageCode = AppLanguages.signLanguageCode;
 
   Locale? _locale;
   bool _isSignLanguage = false;
   bool _hasConsented = false;
 
   /// Null means "follow system" — only set once the patient actually
-  /// picks English or Luganda.
+  /// picks a written language (see [AppLanguages.pickerOptions]).
   Locale? get locale => _locale;
   bool get isSignLanguage => _isSignLanguage;
   bool get hasConsented => _hasConsented;

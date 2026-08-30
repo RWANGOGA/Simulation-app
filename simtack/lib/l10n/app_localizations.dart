@@ -122,6 +122,24 @@ abstract class AppLocalizations {
   /// **'Luganda'**
   String get languageLuganda;
 
+  /// Label for the Runyankole language option.
+  ///
+  /// In en, this message translates to:
+  /// **'Runyankole'**
+  String get languageRunyankole;
+
+  /// Label for the Lusoga language option.
+  ///
+  /// In en, this message translates to:
+  /// **'Lusoga'**
+  String get languageLusoga;
+
+  /// Label for the Kiswahili language option.
+  ///
+  /// In en, this message translates to:
+  /// **'Kiswahili'**
+  String get languageKiswahili;
+
   /// Label for the sign-language option.
   ///
   /// In en, this message translates to:

@@ -59,8 +59,6 @@ void main() {
             PainPoint(region: 'Chest / Heart', x: 0.5, y: 0.3),
             PainPoint(region: 'Left Arm / Shoulder', x: 0.8, y: 0.3),
           ],
-          heartRate: 80,
-          spo2: 96,
           patientId: 7,
         ),
       ));

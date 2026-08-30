@@ -125,8 +125,8 @@ class _AtomyBridgeAppState extends State<AtomyBridgeApp> {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
           // Flutter's own Material/Cupertino localizations don't ship
-          // Luganda — these fall back to English for framework-owned
-          // chrome text only (see luganda_fallback_delegates.dart).
+          // Luganda, Runyankore, or Lusoga — these fall back to English
+          // for framework-owned chrome text only.
           LugandaMaterialLocalizationsDelegate(),
           LugandaCupertinoLocalizationsDelegate(),
         ],

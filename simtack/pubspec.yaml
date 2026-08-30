@@ -15,8 +15,6 @@ dependencies:
   qr_flutter: ^4.1.0
   mobile_scanner: ^5.2.3     # practitioner QR passport scanner (Android/iOS)
   cupertino_icons: ^1.0.6
-  camera: ^0.10.5
-  permission_handler: ^11.0.1
   math_expressions: ^2.4.0  
   share_plus: ^7.2.1         # To share the link or image
   universal_html: ^2.2.4     # REQUIRED: For triggering web downloads

@@ -13,15 +13,11 @@ import '../../../l10n/app_localizations.dart';
 
 class ReviewScreen extends StatefulWidget {
   final List<PainPoint> painPoints;
-  final double heartRate;
-  final double spo2;
   final int patientId;
 
   const ReviewScreen({
     super.key,
     required this.painPoints,
-    required this.heartRate,
-    required this.spo2,
     required this.patientId,
   });
 
@@ -73,8 +69,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
           severity: point.severity,
           direction: point.direction,
           depth: point.depth,
-          heartRate: widget.heartRate,
-          spo2: widget.spo2,
           patientId: widget.patientId,
           visitId: visitId,
         )));
@@ -108,8 +102,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
         if (remaining.isNotEmpty) {
           await DraftStorage.save(TriageDraft(
             painPoints: remaining,
-            heartRate: widget.heartRate,
-            spo2: widget.spo2,
             patientId: widget.patientId,
             savedAt: DateTime.now(),
           ));
@@ -138,8 +130,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
     try {
       await DraftStorage.save(TriageDraft(
         painPoints: widget.painPoints,
-        heartRate: widget.heartRate,
-        spo2: widget.spo2,
         patientId: widget.patientId,
         savedAt: DateTime.now(),
       ));
@@ -247,19 +237,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   }),
 
                   const SizedBox(height: 8),
-                  Text(t.vitalsTitle, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
-                  const SizedBox(height: 16),
-                  AppCard(
-                    width: double.infinity,
-                    child: Row(
-                      children: [
-                        Expanded(child: _buildVitalMiniCard(t.heartRateLabel, '${widget.heartRate.toInt()} BPM', Icons.favorite, const Color(0xFF6D28D9))),
-                        const SizedBox(width: 12),
-                        Expanded(child: _buildVitalMiniCard(t.spo2EstLabel, '${widget.spo2.toInt()}%', Icons.air, Colors.green)),
-                      ],
-                    ),
-                  ),
-
                   const SizedBox(height: 24),
                   Text(
                     t.consentSubmitNotice,
@@ -329,25 +306,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildVitalMiniCard(String label, String value, IconData icon, Color color) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(12), border: Border.all(color: color.withOpacity(0.3))),
-      child: Row(
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(width: 8),
-          Column(crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(label, style: TextStyle(fontSize: 11, color: color.withOpacity(0.8), fontWeight: FontWeight.w600)),
-              Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
-            ],
-          ),
-        ],
-      ),
     );
   }
 }

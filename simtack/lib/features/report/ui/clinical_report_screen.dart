@@ -393,8 +393,6 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                     _buildDetailRow(t.painTypeLabel, '${report.painType} (${report.severity}/10)', Icons.sick),
                     _buildDetailRow(t.directionLabel, report.direction ?? t.naLabel, Icons.arrow_right_alt),
                     _buildDetailRow(t.depthLabel, report.depth ?? t.naLabel, Icons.layers),
-                    _buildDetailRow(t.heartRateLabel, '${report.heartRate?.toInt() ?? 0} BPM', Icons.favorite),
-                    _buildDetailRow(t.spo2EstLabel, report.spo2 != null ? '${report.spo2!.toInt()}%' : t.naLabel, Icons.air),
                     _buildDetailRow(t.riskLabel, '${_riskLevelDisplay(context, report.riskScore ?? 0.0)} (${((report.riskScore ?? 0.0) * 100).toInt()}%)', Icons.analytics),
                     _buildDetailRow(t.reportedAtLabel, report.createdAt.toString().substring(0, 16), Icons.access_time),
                   ],

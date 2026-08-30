@@ -6,6 +6,8 @@ import '../../../core/network/auth_service.dart';
 import 'practitioner_dashboard_screen.dart';
 import 'patient_overview_pane.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
+// 🌟 ADDED: Import for the new Session History screen
+import '../../history/ui/practitioner_session_history_screen.dart';
 
 class PractitionerSidebar extends StatelessWidget {
   final String currentRoute;
@@ -288,7 +290,14 @@ class PractitionerSidebar extends StatelessWidget {
         break;
       case '/patients':
         Navigator.of(context).push(
+          // 🌟 FIXED: Matched the class name to the imported file
           AppPageRoute(builder: (_) => const PatientOverviewScreen()),
+        );
+        break;
+      case '/sessions':
+        // 🌟 ADDED: Navigate to the new Session History screen
+        Navigator.of(context).push(
+          AppPageRoute(builder: (_) => const PractitionerSessionHistoryScreen()),
         );
         break;
       case '/settings':

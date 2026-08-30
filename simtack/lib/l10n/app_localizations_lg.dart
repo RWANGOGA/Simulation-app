@@ -21,6 +21,15 @@ class AppLocalizationsLg extends AppLocalizations {
   String get languageLuganda => 'Luganda';
 
   @override
+  String get languageRunyankole => 'Runyankole';
+
+  @override
+  String get languageLusoga => 'Lusoga';
+
+  @override
+  String get languageKiswahili => 'Kiswahili';
+
+  @override
   String get languageSignLanguage => 'Olulimi lw\'Emikono';
 
   @override
