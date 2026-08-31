@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:model_viewer_plus/model_viewer_plus.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
 import 'package:intl/intl.dart';
@@ -204,19 +206,161 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     return Scaffold(
       backgroundColor: AppPalette.scaffold(context),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isWide = constraints.maxWidth > 700;
+            return Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: isWide ? _buildWideLayout(context, t) : _buildNarrowLayout(context, t),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNarrowLayout(BuildContext context, AppLocalizations t) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Align(
+          alignment: Alignment.centerRight,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              IconButton(
+                tooltip: t.displayAccessibilityTooltip,
+                icon: Icon(Icons.tune, color: AppPalette.textMuted(context)),
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const AccessibilitySettingsScreen(),
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    AppPageRoute(builder: (_) => const LoginScreen()),
+                  );
+                },
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.lock_outline, size: 16, color: Color(0xFF6D28D9)),
+                    const SizedBox(width: 4),
+                    Text(
+                      t.practitionerLogin,
+                      style: const TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF6D28D9),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        Text(
+          t.welcomeTitle,
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: AppPalette.textPrimary(context),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          t.welcomeSubtitle,
+          style: TextStyle(
+            fontSize: 15,
+            color: AppPalette.textMuted(context),
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        SizedBox(
+          height: 220,
+          child: ModelViewer(
+            src: kIsWeb ? 'models/human_body_male.glb' : 'assets/models/human_body_male.glb',
+            alt: '3D Human Body Model',
+            autoRotate: true,
+            cameraControls: true,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
+        Expanded(
+          child: SingleChildScrollView(
+            child: _buildResumeDraftBanner(),
+          ),
+        ),
+
+        const SizedBox(height: 16),
+
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: ElevatedButton(
+            onPressed: () => _navigateToPatientInfo(),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF6D28D9),
+              disabledBackgroundColor: const Color(0xFFCBD5E1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: Text(
+              t.continueButton,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        Center(
+          child: Text(
+            t.privacyCaption,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12,
+              color: AppPalette.textMuted(context),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  Widget _buildWideLayout(BuildContext context, AppLocalizations t) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // 🚪 Top-right actions: Accessibility + Practitioner Login.
-              // Language is chosen once, earlier, on LanguageScreen.
               Align(
                 alignment: Alignment.centerRight,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Display & accessibility: enlarge/reduce text, dark mode.
                     IconButton(
                       tooltip: t.displayAccessibilityTooltip,
                       icon: Icon(Icons.tune, color: AppPalette.textMuted(context)),
@@ -228,7 +372,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         );
                       },
                     ),
-                    const SizedBox(height: 8),
                     TextButton(
                       onPressed: () {
                         Navigator.of(context).push(
@@ -259,7 +402,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Header
               Text(
                 t.welcomeTitle,
                 style: TextStyle(
@@ -278,19 +420,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Scrollable middle: the draft banner can grow past short
-              // viewports without pushing the footer off-screen.
               Expanded(
                 child: SingleChildScrollView(
                   child: _buildResumeDraftBanner(),
                 ),
               ),
 
-              // Spacer removed — the Expanded above absorbs leftover space,
-              // keeping the footer pinned to the bottom on tall screens.
               const SizedBox(height: 16),
 
-              // Continue Button
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -315,7 +452,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Privacy caption
               Center(
                 child: Text(
                   t.privacyCaption,
@@ -330,7 +466,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ],
           ),
         ),
-      ),
+        const SizedBox(width: 32),
+        Expanded(
+          child: ModelViewer(
+            src: kIsWeb ? 'models/human_body_male.glb' : 'assets/models/human_body_male.glb',
+            alt: '3D Human Body Model',
+            autoRotate: true,
+            cameraControls: true,
+            backgroundColor: Colors.transparent,
+          ),
+        ),
+      ],
     );
   }
 
