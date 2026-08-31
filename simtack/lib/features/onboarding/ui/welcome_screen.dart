@@ -290,12 +290,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
         SizedBox(
           height: 220,
-          child: ModelViewer(
-            src: kIsWeb ? 'models/human_body_male.glb' : 'assets/models/human_body_male.glb',
-            alt: '3D Human Body Model',
-            autoRotate: true,
-            cameraControls: true,
-            backgroundColor: Colors.transparent,
+          child: _ThreeDPlaceholder(
+            web: SizedBox.expand(
+              child: ModelViewer(
+                src: kIsWeb ? 'models/human_body_male.glb' : 'assets/models/human_body_male.glb',
+                alt: '3D Human Body Model',
+                autoRotate: true,
+                cameraControls: true,
+                backgroundColor: Colors.transparent,
+              ),
+            ),
           ),
         ),
 
@@ -358,8 +362,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             children: [
               Align(
                 alignment: Alignment.centerRight,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
+                child: Wrap(
+                  alignment: WrapAlignment.end,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 4,
                   children: [
                     IconButton(
                       tooltip: t.displayAccessibilityTooltip,
@@ -468,12 +474,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         ),
         const SizedBox(width: 32),
         Expanded(
-          child: ModelViewer(
-            src: kIsWeb ? 'models/human_body_male.glb' : 'assets/models/human_body_male.glb',
-            alt: '3D Human Body Model',
-            autoRotate: true,
-            cameraControls: true,
-            backgroundColor: Colors.transparent,
+          child: _ThreeDPlaceholder(
+            web: SizedBox.expand(
+              child: ModelViewer(
+                src: kIsWeb ? 'models/human_body_male.glb' : 'assets/models/human_body_male.glb',
+                alt: '3D Human Body Model',
+                autoRotate: true,
+                cameraControls: true,
+                backgroundColor: Colors.transparent,
+              ),
+            ),
           ),
         ),
       ],
@@ -483,6 +493,56 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void _navigateToPatientInfo() {
     Navigator.of(context).push(
       AppPageRoute(builder: (_) => const PatientInfoScreen()),
+    );
+  }
+}
+
+/// Renders the live 3D model on web, and a static placeholder elsewhere.
+///
+/// On mobile, `model_viewer_plus` instantiates a `webview_flutter` platform
+/// view that has no default stub in widget tests, so we gate it behind
+/// `kIsWeb` to keep the welcome screen testable.
+class _ThreeDPlaceholder extends StatelessWidget {
+  final Widget web;
+  const _ThreeDPlaceholder({required this.web});
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb) return web;
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            const Color(0xFF6D28D9).withOpacity(0.10),
+            const Color(0xFF8B5CF6).withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.2)),
+      ),
+      child: const Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.medical_services, size: 48, color: Color(0xFF6D28D9)),
+            SizedBox(height: 8),
+            Text(
+              '3D body model',
+              style: TextStyle(
+                color: Color(0xFF6D28D9),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(height: 4),
+            Text(
+              'Tap below to start triage',
+              style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
