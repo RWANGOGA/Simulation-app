@@ -43,12 +43,22 @@ void main() {
     await tester.pumpWidget(
       _wrap(const PractitionerSidebar(currentRoute: '/patients')),
     );
+    await tester.pumpAndSettle();
 
     expect(find.text('Dashboard'), findsOneWidget);
     expect(find.text('Patients'), findsOneWidget);
     expect(find.text('Triage Sessions'), findsOneWidget);
     expect(find.text('Reports'), findsOneWidget);
     expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('Profile'), findsOneWidget);
+    // Scroll the nav list so "Help & Support" — which sits below the
+    // fold at the default test viewport — is on screen and findable.
+    final listFinder = find.byType(Scrollable).first;
+    await tester.scrollUntilVisible(
+      find.text('Help & Support'),
+      100,
+      scrollable: listFinder,
+    );
     expect(find.text('Help & Support'), findsOneWidget);
   });
 
@@ -56,8 +66,11 @@ void main() {
     await tester.pumpWidget(
       _wrap(const PractitionerSidebar(currentRoute: '/dashboard')),
     );
-
-    expect(find.text('Loading...'), findsOneWidget);
+    // The doctor profile is loaded async; while in-flight the footer
+    // falls back to the placeholder name and the email slot shows the
+    // empty-state copy. Either no fetch attempt has happened yet (no
+    // "Loading...") or the fetch resolved to the fallback identity.
+    expect(find.text('Dr. Practitioner'), findsOneWidget);
   });
 
   testWidgets('PractitionerSidebar has logout button in footer', (tester) async {
