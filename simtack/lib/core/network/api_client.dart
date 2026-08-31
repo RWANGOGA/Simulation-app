@@ -583,4 +583,156 @@ class ApiClient {
     }
     throw ApiException.fromResponse(response.statusCode, response.body);
   }
+
+  // ── Anatomy assistant (Step 7.5) ──────────────────────────────────────
+
+  static Future<AnatomyInsight> askAnatomy({
+    required String region,
+    String complaint = '',
+    int topK = 3,
+  }) async {
+    final response = await httpClient.post(
+      Uri.parse('$baseUrl/anatomy/ask'),
+      headers: await _authHeaders(),
+      body: jsonEncode({
+        'region': region,
+        'complaint': complaint,
+        'top_k': topK,
+      }),
+    );
+    if (response.statusCode == 200) {
+      return AnatomyInsight.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    }
+    throw ApiException.fromResponse(response.statusCode, response.body);
+  }
+
+  static Future<List<AnatomyRegion>> listAnatomyRegions() async {
+    final response = await httpClient.get(
+      Uri.parse('$baseUrl/anatomy/regions'),
+      headers: await _authHeaders(),
+    );
+    if (response.statusCode != 200) {
+      throw ApiException.fromResponse(response.statusCode, response.body);
+    }
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final list = (body['regions'] as List?) ?? const [];
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(AnatomyRegion.fromJson)
+        .toList();
+  }
+}
+
+/// Lightweight descriptor returned by GET /anatomy/regions. Used to render
+/// pickers and (optionally) to prefetch insights on screen open.
+class AnatomyRegion {
+  final String id;
+  final String region;
+  final String system;
+
+  const AnatomyRegion({required this.id, required this.region, required this.system});
+
+  factory AnatomyRegion.fromJson(Map<String, dynamic> json) => AnatomyRegion(
+        id: (json['id'] as String?) ?? '',
+        region: (json['region'] as String?) ?? '',
+        system: (json['system'] as String?) ?? '',
+      );
+}
+
+/// One likely condition with a short rationale, as returned by the LLM
+/// in /anatomy/ask.
+class AnatomyCondition {
+  final String name;
+  final String rationale;
+
+  const AnatomyCondition({required this.name, required this.rationale});
+
+  factory AnatomyCondition.fromJson(Map<String, dynamic> json) => AnatomyCondition(
+        name: (json['name'] as String?) ?? '',
+        rationale: (json['rationale'] as String?) ?? '',
+      );
+}
+
+/// One retrieved chunk surfaced alongside the LLM answer, so the UI can
+/// show "based on: Chest / Heart, Abdomen (Upper)...".
+class AnatomySource {
+  final String id;
+  final String region;
+  final String system;
+  final double score;
+
+  const AnatomySource({
+    required this.id,
+    required this.region,
+    required this.system,
+    required this.score,
+  });
+
+  factory AnatomySource.fromJson(Map<String, dynamic> json) => AnatomySource(
+        id: (json['id'] as String?) ?? '',
+        region: (json['region'] as String?) ?? '',
+        system: (json['system'] as String?) ?? '',
+        score: (json['score'] as num?)?.toDouble() ?? 0.0,
+      );
+}
+
+/// Full response of POST /anatomy/ask. The `llmUsed` and `cached` flags let
+/// the UI show an "AI" / "KB" / "Cached" badge so the clinician knows where
+/// the answer came from.
+class AnatomyInsight {
+  final String? region;
+  final String complaint;
+  final bool llmUsed;
+  final bool cached;
+  final String summary;
+  final List<String> structures;
+  final List<AnatomyCondition> likelyConditions;
+  final List<String> redFlags;
+  final List<String> suggestedQuestions;
+  final String disclaimer;
+  final List<AnatomySource> sources;
+
+  const AnatomyInsight({
+    required this.region,
+    required this.complaint,
+    required this.llmUsed,
+    required this.cached,
+    required this.summary,
+    required this.structures,
+    required this.likelyConditions,
+    required this.redFlags,
+    required this.suggestedQuestions,
+    required this.disclaimer,
+    required this.sources,
+  });
+
+  factory AnatomyInsight.fromJson(Map<String, dynamic> json) {
+    List<String> strList(String key) {
+      final v = json[key];
+      if (v is List) {
+        return v.whereType<String>().toList();
+      }
+      return const [];
+    }
+
+    return AnatomyInsight(
+      region: json['region'] as String?,
+      complaint: (json['complaint'] as String?) ?? '',
+      llmUsed: (json['llm_used'] as bool?) ?? false,
+      cached: (json['cached'] as bool?) ?? false,
+      summary: (json['summary'] as String?) ?? '',
+      structures: strList('structures'),
+      likelyConditions: ((json['likely_conditions'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(AnatomyCondition.fromJson)
+          .toList(),
+      redFlags: strList('red_flags'),
+      suggestedQuestions: strList('suggested_questions'),
+      disclaimer: (json['disclaimer'] as String?) ?? '',
+      sources: ((json['sources'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(AnatomySource.fromJson)
+          .toList(),
+    );
+  }
 }

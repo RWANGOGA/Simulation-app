@@ -10,6 +10,8 @@ import 'pain_details_screen.dart';
 import 'pain_point.dart';
 import 'web_interop.dart';
 import '../../../core/theme/app_page_route.dart';
+import '../../../core/network/api_client.dart';
+import '../../../core/widgets/anatomy_insight_card.dart';
 import '../../../l10n/app_localizations.dart';
 
 class BodyMapScreen extends StatefulWidget {
@@ -146,6 +148,11 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   // the region in the confirmation bottom sheet.
   ({String region, double x, double y})? _pendingTap;
 
+  // One in-flight AI request per region. Keyed by region label so
+  // re-tapping the same region (toggle-off then on) does not re-fetch
+  // when an answer is already loading.
+  final Map<String, Future<AnatomyInsight>> _anatomyFutures = {};
+
   String _viewAngle = 'front';
   double _zoomLevel = 1.0;
   late AnimationController _pulseController;
@@ -216,7 +223,16 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
 
   void _removePainPointAt(int index) {
     HapticFeedback.lightImpact();
-    setState(() => _painPoints.removeAt(index));
+    final removed = _painPoints[index];
+    setState(() {
+      _painPoints.removeAt(index);
+      // If no other point still references this region, drop the cached
+      // AI insight so it doesn't keep showing for a region the user
+      // un-marked.
+      if (!_painPoints.any((p) => p.region == removed.region)) {
+        _anatomyFutures.remove(removed.region);
+      }
+    });
   }
 
   void _changeView(String angle) {
@@ -266,6 +282,19 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
     HapticFeedback.lightImpact();
     setState(() {
       _painPoints.add(PainPoint(region: region, x: 0.5, y: 0.5));
+    });
+    _requestAnatomyInsight(region);
+  }
+
+  /// Fires a background /anatomy/ask request for the given region. The
+  /// future is stored per-region so the FutureBuilder in the insight
+  /// panel can show loading → ready transitions without rebuilding the
+  /// whole screen. Multiple regions load in parallel.
+  void _requestAnatomyInsight(String region) {
+    if (_anatomyFutures.containsKey(region)) return;
+    final future = ApiClient.askAnatomy(region: region, complaint: '', topK: 3);
+    setState(() {
+      _anatomyFutures[region] = future;
     });
   }
 
@@ -487,6 +516,45 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                         ),
                       ),
                     ),
+                    if (_painPoints.isNotEmpty)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                AppPalette.subtleFill(context).withOpacity(0.0),
+                                AppPalette.subtleFill(context).withOpacity(0.95),
+                              ],
+                            ),
+                          ),
+                          padding: const EdgeInsets.fromLTRB(12, 24, 12, 12),
+                          child: SizedBox(
+                            height: 180,
+                            child: ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _painPoints.length,
+                              separatorBuilder: (_, __) => const SizedBox(width: 8),
+                              itemBuilder: (context, i) {
+                                final point = _painPoints[i];
+                                return SizedBox(
+                                  width: 280,
+                                  child: SingleChildScrollView(
+                                    child: AnatomyInsightCard(
+                                      region: point.region,
+                                      future: _anatomyFutures[point.region],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 );
               },
@@ -742,6 +810,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                               final confirmed = _pendingTap!;
                               _pendingTap = null;
                               _addOrRemovePainPoint(region: selectedRegion, x: confirmed.x, y: confirmed.y);
+                              _requestAnatomyInsight(selectedRegion);
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: const Color(0xFF6D28D9),

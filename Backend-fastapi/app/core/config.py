@@ -12,6 +12,13 @@ class Settings(BaseSettings):
     # registration stays open, matching current behavior — set this once
     # real deployment starts, so signup requires knowing the invite code.
     INVITE_CODE: str = ""
+    # Groq LLM (free tier) for the /anatomy/ask endpoint. When GROQ_API_KEY
+    # is empty, the endpoint still works but skips the LLM and returns the
+    # raw retrieved chunks — useful for local dev without burning quota.
+    GROQ_API_KEY: str = ""
+    GROQ_MODEL: str = "openai/gpt-oss-20b"
+    GROQ_BASE_URL: str = "https://api.groq.com/openai/v1"
+    GROQ_TIMEOUT_SECONDS: float = 20.0
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
 settings = Settings()

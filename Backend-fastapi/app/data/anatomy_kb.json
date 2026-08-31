@@ -1,0 +1,450 @@
+{
+  "version": 1,
+  "description": "Anatomy knowledge base for the Simtack body map. One chunk per region. The retriever uses this with simple cosine similarity over a bag-of-words embedding (see app/services/anatomy_retriever.py). The LLM in /anatomy/ask uses the retrieved chunks as grounded context.",
+  "regions": [
+    {
+      "id": "headache_cranial",
+      "region": "Headache / Cranial",
+      "system": "neurological",
+      "structures": [
+        "Brain (cerebrum)",
+        "Skull (cranium)",
+        "Scalp and pericranial muscles",
+        "Temporal arteries",
+        "Meninges",
+        "Cervical nerves supplying the head"
+      ],
+      "text": "Pain in the cranial region can involve the skull, scalp, meninges, blood vessels, and the upper cervical nerves. Common causes include tension-type headache, migraine, cluster headache, sinusitis, and high blood pressure. Red flags include sudden severe worst-ever headache, fever, neck stiffness, neurological deficits, or a headache after head injury.",
+      "common_conditions": [
+        "Tension-type headache",
+        "Migraine",
+        "Cluster headache",
+        "Sinusitis",
+        "Hypertensive headache"
+      ],
+      "red_flags": [
+        "Sudden worst headache of life",
+        "Fever with neck stiffness",
+        "New neurological deficit",
+        "Headache after head injury"
+      ],
+      "suggested_questions": [
+        "When did the headache start?",
+        "Is it on one side or both?",
+        "Any nausea, vomiting, or visual changes?",
+        "Any recent head injury?"
+      ]
+    },
+    {
+      "id": "neck",
+      "region": "Neck",
+      "system": "musculoskeletal",
+      "structures": [
+        "Cervical vertebrae (C1-C7)",
+        "Trapezius and sternocleidomastoid muscles",
+        "Thyroid gland",
+        "Carotid arteries",
+        "Cervical lymph nodes"
+      ],
+      "text": "Neck pain may arise from muscles, cervical spine, lymph nodes, or the thyroid. Common causes include muscle strain, cervical spondylosis, lymphadenitis from infection, and thyroiditis. Red flags include severe pain after trauma, neurological symptoms in arms, fever, or a hard fixed mass.",
+      "common_conditions": [
+        "Muscle strain",
+        "Cervical spondylosis",
+        "Lymphadenitis",
+        "Thyroiditis"
+      ],
+      "red_flags": [
+        "Severe pain after trauma",
+        "Arm weakness or numbness",
+        "Fever with tender lymph nodes",
+        "Hard fixed neck mass"
+      ],
+      "suggested_questions": [
+        "Any recent injury or strain?",
+        "Pain radiates to shoulders or arms?",
+        "Any fever or sore throat?",
+        "Any swelling you can feel?"
+      ]
+    },
+    {
+      "id": "chest_heart",
+      "region": "Chest / Heart",
+      "system": "cardiovascular",
+      "structures": [
+        "Heart and coronary arteries",
+        "Lungs and pleura",
+        "Trachea and bronchi",
+        "Esophagus",
+        "Rib cage and intercostal muscles",
+        "Diaphragm"
+      ],
+      "text": "Chest pain can be cardiac, pulmonary, musculoskeletal, or gastrointestinal. Cardiac causes include angina and myocardial infarction. Pulmonary causes include pulmonary embolism, pneumothorax, and pneumonia. Musculoskeletal causes include costochondritis and rib injury. Red flags include crushing central chest pain, pain radiating to left arm or jaw, shortness of breath, sweating, and fainting.",
+      "common_conditions": [
+        "Angina",
+        "Myocardial infarction",
+        "Pulmonary embolism",
+        "Pneumothorax",
+        "Pneumonia",
+        "Costochondritis",
+        "GERD"
+      ],
+      "red_flags": [
+        "Crushing central chest pain",
+        "Radiation to left arm or jaw",
+        "Shortness of breath",
+        "Fainting or near-fainting"
+      ],
+      "suggested_questions": [
+        "Is the pain sharp, dull, or crushing?",
+        "Does it spread to arm, jaw, or back?",
+        "Any shortness of breath?",
+        "Any sweating or nausea with it?"
+      ]
+    },
+    {
+      "id": "abdomen_upper",
+      "region": "Abdomen (Upper)",
+      "system": "gastrointestinal",
+      "structures": [
+        "Stomach",
+        "Liver and gallbladder",
+        "Spleen",
+        "Pancreas",
+        "Duodenum"
+      ],
+      "text": "Upper abdominal pain may come from the stomach, liver, gallbladder, pancreas, or spleen. Common causes include gastritis, peptic ulcer, gallstones, cholecystitis, pancreatitis, and hepatitis. Red flags include severe sudden pain, jaundice, vomiting blood, or black tarry stools.",
+      "common_conditions": [
+        "Gastritis",
+        "Peptic ulcer",
+        "Gallstones",
+        "Cholecystitis",
+        "Pancreatitis"
+      ],
+      "red_flags": [
+        "Severe sudden pain",
+        "Yellowing of skin or eyes",
+        "Vomiting blood or black stools",
+        "Pain radiating to right shoulder"
+      ],
+      "suggested_questions": [
+        "When did the pain start?",
+        "Any nausea or vomiting?",
+        "Any change in stool color?",
+        "Pain after fatty meals?"
+      ]
+    },
+    {
+      "id": "abdomen_lower_right",
+      "region": "Abdomen (Lower Right)",
+      "system": "gastrointestinal",
+      "structures": [
+        "Appendix",
+        "Cecum",
+        "Right ovary and fallopian tube (in females)",
+        "Right ureter"
+      ],
+      "text": "Right lower abdominal pain is classically associated with appendicitis, especially when pain starts near the navel and moves to the right lower quadrant. Other causes include right ovarian cyst, ectopic pregnancy, kidney stone, and Crohn's disease. Red flags include severe pain with fever, rigid abdomen, and fainting.",
+      "common_conditions": [
+        "Appendicitis",
+        "Right ovarian cyst",
+        "Ectopic pregnancy",
+        "Kidney stone",
+        "Crohn's disease"
+      ],
+      "red_flags": [
+        "Pain migrating from navel to right lower quadrant",
+        "Fever with abdominal pain",
+        "Rigid abdomen",
+        "Positive pregnancy test with pain"
+      ],
+      "suggested_questions": [
+        "Did the pain start near the navel?",
+        "Any fever?",
+        "Any change in bowel habits?",
+        "Last menstrual period (if applicable)?"
+      ]
+    },
+    {
+      "id": "abdomen_lower_left",
+      "region": "Abdomen (Lower Left)",
+      "system": "gastrointestinal",
+      "structures": [
+        "Sigmoid colon",
+        "Left ovary and fallopian tube (in females)",
+        "Left ureter"
+      ],
+      "text": "Left lower abdominal pain commonly comes from the sigmoid colon, left ovary, or left ureter. Common causes include diverticulitis, constipation, ovarian cyst, ectopic pregnancy, and kidney stone. Red flags include severe pain with fever, blood in stool, or fainting.",
+      "common_conditions": [
+        "Diverticulitis",
+        "Constipation",
+        "Left ovarian cyst",
+        "Ectopic pregnancy",
+        "Kidney stone"
+      ],
+      "red_flags": [
+        "Severe pain with fever",
+        "Blood in stool",
+        "Positive pregnancy test with pain",
+        "Fainting"
+      ],
+      "suggested_questions": [
+        "Any change in bowel habits?",
+        "Any blood in stool?",
+        "Any fever?",
+        "Last menstrual period (if applicable)?"
+      ]
+    },
+    {
+      "id": "hips_groin",
+      "region": "Hips / Groin",
+      "system": "musculoskeletal",
+      "structures": [
+        "Hip joint",
+        "Inguinal ligament",
+        "Femoral head and neck",
+        "Pelvic bones",
+        "Inguinal lymph nodes"
+      ],
+      "text": "Hip and groin pain may come from the hip joint, muscles, inguinal hernia, or pelvic structures. Common causes include hip osteoarthritis, muscle strain, inguinal hernia, and kidney stone referred pain. Red flags include inability to bear weight, severe pain after fall, or a new bulge in the groin.",
+      "common_conditions": [
+        "Hip osteoarthritis",
+        "Inguinal hernia",
+        "Muscle strain",
+        "Kidney stone",
+        "Femoral stress fracture"
+      ],
+      "red_flags": [
+        "Inability to bear weight",
+        "Severe pain after fall",
+        "New bulge in groin",
+        "Fever with hip pain"
+      ],
+      "suggested_questions": [
+        "Any recent injury?",
+        "Can you bear weight on the leg?",
+        "Any bulge in the groin area?",
+        "Any fever?"
+      ]
+    },
+    {
+      "id": "thighs",
+      "region": "Thighs",
+      "system": "musculoskeletal",
+      "structures": [
+        "Femur",
+        "Quadriceps muscle",
+        "Hamstring muscle",
+        "Femoral artery and vein",
+        "Saphenous nerve"
+      ],
+      "text": "Thigh pain can come from muscles, the femur, or blood vessels. Common causes include muscle strain, contusion, deep vein thrombosis (DVT), and stress fracture. Red flags include sudden swelling, calf pain, warmth, and discoloration suggestive of DVT.",
+      "common_conditions": [
+        "Muscle strain",
+        "Quadriceps contusion",
+        "Hamstring strain",
+        "Deep vein thrombosis",
+        "Stress fracture"
+      ],
+      "red_flags": [
+        "Sudden leg swelling",
+        "Calf pain and warmth",
+        "Skin redness or discoloration",
+        "Pain after long immobilization"
+      ],
+      "suggested_questions": [
+        "Any recent injury or strain?",
+        "Any leg swelling?",
+        "Any recent long travel or bed rest?",
+        "Any calf pain?"
+      ]
+    },
+    {
+      "id": "back_upper",
+      "region": "Back Pain (Upper)",
+      "system": "musculoskeletal",
+      "structures": [
+        "Thoracic vertebrae",
+        "Ribs and costovertebral joints",
+        "Trapezius and rhomboid muscles",
+        "Lungs and pleura"
+      ],
+      "text": "Upper back pain often comes from muscles, thoracic spine, or referred pain from the lungs or heart. Common causes include muscle strain, thoracic spine dysfunction, and pleurisy. Red flags include pain with shortness of breath, severe pain after trauma, or neurological deficits.",
+      "common_conditions": [
+        "Muscle strain",
+        "Thoracic spine dysfunction",
+        "Pleurisy",
+        "Vertebral compression fracture"
+      ],
+      "red_flags": [
+        "Pain with shortness of breath",
+        "Severe pain after trauma",
+        "Numbness or weakness in legs",
+        "Loss of bladder or bowel control"
+      ],
+      "suggested_questions": [
+        "Any recent strain or injury?",
+        "Any shortness of breath?",
+        "Any numbness or tingling?",
+        "Any fever?"
+      ]
+    },
+    {
+      "id": "back_lower",
+      "region": "Back Pain (Lower)",
+      "system": "musculoskeletal",
+      "structures": [
+        "Lumbar vertebrae",
+        "Intervertebral discs",
+        "Sciatic nerve",
+        "Erector spinae muscles",
+        "Kidneys"
+      ],
+      "text": "Lower back pain is extremely common. Causes include muscle strain, disc herniation, sciatica, kidney stones, and pyelonephritis. Red flags include loss of bladder or bowel control, numbness in the groin, severe pain after trauma, or pain with fever.",
+      "common_conditions": [
+        "Lumbar muscle strain",
+        "Disc herniation",
+        "Sciatica",
+        "Kidney stone",
+        "Pyelonephritis"
+      ],
+      "red_flags": [
+        "Loss of bladder or bowel control",
+        "Numbness in groin or inner thighs",
+        "Severe pain after trauma",
+        "Pain with fever"
+      ],
+      "suggested_questions": [
+        "Any recent strain or injury?",
+        "Does pain radiate down the leg?",
+        "Any numbness or weakness?",
+        "Any fever or urinary symptoms?"
+      ]
+    },
+    {
+      "id": "right_arm_shoulder",
+      "region": "Right Arm / Shoulder",
+      "system": "musculoskeletal",
+      "structures": [
+        "Humerus",
+        "Rotator cuff muscles",
+        "Deltoid muscle",
+        "Brachial plexus",
+        "Right lung and diaphragm"
+      ],
+      "text": "Right arm and shoulder pain can be musculoskeletal, neurological, or referred from the neck, gallbladder, or diaphragm. Common causes include rotator cuff tendinopathy, adhesive capsulitis, cervical radiculopathy, and gallbladder referred pain. Red flags include sudden severe chest or arm pain with shortness of breath.",
+      "common_conditions": [
+        "Rotator cuff tendinopathy",
+        "Adhesive capsulitis",
+        "Cervical radiculopathy",
+        "Gallbladder referred pain"
+      ],
+      "red_flags": [
+        "Sudden chest and arm pain with shortness of breath",
+        "Visible deformity after injury",
+        "Loss of arm sensation",
+        "Severe pain with no movement"
+      ],
+      "suggested_questions": [
+        "Any recent injury?",
+        "Can you lift the arm?",
+        "Any neck pain?",
+        "Any abdominal pain?"
+      ]
+    },
+    {
+      "id": "left_arm_shoulder",
+      "region": "Left Arm / Shoulder",
+      "system": "cardiovascular",
+      "structures": [
+        "Humerus",
+        "Rotator cuff muscles",
+        "Brachial plexus",
+        "Heart and coronary arteries",
+        "Left lung"
+      ],
+      "text": "Left arm and shoulder pain may be musculoskeletal, but it is also a classic site of referred cardiac pain. Chest pain radiating to the left arm is a red flag for myocardial infarction. Other causes include rotator cuff tendinopathy and cervical radiculopathy. Always rule out cardiac causes first.",
+      "common_conditions": [
+        "Rotator cuff tendinopathy",
+        "Cervical radiculopathy",
+        "Cardiac referred pain",
+        "Brachial plexus injury"
+      ],
+      "red_flags": [
+        "Chest pain with left arm pain",
+        "Shortness of breath",
+        "Sweating or nausea with arm pain",
+        "Sudden severe arm pain with coldness"
+      ],
+      "suggested_questions": [
+        "Any chest pain with the arm pain?",
+        "Any shortness of breath?",
+        "Any recent injury?",
+        "Any neck pain?"
+      ]
+    },
+    {
+      "id": "right_leg_knee",
+      "region": "Right Leg / Knee",
+      "system": "musculoskeletal",
+      "structures": [
+        "Femur",
+        "Tibia and fibula",
+        "Patella",
+        "Menisci",
+        "Cruciate and collateral ligaments"
+      ],
+      "text": "Right leg and knee pain commonly comes from the knee joint, muscles, or referred pain. Common causes include meniscal tear, ligament sprain, osteoarthritis, deep vein thrombosis, and Baker's cyst. Red flags include inability to bear weight, sudden severe swelling, or a hot tender calf.",
+      "common_conditions": [
+        "Meniscal tear",
+        "ACL or MCL sprain",
+        "Knee osteoarthritis",
+        "Deep vein thrombosis",
+        "Baker's cyst"
+      ],
+      "red_flags": [
+        "Inability to bear weight",
+        "Sudden severe swelling",
+        "Hot tender calf",
+        "Locked knee"
+      ],
+      "suggested_questions": [
+        "Any recent injury?",
+        "Can you bear weight on the leg?",
+        "Any calf swelling or pain?",
+        "Any locking or giving way?"
+      ]
+    },
+    {
+      "id": "left_leg_knee",
+      "region": "Left Leg / Knee",
+      "system": "musculoskeletal",
+      "structures": [
+        "Femur",
+        "Tibia and fibula",
+        "Patella",
+        "Menisci",
+        "Cruciate and collateral ligaments"
+      ],
+      "text": "Left leg and knee pain shares the same causes as the right side, with the addition of possible referred pain from the left lower abdomen or pelvis. Common causes include meniscal tear, ligament sprain, osteoarthritis, DVT, and kidney stone referred pain. Red flags include inability to bear weight, sudden severe swelling, or blood in urine.",
+      "common_conditions": [
+        "Meniscal tear",
+        "ACL or MCL sprain",
+        "Knee osteoarthritis",
+        "Deep vein thrombosis",
+        "Kidney stone referred pain"
+      ],
+      "red_flags": [
+        "Inability to bear weight",
+        "Sudden severe swelling",
+        "Hot tender calf",
+        "Blood in urine"
+      ],
+      "suggested_questions": [
+        "Any recent injury?",
+        "Can you bear weight on the leg?",
+        "Any calf swelling or pain?",
+        "Any urinary symptoms?"
+      ]
+    }
+  ]
+}
