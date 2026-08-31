@@ -85,41 +85,46 @@
         const minX = center.x - dims.x / 2;
         const minY = center.y - dims.y / 2;
 
-        const rx = (hit.position.x - minX) / dims.x;
-        const ry = 1 - (hit.position.y - minY) / dims.y;
+        const nx = (hit.position.x - minX) / dims.x;
+        const ny = 1 - (hit.position.y - minY) / dims.y;
 
         let part = 'Unknown';
-        if (ry < 0.20) {
+        if (ny < 0.18) {
           part = 'Headache / Cranial';
-        } else if (ry < 0.50) {
-          if (rx < 0.30) {
+        } else if (ny < 0.28) {
+          if (nx < 0.35) {
             part = 'Right Arm / Shoulder';
-          } else if (rx > 0.70) {
+          } else if (nx > 0.65) {
             part = 'Left Arm / Shoulder';
-          } else if (ry < 0.35) {
-            part = 'Chest / Heart';
           } else {
-            part = 'Abdomen (Upper)';
+            part = 'Neck';
+          }
+        } else if (ny < 0.42) {
+          part = 'Chest / Heart';
+        } else if (ny < 0.58) {
+          part = 'Abdomen';
+        } else if (ny < 0.70) {
+          if (nx < 0.40) {
+            part = 'Right Leg / Knee';
+          } else if (nx > 0.60) {
+            part = 'Left Leg / Knee';
+          } else {
+            part = 'Hips / Groin';
           }
         } else {
-          if (rx < 0.45) {
+          if (nx < 0.40) {
             part = 'Right Leg / Knee';
-          } else {
+          } else if (nx > 0.60) {
             part = 'Left Leg / Knee';
+          } else {
+            part = 'Thighs';
           }
         }
 
-        // rx/ry (above) are fractions of the MODEL's own bounding box — good
-        // for classifying which body part was hit, but wrong for drawing
-        // the marker: the model rarely fills the canvas edge-to-edge (camera
-        // framing leaves margin), so "10% down the model" and "10% down the
-        // canvas" are different points. The marker needs to sit where the
-        // patient's finger/cursor actually was, so it uses the raw tap
-        // pixel position instead, as a fraction of the visible canvas.
         const screenX = pixelX / rect.width;
         const screenY = pixelY / rect.height;
 
-        console.log('🩺 Model tapped! Part:', part, '| body-space rx/ry:', rx.toFixed(2), ry.toFixed(2), '| screen x/y:', screenX.toFixed(2), screenY.toFixed(2));
+        console.log('🩺 Model tapped! Part:', part, '| body-space nx/ny:', nx.toFixed(2), ny.toFixed(2), '| screen x/y:', screenX.toFixed(2), screenY.toFixed(2));
 
         window.dispatchEvent(new CustomEvent('atomybridge-bodypart', {
           detail: { part: part, x: screenX, y: screenY }

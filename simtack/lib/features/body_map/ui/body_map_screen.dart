@@ -49,86 +49,102 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   // so we inject the same raycast logic via `relatedJs` and post the
   // result back through the AtomyBridgeBodyPart JavaScript channel.
   static const String _mobileBodyTapJs = r'''
-(function () {
-  function attachBodyTapListener(viewer) {
-    if (viewer.dataset.atomybridgeListenerAttached === 'true') return;
-    viewer.dataset.atomybridgeListenerAttached = 'true';
+ (function () {
+   function attachBodyTapListener(viewer) {
+     if (viewer.dataset.atomybridgeListenerAttached === 'true') return;
+     viewer.dataset.atomybridgeListenerAttached = 'true';
 
-    viewer.addEventListener('click', function (event) {
-      var rect = viewer.getBoundingClientRect();
-      var pixelX = event.clientX - rect.left;
-      var pixelY = event.clientY - rect.top;
+     viewer.addEventListener('click', function (event) {
+       var rect = viewer.getBoundingClientRect();
+       var pixelX = event.clientX - rect.left;
+       var pixelY = event.clientY - rect.top;
 
-      var hit = viewer.positionAndNormalFromPoint(pixelX, pixelY);
-      if (!hit) return;
+       var hit = viewer.positionAndNormalFromPoint(pixelX, pixelY);
+       if (!hit) return;
 
-      var dims = viewer.getDimensions();
-      var center = viewer.getBoundingBoxCenter();
-      var minX = center.x - dims.x / 2;
-      var minY = center.y - dims.y / 2;
+       var dims = viewer.getDimensions();
+       var center = viewer.getBoundingBoxCenter();
+       var minX = center.x - dims.x / 2;
+       var minY = center.y - dims.y / 2;
 
-      var rx = (hit.position.x - minX) / dims.x;
-      var ry = 1 - (hit.position.y - minY) / dims.y;
+       var nx = (hit.position.x - minX) / dims.x;
+       var ny = 1 - (hit.position.y - minY) / dims.y;
 
-      var part = 'Unknown';
-      if (ry < 0.20) {
-        part = 'Headache / Cranial';
-      } else if (ry < 0.50) {
-        if (rx < 0.30) {
-          part = 'Right Arm / Shoulder';
-        } else if (rx > 0.70) {
-          part = 'Left Arm / Shoulder';
-        } else if (ry < 0.35) {
-          part = 'Chest / Heart';
-        } else {
-          part = 'Abdomen (Upper)';
-        }
-      } else {
-        if (rx < 0.45) {
-          part = 'Right Leg / Knee';
-        } else {
-          part = 'Left Leg / Knee';
-        }
-      }
+       var part = 'Unknown';
+       if (ny < 0.18) {
+         part = 'Headache / Cranial';
+       } else if (ny < 0.28) {
+         if (nx < 0.35) {
+           part = 'Right Arm / Shoulder';
+         } else if (nx > 0.65) {
+           part = 'Left Arm / Shoulder';
+         } else {
+           part = 'Neck';
+         }
+       } else if (ny < 0.42) {
+         part = 'Chest / Heart';
+       } else if (ny < 0.58) {
+         part = 'Abdomen';
+       } else if (ny < 0.70) {
+         if (nx < 0.40) {
+           part = 'Right Leg / Knee';
+         } else if (nx > 0.60) {
+           part = 'Left Leg / Knee';
+         } else {
+           part = 'Hips / Groin';
+         }
+       } else {
+         if (nx < 0.40) {
+           part = 'Right Leg / Knee';
+         } else if (nx > 0.60) {
+           part = 'Left Leg / Knee';
+         } else {
+           part = 'Thighs';
+         }
+       }
 
-      if (window.AtomyBridgeBodyPart && window.AtomyBridgeBodyPart.postMessage) {
-        window.AtomyBridgeBodyPart.postMessage(
-          JSON.stringify({ part: part, x: rx, y: ry })
-        );
-      }
-    });
-  }
+       if (window.AtomyBridgeBodyPart && window.AtomyBridgeBodyPart.postMessage) {
+         window.AtomyBridgeBodyPart.postMessage(
+           JSON.stringify({ part: part, x: nx, y: ny })
+         );
+       }
+     });
+   }
 
-  function scanForBodyModelViewers(root) {
-    if (root.tagName === 'MODEL-VIEWER') {
-      attachBodyTapListener(root);
-    }
-    if (root.querySelectorAll) {
-      root.querySelectorAll('model-viewer').forEach(attachBodyTapListener);
-    }
-  }
+   function scanForBodyModelViewers(root) {
+     if (root.tagName === 'MODEL-VIEWER') {
+       attachBodyTapListener(root);
+     }
+     if (root.querySelectorAll) {
+       root.querySelectorAll('model-viewer').forEach(attachBodyTapListener);
+     }
+   }
 
-  customElements.whenDefined('model-viewer').then(function () {
-    scanForBodyModelViewers(document.body);
+   customElements.whenDefined('model-viewer').then(function () {
+     scanForBodyModelViewers(document.body);
 
-    var observer = new MutationObserver(function (mutations) {
-      mutations.forEach(function (mutation) {
-        mutation.addedNodes.forEach(function (node) {
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            scanForBodyModelViewers(node);
-          }
-        });
-      });
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-  });
-})();
-''';
+     var observer = new MutationObserver(function (mutations) {
+       mutations.forEach(function (mutation) {
+         mutation.addedNodes.forEach(function (node) {
+           if (node.nodeType === Node.ELEMENT_NODE) {
+             scanForBodyModelViewers(node);
+           }
+         });
+       });
+     });
+     observer.observe(document.body, { childList: true, subtree: true });
+   });
+ })();
+ ''';
 
   // Every pain location the patient has tapped so far. Tapping the same
   // spot again (within PainPoint.sameSpotThreshold) removes it — this is
   // the multi-select toggle behavior.
   final List<PainPoint> _painPoints = [];
+
+  // Holds the most recent detected tap until the user confirms or changes
+  // the region in the confirmation bottom sheet.
+  ({String region, double x, double y})? _pendingTap;
 
   String _viewAngle = 'front';
   double _zoomLevel = 1.0;
@@ -156,7 +172,12 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
     if (!kReleaseMode) {
       debugPrint('BodyMap: received tap -> part=$part x=$x y=$y');
     }
-    _addOrRemovePainPoint(region: part, x: x, y: y);
+    final tapX = x ?? 0.5;
+    final tapY = y ?? 0.5;
+    setState(() {
+      _pendingTap = (region: part, x: tapX, y: tapY);
+    });
+    _showRegionConfirmationSheet();
   }
 
   /// Mobile counterpart of the WebInterop listener: parses the JSON payload
@@ -610,6 +631,138 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   /// Shows every currently-marked location with a remove button, plus an
   /// "Add another location" entry point into the preset-region list —
   /// additive, doesn't overwrite the existing selection.
+  void _showRegionConfirmationSheet() {
+    if (_pendingTap == null) return;
+    final detected = _pendingTap!.region;
+    final regions = [
+      'Headache / Cranial',
+      'Neck',
+      'Chest / Heart',
+      'Abdomen (Upper)',
+      'Abdomen (Lower Right)',
+      'Abdomen (Lower Left)',
+      'Hips / Groin',
+      'Thighs',
+      'Back Pain (Upper)',
+      'Back Pain (Lower)',
+      'Right Arm / Shoulder',
+      'Left Arm / Shoulder',
+      'Right Leg / Knee',
+      'Left Leg / Knee',
+    ];
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppPalette.surface(context),
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (sheetContext, sheetSetState) {
+            String selectedRegion = detected;
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      child: Text(
+                        'Confirm Pain Location',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: AppPalette.textPrimary(context),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Detected: $detected',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: AppPalette.textMuted(context),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.4),
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: regions.length,
+                        itemBuilder: (context, index) {
+                          final item = regions[index];
+                          final isSelected = selectedRegion == item;
+                          return ListTile(
+                            dense: true,
+                            leading: Icon(
+                              isSelected ? Icons.check_circle : Icons.location_on_outlined,
+                              color: isSelected ? const Color(0xFF6D28D9) : AppPalette.textMuted(context),
+                            ),
+                            title: Text(
+                              item,
+                              style: TextStyle(
+                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                color: isSelected ? const Color(0xFF6D28D9) : AppPalette.textSecondary(context),
+                              ),
+                            ),
+                            onTap: () {
+                              sheetSetState(() {
+                                selectedRegion = item;
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                    const Divider(height: 24),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextButton(
+                            onPressed: () {
+                              Navigator.of(sheetContext).pop();
+                              setState(() => _pendingTap = null);
+                            },
+                            child: const Text('Cancel', style: TextStyle(color: Color(0xFF64748B))),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.of(sheetContext).pop();
+                              final confirmed = _pendingTap!;
+                              _pendingTap = null;
+                              _addOrRemovePainPoint(region: selectedRegion, x: confirmed.x, y: confirmed.y);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF6D28D9),
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Confirm'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   void _showSelectedLocationsSheet() {
     final t = AppLocalizations.of(context)!;
     showModalBottomSheet(
