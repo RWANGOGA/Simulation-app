@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Simtack">
+  <meta name="mobile-web-app-capable" content="yes">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
   <link rel="icon" type="image/png" href="favicon.png"/>
   <title>Simtack</title>
@@ -155,6 +156,34 @@
       });
       observer.observe(document.body, { childList: true, subtree: true });
     });
+
+    // Suppress "Blocked aria-hidden on an element because its descendant
+    // retained focus" warnings. Flutter wraps each platform view in a
+    // <flt-platform-view aria-hidden="true">; the WebView inside still
+    // owns focus, which trips the WAI-ARIA rule. Setting `inert` on the
+    // same element removes it from the focus chain and keeps the screen-
+    // reader semantics correct. The model_viewer_plus code applies
+    // aria-hidden to its own wrapper, so this stays in sync via the
+    // MutationObserver below.
+    function applyInertToPlatformViews(root) {
+      if (!root || !root.querySelectorAll) return;
+      root.querySelectorAll('flt-platform-view[aria-hidden="true"]').forEach((el) => {
+        try { el.inert = true; } catch (_) {}
+      });
+    }
+    applyInertToPlatformViews(document.body);
+    new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            applyInertToPlatformViews(node);
+          }
+        }
+        if (mutation.type === 'attributes' && mutation.target) {
+          applyInertToPlatformViews(mutation.target);
+        }
+      }
+    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-hidden'] });
   </script>
 </body>
 </html>

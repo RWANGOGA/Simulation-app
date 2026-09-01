@@ -17,5 +17,34 @@ services:
       timeout: 5s
       retries: 30
       start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: atomybridge_api
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # In-compose default points at the linked db service. Override on
+      # Crane / Render / etc with the platform's DATABASE_URL.
+      DATABASE_URL: "postgresql+psycopg://atomy:atomy123@db:5432/atomybridge"
+      SECRET_KEY: "${SECRET_KEY:-change-me-in-production}"
+      ALGORITHM: "HS256"
+      ACCESS_TOKEN_EXPIRE_MINUTES: "480"
+      GROQ_API_KEY: "${GROQ_API_KEY:-}"
+      GROQ_MODEL: "${GROQ_MODEL:-openai/gpt-oss-20b}"
+      INVITE_CODE: "${INVITE_CODE:-}"
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health', timeout=2).status == 200 else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 6
+      start_period: 20s
+
 volumes:
   pgdata:
