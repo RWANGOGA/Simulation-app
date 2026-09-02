@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:simtack/core/accessibility/accessibility_controller.dart';
+import 'package:simtack/core/locale/locale_controller.dart';
+import 'package:simtack/l10n/app_localizations.dart';
 import 'package:simtack/features/settings/ui/accessibility_settings_screen.dart';
 
 void main() {
@@ -76,9 +78,17 @@ void main() {
 
   group('AccessibilitySettingsScreen', () {
     Widget wrapScreen(AccessibilityController controller) {
+      final localeController = LocaleController();
       return A11yScope(
         controller: controller,
-        child: const MaterialApp(home: AccessibilitySettingsScreen()),
+        child: LocaleScope(
+          controller: localeController,
+          child: const MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home: AccessibilitySettingsScreen(),
+          ),
+        ),
       );
     }
 

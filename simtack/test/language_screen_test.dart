@@ -28,14 +28,14 @@ void main() {
     await tester.pumpWidget(wrap(LocaleController()));
     await tester.pumpAndSettle();
 
-    expect(find.text('English'), findsOneWidget);
-    expect(find.text('Luganda'), findsOneWidget);
-    expect(find.text('Runyankore'), findsOneWidget);
-    expect(find.text('Lusoga'), findsOneWidget);
-    expect(find.text('Kiswahili'), findsOneWidget);
-    expect(find.text('Sign Language'), findsOneWidget);
-    expect(find.byType(Checkbox), findsOneWidget);
-    expect(find.text('Continue'), findsOneWidget);
+    expect(find.text('English', skipOffstage: false), findsOneWidget);
+    expect(find.text('Luganda', skipOffstage: false), findsOneWidget);
+    expect(find.text('Runyankole', skipOffstage: false), findsOneWidget);
+    expect(find.text('Lusoga', skipOffstage: false), findsOneWidget);
+    expect(find.text('Kiswahili', skipOffstage: false), findsOneWidget);
+    expect(find.text('Sign Language', skipOffstage: false), findsOneWidget);
+    expect(find.byType(Checkbox, skipOffstage: false), findsOneWidget);
+    expect(find.text('Continue', skipOffstage: false), findsOneWidget);
   });
 
   testWidgets('tapping Continue without consent shows an error and does not navigate', (tester) async {

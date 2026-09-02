@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, date
+from datetime import datetime, timedelta, date, timezone
 import re
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -63,7 +63,7 @@ def get_password_hash(password: str) -> str:
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
-    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
@@ -89,7 +89,8 @@ def get_current_doctor(token: str = Depends(oauth2_scheme), db: Session = Depend
 
 @router.post("/login", response_model=Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    doctor = db.query(Doctor).filter(Doctor.email == form_data.username).first()
+    email = form_data.username.strip().lower()
+    doctor = db.query(Doctor).filter(Doctor.email == email).first()
     
     if not doctor or not verify_password(form_data.password, doctor.hashed_password):
         raise HTTPException(
