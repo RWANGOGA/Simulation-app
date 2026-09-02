@@ -101,11 +101,11 @@ class _AnatomyTapViewState extends State<AnatomyTapView> {
     return (label: best, dist: bestDist);
   }
 
-  void _handleTapUp(TapUpDetails details, BoxConstraints constraints) {
+  void _handleTapUp(Offset localPosition, BoxConstraints constraints) {
     if (_idmapPixels == null || _idmapImage == null) return;
 
-    final localX = details.localPosition.dx;
-    final localY = details.localPosition.dy;
+    final localX = localPosition.dx;
+    final localY = localPosition.dy;
     if (localX < 0 || localY < 0 || localX > constraints.maxWidth || localY > constraints.maxHeight) {
       return;
     }
@@ -187,8 +187,16 @@ class _AnatomyTapViewState extends State<AnatomyTapView> {
     }
     return LayoutBuilder(
       builder: (context, constraints) {
-        return GestureDetector(
-          onTapUp: (details) => _handleTapUp(details, constraints),
+        // Listener + onPointerDown instead of GestureDetector.onTapUp: a
+        // regular tap recognizer has to win Flutter's "gesture arena"
+        // against every other gesture-sensitive widget on screen (the
+        // toolbar buttons, the pain-point list, etc.) before it fires,
+        // which is almost certainly why taps needed ~20 tries to register.
+        // A raw pointer listener reacts on contact, unconditionally, with
+        // nothing to lose an arena contest against.
+        return Listener(
+          behavior: HitTestBehavior.opaque,
+          onPointerDown: (event) => _handleTapUp(event.localPosition, constraints),
           child: SizedBox(
             width: constraints.maxWidth,
             height: constraints.maxHeight,

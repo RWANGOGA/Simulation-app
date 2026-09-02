@@ -503,40 +503,49 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                 final zoomOptions = _zoomOptionsByKbName[point.region];
                                 return SizedBox(
                                   width: 280,
-                                  child: SingleChildScrollView(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      children: [
-                                        AnatomyInsightCard(
-                                          region: point.region,
-                                          future: _anatomyFutures[point.region],
-                                        ),
-                                        if (zoomOptions != null) ...[
-                                          const SizedBox(height: 6),
-                                          Wrap(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      // Zoom button comes first and lives
+                                      // outside the scrollable card area —
+                                      // it was previously placed after the
+                                      // card's content inside a short fixed-
+                                      // height scroll box, so it was getting
+                                      // pushed off-screen, requiring a scroll
+                                      // inside that small area to even see it.
+                                      if (zoomOptions != null)
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 6),
+                                          child: Wrap(
                                             spacing: 6,
                                             runSpacing: 6,
                                             children: zoomOptions.map((option) {
-                                              return OutlinedButton.icon(
+                                              return ElevatedButton.icon(
                                                 onPressed: () {
                                                   HapticFeedback.selectionClick();
                                                   setState(() => _zoomedKit = option.$2);
                                                 },
-                                                icon: const Icon(Icons.zoom_in, size: 16),
-                                                label: Text(option.$1, style: const TextStyle(fontSize: 12)),
-                                                style: OutlinedButton.styleFrom(
-                                                  foregroundColor: const Color(0xFF6D28D9),
-                                                  side: const BorderSide(color: Color(0xFF6D28D9)),
-                                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                                icon: const Icon(Icons.zoom_in, size: 18, color: Colors.white),
+                                                label: Text(option.$1, style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: const Color(0xFF6D28D9),
+                                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                                   minimumSize: Size.zero,
                                                   tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                                 ),
                                               );
                                             }).toList(),
                                           ),
-                                        ],
-                                      ],
-                                    ),
+                                        ),
+                                      Expanded(
+                                        child: SingleChildScrollView(
+                                          child: AnatomyInsightCard(
+                                            region: point.region,
+                                            future: _anatomyFutures[point.region],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 );
                               },
