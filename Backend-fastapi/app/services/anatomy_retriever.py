@@ -50,12 +50,33 @@ class RetrievalHit:
 _KB_PATH = Path(__file__).resolve().parent.parent / "data" / "anatomy_kb.json"
 
 
-def _tokenize(text: str) -> List[str]:
-    """Lower-cased, alphanumeric-only tokens, deduped, stopwords removed.
+# ── Medical Synonym Dictionary for Query Expansion ───────────────────────
 
-    Bag-of-words is plenty for a 14-chunk knowledge base: the LLM does the
-    semantic heavy lifting; we just need a fast, deterministic prior that
-    boosts the right region when a query mentions keywords.
+MEDICAL_SYNONYMS: Dict[str, List[str]] = {
+    "migraine": ["headache", "cranial", "head", "neurological"],
+    "headache": ["migraine", "cranial", "head"],
+    "head": ["headache", "cranial"],
+    "tummy": ["abdomen", "stomach", "gut", "abdominal"],
+    "belly": ["abdomen", "stomach", "gut", "abdominal"],
+    "stomach": ["abdomen", "tummy", "belly", "abdominal"],
+    "gut": ["abdomen", "stomach"],
+    "breathless": ["dyspnea", "respiratory", "chest", "breath"],
+    "angina": ["cardiac", "chest", "heart", "coronary"],
+    "heart": ["cardiac", "chest", "angina"],
+    "dizzy": ["cranial", "neurological", "vertigo", "lightheaded"],
+    "lightheaded": ["cranial", "neurological", "vertigo", "dizzy"],
+    "knee": ["leg", "knee", "joint"],
+    "leg": ["leg", "knee", "thigh"],
+    "shoulder": ["arm", "shoulder", "joint"],
+    "arm": ["arm", "shoulder"],
+    "backache": ["back", "lumbar", "spine"],
+    "back": ["spine", "lumbar", "backache"],
+}
+
+
+def _tokenize(text: str) -> List[str]:
+    """Lower-cased, alphanumeric-only tokens with medical synonym expansion,
+    deduped, stopwords removed.
     """
     if not text:
         return []
@@ -64,26 +85,32 @@ def _tokenize(text: str) -> List[str]:
         "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
         "has", "have", "in", "is", "it", "of", "on", "or", "that", "the",
         "to", "was", "were", "will", "with", "this", "any", "can", "may",
-        "their", "they", "you", "your", "patient", "patients",
+        "their", "they", "you", "your", "patient", "patients", "feel", "feeling",
     }
     seen: set[str] = set()
     out: List[str] = []
     for tok in raw:
         if tok in stop or len(tok) < 3:
             continue
-        if tok in seen:
-            continue
-        seen.add(tok)
-        out.append(tok)
+        if tok not in seen:
+            seen.add(tok)
+            out.append(tok)
+        # Expand synonyms
+        if tok in MEDICAL_SYNONYMS:
+            for syn in MEDICAL_SYNONYMS[tok]:
+                if syn not in seen:
+                    seen.add(syn)
+                    out.append(syn)
     return out
 
 
 def _chunk_to_text(chunk: dict) -> str:
-    """Concatenate every field that should be retrievable for this chunk."""
+    """Concatenate fields with heavy weighting on structures, conditions, and red flags."""
     parts: List[str] = [chunk.get("text", "")]
-    parts.extend(chunk.get("structures", []))
-    parts.extend(chunk.get("common_conditions", []))
-    parts.extend(chunk.get("red_flags", []))
+    # Double-weight critical medical terms for stronger TF-IDF vectors
+    parts.extend(chunk.get("structures", []) * 2)
+    parts.extend(chunk.get("common_conditions", []) * 2)
+    parts.extend(chunk.get("red_flags", []) * 2)
     parts.extend(chunk.get("suggested_questions", []))
     return " ".join(parts)
 
@@ -173,11 +200,9 @@ def retrieve(
 ) -> List[RetrievalHit]:
     """Return the top-k chunks most relevant to (region, query).
 
-    A region match is a strong prior: if `region` matches a chunk's region
-    string (case-insensitive), that chunk is boosted into the result set
-    even when its cosine score is lower. This keeps the LLM grounded in the
-    anatomy the patient actually tapped, while still letting query keywords
-    surface specific conditions across regions.
+    A region match is a strong prior: if `region` matches or partially matches
+    a chunk's region string (case-insensitive), that chunk is boosted into
+    the result set even when its cosine score is lower.
     """
     vectors, chunks = _index()
     query_tokens = _tokenize(query or "")
@@ -189,8 +214,9 @@ def retrieve(
     scored: List[RetrievalHit] = []
     for cid, chunk in chunks.items():
         base_score = _cosine(q_vec, vectors[cid])
-        # Strong prior when the region matches exactly.
-        if region_norm and chunk.region.lower() == region_norm:
+        chunk_region_norm = chunk.region.lower()
+        # Strong prior when region matches exactly or partially (e.g. "Abdomen" matches "Abdomen (Upper)")
+        if region_norm and (region_norm == chunk_region_norm or region_norm in chunk_region_norm or chunk_region_norm in region_norm):
             base_score += 0.5
         scored.append(RetrievalHit(chunk=chunk, score=base_score))
 
