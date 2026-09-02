@@ -110,6 +110,9 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   // when an answer is already loading.
   final Map<String, Future<AnatomyInsight>> _anatomyFutures = {};
 
+  // Patient answers to suggested anatomy questions, keyed by region.
+  final Map<String, Map<String, String>> _questionAnswers = {};
+
   String _viewAngle = 'front';
   double _zoomLevel = 1.0;
   late AnimationController _pulseController;
@@ -560,6 +563,12 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                           child: AnatomyInsightCard(
                                             region: point.region,
                                             future: _anatomyFutures[point.region],
+                                            initialAnswers: _questionAnswers[point.region],
+                                            onAnswersChanged: (answers) {
+                                              setState(() {
+                                                _questionAnswers[point.region] = answers;
+                                              });
+                                            },
                                           ),
                                         ),
                                       ),
@@ -1135,6 +1144,12 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   }
 
   void _navigateToPainDetails() {
+    for (final point in _painPoints) {
+      final answers = _questionAnswers[point.region];
+      if (answers != null && answers.isNotEmpty) {
+        point.questionAnswers.addAll(answers);
+      }
+    }
     Navigator.of(context).push(
       AppPageRoute(
         builder: (_) => PainDetailsScreen(

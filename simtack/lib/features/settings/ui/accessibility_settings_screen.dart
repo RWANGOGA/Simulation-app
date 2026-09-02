@@ -180,19 +180,19 @@ class AccessibilitySettingsScreen extends StatelessWidget {
                       style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context)),
                     ),
                     trailing: const Icon(Icons.chevron_right, color: Color(0xFF6D28D9)),
-                     onTap: () {
-                       showModalBottomSheet(
-                         context: context,
-                         backgroundColor: Colors.white,
-                         shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-                         builder: (ctx) => LanguagePickerSheet(
-                           currentCode: currentCode,
-                           onChanged: (code) async {
-                             await localeController.setLanguage(code);
-                           },
-                         ),
-                       );
-                     },
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        backgroundColor: Colors.white,
+                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+                        builder: (ctx) => LanguagePickerSheet(
+                          currentCode: currentCode,
+                          onChanged: (code) async {
+                            await localeController.setLanguage(code);
+                          },
+                        ),
+                      );
+                    },
                   );
                 },
               ),

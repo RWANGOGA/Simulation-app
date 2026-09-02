@@ -395,6 +395,8 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                     _buildDetailRow(t.depthLabel, report.depth ?? t.naLabel, Icons.layers),
                     _buildDetailRow(t.riskLabel, '${_riskLevelDisplay(context, report.riskScore ?? 0.0)} (${((report.riskScore ?? 0.0) * 100).toInt()}%)', Icons.analytics),
                     _buildDetailRow(t.reportedAtLabel, report.createdAt.toString().substring(0, 16), Icons.access_time),
+                    if (report.questionAnswers != null && report.questionAnswers!.isNotEmpty)
+                      ..._buildQuestionAnswersRows(report.questionAnswers!),
                   ],
                 ),
               ),
@@ -921,6 +923,41 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
         ],
       ),
     );
+  }
+
+  List<Widget> _buildQuestionAnswersRows(Map<String, String> answers) {
+    return [
+      const SizedBox(height: 12),
+      ...answers.entries.map((entry) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 6),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Padding(
+                padding: EdgeInsets.only(top: 2, right: 8),
+                child: Icon(Icons.question_answer_outlined, size: 16, color: Color(0xFF6D28D9)),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      entry.key,
+                      style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Color(0xFF475569)),
+                    ),
+                    Text(
+                      entry.value,
+                      style: const TextStyle(fontSize: 14, color: Color(0xFF1E293B)),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
+    ];
   }
 }
 

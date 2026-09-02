@@ -174,6 +174,7 @@ class TriageReport {
   final String? depth;
   final int? patientId;
   final String? visitId;
+  final Map<String, String>? questionAnswers;
 
   const TriageReport({
     required this.bodyRegion,
@@ -183,6 +184,7 @@ class TriageReport {
     this.depth,
     this.patientId,
     this.visitId,
+    this.questionAnswers,
   });
 
   Map<String, dynamic> toJson() => {
@@ -193,6 +195,8 @@ class TriageReport {
         if (depth != null) 'depth': depth,
         if (patientId != null) 'patient_id': patientId,
         if (visitId != null) 'visit_id': visitId,
+        if (questionAnswers != null && questionAnswers!.isNotEmpty)
+          'question_answers': questionAnswers,
       };
 }
 
@@ -230,6 +234,7 @@ class TriageResult {
   final String? priority;
   final List<String> actionsTaken;
   final String? clinicalNotes;
+  final Map<String, String>? questionAnswers;
 
   const TriageResult({
     required this.id,
@@ -260,6 +265,7 @@ class TriageResult {
     this.priority,
     this.actionsTaken = const [],
     this.clinicalNotes,
+    this.questionAnswers,
   });
 
   String get riskLevel {
@@ -299,6 +305,8 @@ class TriageResult {
       priority: json['priority'] as String?,
       actionsTaken: _parseActionsTaken(json['actions_taken']),
       clinicalNotes: json['clinical_notes'] as String?,
+      questionAnswers: (json['question_answers'] as Map<String, dynamic>?)
+          ?.map((k, v) => MapEntry(k, v.toString())),
     );
   }
 
