@@ -4,9 +4,9 @@ import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
-/// The translations for English (`en`).
-class AppLocalizationsEn extends AppLocalizations {
-  AppLocalizationsEn([String locale = 'en']) : super(locale);
+/// The translations for Soga (`xog`).
+class AppLocalizationsXog extends AppLocalizations {
+  AppLocalizationsXog([String locale = 'xog']) : super(locale);
 
   @override
   String get chooseLanguageTitle => 'Choose Your Language';
