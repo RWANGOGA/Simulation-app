@@ -73,21 +73,33 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
        var ny = 1 - (hit.position.y - minY) / dims.y;
 
        var part = 'Unknown';
-       if (ny < 0.18) {
+       if (ny < 0.24) {
          part = 'Headache / Cranial';
-       } else if (ny < 0.28) {
-         if (nx < 0.35) {
+       } else if (ny < 0.33) {
+         if (nx < 0.33) {
            part = 'Right Arm / Shoulder';
-         } else if (nx > 0.65) {
+         } else if (nx > 0.67) {
            part = 'Left Arm / Shoulder';
          } else {
            part = 'Neck';
          }
-       } else if (ny < 0.42) {
-         part = 'Chest / Heart';
-       } else if (ny < 0.58) {
-         part = 'Abdomen';
-       } else if (ny < 0.70) {
+       } else if (ny < 0.46) {
+         if (nx < 0.30) {
+           part = 'Right Arm / Shoulder';
+         } else if (nx > 0.70) {
+           part = 'Left Arm / Shoulder';
+         } else {
+           part = 'Chest / Heart';
+         }
+       } else if (ny < 0.62) {
+         if (nx < 0.28) {
+           part = 'Right Arm / Shoulder';
+         } else if (nx > 0.72) {
+           part = 'Left Arm / Shoulder';
+         } else {
+           part = 'Abdomen';
+         }
+       } else if (ny < 0.72) {
          if (nx < 0.40) {
            part = 'Right Leg / Knee';
          } else if (nx > 0.60) {
@@ -96,9 +108,9 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
            part = 'Hips / Groin';
          }
        } else {
-         if (nx < 0.40) {
+         if (nx < 0.45) {
            part = 'Right Leg / Knee';
-         } else if (nx > 0.60) {
+         } else if (nx > 0.55) {
            part = 'Left Leg / Knee';
          } else {
            part = 'Thighs';
@@ -205,7 +217,13 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   /// Multi-select toggle: tapping a fresh spot adds a new pain point.
   /// Tapping close to an existing point removes it instead — this is how
   /// a patient "unmarks" a location without a separate delete step.
-  void _addOrRemovePainPoint({required String region, double? x, double? y}) {
+  void _addOrRemovePainPoint({
+    required String region,
+    double? x,
+    double? y,
+    String? symptomDescription,
+    List<String>? tags,
+  }) {
     final tapX = x ?? 0.5;
     final tapY = y ?? 0.5;
 
@@ -216,7 +234,13 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
       if (existingIndex != -1) {
         _painPoints.removeAt(existingIndex);
       } else {
-        _painPoints.add(PainPoint(region: region, x: tapX, y: tapY));
+        _painPoints.add(PainPoint(
+          region: region,
+          x: tapX,
+          y: tapY,
+          symptomDescription: symptomDescription,
+          tags: tags,
+        ));
       }
     });
   }
@@ -286,13 +310,12 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
     _requestAnatomyInsight(region);
   }
 
-  /// Fires a background /anatomy/ask request for the given region. The
-  /// future is stored per-region so the FutureBuilder in the insight
+  /// Fires a background /anatomy/ask request for the given region and complaint.
+  /// The future is stored per-region so the FutureBuilder in the insight
   /// panel can show loading → ready transitions without rebuilding the
   /// whole screen. Multiple regions load in parallel.
-  void _requestAnatomyInsight(String region) {
-    if (_anatomyFutures.containsKey(region)) return;
-    final future = ApiClient.askAnatomy(region: region, complaint: '', topK: 3);
+  void _requestAnatomyInsight(String region, {String complaint = ''}) {
+    final future = ApiClient.askAnatomy(region: region, complaint: complaint, topK: 3);
     setState(() {
       _anatomyFutures[region] = future;
     });
@@ -697,8 +720,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   }
 
   /// Shows every currently-marked location with a remove button, plus an
-  /// "Add another location" entry point into the preset-region list —
-  /// additive, doesn't overwrite the existing selection.
+  /// interactive symptom description field & quick quality tags so patients
+  /// can describe their symptoms right after tapping a body part.
   void _showRegionConfirmationSheet() {
     if (_pendingTap == null) return;
     final detected = _pendingTap!.region;
@@ -719,6 +742,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
       'Left Leg / Knee',
     ];
 
+    final availableTags = ['Sharp', 'Dull', 'Burning', 'Throbbing', 'Pressure', 'Constant', 'Intermittent'];
+
     showModalBottomSheet(
       context: context,
       backgroundColor: AppPalette.surface(context),
@@ -727,102 +752,183 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (sheetContext) {
+        String selectedRegion = detected;
+        final symptomController = TextEditingController();
+        final Set<String> selectedTags = {};
+
         return StatefulBuilder(
           builder: (sheetContext, sheetSetState) {
-            String selectedRegion = detected;
             return Padding(
               padding: EdgeInsets.only(
                 bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
               ),
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      child: Text(
-                        'Confirm Pain Location',
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.pin_drop_rounded, color: Color(0xFF6D28D9), size: 24),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Confirm & Describe Pain',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppPalette.textPrimary(context),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Text(
+                          'Detected Region: $detected',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppPalette.textMuted(context),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.25),
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: regions.length,
+                          itemBuilder: (context, index) {
+                            final item = regions[index];
+                            final isSelected = selectedRegion == item;
+                            return ListTile(
+                              dense: true,
+                              leading: Icon(
+                                isSelected ? Icons.check_circle : Icons.location_on_outlined,
+                                color: isSelected ? const Color(0xFF6D28D9) : AppPalette.textMuted(context),
+                              ),
+                              title: Text(
+                                item,
+                                style: TextStyle(
+                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  color: isSelected ? const Color(0xFF6D28D9) : AppPalette.textSecondary(context),
+                                ),
+                              ),
+                              onTap: () {
+                                sheetSetState(() {
+                                  selectedRegion = item;
+                                });
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Describe Your Symptoms (Optional)',
                         style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
                           color: AppPalette.textPrimary(context),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Detected: $detected',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppPalette.textMuted(context),
+                      const SizedBox(height: 6),
+                      TextField(
+                        controller: symptomController,
+                        maxLines: 2,
+                        decoration: InputDecoration(
+                          hintText: 'e.g. Sharp pain when taking a deep breath, throbbing behind eyes...',
+                          hintStyle: TextStyle(color: AppPalette.textMuted(context), fontSize: 13),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: AppPalette.border(context)),
+                          ),
+                          contentPadding: const EdgeInsets.all(12),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.4),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: regions.length,
-                        itemBuilder: (context, index) {
-                          final item = regions[index];
-                          final isSelected = selectedRegion == item;
-                          return ListTile(
-                            dense: true,
-                            leading: Icon(
-                              isSelected ? Icons.check_circle : Icons.location_on_outlined,
-                              color: isSelected ? const Color(0xFF6D28D9) : AppPalette.textMuted(context),
-                            ),
-                            title: Text(
-                              item,
-                              style: TextStyle(
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                color: isSelected ? const Color(0xFF6D28D9) : AppPalette.textSecondary(context),
-                              ),
-                            ),
-                            onTap: () {
+                      const SizedBox(height: 12),
+                      Text(
+                        'Symptom Tags',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          color: AppPalette.textSecondary(context),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        children: availableTags.map((tag) {
+                          final isSelected = selectedTags.contains(tag);
+                          return FilterChip(
+                            label: Text(tag, style: TextStyle(fontSize: 12, color: isSelected ? Colors.white : AppPalette.textPrimary(context))),
+                            selected: isSelected,
+                            selectedColor: const Color(0xFF6D28D9),
+                            onSelected: (selected) {
                               sheetSetState(() {
-                                selectedRegion = item;
+                                if (selected) {
+                                  selectedTags.add(tag);
+                                } else {
+                                  selectedTags.remove(tag);
+                                }
                               });
                             },
                           );
-                        },
+                        }).toList(),
                       ),
-                    ),
-                    const Divider(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.of(sheetContext).pop();
-                              setState(() => _pendingTap = null);
-                            },
-                            child: const Text('Cancel', style: TextStyle(color: Color(0xFF64748B))),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(sheetContext).pop();
-                              final confirmed = _pendingTap!;
-                              _pendingTap = null;
-                              _addOrRemovePainPoint(region: selectedRegion, x: confirmed.x, y: confirmed.y);
-                              _requestAnatomyInsight(selectedRegion);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF6D28D9),
-                              foregroundColor: Colors.white,
+                      const Divider(height: 24),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.of(sheetContext).pop();
+                                setState(() => _pendingTap = null);
+                              },
+                              child: const Text('Cancel', style: TextStyle(color: Color(0xFF64748B))),
                             ),
-                            child: const Text('Confirm'),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                  ],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () {
+                                final textSymptom = symptomController.text.trim();
+                                final tagsList = selectedTags.toList();
+                                final combinedComplaint = [
+                                  if (textSymptom.isNotEmpty) textSymptom,
+                                  if (tagsList.isNotEmpty) 'Quality: ${tagsList.join(", ")}',
+                                ].join('. ');
+
+                                Navigator.of(sheetContext).pop();
+                                final confirmed = _pendingTap!;
+                                _pendingTap = null;
+                                _addOrRemovePainPoint(
+                                  region: selectedRegion,
+                                  x: confirmed.x,
+                                  y: confirmed.y,
+                                  symptomDescription: textSymptom.isNotEmpty ? textSymptom : null,
+                                  tags: tagsList,
+                                );
+                                _requestAnatomyInsight(selectedRegion, complaint: combinedComplaint);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF6D28D9),
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('Confirm & Map'),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
                 ),
               ),
             );

@@ -52,5 +52,23 @@ void main() {
       expect(restored.direction, equals(original.direction));
       expect(restored.depth, equals(original.depth));
     });
+
+    test('toJson and fromJson handle symptomDescription and tags', () {
+      final original = PainPoint(
+        region: 'Headache / Cranial',
+        x: 0.5,
+        y: 0.1,
+        symptomDescription: 'Sharp throbbing pain behind left eye',
+        tags: ['Sharp', 'Throbbing', 'Constant'],
+      );
+
+      final json = original.toJson();
+      expect(json['symptomDescription'], equals('Sharp throbbing pain behind left eye'));
+      expect(json['tags'], equals(['Sharp', 'Throbbing', 'Constant']));
+
+      final restored = PainPoint.fromJson(json);
+      expect(restored.symptomDescription, equals('Sharp throbbing pain behind left eye'));
+      expect(restored.tags, equals(['Sharp', 'Throbbing', 'Constant']));
+    });
   });
 }

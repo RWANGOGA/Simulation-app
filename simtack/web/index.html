@@ -90,21 +90,33 @@
         const ny = 1 - (hit.position.y - minY) / dims.y;
 
         let part = 'Unknown';
-        if (ny < 0.18) {
+        if (ny < 0.24) {
           part = 'Headache / Cranial';
-        } else if (ny < 0.28) {
-          if (nx < 0.35) {
+        } else if (ny < 0.33) {
+          if (nx < 0.33) {
             part = 'Right Arm / Shoulder';
-          } else if (nx > 0.65) {
+          } else if (nx > 0.67) {
             part = 'Left Arm / Shoulder';
           } else {
             part = 'Neck';
           }
-        } else if (ny < 0.42) {
-          part = 'Chest / Heart';
-        } else if (ny < 0.58) {
-          part = 'Abdomen';
-        } else if (ny < 0.70) {
+        } else if (ny < 0.46) {
+          if (nx < 0.30) {
+            part = 'Right Arm / Shoulder';
+          } else if (nx > 0.70) {
+            part = 'Left Arm / Shoulder';
+          } else {
+            part = 'Chest / Heart';
+          }
+        } else if (ny < 0.62) {
+          if (nx < 0.28) {
+            part = 'Right Arm / Shoulder';
+          } else if (nx > 0.72) {
+            part = 'Left Arm / Shoulder';
+          } else {
+            part = 'Abdomen';
+          }
+        } else if (ny < 0.72) {
           if (nx < 0.40) {
             part = 'Right Leg / Knee';
           } else if (nx > 0.60) {
@@ -113,9 +125,9 @@
             part = 'Hips / Groin';
           }
         } else {
-          if (nx < 0.40) {
+          if (nx < 0.45) {
             part = 'Right Leg / Knee';
-          } else if (nx > 0.60) {
+          } else if (nx > 0.55) {
             part = 'Left Leg / Knee';
           } else {
             part = 'Thighs';
