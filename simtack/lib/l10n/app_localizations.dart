@@ -7,6 +7,9 @@ import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
 import 'app_localizations_lg.dart';
+import 'app_localizations_nyn.dart';
+import 'app_localizations_sw.dart';
+import 'app_localizations_xog.dart';
 
 // ignore_for_file: type=lint
 
@@ -95,7 +98,10 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('lg')
+    Locale('lg'),
+    Locale('nyn'),
+    Locale('sw'),
+    Locale('xog')
   ];
 
   /// Title of the language & consent screen, shown before onboarding starts.
@@ -122,19 +128,19 @@ abstract class AppLocalizations {
   /// **'Luganda'**
   String get languageLuganda;
 
-  /// Label for the Runyankole language option.
+  /// Label for the Runyankore language option (Flutter locale nyn, Sunbird nyn).
   ///
   /// In en, this message translates to:
-  /// **'Runyankole'**
+  /// **'Runyankore'**
   String get languageRunyankole;
 
-  /// Label for the Lusoga language option.
+  /// Label for the Lusoga language option (Flutter locale xog, Sunbird xog).
   ///
   /// In en, this message translates to:
   /// **'Lusoga'**
   String get languageLusoga;
 
-  /// Label for the Kiswahili language option.
+  /// Label for the Kiswahili language option (Flutter locale sw, Sunbird swa).
   ///
   /// In en, this message translates to:
   /// **'Kiswahili'**
@@ -1580,7 +1586,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'lg'].contains(locale.languageCode);
+      <String>['en', 'lg', 'nyn', 'sw', 'xog'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1593,6 +1599,12 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsEn();
     case 'lg':
       return AppLocalizationsLg();
+    case 'nyn':
+      return AppLocalizationsNyn();
+    case 'sw':
+      return AppLocalizationsSw();
+    case 'xog':
+      return AppLocalizationsXog();
   }
 
   throw FlutterError(

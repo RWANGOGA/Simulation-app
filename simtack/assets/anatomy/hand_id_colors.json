@@ -1,0 +1,97 @@
+{
+  "Index Finger - tip": [
+    242,
+    36,
+    36
+  ],
+  "Index Finger - middle": [
+    242,
+    101,
+    36
+  ],
+  "Index Finger - base": [
+    242,
+    166,
+    36
+  ],
+  "Middle Finger - tip": [
+    242,
+    231,
+    36
+  ],
+  "Middle Finger - middle": [
+    188,
+    242,
+    36
+  ],
+  "Middle Finger - base": [
+    123,
+    242,
+    36
+  ],
+  "Ring Finger - tip": [
+    58,
+    242,
+    36
+  ],
+  "Ring Finger - middle": [
+    36,
+    242,
+    79
+  ],
+  "Ring Finger - base": [
+    36,
+    242,
+    144
+  ],
+  "Little Finger - tip": [
+    36,
+    242,
+    209
+  ],
+  "Little Finger - middle": [
+    36,
+    209,
+    242
+  ],
+  "Little Finger - base": [
+    36,
+    144,
+    242
+  ],
+  "Thumb - tip": [
+    36,
+    79,
+    242
+  ],
+  "Thumb - base": [
+    58,
+    36,
+    242
+  ],
+  "First Metacarpal": [
+    123,
+    36,
+    242
+  ],
+  "Second Metacarpal": [
+    188,
+    36,
+    242
+  ],
+  "Third Metacarpal": [
+    242,
+    36,
+    231
+  ],
+  "Fourth Metacarpal": [
+    242,
+    36,
+    166
+  ],
+  "Fifth Metacarpal": [
+    242,
+    36,
+    101
+  ]
+}
