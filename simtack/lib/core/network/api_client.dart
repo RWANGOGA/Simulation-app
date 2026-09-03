@@ -101,7 +101,7 @@ class ApiException implements Exception {
 }
 
 class PatientProfile {
-  final int age;
+  final int? age;
   final String gender;
   final double weight;
   final double height;
@@ -117,7 +117,7 @@ class PatientProfile {
   final String? hospitalName;
 
   const PatientProfile({
-    required this.age,
+    this.age,
     required this.gender,
     required this.weight,
     required this.height,
