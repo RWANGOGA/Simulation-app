@@ -6,92 +6,132 @@
   ],
   "Index Finger - middle": [
     242,
-    101,
+    82,
     36
   ],
   "Index Finger - base": [
     242,
-    166,
+    127,
     36
   ],
   "Middle Finger - tip": [
     242,
-    231,
+    173,
     36
   ],
   "Middle Finger - middle": [
-    188,
     242,
+    219,
     36
   ],
   "Middle Finger - base": [
-    123,
+    219,
     242,
     36
   ],
   "Ring Finger - tip": [
-    58,
+    173,
     242,
     36
   ],
   "Ring Finger - middle": [
-    36,
+    127,
     242,
-    79
+    36
   ],
   "Ring Finger - base": [
-    36,
+    82,
     242,
-    144
+    36
   ],
   "Little Finger - tip": [
     36,
     242,
-    209
+    36
   ],
   "Little Finger - middle": [
     36,
-    209,
-    242
+    242,
+    82
   ],
   "Little Finger - base": [
     36,
-    144,
-    242
+    242,
+    127
   ],
   "Thumb - tip": [
     36,
-    79,
-    242
+    242,
+    173
   ],
   "Thumb - base": [
-    58,
     36,
-    242
+    242,
+    219
   ],
   "First Metacarpal": [
-    123,
     36,
+    219,
     242
   ],
   "Second Metacarpal": [
-    188,
     36,
+    173,
     242
   ],
   "Third Metacarpal": [
-    242,
     36,
-    231
+    127,
+    242
   ],
   "Fourth Metacarpal": [
-    242,
     36,
-    166
+    82,
+    242
   ],
   "Fifth Metacarpal": [
+    36,
+    36,
+    242
+  ],
+  "Scaphoid (wrist)": [
+    82,
+    36,
+    242
+  ],
+  "Lunate (wrist)": [
+    127,
+    36,
+    242
+  ],
+  "Pisiform (wrist)": [
+    173,
+    36,
+    242
+  ],
+  "Trapezium (wrist)": [
+    219,
+    36,
+    242
+  ],
+  "Capitate (wrist)": [
     242,
     36,
-    101
+    219
+  ],
+  "Hamate (wrist)": [
+    242,
+    36,
+    173
+  ],
+  "Radius (forearm)": [
+    242,
+    36,
+    127
+  ],
+  "Ulna (forearm)": [
+    242,
+    36,
+    82
   ]
 }

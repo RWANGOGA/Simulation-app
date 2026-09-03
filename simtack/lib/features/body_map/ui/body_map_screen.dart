@@ -82,15 +82,72 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   static const Map<String, List<(String label, String kit)>> _zoomOptionsByKbName = {
     'Left Arm / Shoulder': [('Zoom to hand', 'hand')],
     'Right Arm / Shoulder': [('Zoom to hand', 'hand')],
-    'Left Leg / Knee': [('Zoom to foot', 'foot')],
-    'Right Leg / Knee': [('Zoom to foot', 'foot')],
+    'Left Leg / Knee': [('Zoom to thigh/knee/shin', 'leg'), ('Zoom to foot', 'foot')],
+    'Right Leg / Knee': [('Zoom to thigh/knee/shin', 'leg'), ('Zoom to foot', 'foot')],
     // Mouth is left out here: the underlying data for it is only sparse,
     // disconnected representative samples (one tooth per type, no
     // jaw/gum, a separate tongue) that don't compose into a clear image
     // at any camera angle tried — shipping it would repeat the exact
     // "not clear" problem being fixed for the other zoom kits.
     'Headache / Cranial': [('Zoom to eye', 'eye'), ('Zoom to nose', 'noseonly'), ('Zoom to ear', 'earonly')],
+    // Torso/organ close-up. Heart, liver, and the general chest/back zones
+    // aren't single meshes in BodyParts3D (only their internal vessel/lobe
+    // sub-parts are) — they're anatomically-positioned hotspots drawn onto
+    // the real torso render, like a patient pointing to where it hurts,
+    // rather than literal tappable organ geometry. Stomach and both
+    // kidneys ARE real single meshes, rendered at their true position.
+    'Chest / Heart': [('Zoom to chest/abdomen', 'torsofront'), ('Zoom to back', 'torsoback')],
+    'Abdomen (Upper)': [('Zoom to chest/abdomen', 'torsofront'), ('Zoom to back', 'torsoback')],
+    'Back Pain (Upper)': [('Zoom to chest/abdomen', 'torsofront'), ('Zoom to back', 'torsoback')],
+    'Back Pain (Lower)': [('Zoom to chest/abdomen', 'torsofront'), ('Zoom to back', 'torsoback')],
   };
+
+  // The backend's /anatomy/ask only gets real retrieval signal from an
+  // EXACT (case-insensitive) match against one of its 14 fixed KB region
+  // strings (see anatomy_retriever.py: a match adds +0.5 to the score;
+  // `complaint` is always sent empty from here, so with no match every
+  // chunk scores 0 and ties resolve to the first chunk in the KB file —
+  // silently returning "Headache / Cranial" content for every fine-
+  // grained zoom-kit tap). None of the zoom kits' specific part labels
+  // ("Stomach", "Index Finger - tip", "Thigh Bone (Femur)", ...) are KB
+  // region strings, so every one of them needs mapping down to the
+  // correct canonical KB region before being sent — this is that map for
+  // parts whose destination doesn't depend on which side of the body the
+  // zoom was opened from (eye/nose/ear only have one reachable path;
+  // torso organs have a fixed anatomical KB category regardless of which
+  // "Chest / Heart"-family region opened the zoom).
+  static const Map<String, String> _fineGrainedLabelToKbName = {
+    'Right Eye - lens': 'Headache / Cranial', 'Left Eye - lens': 'Headache / Cranial',
+    'Right Eye - iris': 'Headache / Cranial', 'Left Eye - iris': 'Headache / Cranial',
+    'Right Eye - cornea': 'Headache / Cranial', 'Left Eye - cornea': 'Headache / Cranial',
+    'Nasal Bone': 'Headache / Cranial',
+    'Nasal Cartilage (septum)': 'Headache / Cranial',
+    'Right Nasal Cartilage (side)': 'Headache / Cranial',
+    'Left Nasal Cartilage (side)': 'Headache / Cranial',
+    'Ear': 'Headache / Cranial',
+    // Torso organs: matched directly against the KB's own listed
+    // structures (e.g. "Abdomen (Upper)" literally lists "Stomach",
+    // "Liver and gallbladder"; "Back Pain (Lower)" literally lists
+    // "Kidneys").
+    'Stomach': 'Abdomen (Upper)',
+    'Liver': 'Abdomen (Upper)',
+    'Heart': 'Chest / Heart',
+    'Right Chest / Lung': 'Chest / Heart',
+    'Right Kidney': 'Back Pain (Lower)',
+    'Left Kidney': 'Back Pain (Lower)',
+    'Upper Back': 'Back Pain (Upper)',
+    'Lower Back': 'Back Pain (Lower)',
+    // 'Lower Abdomen' is left/right-ambiguous by design (one general
+    // hotspot) — handled by x-position in _handleBodyPartReceived instead
+    // of a fixed entry here.
+  };
+
+  // Hand/foot/leg zoom kits are a single generic close-up reused for both
+  // body sides (there's one 'hand' kit, not a separate left/right one), so
+  // their part labels alone can't say which KB side to score against.
+  // Recorded when a zoom button is pressed (see the zoom-option button
+  // below) so _handleBodyPartReceived can fall back to it.
+  String? _zoomedKitSourceRegion;
 
   // Non-null while showing a zoomed-in close-up (hand/foot/eye/mouth/nose)
   // instead of the whole body.
@@ -132,12 +189,36 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   /// the standalone HTML pages this was tested against. The manual region
   /// picker (the separate "Add another location" list) is untouched.
   void _handleBodyPartReceived(String region, double x, double y) {
-    final mapped = _regionToKbName[region] ?? region;
+    final mapped = _resolveKbName(region, x);
     if (!kReleaseMode) {
       debugPrint('BodyMap: received tap -> region=$region -> $mapped x=$x y=$y');
     }
     _addOrRemovePainPoint(region: mapped, x: x, y: y);
     _requestAnatomyInsight(mapped);
+  }
+
+  /// Resolves whatever [AnatomyTapView] reported (a whole-body region like
+  /// "trunk", or a zoom-kit part label like "Stomach" or "Index Finger -
+  /// tip") down to one of the backend's 14 fixed KB region strings — see
+  /// the comment on [_fineGrainedLabelToKbName] for why this matters.
+  String _resolveKbName(String region, double x) {
+    final wholeBody = _regionToKbName[region];
+    if (wholeBody != null) return wholeBody;
+
+    if (region == 'Lower Abdomen') {
+      // Patient's left = image-left in this dataset's renders (verified
+      // against the real BodyParts3D coordinates), matching how
+      // 'Abdomen (Lower Left)'/'(Lower Right)' are already used elsewhere.
+      return x < 0.5 ? 'Abdomen (Lower Left)' : 'Abdomen (Lower Right)';
+    }
+    final fineGrained = _fineGrainedLabelToKbName[region];
+    if (fineGrained != null) return fineGrained;
+
+    // Side-ambiguous kits (hand/foot/leg): fall back to whichever broad
+    // region's zoom button was actually pressed to get here.
+    if (_zoomedKitSourceRegion != null) return _zoomedKitSourceRegion!;
+
+    return region;
   }
 
   void _handleBodyTapMissed(String message) {
@@ -153,14 +234,20 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
     final tapX = x ?? 0.5;
     final tapY = y ?? 0.5;
 
-    final existingIndex = _painPoints.indexWhere((p) => p.isNearby(tapX, tapY));
+    // Only compare against points on the SAME image (whole body, or this
+    // specific zoom kit) — the same x/y fraction means a different screen
+    // position on a different image, so it must never toggle off a point
+    // that belongs to a different view.
+    final existingIndex = _painPoints.indexWhere(
+      (p) => p.viewKey == _zoomedKit && p.isNearby(tapX, tapY),
+    );
 
     HapticFeedback.mediumImpact();
     setState(() {
       if (existingIndex != -1) {
         _painPoints.removeAt(existingIndex);
       } else {
-        _painPoints.add(PainPoint(region: region, x: tapX, y: tapY));
+        _painPoints.add(PainPoint(region: region, x: tapX, y: tapY, viewKey: _zoomedKit));
       }
     });
   }
@@ -274,7 +361,13 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                         color: AppPalette.subtleFill(context),
                         child: Center(
                           child: AspectRatio(
-                            aspectRatio: _zoomedKit == null ? 0.8 : 1.0,
+                            // Torso kits are rendered at 800x1000 (same
+                            // proportions as the whole-body images), not
+                            // the 800x800 square the other close-up kits
+                            // use, so they need the 0.8 ratio too -
+                            // otherwise they'd pillarbox inside an
+                            // unnecessarily square box.
+                            aspectRatio: (_zoomedKit == null || _zoomedKit == 'torsofront' || _zoomedKit == 'torsoback') ? 0.8 : 1.0,
                             child: LayoutBuilder(
                               builder: (context, imgConstraints) {
                                 return Transform.scale(
@@ -306,7 +399,16 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                       // patient tapped instead of being
                                       // rescaled against a differently-
                                       // shaped outer container.
-                                      for (final point in _painPoints)
+                                      //
+                                      // Filtered to the current view: a
+                                      // point's x/y are only meaningful on
+                                      // the exact image they were tapped on
+                                      // (whole body vs. a specific zoom
+                                      // kit) — showing a whole-body point's
+                                      // fraction on top of a zoomed close-up
+                                      // image lands it at an unrelated,
+                                      // often off-body, spot.
+                                      for (final point in _painPoints.where((p) => p.viewKey == _zoomedKit))
                                         Positioned(
                                           left: point.x * imgConstraints.maxWidth - 22,
                                           top: point.y * imgConstraints.maxHeight - 22,
@@ -349,22 +451,6 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                         ),
                       ),
                     ),
-
-                    if (_zoomedKit != null)
-                      Positioned(
-                        left: 16,
-                        bottom: 16,
-                        child: FloatingActionButton.extended(
-                          heroTag: 'back-to-body',
-                          backgroundColor: const Color(0xFF6D28D9),
-                          onPressed: () {
-                            HapticFeedback.lightImpact();
-                            setState(() => _zoomedKit = null);
-                          },
-                          icon: const Icon(Icons.arrow_back, color: Colors.white),
-                          label: const Text('Back to full body', style: TextStyle(color: Colors.white)),
-                        ),
-                      ),
 
                     // Floating Camera & Controls Toolbar (Left Overlay)
                     Positioned(
@@ -523,7 +609,10 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                               return ElevatedButton.icon(
                                                 onPressed: () {
                                                   HapticFeedback.selectionClick();
-                                                  setState(() => _zoomedKit = option.$2);
+                                                  setState(() {
+                                                    _zoomedKit = option.$2;
+                                                    _zoomedKitSourceRegion = point.region;
+                                                  });
                                                 },
                                                 icon: const Icon(Icons.zoom_in, size: 18, color: Colors.white),
                                                 label: Text(option.$1, style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
@@ -551,6 +640,31 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                               },
                             ),
                           ),
+                        ),
+                      ),
+
+                    // Placed last so it renders on top of the pain-point
+                    // card above — it used to sit underneath that card
+                    // (both anchored near the bottom-left), making it
+                    // impossible to tap "back" once a zoom was open, since
+                    // opening a zoom always implies at least one pain
+                    // point already exists and the card is showing.
+                    if (_zoomedKit != null)
+                      Positioned(
+                        left: 16,
+                        bottom: _painPoints.isNotEmpty ? 196 : 16,
+                        child: FloatingActionButton.extended(
+                          heroTag: 'back-to-body',
+                          backgroundColor: const Color(0xFF6D28D9),
+                          onPressed: () {
+                            HapticFeedback.lightImpact();
+                            setState(() {
+                              _zoomedKit = null;
+                              _zoomedKitSourceRegion = null;
+                            });
+                          },
+                          icon: const Icon(Icons.arrow_back, color: Colors.white),
+                          label: const Text('Back to full body', style: TextStyle(color: Colors.white)),
                         ),
                       ),
                   ],

@@ -1,1 +1,32 @@
-{"Eye": [220, 20, 20]}
+{
+  "Right Eye - lens": [
+    242,
+    36,
+    36
+  ],
+  "Left Eye - lens": [
+    242,
+    242,
+    36
+  ],
+  "Right Eye - iris": [
+    36,
+    242,
+    36
+  ],
+  "Left Eye - iris": [
+    36,
+    242,
+    242
+  ],
+  "Right Eye - cornea": [
+    36,
+    36,
+    242
+  ],
+  "Left Eye - cornea": [
+    242,
+    36,
+    242
+  ]
+}
