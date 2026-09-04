@@ -5,9 +5,10 @@ Loads the anatomy knowledge base (app/data/anatomy_kb.json) once at import
 time, builds a simple bag-of-words vector for each chunk, and exposes
 `retrieve(region, query, top_k)` for the /anatomy/ask endpoint.
 
-This is the "Step 7.2" of the RAG plan: a deterministic, offline, zero-cost
-retriever that runs in a few microseconds. The LLM in Step 7.3 will use the
-chunks returned here as grounded context.
+Retrieval uses hybrid search combining:
+- BM25 lexical scoring (traditional IR)
+- TF-IDF cosine similarity (vector retrieval)
+Scores are fused using Reciprocal Rank Fusion (RRF) for robust results.
 """
 
 from __future__ import annotations
@@ -18,7 +19,7 @@ import re
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Set, Tuple
 
 
 # ── Data model ────────────────────────────────────────────────────────────
@@ -193,16 +194,55 @@ def _index() -> tuple[Dict[str, Dict[str, float]], Dict[str, AnatomyChunk]]:
     return vectors, chunks
 
 
+def _bm25_score(
+    query_tokens: List[str],
+    chunk: AnatomyChunk,
+    chunk_tokens_map: Dict[str, List[str]],
+    avgdl: float,
+    idf: Dict[str, float],
+) -> float:
+    """BM25 lexical score for a chunk against a query."""
+    k1 = 1.5
+    b = 0.75
+    dl = len(chunk.tokens)
+    score = 0.0
+    for qt in query_tokens:
+        tf = chunk.tokens.count(qt)
+        if tf == 0:
+            continue
+        idf_val = idf.get(qt, 0.0)
+        numerator = tf * (k1 + 1.0)
+        denominator = tf + k1 * (1.0 - b + b * (dl / avgdl))
+        score += idf_val * numerator / denominator
+    return score
+
+
+def _rrf_fuse(
+    ranked_lists: List[List[Tuple[str, float]]],
+    k: int = 60,
+) -> List[Tuple[str, float]]:
+    """Reciprocal Rank Fusion over multiple ranked lists.
+    
+    Each list is a list of (chunk_id, score) tuples ordered by relevance.
+    Returns a fused ranking of (chunk_id, fused_score).
+    """
+    fusion: Dict[str, float] = {}
+    for ranked in ranked_lists:
+        for rank, (cid, _) in enumerate(ranked, start=1):
+            fusion[cid] = fusion.get(cid, 0.0) + 1.0 / (k + rank)
+    return sorted(fusion.items(), key=lambda x: x[1], reverse=True)
+
+
 def retrieve(
     region: Optional[str] = None,
     query: str = "",
     top_k: int = 3,
 ) -> List[RetrievalHit]:
-    """Return the top-k chunks most relevant to (region, query).
+    """Return the top-k chunks most relevant to (region, query) using hybrid search.
 
-    A region match is a strong prior: if `region` matches or partially matches
-    a chunk's region string (case-insensitive), that chunk is boosted into
-    the result set even when its cosine score is lower.
+    Combines BM25 lexical retrieval with TF-IDF cosine similarity using
+    Reciprocal Rank Fusion (RRF) for robust ranking across both methods.
+    A region match is a strong prior and is applied as a final boost.
     """
     vectors, chunks = _index()
     query_tokens = _tokenize(query or "")
@@ -211,17 +251,46 @@ def retrieve(
 
     region_norm = (region or "").strip().lower()
 
-    scored: List[RetrievalHit] = []
-    for cid, chunk in chunks.items():
-        base_score = _cosine(q_vec, vectors[cid])
-        chunk_region_norm = chunk.region.lower()
-        # Strong prior when region matches exactly or partially (e.g. "Abdomen" matches "Abdomen (Upper)")
-        if region_norm and (region_norm == chunk_region_norm or region_norm in chunk_region_norm or chunk_region_norm in region_norm):
-            base_score += 0.5
-        scored.append(RetrievalHit(chunk=chunk, score=base_score))
+    # Precompute BM25 statistics
+    chunk_tokens_map = {cid: list(c.tokens) for cid, c in chunks.items()}
+    total_length = sum(len(c.tokens) for c in chunks.values())
+    avgdl = total_length / max(1, len(chunks))
 
-    scored.sort(key=lambda h: h.score, reverse=True)
-    return scored[: max(1, top_k)]
+    # BM25 ranked list
+    bm25_ranked: List[Tuple[str, float]] = []
+    for cid, chunk in chunks.items():
+        score = _bm25_score(query_tokens, chunk, chunk_tokens_map, avgdl, idf)
+        if region_norm:
+            chunk_region_norm = chunk.region.lower()
+            if region_norm == chunk_region_norm or region_norm in chunk_region_norm or chunk_region_norm in region_norm:
+                score += 0.5
+        bm25_ranked.append((cid, score))
+    bm25_ranked.sort(key=lambda x: x[1], reverse=True)
+
+    # TF-IDF cosine ranked list
+    tfidf_ranked: List[Tuple[str, float]] = []
+    for cid, vec in vectors.items():
+        score = _cosine(q_vec, vec)
+        if region_norm:
+            chunk_region_norm = chunks[cid].region.lower()
+            if region_norm == chunk_region_norm or region_norm in chunk_region_norm or chunk_region_norm in region_norm:
+                score += 0.5
+        tfidf_ranked.append((cid, score))
+    tfidf_ranked.sort(key=lambda x: x[1], reverse=True)
+
+    # Fuse with RRF
+    fused = _rrf_fuse([bm25_ranked, tfidf_ranked])
+
+    # Convert to RetrievalHit objects
+    hits = []
+    for cid, fused_score in fused[: max(1, top_k)]:
+        chunk = chunks[cid]
+        # Use the higher of BM25 or TF-IDF raw score as the displayed score
+        raw_bm25 = dict(bm25_ranked).get(cid, 0.0)
+        raw_tfidf = dict(tfidf_ranked).get(cid, 0.0)
+        hits.append(RetrievalHit(chunk=chunk, score=max(raw_bm25, raw_tfidf)))
+
+    return hits
 
 
 def list_regions() -> List[dict]:

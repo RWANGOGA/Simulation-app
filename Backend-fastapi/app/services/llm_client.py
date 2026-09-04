@@ -56,6 +56,7 @@ def _build_user_prompt(
     region: Optional[str],
     complaint: str,
     hits: List[RetrievalHit],
+    history: Optional[List[Dict[str, str]]] = None,
 ) -> str:
     """Compose the user-side prompt with grounded context."""
     ctx_lines: List[str] = []
@@ -72,7 +73,20 @@ def _build_user_prompt(
         )
     context = "\n\n".join(ctx_lines) if ctx_lines else "(no context)"
 
+    history_text = ""
+    if history:
+        history_lines = []
+        for turn in history[-6:]:  # last 3 turns max
+            role = turn.get("role", "user")
+            content = turn.get("content", "")
+            if role == "user":
+                history_lines.append(f"Patient: {content}")
+            else:
+                history_lines.append(f"Assistant: {content}")
+        history_text = "\n".join(history_lines) + "\n\n"
+
     return (
+        f"{history_text}"
         f"Patient region tapped: {region or 'unspecified'}\n"
         f"Patient complaint: {complaint or '(none provided)'}\n\n"
         f"Context (use only this):\n{context}\n\n"
@@ -170,6 +184,7 @@ def summarize_with_llm(
     region: Optional[str],
     complaint: str,
     hits: List[RetrievalHit],
+    history: Optional[List[Dict[str, str]]] = None,
 ) -> Optional[Dict[str, Any]]:
     """Call Groq and return a normalized dict, or None on any failure.
 
@@ -180,7 +195,7 @@ def summarize_with_llm(
         logger.info("Groq not configured; skipping LLM call.")
         return None
 
-    user_prompt = _build_user_prompt(region, complaint, hits)
+    user_prompt = _build_user_prompt(region, complaint, hits, history)
     payload = {
         "model": settings.GROQ_MODEL,
         "messages": [

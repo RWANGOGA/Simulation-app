@@ -16,14 +16,20 @@ class BodyMapScreen extends StatefulWidget {
   final String gender;
   final double weightKg;
   final double heightCm;
+  final String conversationId;
 
-  const BodyMapScreen({
+  BodyMapScreen({
     super.key,
     required this.patientId,
     required this.gender,
     required this.weightKg,
     required this.heightCm,
-  });
+    String? conversationId,
+  }) : conversationId = conversationId ?? _generateConversationId();
+
+  static String _generateConversationId() {
+    return 'conv_${DateTime.now().millisecondsSinceEpoch}_${(DateTime.now().microsecond % 10000).toString().padLeft(4, '0')}';
+  }
 
   /// Picks the body model variant matching the patient's gender.
   /// BMI (weightKg/heightCm) isn't used yet — there's only one build per
@@ -319,7 +325,12 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   /// whole screen. Multiple regions load in parallel.
   void _requestAnatomyInsight(String region, {String complaint = ''}) {
     if (_anatomyFutures.containsKey(region)) return;
-    final future = ApiClient.askAnatomy(region: region, complaint: complaint, topK: 3);
+    final future = ApiClient.askAnatomy(
+      region: region,
+      complaint: complaint,
+      topK: 3,
+      conversationId: widget.conversationId,
+    );
     setState(() {
       _anatomyFutures[region] = future;
     });

@@ -451,6 +451,38 @@ class _InsightBody extends StatelessWidget {
               ],
             ),
           ),
+        if (insight.citations.isNotEmpty) ...[
+          const SizedBox(height: 10),
+          const _SectionLabel('Citations', color: Color(0xFF475569)),
+          const SizedBox(height: 4),
+          ...insight.citations.map(
+            (c) => Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      c.text,
+                      style: const TextStyle(fontSize: 11, color: Color(0xFF334155), height: 1.4),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '— ${c.region} (${c.system})',
+                      style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontStyle: FontStyle.italic),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }

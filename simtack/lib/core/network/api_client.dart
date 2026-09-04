@@ -598,15 +598,20 @@ class ApiClient {
     required String region,
     String complaint = '',
     int topK = 3,
+    String? conversationId,
   }) async {
+    final body = <String, dynamic>{
+      'region': region,
+      'complaint': complaint,
+      'top_k': topK,
+    };
+    if (conversationId != null && conversationId.isNotEmpty) {
+      body['conversation_id'] = conversationId;
+    }
     final response = await httpClient.post(
       Uri.parse('$baseUrl/anatomy/ask'),
       headers: await _authHeaders(),
-      body: jsonEncode({
-        'region': region,
-        'complaint': complaint,
-        'top_k': topK,
-      }),
+      body: jsonEncode(body),
     );
     if (response.statusCode == 200) {
       return AnatomyInsight.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
@@ -668,12 +673,22 @@ class AnatomySource {
   final String region;
   final String system;
   final double score;
+  final String text;
+  final List<String> structures;
+  final List<String> commonConditions;
+  final List<String> redFlags;
+  final List<String> suggestedQuestions;
 
   const AnatomySource({
     required this.id,
     required this.region,
     required this.system,
     required this.score,
+    required this.text,
+    required this.structures,
+    required this.commonConditions,
+    required this.redFlags,
+    required this.suggestedQuestions,
   });
 
   factory AnatomySource.fromJson(Map<String, dynamic> json) => AnatomySource(
@@ -681,6 +696,44 @@ class AnatomySource {
         region: (json['region'] as String?) ?? '',
         system: (json['system'] as String?) ?? '',
         score: (json['score'] as num?)?.toDouble() ?? 0.0,
+        text: (json['text'] as String?) ?? '',
+        structures: (json['structures'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            const [],
+        commonConditions: (json['common_conditions'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            const [],
+        redFlags: (json['red_flags'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            const [],
+        suggestedQuestions: (json['suggested_questions'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            const [],
+      );
+}
+
+class AnatomyCitation {
+  final String text;
+  final String region;
+  final String system;
+  final String chunkId;
+
+  const AnatomyCitation({
+    required this.text,
+    required this.region,
+    required this.system,
+    required this.chunkId,
+  });
+
+  factory AnatomyCitation.fromJson(Map<String, dynamic> json) => AnatomyCitation(
+        text: (json['text'] as String?) ?? '',
+        region: (json['region'] as String?) ?? '',
+        system: (json['system'] as String?) ?? '',
+        chunkId: (json['chunk_id'] as String?) ?? '',
       );
 }
 
@@ -699,6 +752,7 @@ class AnatomyInsight {
   final List<String> suggestedQuestions;
   final String disclaimer;
   final List<AnatomySource> sources;
+  final List<AnatomyCitation> citations;
 
   const AnatomyInsight({
     required this.region,
@@ -712,6 +766,7 @@ class AnatomyInsight {
     required this.suggestedQuestions,
     required this.disclaimer,
     required this.sources,
+    required this.citations,
   });
 
   factory AnatomyInsight.fromJson(Map<String, dynamic> json) {
@@ -740,6 +795,10 @@ class AnatomyInsight {
       sources: ((json['sources'] as List?) ?? const [])
           .whereType<Map<String, dynamic>>()
           .map(AnatomySource.fromJson)
+          .toList(),
+      citations: ((json['citations'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(AnatomyCitation.fromJson)
           .toList(),
     );
   }
