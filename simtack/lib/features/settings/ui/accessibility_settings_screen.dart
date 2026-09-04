@@ -188,8 +188,7 @@ class AccessibilitySettingsScreen extends StatelessWidget {
                         builder: (ctx) => LanguagePickerSheet(
                           currentCode: currentCode,
                           onChanged: (code) async {
-                            final controller = LocaleController.load();
-                            await controller.then((c) => c.setLanguage(code));
+                            await localeController.setLanguage(code);
                           },
                         ),
                       );
