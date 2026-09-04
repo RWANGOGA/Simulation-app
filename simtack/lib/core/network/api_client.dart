@@ -325,16 +325,12 @@ class TriageResult {
 }
 
 class ApiClient {
-  // TEMPORARY: forced to localhost for local testing since `flutter run`
-  // (debug mode) isn't starting reliably in this environment — revert to
-  // the kDebugMode check below before any real build/deploy.
   static String get baseUrl {
-    return 'http://127.0.0.1:8000/api/v1';
-    // if (kDebugMode) {
-    //   return 'http://127.0.0.1:8000/api/v1';
-    // } else {
-    //   return 'https://backend-fastapi-linv.onrender.com/api/v1';
-    // }
+    if (kDebugMode) {
+      return 'http://127.0.0.1:8000/api/v1';
+    } else {
+      return 'https://backend-fastapi-linv.onrender.com/api/v1';
+    }
   }
 
   static http.Client httpClient = http.Client();
