@@ -2,22 +2,149 @@ import 'package:flutter/material.dart';
 
 import '../network/api_client.dart';
 
-/// Renders one region’s anatomy insight returned by /anatomy/ask.
+/// Renders one region's anatomy insight returned by /anatomy/ask.
 ///
-/// Three visual states:
-///   - loading: a small shimmer with a "Loading..." label
-///   - error:   a faint hint that AI insights are unavailable; never blocks
-///   - ready:   the full card with summary, likely conditions, red flags,
-///              suggested questions, and a small "AI / KB / Cached" badge
-class AnatomyInsightCard extends StatelessWidget {
+/// Suggested questions are interactive: tapping a question opens a small
+/// bottom sheet with quick-select chips (Yes / No / Sometimes / Not sure)
+/// and a free-text field. Answers are stored locally and emitted through
+/// [onAnswersChanged] so the parent can persist them with the triage payload.
+class AnatomyInsightCard extends StatefulWidget {
   final String region;
   final Future<AnatomyInsight>? future;
+  final Map<String, String>? initialAnswers;
+  final ValueChanged<Map<String, String>>? onAnswersChanged;
 
   const AnatomyInsightCard({
     super.key,
     required this.region,
     required this.future,
+    this.initialAnswers,
+    this.onAnswersChanged,
   });
+
+  @override
+  State<AnatomyInsightCard> createState() => _AnatomyInsightCardState();
+}
+
+class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
+  late Map<String, String> _answers;
+
+  @override
+  void initState() {
+    super.initState();
+    _answers = Map.from(widget.initialAnswers ?? {});
+  }
+
+  void _emitAnswers() {
+    widget.onAnswersChanged?.call(Map.unmodifiable(_answers));
+  }
+
+  Future<void> _answerQuestion(String question) async {
+    final controller = TextEditingController();
+    final selected = ValueNotifier<String?>(_answers[question]);
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        question,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1E293B),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: ['Yes', 'No', 'Sometimes', 'Not sure'].map((option) {
+                          final isSelected = selected.value == option;
+                          return ChoiceChip(
+                            label: Text(option, style: TextStyle(fontSize: 13)),
+                            selected: isSelected,
+                            selectedColor: const Color(0xFF6D28D9),
+                            backgroundColor: const Color(0xFFF1F5F9),
+                            onSelected: (picked) {
+                              setSheetState(() {
+                                selected.value = picked ? option : null;
+                                if (picked) controller.clear();
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: controller,
+                        decoration: InputDecoration(
+                          hintText: 'Or type your own answer...',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(color: const Color(0xFFE2E8F0)),
+                          ),
+                          contentPadding: const EdgeInsets.all(12),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            final text = controller.text.trim();
+                            final answer = selected.value ?? (text.isNotEmpty ? text : null);
+                            if (answer != null) {
+                              setState(() => _answers[question] = answer);
+                              _emitAnswers();
+                            }
+                            Navigator.of(sheetContext).pop();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF6D28D9),
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text(
+                            _answers[question] != null ? 'Update answer' : 'Save answer',
+                          ),
+                        ),
+                      ),
+                      if (_answers[question] != null)
+                        TextButton(
+                          onPressed: () {
+                            setState(() => _answers.remove(question));
+                            _emitAnswers();
+                            Navigator.of(sheetContext).pop();
+                          },
+                          child: const Text('Clear answer', style: TextStyle(color: Color(0xFFDC2626))),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +156,6 @@ class AnatomyInsightCard extends StatelessWidget {
         border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.18)),
       ),
       child: Theme(
-        // Strip the default ExpansionTile divider lines for a tighter look.
         data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
         child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
@@ -37,14 +163,14 @@ class AnatomyInsightCard extends StatelessWidget {
           initiallyExpanded: true,
           leading: const Icon(Icons.psychology_outlined, color: Color(0xFF6D28D9)),
           title: Text(
-            'AI insight: $region',
+            'AI insight: ${widget.region}',
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               color: Color(0xFF1E293B),
             ),
           ),
           subtitle: FutureBuilder<AnatomyInsight>(
-            future: future,
+            future: widget.future,
             builder: (context, snap) {
               if (snap.connectionState == ConnectionState.waiting) {
                 return const Padding(
@@ -75,9 +201,7 @@ class AnatomyInsightCard extends StatelessWidget {
                 );
               }
               final insight = snap.data;
-              if (insight == null) {
-                return const SizedBox.shrink();
-              }
+              if (insight == null) return const SizedBox.shrink();
               return Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: _SourceBadge(insight: insight),
@@ -86,7 +210,7 @@ class AnatomyInsightCard extends StatelessWidget {
           ),
           children: [
             FutureBuilder<AnatomyInsight>(
-              future: future,
+              future: widget.future,
               builder: (context, snap) {
                 if (snap.connectionState == ConnectionState.waiting) {
                   return const _ShimmerLines(lines: 4);
@@ -94,7 +218,11 @@ class AnatomyInsightCard extends StatelessWidget {
                 if (snap.hasError || snap.data == null) {
                   return const SizedBox.shrink();
                 }
-                return _InsightBody(insight: snap.data!);
+                return _InsightBody(
+                  insight: snap.data!,
+                  answers: _answers,
+                  onQuestionTap: _answerQuestion,
+                );
               },
             ),
           ],
@@ -144,7 +272,14 @@ class _SourceBadge extends StatelessWidget {
 
 class _InsightBody extends StatelessWidget {
   final AnatomyInsight insight;
-  const _InsightBody({required this.insight});
+  final Map<String, String> answers;
+  final ValueChanged<String> onQuestionTap;
+
+  const _InsightBody({
+    required this.insight,
+    required this.answers,
+    required this.onQuestionTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -230,21 +365,66 @@ class _InsightBody extends StatelessWidget {
           const _SectionLabel('Suggested questions'),
           const SizedBox(height: 4),
           ...insight.suggestedQuestions.take(5).map(
-                (q) => Padding(
-                  padding: const EdgeInsets.only(bottom: 3),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(top: 1, right: 6),
-                        child: Icon(Icons.help_outline, size: 13, color: Color(0xFF6D28D9)),
+                (q) {
+                  final answer = answers[q];
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: InkWell(
+                      onTap: () => onQuestionTap(q),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: answer != null
+                              ? const Color(0xFF6D28D9).withOpacity(0.08)
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: answer != null
+                                ? const Color(0xFF6D28D9).withOpacity(0.3)
+                                : const Color(0xFFE2E8F0),
+                          ),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              answer != null ? Icons.check_circle : Icons.help_outline,
+                              size: 16,
+                              color: answer != null ? const Color(0xFF6D28D9) : const Color(0xFF64748B),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    q,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: answer != null ? const Color(0xFF1E293B) : const Color(0xFF334155),
+                                      fontWeight: answer != null ? FontWeight.w600 : FontWeight.normal,
+                                    ),
+                                  ),
+                                  if (answer != null)
+                                    Text(
+                                      answer,
+                                      style: const TextStyle(fontSize: 11, color: Color(0xFF6D28D9)),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            Icon(
+                              Icons.chevron_right,
+                              size: 16,
+                              color: const Color(0xFF94A3B8),
+                            ),
+                          ],
+                        ),
                       ),
-                      Expanded(
-                        child: Text(q, style: const TextStyle(fontSize: 12, color: Color(0xFF334155))),
-                      ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
           const SizedBox(height: 10),
         ],

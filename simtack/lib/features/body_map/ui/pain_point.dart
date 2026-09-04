@@ -23,6 +23,9 @@ class PainPoint {
   int severity;
   String direction;
   String depth;
+  String? symptomDescription;
+  List<String> tags;
+  Map<String, String> questionAnswers;
 
   PainPoint({
     required this.region,
@@ -33,7 +36,11 @@ class PainPoint {
     this.severity = 5,
     this.direction = 'Towards Back',
     this.depth = 'Moderate',
-  });
+    this.symptomDescription,
+    List<String>? tags,
+    Map<String, String>? questionAnswers,
+  })  : tags = tags ?? [],
+        questionAnswers = questionAnswers ?? {};
 
   /// Two taps are treated as "the same spot" (and thus a toggle-off) if
   /// they land within this fraction of each other on the model canvas.
@@ -56,6 +63,9 @@ class PainPoint {
         'severity': severity,
         'direction': direction,
         'depth': depth,
+        'symptomDescription': symptomDescription,
+        'tags': tags,
+        'questionAnswers': questionAnswers,
       };
 
   factory PainPoint.fromJson(Map<String, dynamic> json) => PainPoint(
@@ -67,5 +77,10 @@ class PainPoint {
         severity: json['severity'] as int,
         direction: json['direction'] as String,
         depth: json['depth'] as String,
+        symptomDescription: json['symptomDescription'] as String?,
+        tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+        questionAnswers: (json['questionAnswers'] as Map<String, dynamic>?)
+                ?.map((k, v) => MapEntry(k, v as String)) ??
+            {},
       );
 }

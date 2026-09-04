@@ -71,6 +71,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           depth: point.depth,
           patientId: widget.patientId,
           visitId: visitId,
+          questionAnswers: point.questionAnswers.isEmpty ? null : point.questionAnswers,
         )));
       }
 
@@ -230,6 +231,30 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             _buildSummaryRow(t.directionLabel, point.direction, Icons.arrow_right_alt),
                             const Divider(height: 24),
                             _buildSummaryRow(t.depthLabel, point.depth, Icons.layers),
+                            if (point.questionAnswers.isNotEmpty) ...[
+                              const Divider(height: 24),
+                              ...point.questionAnswers.entries.map((entry) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 6),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Icon(Icons.question_answer_outlined, size: 16, color: Color(0xFF6D28D9)),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(entry.key, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
+                                            Text(entry.value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ],
                           ],
                         ),
                       ),
