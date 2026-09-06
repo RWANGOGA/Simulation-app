@@ -1,3 +1,4 @@
+import re
 from contextlib import asynccontextmanager
 from fastapi_offline import FastAPIOffline
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +22,7 @@ _SCHEMA_DRIFT_STATEMENTS = [
     "ALTER TABLE triage_sessions ADD COLUMN IF NOT EXISTS priority VARCHAR",
     "ALTER TABLE triage_sessions ADD COLUMN IF NOT EXISTS actions_taken TEXT",
     "ALTER TABLE triage_sessions ADD COLUMN IF NOT EXISTS clinical_notes TEXT",
+    "ALTER TABLE triage_sessions ADD COLUMN IF NOT EXISTS question_answers JSONB",
     "CREATE INDEX IF NOT EXISTS ix_triage_sessions_visit_id "
     "ON triage_sessions (visit_id)",
     "ALTER TABLE doctors ADD COLUMN IF NOT EXISTS role VARCHAR",
@@ -81,7 +83,7 @@ if not origins:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"https://.*\.github\.io",
+    allow_origin_func=lambda origin: origin in origins or bool(re.match(r"https://.*\.github\.io", origin)),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
