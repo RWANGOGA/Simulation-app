@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: atomy123
       POSTGRES_DB: atomybridge
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped

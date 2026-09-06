@@ -231,6 +231,20 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             _buildSummaryRow(t.directionLabel, point.direction, Icons.arrow_right_alt),
                             const Divider(height: 24),
                             _buildSummaryRow(t.depthLabel, point.depth, Icons.layers),
+                            const Divider(height: 24),
+                            _buildSummaryRow('Expansion', point.expansionBehavior, Icons.open_in_full),
+                            if (point.triggers.isNotEmpty) ...[
+                              const Divider(height: 24),
+                              _buildSummaryRow('Triggers (Worse)', point.triggers.join(', '), Icons.warning_amber_rounded),
+                            ],
+                            if (point.relievers.isNotEmpty) ...[
+                              const Divider(height: 24),
+                              _buildSummaryRow('Relievers (Better)', point.relievers.join(', '), Icons.health_and_safety_outlined),
+                            ],
+                            if (point.dailyLimitations.isNotEmpty) ...[
+                              const Divider(height: 24),
+                              _buildSummaryRow('Daily Limitations', point.dailyLimitations.join(', '), Icons.block),
+                            ],
                             if (point.questionAnswers.isNotEmpty) ...[
                               const Divider(height: 24),
                               ...point.questionAnswers.entries.map((entry) {
