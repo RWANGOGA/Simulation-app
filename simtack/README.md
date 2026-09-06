@@ -1,80 +1,131 @@
-# 🏥 AtomyBridge Care
+# 🏥 AtomyBridge Care — Flutter App
 
 *"For the body does not consist of one member but of many." — 1 Corinthians 12:14*
 
-**AtomyBridge Care** is an AI-powered, offline-first clinical triage application designed to bridge the communication gap between patients in pain and medical practitioners. It empowers patients to visually map their pain, capture real-time vitals via smartphone cameras, and receive instant, explainable risk assessments.
+**AtomyBridge Care** is an AI-powered, offline-first clinical triage Flutter application. It empowers patients to visually map their pain on a 2D body atlas, capture real-time vitals via smartphone cameras, receive instant explainable risk assessments, and interact with AI-generated anatomy insights.
 
 ---
 
-## ️ Architecture Overview
+## Architecture Overview
 
-The system is built as a decoupled, full-stack architecture to ensure high performance, security, and scalability.
-
-*   **The Face & Hands (Frontend):** A Flutter application (Android/iOS/Web) that provides an intuitive, 3D interactive interface for patients. It handles edge-computing tasks like PPG (Photoplethysmography) heart-rate extraction directly on the device.
-*   **The Brain & Memory (Backend):** A FastAPI (Python) server that processes clinical data, calculates triage risk scores using Explainable AI (SHAP-style logic), and securely stores patient records in a PostgreSQL database.
+The Flutter app is the patient-facing interface ("The Face") of the AtomyBridge Care platform. It communicates with the FastAPI backend via JSON/HTTP.
 
 ```text
 [ Flutter App (Patient) ]  --(HTTP/JSON)-->  [ FastAPI Server (Doctor) ]  --(SQL)-->  [ PostgreSQL DB ]
-       |                                              |
-       +-- 3D Body Map (model-viewer)                 +-- Risk Engine
-       +-- PPG Camera Vitals                          +-- SHAP Explanations
+        |                                              |
+        +-- 2D Body Atlas (tap detection)             +-- Risk Engine
+        +-- PPG Camera Vitals                          +-- Hybrid RAG Retriever
+        +-- QR Passport (no PII)                       +-- LLM-powered anatomy AI
+        +-- Offline draft saving
+        +-- Conversation memory
+```
 
+## Key Features
 
-Project Structure
+| Area | Feature |
+|---|---|
+| Patient | 2D interactive body atlas with precise region detection |
+| Patient | Camera-based PPG heart-rate capture |
+| Patient | Offline-first drafts with resume |
+| Patient | PII-free QR passport linking to the visit |
+| Patient | Accessibility: text-size control + dark / light / system theme |
+| Patient | Multi-language support: English, Luganda, Swahili, Runyankore |
+| AI | Hybrid RAG anatomy assistant with BM25 + TF-IDF search |
+| AI | LLM-powered insights with citations and conversation memory |
+| AI | Interactive suggested questions with answer persistence |
+| Data | Expanded pain profiles: triggers, relievers, daily limitations, symptom description, tags |
 
+## Project Structure
 
-atomybridge/
-├── Backend-fastapi/          # The Python/FastAPI Backend
-│   ├── app/
-│   │   ├── api/v1/           # API Endpoints (Health, Patients, Triage)
-│   │   ├── core/             # Config, Database connection
-│   │   ├── crud/             # Database operations
-│   │   ├── models/           # SQLAlchemy ORM Models
-│   │   ├── schemas/          # Pydantic Data Validation
-│   │   └── services/         # Business Logic (Risk Calculation)
-│   ├── docker-compose.yml    # PostgreSQL Database setup
-│   └── requirements.txt      # Python dependencies
-│
-├── atomybridge_app/          # The Flutter Frontend
-│   ├── lib/
-│   │   ├── core/             # API Client, Theme
-│   │   └── features/         # UI Screens (Onboarding, BodyMap, Vitals, Review)
-│   ├── assets/models/        # 3D GLB Models
-│   └── pubspec.yaml          # Flutter dependencies
-│
-└── README.md                 
+```text
+simtack/
+├── lib/
+│   ├── core/
+│   │   ├── network/             # API client, models, auth
+│   │   ├── storage/             # Offline draft storage
+│   │   ├── theme/               # AppTheme, AppPalette, accessibility
+│   │   └── widgets/             # Reusable widgets (anatomy insight cards)
+│   └── features/
+│       ├── auth/                # Login, registration
+│       ├── body_map/            # 2D body atlas, pain points, pain details
+│       ├── patient_info/        # Demographics intake
+│       ├── vitals/              # PPG camera heart-rate capture
+│       ├── review/              # Review & submit screen
+│       ├── report/              # Clinical report, QR passport
+│       ├── dashboard/           # Practitioner dashboard
+│       ├── history/             # Visit timeline
+│       ├── onboarding/          # Welcome, language selection
+│       ├── settings/            # Accessibility, language picker
+│       └── success/             # Post-submission confirmation
+├── assets/
+│   ├── models/                  # 3D GLB body model
+│   └── anatomy/                 # 2D anatomy atlas images and region mappings
+├── test/                        # Widget + unit tests
+└── pubspec.yaml                 # Flutter dependencies
+```
 
+## Getting Started
 
+### Prerequisites
 
-Setting up the Backend 
+- Flutter SDK 3.22.3+ (stable channel)
 
+### Installation
 
-cd Backend-fastapi
+```bash
+cd simtack
 
-# 1. Start the PostgreSQL database
-docker compose up -d
-
-# 2. Create and activate a virtual environment
-python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Initialize the database tables
-python -c "from app.core.database import engine, Base; from app.models import Patient, TriageSession; Base.metadata.create_all(bind=engine)"
-
-# 5. Run the server
-uvicorn app.main:app --reload --port 8000
-or use Docker commands
-
-
-Setting up the Frontend (The Face)
-
-cd atomybridge_app
-
-# 1. Install Flutter dependencies
+# 1. Install dependencies
 flutter pub get
 
 # 2. Run the app on Chrome (or your preferred device)
-flutter run -d chrome.  or use emulators
+flutter run -d chrome
+```
+
+### Running Tests
+
+```bash
+# Run all tests
+flutter test
+
+# Run linter
+flutter analyze
+```
+
+## Configuration
+
+The app resolves its API base URL at runtime:
+- **Development**: `http://localhost:8000/api/v1`
+- **Release**: Configured via build-time environment or the Render backend URL
+
+## API Integration
+
+The Flutter app integrates with the following backend endpoints:
+
+- **Auth**: `/auth/login`, `/auth/register`, `/auth/me`, `/auth/refresh`, `/auth/logout`
+- **Patients**: `/patients/` (create), `/patients/{code}` (read), `/patients/{code}` (update)
+- **Triage**: `/triage/` (submit), `/triage/list`, `/triage/stats`, `/triage/history`, `/triage/patient/{code}`, `/triage/{session_id}`, `/triage/{session_id}/decision`
+- **Anatomy AI**: `/anatomy/regions`, `/anatomy/ask`, `/anatomy/clear`
+
+See the [root README](../README.md) for full API documentation.
+
+## Localization
+
+The app supports multiple languages:
+- English (en)
+- Luganda (lg)
+- Swahili (sw)
+- Runyankore (nyn)
+
+Language selection is available during onboarding and in settings.
+
+## Accessibility
+
+- Text size control: Small → Extra large
+- Theme modes: Light, Dark, System
+- High-contrast UI elements
+- Screen reader compatible
+
+---
+
+Built with ❤️ for patients who can't always find the words.
