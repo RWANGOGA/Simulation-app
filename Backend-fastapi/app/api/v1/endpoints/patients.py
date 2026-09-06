@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime, timedelta, timezone
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.crud import crud_patient
@@ -8,8 +9,30 @@ from app.api.v1.endpoints.auth import get_current_doctor
 
 router = APIRouter(prefix="/patients", tags=["patients"])
 
+# IP-based rate limiting for public patient creation
+_patient_rate_limit: dict[str, list[datetime]] = {}
+PATIENT_RATE_LIMIT = 5  # requests per window
+PATIENT_RATE_WINDOW = timedelta(minutes=5)
+
+def _check_patient_rate_limit(request: Request):
+    client_ip = request.client.host if request.client else "unknown"
+    now = datetime.now(timezone.utc)
+    cutoff = now - PATIENT_RATE_WINDOW
+    
+    attempts = [t for t in _patient_rate_limit.get(client_ip, []) if t > cutoff]
+    _patient_rate_limit[client_ip] = attempts
+    
+    if len(attempts) >= PATIENT_RATE_LIMIT:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many requests. Please try again later.",
+        )
+    
+    _patient_rate_limit[client_ip].append(now)
+
 @router.post("/", response_model=PatientResponse, status_code=201)
-def create_patient(payload: PatientCreate, db: Session = Depends(get_db)):
+def create_patient(request: Request, payload: PatientCreate, db: Session = Depends(get_db)):
+    _check_patient_rate_limit(request)
     return crud_patient.create_patient(db, payload)
 
 @router.get("/{code}", response_model=PatientResponse)

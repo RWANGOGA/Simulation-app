@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 import json
@@ -12,6 +12,27 @@ from app.models import Patient, TriageSession, Doctor
 from app.api.v1.endpoints.auth import get_current_doctor
 
 router = APIRouter(prefix="/triage", tags=["triage"])
+
+# IP-based rate limiting for public endpoints
+_triage_rate_limit: dict[str, list[datetime]] = {}
+TRIAGE_RATE_LIMIT = 10  # requests per window
+TRIAGE_RATE_WINDOW = timedelta(minutes=5)
+
+def _check_triage_rate_limit(request: Request):
+    client_ip = request.client.host if request.client else "unknown"
+    now = datetime.now(timezone.utc)
+    cutoff = now - TRIAGE_RATE_WINDOW
+    
+    attempts = [t for t in _triage_rate_limit.get(client_ip, []) if t > cutoff]
+    _triage_rate_limit[client_ip] = attempts
+    
+    if len(attempts) >= TRIAGE_RATE_LIMIT:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many requests. Please try again later.",
+        )
+    
+    _triage_rate_limit[client_ip].append(now)
 
 def _session_payload(session: TriageSession, patient) -> dict:
     """Single source of truth for the triage response shape — every
@@ -50,7 +71,8 @@ def _session_payload(session: TriageSession, patient) -> dict:
 # are JWT-guarded instead.
 # ==========================================
 @router.post("/", response_model=TriageResponse, status_code=201)
-def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
+def create_triage(request: Request, payload: TriageCreate, db: Session = Depends(get_db)):
+    _check_triage_rate_limit(request)
     # If this pain point belongs to a multi-region visit, score it aware of
     # whatever other regions the patient already reported in the same visit
     # (e.g. chest pain scored alongside already-reported left arm pain).
@@ -120,9 +142,9 @@ def get_triage_history(
     
     # 2. Apply Filters dynamically
     if patient_code:
-        base_query = base_query.filter(Patient.anonymous_code.ilike(f"%{patient_code}%"))
+        base_query = base_query.filter(Patient.anonymous_code.ilike(func.concat('%', patient_code, '%')))
     if body_region:
-        base_query = base_query.filter(TriageSession.body_region.ilike(f"%{body_region}%"))
+        base_query = base_query.filter(TriageSession.body_region.ilike(func.concat('%', body_region, '%')))
     if risk_level == "HIGH":
         base_query = base_query.filter(TriageSession.risk_score >= 0.7)
     elif risk_level == "MEDIUM":
@@ -281,7 +303,7 @@ def list_triage_sessions(
     ).order_by(TriageSession.created_at.desc())
 
     if patient_code:
-        query = query.filter(Patient.anonymous_code.ilike(f"%{patient_code}%"))
+        query = query.filter(Patient.anonymous_code.ilike(func.concat('%', patient_code, '%')))
 
     if risk_level == "HIGH":
         query = query.filter(TriageSession.risk_score >= 0.7)

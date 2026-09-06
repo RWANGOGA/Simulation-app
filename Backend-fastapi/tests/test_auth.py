@@ -159,3 +159,44 @@ def test_register_accepts_correct_invite_code(invite_code_required):
         },
     )
     assert response.status_code == 201
+
+
+def test_read_users_me_unauthorized():
+    response = client.get("/api/v1/auth/me")
+    assert response.status_code == 401
+
+
+def test_update_users_me_success():
+    login_response = client.post("/api/v1/auth/login", data=DOCTOR_LOGIN)
+    token = login_response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = client.patch(
+        "/api/v1/auth/me",
+        headers=headers,
+        json={
+            "full_name": "Dr. Updated Name",
+            "hospital_name": "City General Hospital",
+            "phone": "+1234567890",
+        },
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["full_name"] == "Dr. Updated Name"
+    assert data["hospital_name"] == "City General Hospital"
+    assert data["phone"] == "+1234567890"
+
+
+def test_update_users_me_rejects_blank_full_name():
+    login_response = client.post("/api/v1/auth/login", data=DOCTOR_LOGIN)
+    token = login_response.json()["access_token"]
+    headers = {"Authorization": f"Bearer {token}"}
+
+    response = client.patch(
+        "/api/v1/auth/me",
+        headers=headers,
+        json={"full_name": "   "},
+    )
+    assert response.status_code == 400
+    assert response.json()["detail"] == "Full name is required"
+

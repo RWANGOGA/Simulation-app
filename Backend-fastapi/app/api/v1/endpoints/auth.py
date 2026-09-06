@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, date, timezone
 import re
+import secrets
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -11,18 +12,21 @@ from pydantic import BaseModel
 from app.core.config import settings
 from app.core.database import get_db
 from app.models.doctor import Doctor
+from app.models.refresh_token import RefreshToken
 from app.schemas.doctor import DoctorResponse, DoctorUpdate
 
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
+REFRESH_TOKEN_EXPIRE_DAYS = 7
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
 class Token(BaseModel):
     access_token: str
+    refresh_token: Optional[str] = None
     token_type: str
 
 class DoctorCreate(BaseModel):
@@ -87,24 +91,89 @@ def get_current_doctor(token: str = Depends(oauth2_scheme), db: Session = Depend
         raise credentials_exception
     return doctor
 
+_failed_login_attempts: dict[str, list[datetime]] = {}
+
+def _check_rate_limit(key: str):
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(seconds=settings.LOGIN_LOCKOUT_SECONDS)
+    attempts = [t for t in _failed_login_attempts.get(key, []) if t > cutoff]
+    _failed_login_attempts[key] = attempts
+    if len(attempts) >= settings.MAX_LOGIN_ATTEMPTS:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many failed login attempts. Please try again later.",
+        )
+
+def _record_failed_attempt(key: str):
+    now = datetime.now(timezone.utc)
+    _failed_login_attempts.setdefault(key, []).append(now)
+
+def _clear_failed_attempts(key: str):
+    _failed_login_attempts.pop(key, None)
+
 @router.post("/login", response_model=Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    email = form_data.username.strip().lower()
+    email = (form_data.username or "").strip().lower()
+    _check_rate_limit(email)
+
     doctor = db.query(Doctor).filter(Doctor.email == email).first()
     
-    if not doctor or not verify_password(form_data.password, doctor.hashed_password):
+    if not doctor or not verify_password(form_data.password or "", doctor.hashed_password):
+        _record_failed_attempt(email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    _clear_failed_attempts(email)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": str(doctor.id)}, expires_delta=access_token_expires
     )
     
+    refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    refresh_token_raw = secrets.token_urlsafe(32)
+    refresh_token = create_access_token(
+        data={"sub": str(doctor.id), "type": "refresh"},
+        expires_delta=refresh_token_expires,
+    )
+    
+    db_refresh = RefreshToken(
+        doctor_id=doctor.id,
+        token=refresh_token_raw,
+        expires_at=datetime.now(timezone.utc) + refresh_token_expires,
+    )
+    db.add(db_refresh)
+    db.commit()
+    
+    return {"access_token": access_token, "refresh_token": refresh_token_raw, "token_type": "bearer"}
+
+
+@router.post("/refresh", response_model=Token)
+def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
+    stored = db.query(RefreshToken).filter(RefreshToken.token == refresh_token).first()
+    if not stored or not stored.is_valid():
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired refresh token",
+        )
+    
+    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+        data={"sub": str(stored.doctor_id)}, expires_delta=access_token_expires
+    )
     return {"access_token": access_token, "token_type": "bearer"}
+
+
+@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+def logout(refresh_token: Optional[str] = None, db: Session = Depends(get_db)):
+    if refresh_token:
+        stored = db.query(RefreshToken).filter(RefreshToken.token == refresh_token).first()
+        if stored:
+            stored.revoked = "true"
+            db.commit()
+    return None
 
 @router.post("/register", response_model=DoctorResponse, status_code=status.HTTP_201_CREATED)
 def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
@@ -133,10 +202,30 @@ def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
             detail="Full name is required",
         )
     password = payload.password
-    if len(password) < 8 or not re.search(r"[A-Za-z]", password) or not re.search(r"\d", password):
+    if len(password) < 12 or len(password) > 128:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password must be at least 8 characters and contain a letter and a number",
+            detail="Password must be between 12 and 128 characters",
+        )
+    if not re.search(r"[A-Z]", password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must contain at least one uppercase letter",
+        )
+    if not re.search(r"[a-z]", password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must contain at least one lowercase letter",
+        )
+    if not re.search(r"\d", password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must contain at least one number",
+        )
+    if not re.search(r"[!@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]", password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must contain at least one special character (!@#$%^&*()_+-=[]{};':\"|,.<>/? )",
         )
     existing = db.query(Doctor).filter(Doctor.email == email).first()
     if existing:
@@ -167,7 +256,13 @@ def read_users_me(current_doctor: Doctor = Depends(get_current_doctor)):
 @router.patch("/me", response_model=DoctorResponse)
 def update_users_me(payload: DoctorUpdate, current_doctor: Doctor = Depends(get_current_doctor), db: Session = Depends(get_db)):
     if payload.full_name is not None:
-        current_doctor.full_name = payload.full_name.strip()
+        name = payload.full_name.strip()
+        if not name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Full name is required",
+            )
+        current_doctor.full_name = name
     if payload.role is not None:
         current_doctor.role = payload.role.strip() or None
     if payload.license_number is not None:

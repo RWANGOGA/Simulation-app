@@ -8,25 +8,41 @@ class PainPoint {
   final String region;
   final double x; // 0..1 fraction of the model canvas
   final double y; // 0..1 fraction of the model canvas
+  final String? viewKey;
 
   String painType;
   int severity;
   String direction;
   String depth;
+  String expansionBehavior;
+  List<String> triggers;
+  List<String> relievers;
+  List<String> dailyLimitations;
   String? symptomDescription;
   List<String> tags;
+  Map<String, String> questionAnswers;
 
   PainPoint({
     required this.region,
     required this.x,
     required this.y,
+    this.viewKey,
     this.painType = 'Sharp',
     this.severity = 5,
     this.direction = 'Towards Back',
     this.depth = 'Moderate',
+    this.expansionBehavior = 'Stays Small',
+    List<String>? triggers,
+    List<String>? relievers,
+    List<String>? dailyLimitations,
     this.symptomDescription,
     List<String>? tags,
-  }) : tags = tags ?? [];
+    Map<String, String>? questionAnswers,
+  })  : triggers = triggers ?? [],
+        relievers = relievers ?? [],
+        dailyLimitations = dailyLimitations ?? [],
+        tags = tags ?? [],
+        questionAnswers = questionAnswers ?? {};
 
   /// Two taps are treated as "the same spot" (and thus a toggle-off) if
   /// they land within this fraction of each other on the model canvas.
@@ -44,23 +60,37 @@ class PainPoint {
         'region': region,
         'x': x,
         'y': y,
+        'viewKey': viewKey,
         'painType': painType,
         'severity': severity,
         'direction': direction,
         'depth': depth,
+        'expansionBehavior': expansionBehavior,
+        'triggers': triggers,
+        'relievers': relievers,
+        'dailyLimitations': dailyLimitations,
         'symptomDescription': symptomDescription,
         'tags': tags,
+        'questionAnswers': questionAnswers,
       };
 
   factory PainPoint.fromJson(Map<String, dynamic> json) => PainPoint(
         region: json['region'] as String,
         x: (json['x'] as num).toDouble(),
         y: (json['y'] as num).toDouble(),
-        painType: json['painType'] as String,
-        severity: json['severity'] as int,
-        direction: json['direction'] as String,
-        depth: json['depth'] as String,
+        viewKey: json['viewKey'] as String?,
+        painType: json['painType'] as String? ?? 'Sharp',
+        severity: json['severity'] as int? ?? 5,
+        direction: json['direction'] as String? ?? 'Towards Back',
+        depth: json['depth'] as String? ?? 'Moderate',
+        expansionBehavior: json['expansionBehavior'] as String? ?? 'Stays Small',
+        triggers: (json['triggers'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+        relievers: (json['relievers'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+        dailyLimitations: (json['dailyLimitations'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
         symptomDescription: json['symptomDescription'] as String?,
         tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+        questionAnswers: (json['questionAnswers'] as Map<String, dynamic>?)
+                ?.map((k, v) => MapEntry(k, v as String)) ??
+            {},
       );
 }
