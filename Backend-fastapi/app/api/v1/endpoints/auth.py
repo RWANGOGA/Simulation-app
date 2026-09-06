@@ -17,7 +17,7 @@ SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.ACCESS_TOKEN_EXPIRE_MINUTES
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="api/v1/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
 
 router = APIRouter(prefix="/auth", tags=["authentication"])
 
@@ -87,18 +87,42 @@ def get_current_doctor(token: str = Depends(oauth2_scheme), db: Session = Depend
         raise credentials_exception
     return doctor
 
+_failed_login_attempts: dict[str, list[datetime]] = {}
+
+def _check_rate_limit(key: str):
+    now = datetime.now(timezone.utc)
+    cutoff = now - timedelta(seconds=settings.LOGIN_LOCKOUT_SECONDS)
+    attempts = [t for t in _failed_login_attempts.get(key, []) if t > cutoff]
+    _failed_login_attempts[key] = attempts
+    if len(attempts) >= settings.MAX_LOGIN_ATTEMPTS:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many failed login attempts. Please try again later.",
+        )
+
+def _record_failed_attempt(key: str):
+    now = datetime.now(timezone.utc)
+    _failed_login_attempts.setdefault(key, []).append(now)
+
+def _clear_failed_attempts(key: str):
+    _failed_login_attempts.pop(key, None)
+
 @router.post("/login", response_model=Token)
 def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    email = form_data.username.strip().lower()
+    email = (form_data.username or "").strip().lower()
+    _check_rate_limit(email)
+
     doctor = db.query(Doctor).filter(Doctor.email == email).first()
     
-    if not doctor or not verify_password(form_data.password, doctor.hashed_password):
+    if not doctor or not verify_password(form_data.password or "", doctor.hashed_password):
+        _record_failed_attempt(email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     
+    _clear_failed_attempts(email)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": str(doctor.id)}, expires_delta=access_token_expires
@@ -167,7 +191,13 @@ def read_users_me(current_doctor: Doctor = Depends(get_current_doctor)):
 @router.patch("/me", response_model=DoctorResponse)
 def update_users_me(payload: DoctorUpdate, current_doctor: Doctor = Depends(get_current_doctor), db: Session = Depends(get_db)):
     if payload.full_name is not None:
-        current_doctor.full_name = payload.full_name.strip()
+        name = payload.full_name.strip()
+        if not name:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Full name is required",
+            )
+        current_doctor.full_name = name
     if payload.role is not None:
         current_doctor.role = payload.role.strip() or None
     if payload.license_number is not None:

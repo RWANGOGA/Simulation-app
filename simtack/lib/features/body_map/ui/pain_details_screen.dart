@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'pain_point.dart';
-import '../../review/ui/review_screen.dart';
+import 'pain_profile_functional_impact_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
 import '../../../l10n/app_localizations.dart';
@@ -70,10 +70,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
     }
 
     // All locations have their details filled in — hand the whole list
-    // forward to the review screen.
+    // forward to the Pain Profile & Functional Impact screen.
     Navigator.of(context).push(
       AppPageRoute(
-        builder: (_) => ReviewScreen(
+        builder: (_) => PainProfileFunctionalImpactScreen(
           painPoints: widget.painPoints,
           patientId: widget.patientId,
         ),

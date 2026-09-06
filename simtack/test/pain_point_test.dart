@@ -12,7 +12,10 @@ void main() {
       expect(point.painType, equals('Sharp'));
       expect(point.severity, equals(5));
       expect(point.direction, equals('Towards Back'));
-      expect(point.depth, equals('Moderate'));
+      expect(point.expansionBehavior, equals('Stays Small'));
+      expect(point.triggers, isEmpty);
+      expect(point.relievers, isEmpty);
+      expect(point.dailyLimitations, isEmpty);
     });
 
     test('isNearby returns true within threshold and false outside', () {
@@ -25,7 +28,7 @@ void main() {
       expect(point.isNearby(0.10, 0.10), isFalse);
     });
 
-    test('toJson and fromJson correctly serialize and deserialize', () {
+    test('toJson and fromJson correctly serialize and deserialize all pain profile fields', () {
       final original = PainPoint(
         region: 'Abdomen (Lower Right)',
         x: 0.45,
@@ -34,6 +37,10 @@ void main() {
         severity: 8,
         direction: 'Spreading downward',
         depth: 'Deep',
+        expansionBehavior: 'Spreading',
+        triggers: ['Walking / Moving', 'Sitting Down'],
+        relievers: ['Resting Flat', 'Ice / Cold Compact'],
+        dailyLimitations: ['Cannot Sleep', 'Cannot Walk'],
       );
 
       final json = original.toJson();
@@ -42,6 +49,10 @@ void main() {
       expect(json['y'], equals(0.65));
       expect(json['painType'], equals('Throbbing'));
       expect(json['severity'], equals(8));
+      expect(json['expansionBehavior'], equals('Spreading'));
+      expect(json['triggers'], equals(['Walking / Moving', 'Sitting Down']));
+      expect(json['relievers'], equals(['Resting Flat', 'Ice / Cold Compact']));
+      expect(json['dailyLimitations'], equals(['Cannot Sleep', 'Cannot Walk']));
 
       final restored = PainPoint.fromJson(json);
       expect(restored.region, equals(original.region));
@@ -51,6 +62,10 @@ void main() {
       expect(restored.severity, equals(original.severity));
       expect(restored.direction, equals(original.direction));
       expect(restored.depth, equals(original.depth));
+      expect(restored.expansionBehavior, equals('Spreading'));
+      expect(restored.triggers, equals(['Walking / Moving', 'Sitting Down']));
+      expect(restored.relievers, equals(['Resting Flat', 'Ice / Cold Compact']));
+      expect(restored.dailyLimitations, equals(['Cannot Sleep', 'Cannot Walk']));
     });
 
     test('toJson and fromJson handle symptomDescription and tags', () {
