@@ -4,9 +4,9 @@ import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
-/// The translations for English (`en`).
-class AppLocalizationsEn extends AppLocalizations {
-  AppLocalizationsEn([String locale = 'en']) : super(locale);
+/// The translations for Nyankole (`nyn`).
+class AppLocalizationsNyn extends AppLocalizations {
+  AppLocalizationsNyn([String locale = 'nyn']) : super(locale);
 
   @override
   String get chooseLanguageTitle => 'Choose Your Language';

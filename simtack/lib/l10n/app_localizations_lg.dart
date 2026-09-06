@@ -9,19 +9,19 @@ class AppLocalizationsLg extends AppLocalizations {
   AppLocalizationsLg([String locale = 'lg']) : super(locale);
 
   @override
-  String get chooseLanguageTitle => 'Londa Olulimi';
+  String get chooseLanguageTitle => 'Londa Olulimi Lwo';
 
   @override
   String get chooseLanguageSubtitle => 'Londa olulimi kw\'oyagala okukozesa';
 
   @override
-  String get languageEnglish => 'English';
+  String get languageEnglish => 'Lungereza';
 
   @override
   String get languageLuganda => 'Luganda';
 
   @override
-  String get languageRunyankole => 'Runyankole';
+  String get languageRunyankole => 'Runyankore';
 
   @override
   String get languageLusoga => 'Lusoga';

@@ -40,6 +40,7 @@ flutter:
   assets:
     - assets/models/
     - assets/avatars/
+    - assets/anatomy/
   fonts:
     # Inter (SIL OFL) — bundled as an asset, not fetched at runtime, since
     # the app has to work fully offline. It's a variable font: every weight

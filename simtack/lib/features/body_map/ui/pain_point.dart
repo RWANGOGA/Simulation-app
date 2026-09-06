@@ -10,6 +10,16 @@ class PainPoint {
   final double y; // 0..1 fraction of the model canvas
   final String? viewKey;
 
+  // Which image these x/y fractions were measured against: null for the
+  // whole-body view, or a zoom-kit name (e.g. "hand") for a close-up. The
+  // same 0..1 point means a completely different screen position on a
+  // different image, so a marker must only ever be drawn on the view it
+  // was tapped on — mixing them up used to show, e.g., a stale whole-body
+  // "Left Arm / Shoulder" marker floating off to one side of the hand
+  // close-up, at that region's whole-body fraction, wherever that happened
+  // to fall on the hand image instead.
+  final String? viewKey;
+
   String painType;
   int severity;
   String direction;

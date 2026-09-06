@@ -51,6 +51,7 @@ def _session_payload(session: TriageSession, patient) -> dict:
         "priority": session.priority,
         "actions_taken": session.actions_taken,
         "clinical_notes": session.clinical_notes,
+        "question_answers": session.question_answers,
         "patient_age": patient.age if patient else None,
         "patient_gender": patient.gender if patient else None,
         "patient_weight": patient.weight if patient else None,

@@ -30,7 +30,7 @@ void main() {
 
     expect(find.text('English', skipOffstage: false), findsOneWidget);
     expect(find.text('Luganda', skipOffstage: false), findsOneWidget);
-    expect(find.text('Runyankole', skipOffstage: false), findsOneWidget);
+    expect(find.text('Runyankore', skipOffstage: false), findsOneWidget);
     expect(find.text('Lusoga', skipOffstage: false), findsOneWidget);
     expect(find.text('Kiswahili', skipOffstage: false), findsOneWidget);
     expect(find.text('Sign Language', skipOffstage: false), findsOneWidget);

@@ -71,6 +71,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           depth: point.depth,
           patientId: widget.patientId,
           visitId: visitId,
+          questionAnswers: point.questionAnswers.isEmpty ? null : point.questionAnswers,
         )));
       }
 

@@ -1,0 +1,22 @@
+{
+  "Thigh Bone (Femur)": [
+    242,
+    36,
+    36
+  ],
+  "Kneecap (Patella)": [
+    139,
+    242,
+    36
+  ],
+  "Shin Bone (Tibia)": [
+    36,
+    242,
+    242
+  ],
+  "Fibula": [
+    139,
+    36,
+    242
+  ]
+}
