@@ -1,5 +1,8 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import Field
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "AtomyBridge Care API"
@@ -7,7 +10,7 @@ class Settings(BaseSettings):
     API_V1_STR: str = "/api/v1"
     ENVIRONMENT: str = Field(default="development", validation_alias="ENVIRONMENT")
     DATABASE_URL: str = Field(..., validation_alias="DATABASE_URL")
-    SECRET_KEY: str = Field(..., min_length=32, validation_alias="SECRET_KEY")
+    SECRET_KEY: str = Field(default="change-me-in-production", min_length=32, validation_alias="SECRET_KEY")
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     MAX_LOGIN_ATTEMPTS: int = 5
@@ -21,3 +24,6 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
 settings = Settings()
+
+if settings.SECRET_KEY == "change-me-in-production":
+    logger.warning("SECURITY WARNING: Using default SECRET_KEY. Set SECRET_KEY environment variable in production.")
