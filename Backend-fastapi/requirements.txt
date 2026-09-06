@@ -7,7 +7,6 @@ pydantic-settings==2.5.2
 python-dotenv==1.0.1
 python-multipart==0.0.12
 fastapi-offline==1.7.0
-psycopg2-binary==2.9.9
 python-jose[cryptography]==3.3.0
 bcrypt==4.2.0
 pytest==8.3.3
