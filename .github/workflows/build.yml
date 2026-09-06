@@ -69,8 +69,7 @@ jobs:
         # site at https://<user>.github.io/<repo>/, and Flutter needs to know
         # that subpath to load its JS/asset files correctly instead of
         # looking for them at the domain root.
-        # Use --web-renderer html because several dependencies are not Wasm-compatible yet.
-        run: flutter build web --release --web-renderer html --base-href "/Simulation-app/"
+        run: flutter build web --release --base-href "/Simulation-app/"
 
       - name: Upload web build (plain artifact, always)
         uses: actions/upload-artifact@v4
