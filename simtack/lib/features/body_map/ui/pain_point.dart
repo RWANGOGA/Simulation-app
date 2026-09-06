@@ -8,6 +8,7 @@ class PainPoint {
   final String region;
   final double x; // 0..1 fraction of the model canvas
   final double y; // 0..1 fraction of the model canvas
+  final String? viewKey;
 
   String painType;
   int severity;
@@ -19,11 +20,13 @@ class PainPoint {
   List<String> dailyLimitations;
   String? symptomDescription;
   List<String> tags;
+  Map<String, String> questionAnswers;
 
   PainPoint({
     required this.region,
     required this.x,
     required this.y,
+    this.viewKey,
     this.painType = 'Sharp',
     this.severity = 5,
     this.direction = 'Towards Back',
@@ -57,6 +60,7 @@ class PainPoint {
         'region': region,
         'x': x,
         'y': y,
+        'viewKey': viewKey,
         'painType': painType,
         'severity': severity,
         'direction': direction,
@@ -67,6 +71,7 @@ class PainPoint {
         'dailyLimitations': dailyLimitations,
         'symptomDescription': symptomDescription,
         'tags': tags,
+        'questionAnswers': questionAnswers,
       };
 
   factory PainPoint.fromJson(Map<String, dynamic> json) => PainPoint(
