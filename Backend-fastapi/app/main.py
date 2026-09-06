@@ -70,10 +70,18 @@ async def add_security_headers(request, call_next):
 
 origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",") if o.strip()]
 if not origins:
-    origins = ["http://localhost:3000", "http://localhost:8000", "http://127.0.0.1:3000", "http://127.0.0.1:8000"]
+    origins = [
+        "http://localhost:3000",
+        "http://localhost:8000",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:8000",
+        "https://rwangoga.github.io",
+    ]
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+    allow_origin_regex=r"https://.*\.github\.io",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
