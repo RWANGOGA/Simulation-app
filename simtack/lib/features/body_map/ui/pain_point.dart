@@ -18,7 +18,6 @@ class PainPoint {
   // "Left Arm / Shoulder" marker floating off to one side of the hand
   // close-up, at that region's whole-body fraction, wherever that happened
   // to fall on the hand image instead.
-  final String? viewKey;
 
   String painType;
   int severity;
