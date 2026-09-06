@@ -83,7 +83,6 @@ if not origins:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_func=lambda origin: origin in origins or bool(re.match(r"https://.*\.github\.io", origin)),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
