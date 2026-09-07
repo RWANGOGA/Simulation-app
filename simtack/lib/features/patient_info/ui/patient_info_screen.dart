@@ -14,7 +14,7 @@ class PatientInfoScreen extends StatefulWidget {
 
 class _PatientInfoScreenState extends State<PatientInfoScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _ageController = TextEditingController();
+  final _dobController = TextEditingController();
   final _weightController = TextEditingController();
   final _heightController = TextEditingController();
   // Optional personal details — stored so the practitioner sees them on
@@ -31,7 +31,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
 
   @override
   void dispose() {
-    _ageController.dispose();
+    _dobController.dispose();
     _weightController.dispose();
     _heightController.dispose();
     _nameController.dispose();
@@ -46,14 +46,28 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
   int _calculateAge(DateTime dob) {
     final now = DateTime.now();
     int age = now.year - dob.year;
-    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
       age--;
     }
     return age;
   }
 
   String _formatDob(DateTime dob) {
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
+    ];
     return '${dob.day} ${months[dob.month - 1]} ${dob.year}';
   }
 
@@ -69,7 +83,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
     if (picked != null) {
       setState(() {
         _dateOfBirth = picked;
-        _ageController.text = _calculateAge(picked).toString();
+        _dobController.text = _formatDob(picked);
       });
     }
   }
@@ -81,7 +95,8 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
   }) =>
       InputDecoration(
         labelText: label,
-        prefixIcon: icon != null ? Icon(icon, color: const Color(0xFF6D28D9)) : null,
+        prefixIcon:
+            icon != null ? Icon(icon, color: const Color(0xFF6D28D9)) : null,
         helperText: helper,
         filled: true,
         fillColor: AppPalette.inputFill(context),
@@ -130,22 +145,16 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                 const SizedBox(height: 4),
                 Text(
                   'This helps us build your body map',
-                  style: TextStyle(fontSize: 15, color: AppPalette.textMuted(context)),
+                  style: TextStyle(
+                      fontSize: 15, color: AppPalette.textMuted(context)),
                 ),
                 const SizedBox(height: 24),
-
                 Expanded(
                   child: ListView(
                     children: [
                       _buildGenderSelector(),
                       const SizedBox(height: 20),
-                      _buildNumberField(
-                        controller: _ageController,
-                        label: 'Age',
-                        suffix: 'years',
-                        min: 0,
-                        max: 120,
-                      ),
+                      _buildDateOfBirthField(),
                       const SizedBox(height: 16),
                       _buildNumberField(
                         controller: _weightController,
@@ -178,7 +187,8 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                       Text(
                         'Add these so the practitioner can identify and reach you. '
                         'Skip them to stay fully anonymous.',
-                        style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context)),
+                        style: TextStyle(
+                            fontSize: 13, color: AppPalette.textMuted(context)),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
@@ -187,21 +197,6 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                         decoration: _fieldDecoration(
                           label: 'Full Name',
                           icon: Icons.person_outline,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      GestureDetector(
-                        onTap: _pickDateOfBirth,
-                        child: AbsorbPointer(
-                          child: TextFormField(
-                            decoration: _fieldDecoration(
-                              label: 'Date of Birth',
-                              icon: Icons.cake_outlined,
-                            ),
-                            controller: TextEditingController(
-                              text: _dateOfBirth != null ? _formatDob(_dateOfBirth!) : '',
-                            ),
-                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -231,7 +226,8 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                         decoration: _fieldDecoration(
                           label: 'Next of Kin Name',
                           icon: Icons.family_restroom,
-                          helper: 'Useful when reporting for a child or dependent',
+                          helper:
+                              'Useful when reporting for a child or dependent',
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -256,7 +252,6 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
@@ -273,7 +268,8 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                         ? const SizedBox(
                             width: 24,
                             height: 24,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 3),
                           )
                         : const Text(
                             'Continue',
@@ -313,7 +309,9 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
           color: isSelected ? const Color(0xFF6D28D9) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? const Color(0xFF6D28D9) : AppPalette.border(context),
+            color: isSelected
+                ? const Color(0xFF6D28D9)
+                : AppPalette.border(context),
             width: 2,
           ),
         ),
@@ -355,7 +353,29 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         if (value == null || value.isEmpty) return '$label is required';
         final parsed = num.tryParse(value);
         if (parsed == null) return 'Enter a valid number';
-        if (parsed < min || parsed > max) return '$label must be between $min and $max';
+        if (parsed < min || parsed > max) {
+          return '$label must be between $min and $max';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildDateOfBirthField() {
+    return TextFormField(
+      key: const Key('date_of_birth_field'),
+      controller: _dobController,
+      readOnly: true,
+      onTap: _pickDateOfBirth,
+      decoration: _fieldDecoration(
+        label: 'Date of Birth',
+        icon: Icons.cake_outlined,
+        helper: _dateOfBirth != null
+            ? 'Age: ${_calculateAge(_dateOfBirth!)} years'
+            : 'Select your birth date from the calendar',
+      ),
+      validator: (value) {
+        if (_dateOfBirth == null) return 'Date of Birth is required';
         return null;
       },
     );
@@ -367,7 +387,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
     setState(() => _isSubmitting = true);
     try {
       final patient = await ApiClient.createPatient(PatientProfile(
-        age: int.tryParse(_ageController.text),
+        age: _dateOfBirth != null ? _calculateAge(_dateOfBirth!) : null,
         gender: _gender,
         weight: double.parse(_weightController.text),
         height: double.parse(_heightController.text),
