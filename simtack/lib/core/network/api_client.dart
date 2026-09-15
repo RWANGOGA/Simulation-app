@@ -8,6 +8,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 abstract class TokenStorage {
   Future<void> write(String value);
   Future<String?> read();
+  Future<void> writeRefreshToken(String value) async {}
+  Future<String?> readRefreshToken() async => null;
   Future<void> delete();
 }
 
@@ -16,15 +18,27 @@ class SecureTokenStorage implements TokenStorage {
     aOptions: AndroidOptions(),
   );
   static const _tokenKey = 'auth_token';
+  static const _refreshTokenKey = 'refresh_token';
 
   @override
-  Future<void> write(String value) => _storage.write(key: _tokenKey, value: value);
+  Future<void> write(String value) =>
+      _storage.write(key: _tokenKey, value: value);
 
   @override
   Future<String?> read() => _storage.read(key: _tokenKey);
 
   @override
-  Future<void> delete() => _storage.delete(key: _tokenKey);
+  Future<void> writeRefreshToken(String value) =>
+      _storage.write(key: _refreshTokenKey, value: value);
+
+  @override
+  Future<String?> readRefreshToken() => _storage.read(key: _refreshTokenKey);
+
+  @override
+  Future<void> delete() async {
+    await _storage.delete(key: _tokenKey);
+    await _storage.delete(key: _refreshTokenKey);
+  }
 }
 
 class Doctor {
@@ -138,8 +152,7 @@ class PatientProfile {
         if (fullName != null && fullName!.trim().isNotEmpty)
           'full_name': fullName!.trim(),
         if (dateOfBirth != null)
-          'date_of_birth':
-              '${dateOfBirth!.year.toString().padLeft(4, '0')}-'
+          'date_of_birth': '${dateOfBirth!.year.toString().padLeft(4, '0')}-'
               '${dateOfBirth!.month.toString().padLeft(2, '0')}-'
               '${dateOfBirth!.day.toString().padLeft(2, '0')}',
         if (phone != null && phone!.trim().isNotEmpty) 'phone': phone!.trim(),
@@ -173,6 +186,7 @@ class TriageReport {
   final String? direction;
   final String? depth;
   final int? patientId;
+  final String? patientCode;
   final String? visitId;
   final Map<String, String>? questionAnswers;
 
@@ -183,6 +197,7 @@ class TriageReport {
     this.direction,
     this.depth,
     this.patientId,
+    this.patientCode,
     this.visitId,
     this.questionAnswers,
   });
@@ -326,8 +341,14 @@ class TriageResult {
 
 class ApiClient {
   static String get baseUrl {
+    const configuredUrl = String.fromEnvironment('API_BASE_URL');
+    if (configuredUrl.isNotEmpty) return configuredUrl;
     if (kDebugMode) {
-      return 'http://127.0.0.1:8000/api/v1';
+      const debugHost = String.fromEnvironment(
+        'API_DEBUG_HOST',
+        defaultValue: '127.0.0.1',
+      );
+      return 'http://$debugHost:8000/api/v1';
     } else {
       return 'https://backend-fastapi-linv.onrender.com/api/v1';
     }
@@ -344,7 +365,8 @@ class ApiClient {
     };
   }
 
-  static Future<Doctor> login({required String email, required String password}) async {
+  static Future<Doctor> login(
+      {required String email, required String password}) async {
     final response = await httpClient.post(
       Uri.parse('$baseUrl/auth/login'),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -356,10 +378,37 @@ class ApiClient {
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final token = data['access_token'] as String?;
     if (token == null) {
-      throw ApiException(message: 'Login response was missing an access token.');
+      throw ApiException(
+          message: 'Login response was missing an access token.');
     }
     await tokenStorage.write(token);
+    final refreshToken = data['refresh_token'] as String?;
+    if (refreshToken != null) {
+      await tokenStorage.writeRefreshToken(refreshToken);
+    }
     return getCurrentDoctor();
+  }
+
+  static Future<void> refreshAccessToken() async {
+    final refreshToken = await tokenStorage.readRefreshToken();
+    if (refreshToken == null) {
+      throw ApiException(message: 'No refresh token is available.');
+    }
+    final response = await httpClient.post(
+      Uri.parse('$baseUrl/auth/refresh'),
+      body: {'refresh_token': refreshToken},
+    );
+    if (response.statusCode != 200) {
+      await tokenStorage.delete();
+      throw ApiException.fromResponse(response.statusCode, response.body);
+    }
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final token = data['access_token'] as String?;
+    if (token == null) {
+      throw ApiException(
+          message: 'Refresh response was missing an access token.');
+    }
+    await tokenStorage.write(token);
   }
 
   /// Creates a practitioner account, then logs in with the same
@@ -389,8 +438,7 @@ class ApiClient {
         if (hospitalName != null && hospitalName.trim().isNotEmpty)
           'hospital_name': hospitalName.trim(),
         if (dateOfBirth != null)
-          'date_of_birth':
-              '${dateOfBirth.year.toString().padLeft(4, '0')}-'
+          'date_of_birth': '${dateOfBirth.year.toString().padLeft(4, '0')}-'
               '${dateOfBirth.month.toString().padLeft(2, '0')}-'
               '${dateOfBirth.day.toString().padLeft(2, '0')}',
         if (inviteCode != null && inviteCode.trim().isNotEmpty)
@@ -414,7 +462,8 @@ class ApiClient {
     return Doctor.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
-  static Future<bool> get isLoggedIn async => (await tokenStorage.read()) != null;
+  static Future<bool> get isLoggedIn async =>
+      (await tokenStorage.read()) != null;
 
   static Future<void> logout() => tokenStorage.delete();
 
@@ -429,14 +478,16 @@ class ApiClient {
         jsonDecode(response.body) as Map<String, dynamic>,
       );
     }
-    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+    throw Exception(
+        'Hospital answered ${response.statusCode}: ${response.body}');
   }
 
   /// Practitioner-only correction of a patient's demographics — sends only
   /// the fields the caller actually set on [profile] (see
   /// PatientProfile.toJson), so an edit to just one field doesn't clobber
   /// the rest. JWT-guarded on the backend.
-  static Future<void> updatePatientDemographics(String anonymousCode, PatientProfile profile) async {
+  static Future<void> updatePatientDemographics(
+      String anonymousCode, PatientProfile profile) async {
     final response = await httpClient.patch(
       Uri.parse('$baseUrl/patients/$anonymousCode'),
       headers: await _authHeaders(),
@@ -451,7 +502,10 @@ class ApiClient {
     debugPrint('🚀 Sending to backend ($baseUrl): ${report.toJson()}');
     final response = await httpClient.post(
       Uri.parse('$baseUrl/triage/'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        if (report.patientCode != null) 'X-Patient-Code': report.patientCode!,
+      },
       body: jsonEncode(report.toJson()),
     );
     if (response.statusCode == 201) {
@@ -459,7 +513,8 @@ class ApiClient {
         jsonDecode(response.body) as Map<String, dynamic>,
       );
     }
-    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+    throw Exception(
+        'Hospital answered ${response.statusCode}: ${response.body}');
   }
 
   static Future<List<TriageResult>> getLatestVisit(String patientCode) async {
@@ -474,12 +529,14 @@ class ApiClient {
           .map((e) => TriageResult.fromJson(e as Map<String, dynamic>))
           .toList();
     }
-    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+    throw Exception(
+        'Hospital answered ${response.statusCode}: ${response.body}');
   }
 
   /// Practitioner-only: every session the patient ever submitted, newest
   /// first. Powers the visit timeline on the clinical report.
-  static Future<List<TriageResult>> getPatientHistory(String patientCode) async {
+  static Future<List<TriageResult>> getPatientHistory(
+      String patientCode) async {
     final response = await httpClient.get(
       Uri.parse('$baseUrl/triage/patient/$patientCode/history'),
       headers: await _authHeaders(),
@@ -490,7 +547,8 @@ class ApiClient {
           .map((e) => TriageResult.fromJson(e as Map<String, dynamic>))
           .toList();
     }
-    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+    throw Exception(
+        'Hospital answered ${response.statusCode}: ${response.body}');
   }
 
   static Future<Map<String, dynamic>> getTriageStats() async {
@@ -505,7 +563,8 @@ class ApiClient {
     throw Exception('Failed to load stats: ${response.body}');
   }
 
-  static Future<Map<String, dynamic>> getTriageReports({String period = 'all'}) async {
+  static Future<Map<String, dynamic>> getTriageReports(
+      {String period = 'all'}) async {
     // Doctor-only endpoint — must carry the JWT.
     final response = await httpClient.get(
       Uri.parse('$baseUrl/triage/reports?period=$period'),
@@ -560,9 +619,11 @@ class ApiClient {
       }),
     );
     if (response.statusCode == 200) {
-      return TriageResult.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+      return TriageResult.fromJson(
+          jsonDecode(response.body) as Map<String, dynamic>);
     }
-    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+    throw Exception(
+        'Hospital answered ${response.statusCode}: ${response.body}');
   }
 
   static Future<Doctor> updateDoctorProfile({
@@ -576,10 +637,17 @@ class ApiClient {
     final body = <String, dynamic>{};
     if (fullName != null) body['full_name'] = fullName.trim();
     if (role != null) body['role'] = role.trim().isEmpty ? null : role.trim();
-    if (licenseNumber != null) body['license_number'] = licenseNumber.trim().isEmpty ? null : licenseNumber.trim();
-    if (phone != null) body['phone'] = phone.trim().isEmpty ? null : phone.trim();
-    if (hospitalName != null) body['hospital_name'] = hospitalName.trim().isEmpty ? null : hospitalName.trim();
-    if (dateOfBirth != null) body['date_of_birth'] = '${dateOfBirth.year.toString().padLeft(4, '0')}-${dateOfBirth.month.toString().padLeft(2, '0')}-${dateOfBirth.day.toString().padLeft(2, '0')}';
+    if (licenseNumber != null)
+      body['license_number'] =
+          licenseNumber.trim().isEmpty ? null : licenseNumber.trim();
+    if (phone != null)
+      body['phone'] = phone.trim().isEmpty ? null : phone.trim();
+    if (hospitalName != null)
+      body['hospital_name'] =
+          hospitalName.trim().isEmpty ? null : hospitalName.trim();
+    if (dateOfBirth != null)
+      body['date_of_birth'] =
+          '${dateOfBirth.year.toString().padLeft(4, '0')}-${dateOfBirth.month.toString().padLeft(2, '0')}-${dateOfBirth.day.toString().padLeft(2, '0')}';
 
     final response = await httpClient.patch(
       Uri.parse('$baseUrl/auth/me'),
@@ -614,7 +682,8 @@ class ApiClient {
       body: jsonEncode(body),
     );
     if (response.statusCode == 200) {
-      return AnatomyInsight.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+      return AnatomyInsight.fromJson(
+          jsonDecode(response.body) as Map<String, dynamic>);
     }
     throw ApiException.fromResponse(response.statusCode, response.body);
   }
@@ -643,7 +712,8 @@ class AnatomyRegion {
   final String region;
   final String system;
 
-  const AnatomyRegion({required this.id, required this.region, required this.system});
+  const AnatomyRegion(
+      {required this.id, required this.region, required this.system});
 
   factory AnatomyRegion.fromJson(Map<String, dynamic> json) => AnatomyRegion(
         id: (json['id'] as String?) ?? '',
@@ -660,7 +730,8 @@ class AnatomyCondition {
 
   const AnatomyCondition({required this.name, required this.rationale});
 
-  factory AnatomyCondition.fromJson(Map<String, dynamic> json) => AnatomyCondition(
+  factory AnatomyCondition.fromJson(Map<String, dynamic> json) =>
+      AnatomyCondition(
         name: (json['name'] as String?) ?? '',
         rationale: (json['rationale'] as String?) ?? '',
       );
@@ -729,7 +800,8 @@ class AnatomyCitation {
     required this.chunkId,
   });
 
-  factory AnatomyCitation.fromJson(Map<String, dynamic> json) => AnatomyCitation(
+  factory AnatomyCitation.fromJson(Map<String, dynamic> json) =>
+      AnatomyCitation(
         text: (json['text'] as String?) ?? '',
         region: (json['region'] as String?) ?? '',
         system: (json['system'] as String?) ?? '',

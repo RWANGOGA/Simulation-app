@@ -12,12 +12,14 @@ import '../../../l10n/app_localizations.dart';
 class PainDetailsScreen extends StatefulWidget {
   final List<PainPoint> painPoints;
   final int patientId;
+  final String? patientCode;
   final String modelAsset;
 
   const PainDetailsScreen({
     super.key,
     required this.painPoints,
     required this.patientId,
+    this.patientCode,
     required this.modelAsset,
   });
 
@@ -25,7 +27,8 @@ class PainDetailsScreen extends StatefulWidget {
   State<PainDetailsScreen> createState() => _PainDetailsScreenState();
 }
 
-class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTickerProviderStateMixin {
+class _PainDetailsScreenState extends State<PainDetailsScreen>
+    with SingleTickerProviderStateMixin {
   // Wizard position: which pain point (from Body Map) we're currently
   // filling in details for. Each point keeps its own painType/severity/
   // direction/depth — e.g. "much" pain on the nose, "low" pain on the
@@ -35,7 +38,12 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
   late AnimationController _pulseController;
 
   final List<String> _painTypes = ['Sharp', 'Dull', 'Burning', 'Cramping'];
-  final List<String> _directions = ['Towards Back', 'Towards Front', 'Radiating Down', 'Radiating Up'];
+  final List<String> _directions = [
+    'Towards Back',
+    'Towards Front',
+    'Radiating Down',
+    'Radiating Up'
+  ];
   final List<String> _depths = ['Superficial', 'Moderate', 'Deep'];
 
   PainPoint get _currentPoint => widget.painPoints[_currentIndex];
@@ -76,6 +84,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
         builder: (_) => PainProfileFunctionalImpactScreen(
           painPoints: widget.painPoints,
           patientId: widget.patientId,
+          patientCode: widget.patientCode,
         ),
       ),
     );
@@ -97,7 +106,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
         ),
         title: Text(
           widget.painPoints.length > 1
-              ? t.painDetailsTitleWithProgress(_currentIndex + 1, widget.painPoints.length)
+              ? t.painDetailsTitleWithProgress(
+                  _currentIndex + 1, widget.painPoints.length)
               : t.painDetailsTitle,
           style: TextStyle(
             color: AppPalette.textPrimary(context),
@@ -137,7 +147,9 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                       decoration: BoxDecoration(
                         color: isActive
                             ? const Color(0xFF6D28D9)
-                            : (isDone ? const Color(0xFF6D28D9).withOpacity(0.4) : AppPalette.border(context)),
+                            : (isDone
+                                ? const Color(0xFF6D28D9).withOpacity(0.4)
+                                : AppPalette.border(context)),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -159,7 +171,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                   // Selected Region Banner
                   AppCard(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                     child: Row(
                       children: [
                         Container(
@@ -168,7 +181,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                             color: const Color(0xFF6D28D9).withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.location_on, color: Color(0xFF6D28D9), size: 20),
+                          child: const Icon(Icons.location_on,
+                              color: Color(0xFF6D28D9), size: 20),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -177,7 +191,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                             children: [
                               Text(
                                 t.painLocationLabel,
-                                style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), fontWeight: FontWeight.w500),
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: AppPalette.textMuted(context),
+                                    fontWeight: FontWeight.w500),
                               ),
                               Text(
                                 point.region,
@@ -239,22 +256,34 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                               // many locations they're working through.
                               for (int i = 0; i < widget.painPoints.length; i++)
                                 Positioned(
-                                  left: widget.painPoints[i].x * constraints.maxWidth - 22,
-                                  top: widget.painPoints[i].y * constraints.maxHeight - 22,
+                                  left: widget.painPoints[i].x *
+                                          constraints.maxWidth -
+                                      22,
+                                  top: widget.painPoints[i].y *
+                                          constraints.maxHeight -
+                                      22,
                                   child: IgnorePointer(
                                     child: i == _currentIndex
                                         ? AnimatedBuilder(
                                             animation: _pulseController,
                                             builder: (context, child) {
                                               return Container(
-                                                width: 32 + (12 * _pulseController.value),
-                                                height: 32 + (12 * _pulseController.value),
+                                                width: 32 +
+                                                    (12 *
+                                                        _pulseController.value),
+                                                height: 32 +
+                                                    (12 *
+                                                        _pulseController.value),
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
                                                   color: const Color(0xFFEF4444)
-                                                      .withOpacity(0.35 * (1 - _pulseController.value)),
+                                                      .withOpacity(0.35 *
+                                                          (1 -
+                                                              _pulseController
+                                                                  .value)),
                                                   border: Border.all(
-                                                    color: const Color(0xFFEF4444),
+                                                    color:
+                                                        const Color(0xFFEF4444),
                                                     width: 2,
                                                   ),
                                                 ),
@@ -262,7 +291,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                                   child: Container(
                                                     width: 14,
                                                     height: 14,
-                                                    decoration: const BoxDecoration(
+                                                    decoration:
+                                                        const BoxDecoration(
                                                       shape: BoxShape.circle,
                                                       color: Color(0xFFDC2626),
                                                     ),
@@ -276,9 +306,11 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                             height: 18,
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: const Color(0xFFDC2626).withOpacity(0.35),
+                                              color: const Color(0xFFDC2626)
+                                                  .withOpacity(0.35),
                                               border: Border.all(
-                                                color: const Color(0xFFDC2626).withOpacity(0.5),
+                                                color: const Color(0xFFDC2626)
+                                                    .withOpacity(0.5),
                                                 width: 1.5,
                                               ),
                                             ),
@@ -299,11 +331,14 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                 left: 14,
                                 child: PointerInterceptor(
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 8),
                                     decoration: BoxDecoration(
                                       color: Colors.white.withOpacity(0.95),
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.3)),
+                                      border: Border.all(
+                                          color: const Color(0xFF6D28D9)
+                                              .withOpacity(0.3)),
                                       boxShadow: [
                                         BoxShadow(
                                           color: Colors.black.withOpacity(0.06),
@@ -312,12 +347,16 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                       ],
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(Icons.north_east_outlined, size: 16, color: Color(0xFF6D28D9)),
+                                            const Icon(
+                                                Icons.north_east_outlined,
+                                                size: 16,
+                                                color: Color(0xFF6D28D9)),
                                             const SizedBox(width: 4),
                                             Text(
                                               t.directionLabel,
@@ -334,17 +373,25 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                           value: point.direction,
                                           isDense: true,
                                           underline: const SizedBox(),
-                                          icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6D28D9), size: 18),
+                                          icon: const Icon(
+                                              Icons.arrow_drop_down,
+                                              color: Color(0xFF6D28D9),
+                                              size: 18),
                                           style: TextStyle(
-                                              fontSize: 12, color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold),
+                                              fontSize: 12,
+                                              color: AppPalette.textPrimary(
+                                                  context),
+                                              fontWeight: FontWeight.bold),
                                           onChanged: (val) {
                                             if (val != null) {
                                               HapticFeedback.selectionClick();
-                                              setState(() => point.direction = val);
+                                              setState(
+                                                  () => point.direction = val);
                                             }
                                           },
                                           items: _directions.map((d) {
-                                            return DropdownMenuItem(value: d, child: Text(d));
+                                            return DropdownMenuItem(
+                                                value: d, child: Text(d));
                                           }).toList(),
                                         ),
                                       ],
@@ -359,11 +406,14 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                 right: 14,
                                 child: PointerInterceptor(
                                   child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 8),
                                     decoration: BoxDecoration(
                                       color: Colors.white.withOpacity(0.95),
                                       borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.3)),
+                                      border: Border.all(
+                                          color: const Color(0xFF6D28D9)
+                                              .withOpacity(0.3)),
                                       boxShadow: [
                                         BoxShadow(
                                           color: Colors.black.withOpacity(0.06),
@@ -372,12 +422,15 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                       ],
                                     ),
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
                                       children: [
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(Icons.layers_outlined, size: 16, color: Color(0xFF6D28D9)),
+                                            const Icon(Icons.layers_outlined,
+                                                size: 16,
+                                                color: Color(0xFF6D28D9)),
                                             const SizedBox(width: 4),
                                             Text(
                                               t.depthLabel,
@@ -394,9 +447,15 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                           value: point.depth,
                                           isDense: true,
                                           underline: const SizedBox(),
-                                          icon: const Icon(Icons.arrow_drop_down, color: Color(0xFF6D28D9), size: 18),
+                                          icon: const Icon(
+                                              Icons.arrow_drop_down,
+                                              color: Color(0xFF6D28D9),
+                                              size: 18),
                                           style: TextStyle(
-                                              fontSize: 12, color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold),
+                                              fontSize: 12,
+                                              color: AppPalette.textPrimary(
+                                                  context),
+                                              fontWeight: FontWeight.bold),
                                           onChanged: (val) {
                                             if (val != null) {
                                               HapticFeedback.selectionClick();
@@ -404,7 +463,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                             }
                                           },
                                           items: _depths.map((dp) {
-                                            return DropdownMenuItem(value: dp, child: Text(dp));
+                                            return DropdownMenuItem(
+                                                value: dp, child: Text(dp));
                                           }).toList(),
                                         ),
                                       ],
@@ -444,8 +504,12 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                                 type,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  color: isSelected ? Colors.white : const Color(0xFF475569),
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                                  color: isSelected
+                                      ? Colors.white
+                                      : const Color(0xFF475569),
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.w600,
                                   fontSize: 13,
                                 ),
                               ),
@@ -460,7 +524,9 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                             selectedColor: const Color(0xFF6D28D9),
                             backgroundColor: AppPalette.surface(context),
                             side: BorderSide(
-                              color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFCBD5E1),
+                              color: isSelected
+                                  ? const Color(0xFF6D28D9)
+                                  : const Color(0xFFCBD5E1),
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -488,7 +554,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 14, vertical: 6),
                         decoration: BoxDecoration(
                           color: const Color(0xFF6D28D9),
                           borderRadius: BorderRadius.circular(12),
@@ -513,7 +580,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                   ),
                   const SizedBox(height: 12),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                     decoration: BoxDecoration(
                       color: AppPalette.surface(context),
                       borderRadius: BorderRadius.circular(16),
@@ -525,7 +593,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                         inactiveTrackColor: AppPalette.border(context),
                         thumbColor: const Color(0xFF6D28D9),
                         overlayColor: const Color(0xFF6D28D9).withOpacity(0.15),
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10),
+                        thumbShape:
+                            const RoundSliderThumbShape(enabledThumbRadius: 10),
                         trackHeight: 6,
                       ),
                       child: Slider(
@@ -559,8 +628,11 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                       height: 54,
                       child: OutlinedButton(
                         onPressed: _goToPreviousPoint,
-                        style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 20)),
-                        child: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
+                        style: OutlinedButton.styleFrom(
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 20)),
+                        child: const Icon(Icons.arrow_back,
+                            color: Color(0xFF6D28D9)),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -582,7 +654,9 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              _isLastPoint ? t.nextMeasureVitalsButton : t.nextLocationButton,
+                              _isLastPoint
+                                  ? t.nextMeasureVitalsButton
+                                  : t.nextLocationButton,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -590,7 +664,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
                               ),
                             ),
                             const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                            const Icon(Icons.arrow_forward,
+                                color: Colors.white, size: 20),
                           ],
                         ),
                       ),
@@ -636,7 +711,9 @@ class _PainDetailsScreenState extends State<PainDetailsScreen> with SingleTicker
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.gotItButton, style: const TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
+            child: Text(t.gotItButton,
+                style: const TextStyle(
+                    color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
           ),
         ],
       ),

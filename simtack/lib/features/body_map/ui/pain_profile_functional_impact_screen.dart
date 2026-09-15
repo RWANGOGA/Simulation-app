@@ -8,18 +8,22 @@ import 'pain_point.dart';
 class PainProfileFunctionalImpactScreen extends StatefulWidget {
   final List<PainPoint> painPoints;
   final int patientId;
+  final String? patientCode;
 
   const PainProfileFunctionalImpactScreen({
     super.key,
     required this.painPoints,
     required this.patientId,
+    this.patientCode,
   });
 
   @override
-  State<PainProfileFunctionalImpactScreen> createState() => _PainProfileFunctionalImpactScreenState();
+  State<PainProfileFunctionalImpactScreen> createState() =>
+      _PainProfileFunctionalImpactScreenState();
 }
 
-class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctionalImpactScreen> {
+class _PainProfileFunctionalImpactScreenState
+    extends State<PainProfileFunctionalImpactScreen> {
   // Currently active pain point index if there are multiple, or global selection applied to points
   int _currentPointIndex = 0;
 
@@ -118,6 +122,7 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
         builder: (_) => ReviewScreen(
           painPoints: widget.painPoints,
           patientId: widget.patientId,
+          patientCode: widget.patientCode,
         ),
       ),
     );
@@ -198,7 +203,8 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
               color: AppPalette.surface(context),
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: widget.painPoints.length,
                 itemBuilder: (context, i) {
                   final isSelected = i == _currentPointIndex;
@@ -209,15 +215,20 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
                     },
                     child: Container(
                       margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: isSelected ? primaryPurple : AppPalette.subtleFill(context),
+                        color: isSelected
+                            ? primaryPurple
+                            : AppPalette.subtleFill(context),
                         borderRadius: BorderRadius.circular(16),
                       ),
                       child: Text(
                         'Spot ${i + 1}: ${widget.painPoints[i].region}',
                         style: TextStyle(
-                          color: isSelected ? Colors.white : AppPalette.textPrimary(context),
+                          color: isSelected
+                              ? Colors.white
+                              : AppPalette.textPrimary(context),
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
@@ -242,30 +253,38 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
                   const SizedBox(height: 12),
                   Row(
                     children: _expansionOptions.map((opt) {
-                      final isSelected = _currentPoint.expansionBehavior == opt['id'];
+                      final isSelected =
+                          _currentPoint.expansionBehavior == opt['id'];
                       return Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: GestureDetector(
                             onTap: () {
                               HapticFeedback.selectionClick();
-                              setState(() => _currentPoint.expansionBehavior = opt['id']!);
+                              setState(() =>
+                                  _currentPoint.expansionBehavior = opt['id']!);
                             },
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
-                              constraints: const BoxConstraints(minHeight: 110, minWidth: 85),
+                              constraints: const BoxConstraints(
+                                  minHeight: 110, minWidth: 85),
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: isSelected ? primaryPurpleTint : AppPalette.surface(context),
+                                color: isSelected
+                                    ? primaryPurpleTint
+                                    : AppPalette.surface(context),
                                 border: Border.all(
-                                  color: isSelected ? primaryPurple : normalBorderColor,
+                                  color: isSelected
+                                      ? primaryPurple
+                                      : normalBorderColor,
                                   width: isSelected ? 2 : 1,
                                 ),
                                 borderRadius: BorderRadius.circular(14),
                                 boxShadow: isSelected
                                     ? [
                                         BoxShadow(
-                                          color: primaryPurple.withOpacity(0.15),
+                                          color:
+                                              primaryPurple.withOpacity(0.15),
                                           blurRadius: 8,
                                           offset: const Offset(0, 3),
                                         ),
@@ -280,7 +299,9 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
-                                      color: isSelected ? primaryPurple : const Color(0xFF475569),
+                                      color: isSelected
+                                          ? primaryPurple
+                                          : const Color(0xFF475569),
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -290,7 +311,9 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
-                                      color: isSelected ? primaryPurple : const Color(0xFF1E293B),
+                                      color: isSelected
+                                          ? primaryPurple
+                                          : const Color(0xFF1E293B),
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -341,34 +364,47 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
                               ),
                             ),
                             ..._triggerOptions.map((trig) {
-                              final isSelected = _currentPoint.triggers.contains(trig['id']);
+                              final isSelected =
+                                  _currentPoint.triggers.contains(trig['id']);
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: GestureDetector(
                                   onTap: () => _toggleTrigger(trig['id']!),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 150),
-                                    constraints: const BoxConstraints(minHeight: 52, minWidth: 85),
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                                    constraints: const BoxConstraints(
+                                        minHeight: 52, minWidth: 85),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 12),
                                     decoration: BoxDecoration(
-                                      color: isSelected ? alertRedTint : AppPalette.surface(context),
+                                      color: isSelected
+                                          ? alertRedTint
+                                          : AppPalette.surface(context),
                                       border: Border.all(
-                                        color: isSelected ? alertRed : normalBorderColor,
+                                        color: isSelected
+                                            ? alertRed
+                                            : normalBorderColor,
                                         width: isSelected ? 2 : 1,
                                       ),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Row(
                                       children: [
-                                        Text(trig['emoji']!, style: const TextStyle(fontSize: 16)),
+                                        Text(trig['emoji']!,
+                                            style:
+                                                const TextStyle(fontSize: 16)),
                                         const SizedBox(width: 6),
                                         Expanded(
                                           child: Text(
                                             trig['label']!,
                                             style: TextStyle(
                                               fontSize: 12,
-                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                              color: isSelected ? alertRed : const Color(0xFF1E293B),
+                                              fontWeight: isSelected
+                                                  ? FontWeight.bold
+                                                  : FontWeight.w600,
+                                              color: isSelected
+                                                  ? alertRed
+                                                  : const Color(0xFF1E293B),
                                             ),
                                           ),
                                         ),
@@ -400,34 +436,47 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
                               ),
                             ),
                             ..._relieverOptions.map((rel) {
-                              final isSelected = _currentPoint.relievers.contains(rel['id']);
+                              final isSelected =
+                                  _currentPoint.relievers.contains(rel['id']);
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: GestureDetector(
                                   onTap: () => _toggleReliever(rel['id']!),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 150),
-                                    constraints: const BoxConstraints(minHeight: 52, minWidth: 85),
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                                    constraints: const BoxConstraints(
+                                        minHeight: 52, minWidth: 85),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 12),
                                     decoration: BoxDecoration(
-                                      color: isSelected ? primaryPurple : AppPalette.surface(context),
+                                      color: isSelected
+                                          ? primaryPurple
+                                          : AppPalette.surface(context),
                                       border: Border.all(
-                                        color: isSelected ? primaryPurple : normalBorderColor,
+                                        color: isSelected
+                                            ? primaryPurple
+                                            : normalBorderColor,
                                         width: isSelected ? 2 : 1,
                                       ),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Row(
                                       children: [
-                                        Text(rel['emoji']!, style: const TextStyle(fontSize: 16)),
+                                        Text(rel['emoji']!,
+                                            style:
+                                                const TextStyle(fontSize: 16)),
                                         const SizedBox(width: 6),
                                         Expanded(
                                           child: Text(
                                             rel['label']!,
                                             style: TextStyle(
                                               fontSize: 12,
-                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                              color: isSelected ? Colors.white : const Color(0xFF1E293B),
+                                              fontWeight: isSelected
+                                                  ? FontWeight.bold
+                                                  : FontWeight.w600,
+                                              color: isSelected
+                                                  ? Colors.white
+                                                  : const Color(0xFF1E293B),
                                             ),
                                           ),
                                         ),
@@ -453,7 +502,8 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisExtent: 90,
                       crossAxisSpacing: 10,
@@ -462,14 +512,17 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
                     itemCount: _limitationOptions.length,
                     itemBuilder: (context, idx) {
                       final item = _limitationOptions[idx];
-                      final isSelected = _currentPoint.dailyLimitations.contains(item['id']);
+                      final isSelected =
+                          _currentPoint.dailyLimitations.contains(item['id']);
                       return GestureDetector(
                         onTap: () => _toggleLimitation(item['id']!),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: isSelected ? alertRedTint : AppPalette.surface(context),
+                            color: isSelected
+                                ? alertRedTint
+                                : AppPalette.surface(context),
                             border: Border.all(
                               color: isSelected ? alertRed : normalBorderColor,
                               width: isSelected ? 2 : 1,
@@ -485,9 +538,11 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
                                   if (isSelected)
                                     const Padding(
                                       padding: EdgeInsets.only(right: 4),
-                                      child: Text('🚫', style: TextStyle(fontSize: 14)),
+                                      child: Text('🚫',
+                                          style: TextStyle(fontSize: 14)),
                                     ),
-                                  Text(item['emoji']!, style: const TextStyle(fontSize: 20)),
+                                  Text(item['emoji']!,
+                                      style: const TextStyle(fontSize: 20)),
                                 ],
                               ),
                               const SizedBox(height: 6),
@@ -496,7 +551,9 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: isSelected ? alertRed : const Color(0xFF1E293B),
+                                  color: isSelected
+                                      ? alertRed
+                                      : const Color(0xFF1E293B),
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -594,7 +651,10 @@ class _PainProfileFunctionalImpactScreenState extends State<PainProfileFunctiona
           ),
         ),
         const SizedBox(height: 2),
-        Container(height: 2, width: double.infinity, color: primaryPurple.withOpacity(0.2)),
+        Container(
+            height: 2,
+            width: double.infinity,
+            color: primaryPurple.withOpacity(0.2)),
         const SizedBox(height: 6),
         Text(
           subtitle,

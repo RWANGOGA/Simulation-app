@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
-from sqlalchemy import Column, Integer, String, Float, DateTime, Text, ForeignKey, JSON
+from sqlalchemy import Column, Integer, String, Float, DateTime, Text, ForeignKey
+from sqlalchemy.dialects.postgresql import JSONB
 from app.core.database import Base
 
 class TriageSession(Base):
@@ -22,4 +23,4 @@ class TriageSession(Base):
     priority = Column(String, nullable=True)
     actions_taken = Column(Text, nullable=True)
     clinical_notes = Column(Text, nullable=True)
-    question_answers = Column(JSON, nullable=True)
+    question_answers = Column(JSONB, nullable=True)

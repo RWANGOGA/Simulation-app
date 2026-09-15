@@ -17,6 +17,10 @@ class FakeTokenStorage implements TokenStorage {
   @override
   Future<String?> read() async => _token;
   @override
+  Future<void> writeRefreshToken(String value) async {}
+  @override
+  Future<String?> readRefreshToken() async => null;
+  @override
   Future<void> delete() async => _token = null;
 }
 
@@ -42,21 +46,28 @@ void main() {
         if (request.url.path.endsWith('/auth/login')) {
           expect(request.method, 'POST');
           return http.Response(
-            jsonEncode({'access_token': 'test.jwt.token', 'token_type': 'bearer'}),
+            jsonEncode(
+                {'access_token': 'test.jwt.token', 'token_type': 'bearer'}),
             200,
           );
         }
         if (request.url.path.endsWith('/auth/me')) {
           expect(request.headers['Authorization'], 'Bearer test.jwt.token');
           return http.Response(
-            jsonEncode({'id': 1, 'email': 'doc@test.com', 'full_name': 'Dr. Test', 'is_active': true}),
+            jsonEncode({
+              'id': 1,
+              'email': 'doc@test.com',
+              'full_name': 'Dr. Test',
+              'is_active': true
+            }),
             200,
           );
         }
         return http.Response('Not found', 404);
       });
 
-      final doctor = await AuthService.instance.login(email: 'doc@test.com', password: 'pass123');
+      final doctor = await AuthService.instance
+          .login(email: 'doc@test.com', password: 'pass123');
 
       expect(doctor.email, 'doc@test.com');
       expect(doctor.fullName, 'Dr. Test');
@@ -66,14 +77,17 @@ void main() {
 
     test('throws ApiException with isUnauthorized on 401', () async {
       ApiClient.httpClient = MockClient((request) async {
-        return http.Response(jsonEncode({'detail': 'Incorrect email or password'}), 401);
+        return http.Response(
+            jsonEncode({'detail': 'Incorrect email or password'}), 401);
       });
 
       expect(
-        () => AuthService.instance.login(email: 'doc@test.com', password: 'wrong'),
+        () => AuthService.instance
+            .login(email: 'doc@test.com', password: 'wrong'),
         throwsA(isA<ApiException>()
             .having((e) => e.isUnauthorized, 'isUnauthorized', isTrue)
-            .having((e) => e.message, 'message', 'Incorrect email or password')),
+            .having(
+                (e) => e.message, 'message', 'Incorrect email or password')),
       );
       // Token must NOT be stored on failure
       expect(await ApiClient.tokenStorage.read(), isNull);
@@ -85,9 +99,10 @@ void main() {
       });
 
       expect(
-        () => AuthService.instance.login(email: 'doc@test.com', password: 'pass'),
-        throwsA(isA<ApiException>()
-            .having((e) => e.message, 'message', contains('Cannot reach the server'))),
+        () =>
+            AuthService.instance.login(email: 'doc@test.com', password: 'pass'),
+        throwsA(isA<ApiException>().having(
+            (e) => e.message, 'message', contains('Cannot reach the server'))),
       );
     });
 
@@ -97,7 +112,8 @@ void main() {
       });
 
       expect(
-        () => AuthService.instance.login(email: 'doc@test.com', password: 'pass'),
+        () =>
+            AuthService.instance.login(email: 'doc@test.com', password: 'pass'),
         throwsA(isA<ApiException>()
             .having((e) => e.message, 'message', contains('timed out'))),
       );
@@ -145,7 +161,12 @@ void main() {
       ApiClient.httpClient = MockClient((request) async {
         expect(request.headers['Authorization'], 'Bearer stored.token');
         return http.Response(
-          jsonEncode({'id': 7, 'email': 'a@b.com', 'full_name': 'Dr. A', 'is_active': true}),
+          jsonEncode({
+            'id': 7,
+            'email': 'a@b.com',
+            'full_name': 'Dr. A',
+            'is_active': true
+          }),
           200,
         );
       });

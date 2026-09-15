@@ -3,6 +3,10 @@ import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 from app.core.config import settings
+from app.core.database import SessionLocal
+from app.api.v1.endpoints.auth import create_access_token, get_password_hash
+from app.models.doctor import Doctor
+from app.models.refresh_token import RefreshToken
 from tests.conftest import DOCTOR_EMAIL, DOCTOR_LOGIN
 
 client = TestClient(app)
@@ -15,6 +19,21 @@ def test_login_success():
     assert response.status_code == 200
     data = response.json()
     assert "access_token" in data
+    assert data["token_type"] == "bearer"
+
+
+def test_refresh_token_returns_new_access_token():
+    login = client.post("/api/v1/auth/login", data=DOCTOR_LOGIN)
+    assert login.status_code == 200
+    refresh_token = login.json()["refresh_token"]
+
+    response = client.post(
+        "/api/v1/auth/refresh",
+        params={"refresh_token": refresh_token},
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["access_token"]
     assert data["token_type"] == "bearer"
 
 def test_login_invalid_password():
@@ -51,7 +70,7 @@ def test_register_success_with_professional_fields():
         "/api/v1/auth/register",
         json={
             "email": email,
-            "password": "Secure123",
+            "password": "Secure123!xY",
             "full_name": "Jane New",
             "role": "Doctor",
             "license_number": "LIC-2026-001",
@@ -65,14 +84,14 @@ def test_register_success_with_professional_fields():
     assert "hashed_password" not in data
     # The fresh account can immediately log in.
     login = client.post(
-        "/api/v1/auth/login", data={"username": email, "password": "Secure123"}
+        "/api/v1/auth/login", data={"username": email, "password": "Secure123!xY"}
     )
     assert login.status_code == 200
 
 
 def test_register_duplicate_email_conflict():
     email = _unique_email()
-    body = {"email": email, "password": "Secure123", "full_name": "Twice Doc"}
+    body = {"email": email, "password": "Secure123!xY", "full_name": "Twice Doc"}
     assert client.post("/api/v1/auth/register", json=body).status_code == 201
     dup = client.post("/api/v1/auth/register", json=body)
     assert dup.status_code == 409
@@ -85,7 +104,7 @@ def test_register_rejects_weak_password():
             json={"email": _unique_email(), "password": weak, "full_name": "Weak Doc"},
         )
         assert response.status_code == 400
-        assert "letter and a number" in response.json()["detail"]
+        assert "Password" in response.json()["detail"]
 
 
 def test_register_rejects_invalid_email():
@@ -93,7 +112,7 @@ def test_register_rejects_invalid_email():
     for bad in ("not-an-email", f"{local}@simtack", f"{local} simtack.com"):
         response = client.post(
             "/api/v1/auth/register",
-            json={"email": bad, "password": "Secure123", "full_name": "Bad Email"},
+            json={"email": bad, "password": "Secure123!xY", "full_name": "Bad Email"},
         )
         assert response.status_code == 400
         assert "valid email" in response.json()["detail"]
@@ -102,7 +121,7 @@ def test_register_rejects_invalid_email():
 def test_register_rejects_blank_name():
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": _unique_email(), "password": "Secure123", "full_name": "   "},
+        json={"email": _unique_email(), "password": "Secure123!xY", "full_name": "   "},
     )
     assert response.status_code == 400
     assert response.json()["detail"] == "Full name is required"
@@ -122,7 +141,7 @@ def test_register_open_when_invite_code_unset():
     assert settings.INVITE_CODE == ""
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": _unique_email(), "password": "Secure123", "full_name": "No Gate"},
+        json={"email": _unique_email(), "password": "Secure123!xY", "full_name": "No Gate"},
     )
     assert response.status_code == 201
 
@@ -130,7 +149,7 @@ def test_register_open_when_invite_code_unset():
 def test_register_rejects_missing_invite_code(invite_code_required):
     response = client.post(
         "/api/v1/auth/register",
-        json={"email": _unique_email(), "password": "Secure123", "full_name": "Gate Test"},
+        json={"email": _unique_email(), "password": "Secure123!xY", "full_name": "Gate Test"},
     )
     assert response.status_code == 403
 
@@ -140,7 +159,7 @@ def test_register_rejects_wrong_invite_code(invite_code_required):
         "/api/v1/auth/register",
         json={
             "email": _unique_email(),
-            "password": "Secure123",
+            "password": "Secure123!xY",
             "full_name": "Gate Test",
             "invite_code": "WRONG-CODE",
         },
@@ -153,7 +172,7 @@ def test_register_accepts_correct_invite_code(invite_code_required):
         "/api/v1/auth/register",
         json={
             "email": _unique_email(),
-            "password": "Secure123",
+            "password": "Secure123!xY",
             "full_name": "Gate Test",
             "invite_code": invite_code_required,
         },
@@ -164,6 +183,44 @@ def test_register_accepts_correct_invite_code(invite_code_required):
 def test_read_users_me_unauthorized():
     response = client.get("/api/v1/auth/me")
     assert response.status_code == 401
+
+
+def test_inactive_doctor_cannot_login_or_use_existing_token():
+    email = _unique_email()
+    db = SessionLocal()
+    doctor = Doctor(
+        email=email,
+        hashed_password=get_password_hash("Secure123!xY"),
+        full_name="Inactive Doctor",
+        is_active=True,
+    )
+    db.add(doctor)
+    db.commit()
+    db.refresh(doctor)
+    try:
+        login = client.post(
+            "/api/v1/auth/login",
+            data={"username": email, "password": "Secure123!xY"},
+        )
+        assert login.status_code == 200
+        access_token = login.json()["access_token"]
+
+        doctor.is_active = False
+        db.commit()
+
+        assert client.post(
+            "/api/v1/auth/login",
+            data={"username": email, "password": "Secure123!xY"},
+        ).status_code == 401
+        assert client.get(
+            "/api/v1/auth/me",
+            headers={"Authorization": f"Bearer {access_token}"},
+        ).status_code == 401
+    finally:
+        db.query(RefreshToken).filter(RefreshToken.doctor_id == doctor.id).delete()
+        db.delete(doctor)
+        db.commit()
+        db.close()
 
 
 def test_update_users_me_success():

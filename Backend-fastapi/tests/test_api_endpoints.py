@@ -19,5 +19,12 @@ class TestAPIEndpoints(unittest.TestCase):
         data = response.json()
         self.assertEqual(data["status"], "alive")
 
+    def test_oversized_request_returns_payload_too_large(self):
+        response = self.client.get(
+            "/api/v1/health",
+            headers={"content-length": str(10 * 1024 * 1024 + 1)},
+        )
+        self.assertEqual(response.status_code, 413)
+
 if __name__ == "__main__":
     unittest.main()

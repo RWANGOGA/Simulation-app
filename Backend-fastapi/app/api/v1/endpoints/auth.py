@@ -87,7 +87,7 @@ def get_current_doctor(token: str = Depends(oauth2_scheme), db: Session = Depend
         raise credentials_exception
         
     doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
-    if doctor is None:
+    if doctor is None or not doctor.is_active:
         raise credentials_exception
     return doctor
 
@@ -118,7 +118,11 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
 
     doctor = db.query(Doctor).filter(Doctor.email == email).first()
     
-    if not doctor or not verify_password(form_data.password or "", doctor.hashed_password):
+    if (
+        not doctor
+        or not doctor.is_active
+        or not verify_password(form_data.password or "", doctor.hashed_password)
+    ):
         _record_failed_attempt(email)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -154,6 +158,13 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
 def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
     stored = db.query(RefreshToken).filter(RefreshToken.token == refresh_token).first()
     if not stored or not stored.is_valid():
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired refresh token",
+        )
+
+    doctor = db.query(Doctor).filter(Doctor.id == stored.doctor_id).first()
+    if doctor is None or not doctor.is_active:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",

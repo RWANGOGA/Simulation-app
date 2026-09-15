@@ -47,7 +47,8 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
   int _calculateAge(DateTime dob) {
     final now = DateTime.now();
     int age = now.year - dob.year;
-    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
       age--;
     }
     return age;
@@ -77,7 +78,8 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
   }) =>
       InputDecoration(
         labelText: label,
-        prefixIcon: icon != null ? Icon(icon, color: const Color(0xFF6D28D9)) : null,
+        prefixIcon:
+            icon != null ? Icon(icon, color: const Color(0xFF6D28D9)) : null,
         helperText: helper,
         filled: true,
         fillColor: AppPalette.inputFill(context),
@@ -127,10 +129,10 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                 const SizedBox(height: 4),
                 Text(
                   t.patientProfileSubtitle,
-                  style: TextStyle(fontSize: 15, color: AppPalette.textMuted(context)),
+                  style: TextStyle(
+                      fontSize: 15, color: AppPalette.textMuted(context)),
                 ),
                 const SizedBox(height: 24),
-
                 Expanded(
                   child: ListView(
                     children: [
@@ -174,7 +176,8 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                       const SizedBox(height: 4),
                       Text(
                         t.contactIdentityHint,
-                        style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context)),
+                        style: TextStyle(
+                            fontSize: 13, color: AppPalette.textMuted(context)),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
@@ -195,7 +198,9 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                               icon: Icons.cake_outlined,
                             ),
                             controller: TextEditingController(
-                              text: _dateOfBirth != null ? '${_calculateAge(_dateOfBirth!)} ${t.yearsSuffix}' : '',
+                              text: _dateOfBirth != null
+                                  ? '${_calculateAge(_dateOfBirth!)} ${t.yearsSuffix}'
+                                  : '',
                             ),
                           ),
                         ),
@@ -252,7 +257,6 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
@@ -269,7 +273,8 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                         ? const SizedBox(
                             width: 24,
                             height: 24,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 3),
                           )
                         : Text(
                             t.continueButton,
@@ -313,7 +318,9 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
           color: isSelected ? const Color(0xFF6D28D9) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? const Color(0xFF6D28D9) : AppPalette.border(context),
+            color: isSelected
+                ? const Color(0xFF6D28D9)
+                : AppPalette.border(context),
             width: 2,
           ),
         ),
@@ -356,7 +363,8 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         if (value == null || value.isEmpty) return t.fieldRequiredError(label);
         final parsed = num.tryParse(value);
         if (parsed == null) return t.enterValidNumberError;
-        if (parsed < min || parsed > max) return t.fieldRangeError(label, '$min', '$max');
+        if (parsed < min || parsed > max)
+          return t.fieldRangeError(label, '$min', '$max');
         return null;
       },
     );
@@ -386,6 +394,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         AppPageRoute(
           builder: (_) => BodyMapScreen(
             patientId: patient.id,
+            patientCode: patient.anonymousCode,
             gender: _gender,
             weightKg: double.parse(_weightController.text),
             heightCm: double.parse(_heightController.text),

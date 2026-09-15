@@ -12,6 +12,19 @@ def test_security_headers_present():
     assert response.headers["X-XSS-Protection"] == "1; mode=block"
     assert response.headers["Referrer-Policy"] == "strict-origin-when-cross-origin"
 
+
+def test_flutter_web_dynamic_localhost_origin_is_allowed():
+    response = client.options(
+        "/api/v1/patients/",
+        headers={
+            "Origin": "http://localhost:60938",
+            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Headers": "content-type",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "http://localhost:60938"
+
 def test_login_rate_limiting():
     _failed_login_attempts.clear()
     target_email = "ratelimit-test@simtack.com"

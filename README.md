@@ -244,7 +244,7 @@ Base path: `/api/v1`
 
 ```bash
 # Backend — from Backend-fastapi/
-python -m pytest tests/ -q                 # 52 tests (requires PostgreSQL)
+python -m pytest tests/ -q                 # uses atomybridge_test, requires PostgreSQL
 
 # Frontend — from simtack/
 flutter test                               # 97 tests (unit + widget)

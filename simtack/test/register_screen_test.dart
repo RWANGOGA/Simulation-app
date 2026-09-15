@@ -19,49 +19,59 @@ class FakeTokenStorage implements TokenStorage {
   @override
   Future<String?> read() async => _token;
   @override
+  Future<void> writeRefreshToken(String value) async {}
+  @override
+  Future<String?> readRefreshToken() async => null;
+  @override
   Future<void> delete() async => _token = null;
 }
 
 /// MockClient covering register -> auto-login -> dashboard data flow.
 MockClient _registerFlowClient() => MockClient((request) async {
-  final path = request.url.path;
-  if (path.endsWith('/auth/register')) {
-    return http.Response(
-      jsonEncode({
-        'id': 42,
-        'email': 'newdoc@test.com',
-        'full_name': 'Dr. New',
-        'role': 'Doctor',
-        'license_number': 'LIC-1',
-        'is_active': true,
-      }),
-      201,
-    );
-  }
-  if (path.endsWith('/auth/login')) {
-    return http.Response(
-      jsonEncode({'access_token': 'reg.test.token', 'token_type': 'bearer'}),
-      200,
-    );
-  }
-  if (path.endsWith('/auth/me')) {
-    return http.Response(
-      jsonEncode(
-          {'id': 42, 'email': 'newdoc@test.com', 'full_name': 'Dr. New', 'is_active': true}),
-      200,
-    );
-  }
-  if (path.endsWith('/triage/stats')) {
-    return http.Response(
-      jsonEncode({'total': 0, 'high_risk': 0, 'medium_risk': 0, 'low_risk': 0}),
-      200,
-    );
-  }
-  if (path.endsWith('/triage/list')) {
-    return http.Response(jsonEncode([]), 200);
-  }
-  return http.Response('Not found', 404);
-});
+      final path = request.url.path;
+      if (path.endsWith('/auth/register')) {
+        return http.Response(
+          jsonEncode({
+            'id': 42,
+            'email': 'newdoc@test.com',
+            'full_name': 'Dr. New',
+            'role': 'Doctor',
+            'license_number': 'LIC-1',
+            'is_active': true,
+          }),
+          201,
+        );
+      }
+      if (path.endsWith('/auth/login')) {
+        return http.Response(
+          jsonEncode(
+              {'access_token': 'reg.test.token', 'token_type': 'bearer'}),
+          200,
+        );
+      }
+      if (path.endsWith('/auth/me')) {
+        return http.Response(
+          jsonEncode({
+            'id': 42,
+            'email': 'newdoc@test.com',
+            'full_name': 'Dr. New',
+            'is_active': true
+          }),
+          200,
+        );
+      }
+      if (path.endsWith('/triage/stats')) {
+        return http.Response(
+          jsonEncode(
+              {'total': 0, 'high_risk': 0, 'medium_risk': 0, 'low_risk': 0}),
+          200,
+        );
+      }
+      if (path.endsWith('/triage/list')) {
+        return http.Response(jsonEncode([]), 200);
+      }
+      return http.Response('Not found', 404);
+    });
 
 void main() {
   final defaultClient = ApiClient.httpClient;
@@ -99,7 +109,8 @@ void main() {
 
     expect(find.text('Enter your full name.'), findsOneWidget);
     expect(find.text('Email is required.'), findsOneWidget);
-    expect(find.text('Enter your license or registration number.'), findsOneWidget);
+    expect(find.text('Enter your license or registration number.'),
+        findsOneWidget);
     expect(find.text('At least 8 characters.'), findsOneWidget);
     expect(await ApiClient.tokenStorage.read(), isNull);
   });

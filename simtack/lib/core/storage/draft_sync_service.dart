@@ -11,7 +11,8 @@ import 'draft_storage.dart';
 class DraftSyncService {
   static String _generateVisitId() {
     final rand = Random();
-    final suffix = List.generate(6, (_) => rand.nextInt(36).toRadixString(36)).join();
+    final suffix =
+        List.generate(6, (_) => rand.nextInt(36).toRadixString(36)).join();
     return '${DateTime.now().millisecondsSinceEpoch}-$suffix';
   }
 
@@ -21,7 +22,7 @@ class DraftSyncService {
     int synced = 0;
 
     for (final draft in drafts) {
-      if (draft.painPoints.isEmpty) continue;
+      if (draft.painPoints.isEmpty || draft.patientCode == null) continue;
       try {
         final visitId = _generateVisitId();
         for (final point in draft.painPoints) {
@@ -32,6 +33,7 @@ class DraftSyncService {
             direction: point.direction,
             depth: point.depth,
             patientId: draft.patientId,
+            patientCode: draft.patientCode,
             visitId: visitId,
           ));
         }

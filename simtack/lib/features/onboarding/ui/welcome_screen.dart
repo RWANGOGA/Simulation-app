@@ -43,7 +43,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.draftsSyncedSnackbar(syncedCount)),
+            content: Text(AppLocalizations.of(context)!
+                .draftsSyncedSnackbar(syncedCount)),
             backgroundColor: const Color(0xFF16A34A),
             behavior: SnackBarBehavior.floating,
           ),
@@ -63,8 +64,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       AppPageRoute(
         builder: (_) => ReviewScreen(
           painPoints: draft.painPoints,
-         
           patientId: draft.patientId,
+          patientCode: draft.patientCode,
         ),
       ),
     );
@@ -122,13 +123,17 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     final draft = _drafts[index];
                     return ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                      leading: const Icon(Icons.history_edu_outlined, color: Color(0xFF6D28D9)),
+                      leading: const Icon(Icons.history_edu_outlined,
+                          color: Color(0xFF6D28D9)),
                       title: Text(
                         _draftSubtitle(draft),
-                        style: TextStyle(fontSize: 13, color: AppPalette.textPrimary(context)),
+                        style: TextStyle(
+                            fontSize: 13,
+                            color: AppPalette.textPrimary(context)),
                       ),
                       trailing: IconButton(
-                        icon: Icon(Icons.delete_outline, size: 20, color: AppPalette.textMuted(context)),
+                        icon: Icon(Icons.delete_outline,
+                            size: 20, color: AppPalette.textMuted(context)),
                         tooltip: t.deleteDraftTooltip,
                         onPressed: () async {
                           await _deleteDraft(draft);
@@ -160,7 +165,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     final draft = _drafts.first;
     if (draft.painPoints.isEmpty) return const SizedBox.shrink();
 
-    final title = AppLocalizations.of(context)!.savedDraftBanner(_drafts.length);
+    final title =
+        AppLocalizations.of(context)!.savedDraftBanner(_drafts.length);
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -180,17 +186,22 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               children: [
                 Text(
                   title,
-                  style: TextStyle(fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: AppPalette.textPrimary(context)),
                 ),
                 Text(
                   _draftSubtitle(draft),
-                  style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context)),
+                  style: TextStyle(
+                      fontSize: 12, color: AppPalette.textMuted(context)),
                 ),
               ],
             ),
           ),
           TextButton(
-            onPressed: _drafts.length == 1 ? () => _resumeDraft(draft) : _showDraftPicker,
+            onPressed: _drafts.length == 1
+                ? () => _resumeDraft(draft)
+                : _showDraftPicker,
             child: Text(_drafts.length == 1
                 ? AppLocalizations.of(context)!.resumeButton
                 : AppLocalizations.of(context)!.chooseButton),
@@ -211,7 +222,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             final isWide = constraints.maxWidth > 700;
             return Padding(
               padding: const EdgeInsets.all(24.0),
-              child: isWide ? _buildWideLayout(context, t) : _buildNarrowLayout(context, t),
+              child: isWide
+                  ? _buildWideLayout(context, t)
+                  : _buildNarrowLayout(context, t),
             );
           },
         ),
@@ -247,12 +260,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   );
                 },
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.lock_outline, size: 16, color: Color(0xFF6D28D9)),
+                    const Icon(Icons.lock_outline,
+                        size: 16, color: Color(0xFF6D28D9)),
                     const SizedBox(width: 4),
                     Text(
                       t.practitionerLogin,
@@ -269,7 +284,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ),
         const SizedBox(height: 24),
-
         Text(
           t.welcomeTitle,
           style: TextStyle(
@@ -287,13 +301,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ),
         const SizedBox(height: 24),
-
         SizedBox(
           height: 220,
           child: _ThreeDPlaceholder(
             web: SizedBox.expand(
               child: ModelViewer(
-                src: kIsWeb ? 'models/human_body_male.glb' : 'assets/models/human_body_male.glb',
+                src: kIsWeb
+                    ? 'models/human_body_male.glb'
+                    : 'assets/models/human_body_male.glb',
                 alt: '3D Human Body Model',
                 autoRotate: true,
                 cameraControls: true,
@@ -302,17 +317,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
           ),
         ),
-
         const SizedBox(height: 24),
-
         Expanded(
           child: SingleChildScrollView(
             child: _buildResumeDraftBanner(),
           ),
         ),
-
         const SizedBox(height: 16),
-
         SizedBox(
           width: double.infinity,
           height: 56,
@@ -336,7 +347,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ),
         const SizedBox(height: 12),
-
         Center(
           child: Text(
             t.privacyCaption,
@@ -369,7 +379,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                   children: [
                     IconButton(
                       tooltip: t.displayAccessibilityTooltip,
-                      icon: Icon(Icons.tune, color: AppPalette.textMuted(context)),
+                      icon: Icon(Icons.tune,
+                          color: AppPalette.textMuted(context)),
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -385,12 +396,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         );
                       },
                       style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 4),
                       ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.lock_outline, size: 16, color: Color(0xFF6D28D9)),
+                          const Icon(Icons.lock_outline,
+                              size: 16, color: Color(0xFF6D28D9)),
                           const SizedBox(width: 4),
                           Text(
                             t.practitionerLogin,
@@ -407,7 +420,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-
               Text(
                 t.welcomeTitle,
                 style: TextStyle(
@@ -425,15 +437,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-
               Expanded(
                 child: SingleChildScrollView(
                   child: _buildResumeDraftBanner(),
                 ),
               ),
-
               const SizedBox(height: 16),
-
               SizedBox(
                 width: double.infinity,
                 height: 56,
@@ -457,7 +466,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-
               Center(
                 child: Text(
                   t.privacyCaption,
@@ -477,7 +485,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: _ThreeDPlaceholder(
             web: SizedBox.expand(
               child: ModelViewer(
-                src: kIsWeb ? 'models/human_body_male.glb' : 'assets/models/human_body_male.glb',
+                src: kIsWeb
+                    ? 'models/human_body_male.glb'
+                    : 'assets/models/human_body_male.glb',
                 alt: '3D Human Body Model',
                 autoRotate: true,
                 cameraControls: true,

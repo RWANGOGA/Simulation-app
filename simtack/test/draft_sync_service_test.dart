@@ -10,9 +10,12 @@ import 'package:simtack/core/storage/draft_sync_service.dart';
 import 'package:simtack/core/storage/triage_draft.dart';
 import 'package:simtack/features/body_map/ui/pain_point.dart';
 
-TriageDraft _draft({List<PainPoint>? painPoints, DateTime? savedAt}) => TriageDraft(
-      painPoints: painPoints ?? [PainPoint(region: 'Chest / Heart', x: 0.5, y: 0.3)],
+TriageDraft _draft({List<PainPoint>? painPoints, DateTime? savedAt}) =>
+    TriageDraft(
+      painPoints:
+          painPoints ?? [PainPoint(region: 'Chest / Heart', x: 0.5, y: 0.3)],
       patientId: 42,
+      patientCode: 'P-TEST',
       savedAt: savedAt ?? DateTime.now(),
     );
 
@@ -78,7 +81,8 @@ void main() {
     test('leaves the draft in place on a server error response', () async {
       await DraftStorage.save(_draft());
 
-      ApiClient.httpClient = MockClient((request) async => http.Response('Server error', 500));
+      ApiClient.httpClient =
+          MockClient((request) async => http.Response('Server error', 500));
 
       final synced = await DraftSyncService.syncAll();
 
@@ -86,7 +90,8 @@ void main() {
       expect(await DraftStorage.loadAll(), hasLength(1));
     });
 
-    test('syncs only the drafts that succeed, leaving the rest for next time', () async {
+    test('syncs only the drafts that succeed, leaving the rest for next time',
+        () async {
       final okDraft = _draft(
         painPoints: [PainPoint(region: 'Chest / Heart', x: 0.5, y: 0.3)],
         savedAt: DateTime(2026, 1, 1),
@@ -114,7 +119,8 @@ void main() {
       expect(remaining.single.painPoints.single.region, 'Headache / Cranial');
     });
 
-    test('submits every pain point in a multi-point draft under one visit', () async {
+    test('submits every pain point in a multi-point draft under one visit',
+        () async {
       await DraftStorage.save(_draft(painPoints: [
         PainPoint(region: 'Chest / Heart', x: 0.5, y: 0.3),
         PainPoint(region: 'Left Arm / Shoulder', x: 0.8, y: 0.3),

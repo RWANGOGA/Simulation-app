@@ -12,6 +12,7 @@ Implemented in Python instead of shell so the argv survives intact:
 or shell metacharacters, which `exec` then re-parses incorrectly.
 """
 import os
+import subprocess
 import sys
 
 
@@ -21,6 +22,8 @@ def main() -> int:
     if not args:
         print("entrypoint: no command provided", file=sys.stderr)
         return 2
+
+    subprocess.run(["alembic", "upgrade", "head"], check=True)
 
     # Replace any existing --port N with the platform-provided port, or
     # append one if it's missing.

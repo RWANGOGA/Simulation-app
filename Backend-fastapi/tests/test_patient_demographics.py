@@ -67,6 +67,7 @@ def test_triage_response_carries_patient_demographics():
             "pain_type": "throbbing",
             "severity": 6,
         },
+        headers={"X-Patient-Code": patient["anonymous_code"]},
     )
     assert response.status_code == 201
     data = response.json()
@@ -86,7 +87,7 @@ def test_register_stores_contact_and_hospital():
         "/api/v1/auth/register",
         json={
             "email": email,
-            "password": "Secure123",
+            "password": "Secure123!xY",
             "full_name": "Dr. Contact",
             "role": "Doctor",
             "license_number": "LIC-9",

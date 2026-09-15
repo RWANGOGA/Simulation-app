@@ -25,6 +25,10 @@ class FakeTokenStorage implements TokenStorage {
   @override
   Future<String?> read() async => _token;
   @override
+  Future<void> writeRefreshToken(String value) async {}
+  @override
+  Future<String?> readRefreshToken() async => null;
+  @override
   Future<void> delete() async => _token = null;
 }
 
@@ -41,7 +45,8 @@ void main() {
     ApiClient.tokenStorage = defaultStorage;
   });
 
-  testWidgets('renders real aggregate data from /triage/reports', (tester) async {
+  testWidgets('renders real aggregate data from /triage/reports',
+      (tester) async {
     ApiClient.httpClient = MockClient((request) async {
       if (request.url.path.endsWith('/triage/reports')) {
         return http.Response(
@@ -71,14 +76,16 @@ void main() {
     // Matches both the screen's own header and the sidebar's "Reports" nav label.
     expect(find.text('Reports'), findsWidgets);
     expect(find.text('12'), findsOneWidget); // Total Sessions
-    expect(find.text('9'), findsWidgets); // Open count (stat card + status legend)
+    expect(
+        find.text('9'), findsWidgets); // Open count (stat card + status legend)
     expect(find.text('3'), findsWidgets); // Closed count and/or by_region count
     expect(find.text('Chest / Heart'), findsOneWidget);
     expect(find.text('Headache / Cranial'), findsOneWidget);
     expect(find.text('Sharp'), findsOneWidget);
   });
 
-  testWidgets('shows a real empty state when there are no sessions yet', (tester) async {
+  testWidgets('shows a real empty state when there are no sessions yet',
+      (tester) async {
     ApiClient.httpClient = MockClient((request) async {
       return http.Response(
         jsonEncode({
@@ -97,11 +104,14 @@ void main() {
     await tester.pumpWidget(_wrap(const ReportsScreen()));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('No triage sessions in this period'), findsOneWidget);
+    expect(find.textContaining('No triage sessions in this period'),
+        findsOneWidget);
   });
 
-  testWidgets('shows an error with retry when the request fails', (tester) async {
-    ApiClient.httpClient = MockClient((request) async => http.Response('Server error', 500));
+  testWidgets('shows an error with retry when the request fails',
+      (tester) async {
+    ApiClient.httpClient =
+        MockClient((request) async => http.Response('Server error', 500));
 
     await tester.pumpWidget(_wrap(const ReportsScreen()));
     await tester.pumpAndSettle();

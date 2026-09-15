@@ -72,7 +72,11 @@ def _session_payload(session: TriageSession, patient) -> dict:
 # are JWT-guarded instead.
 # ==========================================
 @router.post("/", response_model=TriageResponse, status_code=201)
-def create_triage(request: Request, payload: TriageCreate, db: Session = Depends(get_db)):
+def create_triage(
+    request: Request,
+    payload: TriageCreate,
+    db: Session = Depends(get_db),
+):
     _check_triage_rate_limit(request)
     # If this pain point belongs to a multi-region visit, score it aware of
     # whatever other regions the patient already reported in the same visit
@@ -95,6 +99,12 @@ def create_triage(request: Request, payload: TriageCreate, db: Session = Depends
             # Reject dangling references rather than creating an orphaned
             # session row pointing at a nonexistent patient.
             raise HTTPException(status_code=404, detail="Patient not found")
+        submitted_code = request.headers.get("X-Patient-Code")
+        if submitted_code != existing_patient.anonymous_code:
+            raise HTTPException(
+                status_code=403,
+                detail="Patient code does not match the submitted patient",
+            )
         patient_obj = existing_patient
 
     # Weight/height feed the BMI risk factor; scoring needs the patient

@@ -13,6 +13,7 @@ import '../../../l10n/app_localizations.dart';
 
 class BodyMapScreen extends StatefulWidget {
   final int patientId;
+  final String patientCode;
   final String gender;
   final double weightKg;
   final double heightCm;
@@ -21,6 +22,7 @@ class BodyMapScreen extends StatefulWidget {
   BodyMapScreen({
     super.key,
     required this.patientId,
+    required this.patientCode,
     required this.gender,
     required this.weightKg,
     required this.heightCm,
@@ -35,7 +37,8 @@ class BodyMapScreen extends StatefulWidget {
   /// BMI (weightKg/heightCm) isn't used yet — there's only one build per
   /// gender today.
   String get modelAsset {
-    final file = gender == 'Male' ? 'human_body_male.glb' : 'human_body_female.glb';
+    final file =
+        gender == 'Male' ? 'human_body_male.glb' : 'human_body_female.glb';
     return kIsWeb ? 'models/$file' : 'assets/models/$file';
   }
 
@@ -43,7 +46,8 @@ class BodyMapScreen extends StatefulWidget {
   State<BodyMapScreen> createState() => _BodyMapScreenState();
 }
 
-class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProviderStateMixin {
+class _BodyMapScreenState extends State<BodyMapScreen>
+    with SingleTickerProviderStateMixin {
   // Real BodyParts3D regions (lowercase, as produced by the render
   // pipeline) mapped to the app's existing 14-region anatomy KB names —
   // this is what actually gets sent to /anatomy/ask, keeping that
@@ -85,27 +89,50 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   // data) are available from each broad region, tested standalone earlier
   // as hand_tap.html / foot_tap.html / eye_tap.html / mouth_tap.html /
   // nose_tap.html before being ported in here.
-  static const Map<String, List<(String label, String kit)>> _zoomOptionsByKbName = {
+  static const Map<String, List<(String label, String kit)>>
+      _zoomOptionsByKbName = {
     'Left Arm / Shoulder': [('Zoom to hand', 'hand')],
     'Right Arm / Shoulder': [('Zoom to hand', 'hand')],
-    'Left Leg / Knee': [('Zoom to thigh/knee/shin', 'leg'), ('Zoom to foot', 'foot')],
-    'Right Leg / Knee': [('Zoom to thigh/knee/shin', 'leg'), ('Zoom to foot', 'foot')],
+    'Left Leg / Knee': [
+      ('Zoom to thigh/knee/shin', 'leg'),
+      ('Zoom to foot', 'foot')
+    ],
+    'Right Leg / Knee': [
+      ('Zoom to thigh/knee/shin', 'leg'),
+      ('Zoom to foot', 'foot')
+    ],
     // Mouth is left out here: the underlying data for it is only sparse,
     // disconnected representative samples (one tooth per type, no
     // jaw/gum, a separate tongue) that don't compose into a clear image
     // at any camera angle tried — shipping it would repeat the exact
     // "not clear" problem being fixed for the other zoom kits.
-    'Headache / Cranial': [('Zoom to eye', 'eye'), ('Zoom to nose', 'noseonly'), ('Zoom to ear', 'earonly')],
+    'Headache / Cranial': [
+      ('Zoom to eye', 'eye'),
+      ('Zoom to nose', 'noseonly'),
+      ('Zoom to ear', 'earonly')
+    ],
     // Torso/organ close-up. Heart, liver, and the general chest/back zones
     // aren't single meshes in BodyParts3D (only their internal vessel/lobe
     // sub-parts are) — they're anatomically-positioned hotspots drawn onto
     // the real torso render, like a patient pointing to where it hurts,
     // rather than literal tappable organ geometry. Stomach and both
     // kidneys ARE real single meshes, rendered at their true position.
-    'Chest / Heart': [('Zoom to chest/abdomen', 'torsofront'), ('Zoom to back', 'torsoback')],
-    'Abdomen (Upper)': [('Zoom to chest/abdomen', 'torsofront'), ('Zoom to back', 'torsoback')],
-    'Back Pain (Upper)': [('Zoom to chest/abdomen', 'torsofront'), ('Zoom to back', 'torsoback')],
-    'Back Pain (Lower)': [('Zoom to chest/abdomen', 'torsofront'), ('Zoom to back', 'torsoback')],
+    'Chest / Heart': [
+      ('Zoom to chest/abdomen', 'torsofront'),
+      ('Zoom to back', 'torsoback')
+    ],
+    'Abdomen (Upper)': [
+      ('Zoom to chest/abdomen', 'torsofront'),
+      ('Zoom to back', 'torsoback')
+    ],
+    'Back Pain (Upper)': [
+      ('Zoom to chest/abdomen', 'torsofront'),
+      ('Zoom to back', 'torsoback')
+    ],
+    'Back Pain (Lower)': [
+      ('Zoom to chest/abdomen', 'torsofront'),
+      ('Zoom to back', 'torsoback')
+    ],
   };
 
   // The backend's /anatomy/ask only gets real retrieval signal from an
@@ -123,9 +150,12 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   // torso organs have a fixed anatomical KB category regardless of which
   // "Chest / Heart"-family region opened the zoom).
   static const Map<String, String> _fineGrainedLabelToKbName = {
-    'Right Eye - lens': 'Headache / Cranial', 'Left Eye - lens': 'Headache / Cranial',
-    'Right Eye - iris': 'Headache / Cranial', 'Left Eye - iris': 'Headache / Cranial',
-    'Right Eye - cornea': 'Headache / Cranial', 'Left Eye - cornea': 'Headache / Cranial',
+    'Right Eye - lens': 'Headache / Cranial',
+    'Left Eye - lens': 'Headache / Cranial',
+    'Right Eye - iris': 'Headache / Cranial',
+    'Left Eye - iris': 'Headache / Cranial',
+    'Right Eye - cornea': 'Headache / Cranial',
+    'Left Eye - cornea': 'Headache / Cranial',
     'Nasal Bone': 'Headache / Cranial',
     'Nasal Cartilage (septum)': 'Headache / Cranial',
     'Right Nasal Cartilage (side)': 'Headache / Cranial',
@@ -204,7 +234,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
   void _handleBodyPartReceived(String region, double x, double y) {
     final mapped = _resolveKbName(region, x);
     if (!kReleaseMode) {
-      debugPrint('BodyMap: received tap -> region=$region -> $mapped x=$x y=$y');
+      debugPrint(
+          'BodyMap: received tap -> region=$region -> $mapped x=$x y=$y');
     }
     setState(() {
       _pendingTap = (region: mapped, x: x, y: y);
@@ -276,7 +307,6 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
           symptomDescription: symptomDescription,
           tags: tags,
         ));
-
       }
     });
   }
@@ -314,7 +344,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
     HapticFeedback.lightImpact();
     final position = _regionCenterPosition[region] ?? (0.5, 0.5);
     setState(() {
-      _painPoints.add(PainPoint(region: region, x: position.$1, y: position.$2));
+      _painPoints
+          .add(PainPoint(region: region, x: position.$1, y: position.$2));
     });
     _requestAnatomyInsight(region);
   }
@@ -401,7 +432,11 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                             // use, so they need the 0.8 ratio too -
                             // otherwise they'd pillarbox inside an
                             // unnecessarily square box.
-                            aspectRatio: (_zoomedKit == null || _zoomedKit == 'torsofront' || _zoomedKit == 'torsoback') ? 0.8 : 1.0,
+                            aspectRatio: (_zoomedKit == null ||
+                                    _zoomedKit == 'torsofront' ||
+                                    _zoomedKit == 'torsoback')
+                                ? 0.8
+                                : 1.0,
                             child: LayoutBuilder(
                               builder: (context, imgConstraints) {
                                 return Transform.scale(
@@ -412,17 +447,25 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                       Positioned.fill(
                                         child: _zoomedKit == null
                                             ? AnatomyTapView(
-                                                visibleAsset: 'assets/anatomy/body_visible_$_viewAngle.png',
-                                                idmapAsset: 'assets/anatomy/body_idmap_$_viewAngle.png',
-                                                colorsAsset: 'assets/anatomy/region_id_colors.json',
-                                                onRegionTapped: _handleBodyPartReceived,
+                                                visibleAsset:
+                                                    'assets/anatomy/body_visible_$_viewAngle.png',
+                                                idmapAsset:
+                                                    'assets/anatomy/body_idmap_$_viewAngle.png',
+                                                colorsAsset:
+                                                    'assets/anatomy/region_id_colors.json',
+                                                onRegionTapped:
+                                                    _handleBodyPartReceived,
                                                 onMiss: _handleBodyTapMissed,
                                               )
                                             : AnatomyTapView(
-                                                visibleAsset: 'assets/anatomy/${_zoomedKit}_visible.png',
-                                                idmapAsset: 'assets/anatomy/${_zoomedKit}_idmap.png',
-                                                colorsAsset: 'assets/anatomy/${_zoomedKit}_id_colors.json',
-                                                onRegionTapped: _handleBodyPartReceived,
+                                                visibleAsset:
+                                                    'assets/anatomy/${_zoomedKit}_visible.png',
+                                                idmapAsset:
+                                                    'assets/anatomy/${_zoomedKit}_idmap.png',
+                                                colorsAsset:
+                                                    'assets/anatomy/${_zoomedKit}_id_colors.json',
+                                                onRegionTapped:
+                                                    _handleBodyPartReceived,
                                                 onMiss: _handleBodyTapMissed,
                                               ),
                                       ),
@@ -442,22 +485,39 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                       // fraction on top of a zoomed close-up
                                       // image lands it at an unrelated,
                                       // often off-body, spot.
-                                      for (final point in _painPoints.where((p) => p.viewKey == _zoomedKit))
+                                      for (final point in _painPoints.where(
+                                          (p) => p.viewKey == _zoomedKit))
                                         Positioned(
-                                          left: point.x * imgConstraints.maxWidth - 22,
-                                          top: point.y * imgConstraints.maxHeight - 22,
+                                          left: point.x *
+                                                  imgConstraints.maxWidth -
+                                              22,
+                                          top: point.y *
+                                                  imgConstraints.maxHeight -
+                                              22,
                                           child: IgnorePointer(
                                             child: AnimatedBuilder(
                                               animation: _pulseController,
                                               builder: (context, child) {
                                                 return Container(
-                                                  width: 32 + (12 * _pulseController.value),
-                                                  height: 32 + (12 * _pulseController.value),
+                                                  width: 32 +
+                                                      (12 *
+                                                          _pulseController
+                                                              .value),
+                                                  height: 32 +
+                                                      (12 *
+                                                          _pulseController
+                                                              .value),
                                                   decoration: BoxDecoration(
                                                     shape: BoxShape.circle,
-                                                    color: const Color(0xFFEF4444).withOpacity(0.35 * (1 - _pulseController.value)),
+                                                    color: const Color(
+                                                            0xFFEF4444)
+                                                        .withOpacity(0.35 *
+                                                            (1 -
+                                                                _pulseController
+                                                                    .value)),
                                                     border: Border.all(
-                                                      color: const Color(0xFFEF4444),
+                                                      color: const Color(
+                                                          0xFFEF4444),
                                                       width: 2,
                                                     ),
                                                   ),
@@ -465,9 +525,11 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                                     child: Container(
                                                       width: 14,
                                                       height: 14,
-                                                      decoration: const BoxDecoration(
+                                                      decoration:
+                                                          const BoxDecoration(
                                                         shape: BoxShape.circle,
-                                                        color: Color(0xFFDC2626),
+                                                        color:
+                                                            Color(0xFFDC2626),
                                                       ),
                                                     ),
                                                   ),
@@ -491,7 +553,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                       left: 16,
                       top: 24,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 6),
                         decoration: BoxDecoration(
                           color: Colors.white.withOpacity(0.92),
                           borderRadius: BorderRadius.circular(24),
@@ -522,9 +585,15 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                               icon: Icons.sync,
                               tooltip: t.rotateModelTooltip,
                               onTap: () {
-                                final angles = ['front', 'right', 'back', 'left'];
+                                final angles = [
+                                  'front',
+                                  'right',
+                                  'back',
+                                  'left'
+                                ];
                                 final currentIndex = angles.indexOf(_viewAngle);
-                                _changeView(angles[(currentIndex + 1) % angles.length]);
+                                _changeView(
+                                    angles[(currentIndex + 1) % angles.length]);
                               },
                             ),
                             const SizedBox(height: 8),
@@ -533,7 +602,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                               tooltip: t.zoomInTooltip,
                               onTap: () {
                                 HapticFeedback.selectionClick();
-                                setState(() => _zoomLevel = (_zoomLevel + 0.15).clamp(0.7, 2.0));
+                                setState(() => _zoomLevel =
+                                    (_zoomLevel + 0.15).clamp(0.7, 2.0));
                               },
                             ),
                             const SizedBox(height: 8),
@@ -542,7 +612,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                               tooltip: t.zoomOutTooltip,
                               onTap: () {
                                 HapticFeedback.selectionClick();
-                                setState(() => _zoomLevel = (_zoomLevel - 0.15).clamp(0.7, 2.0));
+                                setState(() => _zoomLevel =
+                                    (_zoomLevel - 0.15).clamp(0.7, 2.0));
                               },
                             ),
                           ],
@@ -561,7 +632,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                         onTap: _showSelectedLocationsSheet,
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 10),
                           decoration: BoxDecoration(
                             color: const Color(0xFF6D28D9),
                             borderRadius: BorderRadius.circular(24),
@@ -576,12 +648,14 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(Icons.location_on, color: Colors.white, size: 18),
+                              const Icon(Icons.location_on,
+                                  color: Colors.white, size: 18),
                               const SizedBox(width: 6),
                               Text(
                                 _painPoints.isEmpty
                                     ? t.tapABodyPartLabel
-                                    : t.locationsSelectedLabel(_painPoints.length),
+                                    : t.locationsSelectedLabel(
+                                        _painPoints.length),
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -589,7 +663,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                 ),
                               ),
                               const SizedBox(width: 4),
-                              const Icon(Icons.arrow_drop_down, color: Colors.white, size: 18),
+                              const Icon(Icons.arrow_drop_down,
+                                  color: Colors.white, size: 18),
                             ],
                           ),
                         ),
@@ -607,7 +682,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                               end: Alignment.bottomCenter,
                               colors: [
                                 AppPalette.subtleFill(context).withOpacity(0.0),
-                                AppPalette.subtleFill(context).withOpacity(0.95),
+                                AppPalette.subtleFill(context)
+                                    .withOpacity(0.95),
                               ],
                             ),
                           ),
@@ -617,14 +693,17 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                             child: ListView.separated(
                               scrollDirection: Axis.horizontal,
                               itemCount: _painPoints.length,
-                              separatorBuilder: (_, __) => const SizedBox(width: 8),
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(width: 8),
                               itemBuilder: (context, i) {
                                 final point = _painPoints[i];
-                                final zoomOptions = _zoomOptionsByKbName[point.region];
+                                final zoomOptions =
+                                    _zoomOptionsByKbName[point.region];
                                 return SizedBox(
                                   width: 280,
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
                                     children: [
                                       // Zoom button comes first and lives
                                       // outside the scrollable card area —
@@ -635,26 +714,42 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                       // inside that small area to even see it.
                                       if (zoomOptions != null)
                                         Padding(
-                                          padding: const EdgeInsets.only(bottom: 6),
+                                          padding:
+                                              const EdgeInsets.only(bottom: 6),
                                           child: Wrap(
                                             spacing: 6,
                                             runSpacing: 6,
                                             children: zoomOptions.map((option) {
                                               return ElevatedButton.icon(
                                                 onPressed: () {
-                                                  HapticFeedback.selectionClick();
+                                                  HapticFeedback
+                                                      .selectionClick();
                                                   setState(() {
                                                     _zoomedKit = option.$2;
-                                                    _zoomedKitSourceRegion = point.region;
+                                                    _zoomedKitSourceRegion =
+                                                        point.region;
                                                   });
                                                 },
-                                                icon: const Icon(Icons.zoom_in, size: 18, color: Colors.white),
-                                                label: Text(option.$1, style: const TextStyle(fontSize: 13, color: Colors.white, fontWeight: FontWeight.bold)),
+                                                icon: const Icon(Icons.zoom_in,
+                                                    size: 18,
+                                                    color: Colors.white),
+                                                label: Text(option.$1,
+                                                    style: const TextStyle(
+                                                        fontSize: 13,
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
                                                 style: ElevatedButton.styleFrom(
-                                                  backgroundColor: const Color(0xFF6D28D9),
-                                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                                  backgroundColor:
+                                                      const Color(0xFF6D28D9),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                      horizontal: 12,
+                                                      vertical: 8),
                                                   minimumSize: Size.zero,
-                                                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                                  tapTargetSize:
+                                                      MaterialTapTargetSize
+                                                          .shrinkWrap,
                                                 ),
                                               );
                                             }).toList(),
@@ -664,11 +759,14 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                         child: SingleChildScrollView(
                                           child: AnatomyInsightCard(
                                             region: point.region,
-                                            future: _anatomyFutures[point.region],
-                                            initialAnswers: _questionAnswers[point.region],
+                                            future:
+                                                _anatomyFutures[point.region],
+                                            initialAnswers:
+                                                _questionAnswers[point.region],
                                             onAnswersChanged: (answers) {
                                               setState(() {
-                                                _questionAnswers[point.region] = answers;
+                                                _questionAnswers[point.region] =
+                                                    answers;
                                               });
                                             },
                                           ),
@@ -703,8 +801,10 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                               _zoomedKitSourceRegion = null;
                             });
                           },
-                          icon: const Icon(Icons.arrow_back, color: Colors.white),
-                          label: const Text('Back to full body', style: TextStyle(color: Colors.white)),
+                          icon:
+                              const Icon(Icons.arrow_back, color: Colors.white),
+                          label: const Text('Back to full body',
+                              style: TextStyle(color: Colors.white)),
                         ),
                       ),
                   ],
@@ -777,7 +877,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                         ),
                       ),
                       const SizedBox(width: 8),
-                      const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                      const Icon(Icons.arrow_forward,
+                          color: Colors.white, size: 20),
                     ],
                   ),
                 ),
@@ -824,11 +925,16 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
           child: ElevatedButton(
             onPressed: () => _changeView(angle),
             style: ElevatedButton.styleFrom(
-              backgroundColor: isSelected ? const Color(0xFF6D28D9) : AppPalette.subtleFill(context),
-              foregroundColor: isSelected ? Colors.white : const Color(0xFF475569),
+              backgroundColor: isSelected
+                  ? const Color(0xFF6D28D9)
+                  : AppPalette.subtleFill(context),
+              foregroundColor:
+                  isSelected ? Colors.white : const Color(0xFF475569),
               elevation: isSelected ? 2 : 0,
               side: BorderSide(
-                color: isSelected ? const Color(0xFF6D28D9) : AppPalette.border(context),
+                color: isSelected
+                    ? const Color(0xFF6D28D9)
+                    : AppPalette.border(context),
               ),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -871,7 +977,15 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
       'Left Leg / Knee',
     ];
 
-    final availableTags = ['Sharp', 'Dull', 'Burning', 'Throbbing', 'Pressure', 'Constant', 'Intermittent'];
+    final availableTags = [
+      'Sharp',
+      'Dull',
+      'Burning',
+      'Throbbing',
+      'Pressure',
+      'Constant',
+      'Intermittent'
+    ];
 
     showModalBottomSheet(
       context: context,
@@ -892,17 +1006,20 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                 bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
               ),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 4),
                         child: Row(
                           children: [
-                            const Icon(Icons.pin_drop_rounded, color: Color(0xFF6D28D9), size: 24),
+                            const Icon(Icons.pin_drop_rounded,
+                                color: Color(0xFF6D28D9), size: 24),
                             const SizedBox(width: 8),
                             Text(
                               'Confirm & Describe Pain',
@@ -928,7 +1045,9 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                       ),
                       const SizedBox(height: 12),
                       ConstrainedBox(
-                        constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.25),
+                        constraints: BoxConstraints(
+                            maxHeight:
+                                MediaQuery.of(sheetContext).size.height * 0.25),
                         child: ListView.builder(
                           shrinkWrap: true,
                           itemCount: regions.length,
@@ -938,14 +1057,22 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                             return ListTile(
                               dense: true,
                               leading: Icon(
-                                isSelected ? Icons.check_circle : Icons.location_on_outlined,
-                                color: isSelected ? const Color(0xFF6D28D9) : AppPalette.textMuted(context),
+                                isSelected
+                                    ? Icons.check_circle
+                                    : Icons.location_on_outlined,
+                                color: isSelected
+                                    ? const Color(0xFF6D28D9)
+                                    : AppPalette.textMuted(context),
                               ),
                               title: Text(
                                 item,
                                 style: TextStyle(
-                                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                  color: isSelected ? const Color(0xFF6D28D9) : AppPalette.textSecondary(context),
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
+                                  color: isSelected
+                                      ? const Color(0xFF6D28D9)
+                                      : AppPalette.textSecondary(context),
                                 ),
                               ),
                               onTap: () {
@@ -971,11 +1098,15 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                         controller: symptomController,
                         maxLines: 2,
                         decoration: InputDecoration(
-                          hintText: 'e.g. Sharp pain when taking a deep breath, throbbing behind eyes...',
-                          hintStyle: TextStyle(color: AppPalette.textMuted(context), fontSize: 13),
+                          hintText:
+                              'e.g. Sharp pain when taking a deep breath, throbbing behind eyes...',
+                          hintStyle: TextStyle(
+                              color: AppPalette.textMuted(context),
+                              fontSize: 13),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: AppPalette.border(context)),
+                            borderSide:
+                                BorderSide(color: AppPalette.border(context)),
                           ),
                           contentPadding: const EdgeInsets.all(12),
                         ),
@@ -996,7 +1127,12 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                         children: availableTags.map((tag) {
                           final isSelected = selectedTags.contains(tag);
                           return FilterChip(
-                            label: Text(tag, style: TextStyle(fontSize: 12, color: isSelected ? Colors.white : AppPalette.textPrimary(context))),
+                            label: Text(tag,
+                                style: TextStyle(
+                                    fontSize: 12,
+                                    color: isSelected
+                                        ? Colors.white
+                                        : AppPalette.textPrimary(context))),
                             selected: isSelected,
                             selectedColor: const Color(0xFF6D28D9),
                             onSelected: (selected) {
@@ -1020,18 +1156,21 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                 Navigator.of(sheetContext).pop();
                                 setState(() => _pendingTap = null);
                               },
-                              child: const Text('Cancel', style: TextStyle(color: Color(0xFF64748B))),
+                              child: const Text('Cancel',
+                                  style: TextStyle(color: Color(0xFF64748B))),
                             ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: ElevatedButton(
                               onPressed: () {
-                                final textSymptom = symptomController.text.trim();
+                                final textSymptom =
+                                    symptomController.text.trim();
                                 final tagsList = selectedTags.toList();
                                 final combinedComplaint = [
                                   if (textSymptom.isNotEmpty) textSymptom,
-                                  if (tagsList.isNotEmpty) 'Quality: ${tagsList.join(", ")}',
+                                  if (tagsList.isNotEmpty)
+                                    'Quality: ${tagsList.join(", ")}',
                                 ].join('. ');
 
                                 Navigator.of(sheetContext).pop();
@@ -1041,10 +1180,13 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                                   region: selectedRegion,
                                   x: confirmed.x,
                                   y: confirmed.y,
-                                  symptomDescription: textSymptom.isNotEmpty ? textSymptom : null,
+                                  symptomDescription: textSymptom.isNotEmpty
+                                      ? textSymptom
+                                      : null,
                                   tags: tagsList,
                                 );
-                                _requestAnatomyInsight(selectedRegion, complaint: combinedComplaint);
+                                _requestAnatomyInsight(selectedRegion,
+                                    complaint: combinedComplaint);
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF6D28D9),
@@ -1084,13 +1226,15 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                 bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
               ),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       child: Text(
                         t.painLocationsSheetTitle,
                         style: TextStyle(
@@ -1103,14 +1247,18 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                     const SizedBox(height: 8),
                     if (_painPoints.isEmpty)
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 16),
                         child: Text(
                           t.noLocationsMarkedHint,
-                          style: TextStyle(color: AppPalette.textMuted(context)),
+                          style:
+                              TextStyle(color: AppPalette.textMuted(context)),
                         ),
                       ),
                     ConstrainedBox(
-                      constraints: BoxConstraints(maxHeight: MediaQuery.of(sheetContext).size.height * 0.4),
+                      constraints: BoxConstraints(
+                          maxHeight:
+                              MediaQuery.of(sheetContext).size.height * 0.4),
                       child: ListView.builder(
                         shrinkWrap: true,
                         itemCount: _painPoints.length,
@@ -1118,10 +1266,12 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                           final point = _painPoints[index];
                           return ListTile(
                             dense: true,
-                            leading: const Icon(Icons.location_on, color: Color(0xFF6D28D9)),
+                            leading: const Icon(Icons.location_on,
+                                color: Color(0xFF6D28D9)),
                             title: Text(point.region),
                             trailing: IconButton(
-                              icon: const Icon(Icons.close, color: Color(0xFFEF4444)),
+                              icon: const Icon(Icons.close,
+                                  color: Color(0xFFEF4444)),
                               tooltip: t.removeTooltip,
                               onPressed: () {
                                 _removePainPointAt(index);
@@ -1134,10 +1284,13 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                     ),
                     const Divider(height: 24),
                     ListTile(
-                      leading: const Icon(Icons.add_circle_outline, color: Color(0xFF6D28D9)),
+                      leading: const Icon(Icons.add_circle_outline,
+                          color: Color(0xFF6D28D9)),
                       title: Text(
                         t.addAnotherLocationLabel,
-                        style: const TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF6D28D9)),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF6D28D9)),
                       ),
                       onTap: () {
                         Navigator.of(sheetContext).pop();
@@ -1201,18 +1354,27 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
                   itemCount: regions.length,
                   itemBuilder: (context, index) {
                     final item = regions[index];
-                    final alreadyAdded = _painPoints.any((p) => p.region == item);
+                    final alreadyAdded =
+                        _painPoints.any((p) => p.region == item);
                     return ListTile(
                       dense: true,
                       leading: Icon(
-                        alreadyAdded ? Icons.check_circle : Icons.location_on_outlined,
-                        color: alreadyAdded ? const Color(0xFF6D28D9) : AppPalette.textMuted(context),
+                        alreadyAdded
+                            ? Icons.check_circle
+                            : Icons.location_on_outlined,
+                        color: alreadyAdded
+                            ? const Color(0xFF6D28D9)
+                            : AppPalette.textMuted(context),
                       ),
                       title: Text(
                         item,
                         style: TextStyle(
-                          fontWeight: alreadyAdded ? FontWeight.bold : FontWeight.normal,
-                          color: alreadyAdded ? const Color(0xFF6D28D9) : AppPalette.textSecondary(context),
+                          fontWeight: alreadyAdded
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: alreadyAdded
+                              ? const Color(0xFF6D28D9)
+                              : AppPalette.textSecondary(context),
                         ),
                       ),
                       onTap: () {
@@ -1263,7 +1425,9 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.gotItButton, style: const TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
+            child: Text(t.gotItButton,
+                style: const TextStyle(
+                    color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -1282,6 +1446,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> with SingleTickerProvider
         builder: (_) => PainDetailsScreen(
           painPoints: _painPoints,
           patientId: widget.patientId,
+          patientCode: widget.patientCode,
           modelAsset: widget.modelAsset,
         ),
       ),

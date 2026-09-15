@@ -14,11 +14,13 @@ import '../../../l10n/app_localizations.dart';
 class ReviewScreen extends StatefulWidget {
   final List<PainPoint> painPoints;
   final int patientId;
+  final String? patientCode;
 
   const ReviewScreen({
     super.key,
     required this.painPoints,
     required this.patientId,
+    this.patientCode,
   });
 
   @override
@@ -29,7 +31,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
   bool _isSubmitting = false;
   bool _isSavingDraft = false;
 
-  final String _timestamp = DateTime.now().toString().substring(0, 16).replaceAll('T', ', ');
+  final String _timestamp =
+      DateTime.now().toString().substring(0, 16).replaceAll('T', ', ');
 
   // A patient can mark several pain points in one visit; each becomes its
   // own TriageReport row on the backend, but they're tagged with this same
@@ -38,7 +41,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
   // unique enough for this purpose.
   String _generateVisitId() {
     final rand = Random();
-    final suffix = List.generate(6, (_) => rand.nextInt(36).toRadixString(36)).join();
+    final suffix =
+        List.generate(6, (_) => rand.nextInt(36).toRadixString(36)).join();
     return '${DateTime.now().millisecondsSinceEpoch}-$suffix';
   }
 
@@ -70,8 +74,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
           direction: point.direction,
           depth: point.depth,
           patientId: widget.patientId,
+          patientCode: widget.patientCode,
           visitId: visitId,
-          questionAnswers: point.questionAnswers.isEmpty ? null : point.questionAnswers,
+          questionAnswers:
+              point.questionAnswers.isEmpty ? null : point.questionAnswers,
         )));
       }
 
@@ -104,6 +110,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           await DraftStorage.save(TriageDraft(
             painPoints: remaining,
             patientId: widget.patientId,
+            patientCode: widget.patientCode,
             savedAt: DateTime.now(),
           ));
         }
@@ -114,7 +121,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.submitFailedSavedOfflineSnackbar('$e')),
+          content: Text(AppLocalizations.of(context)!
+              .submitFailedSavedOfflineSnackbar('$e')),
           backgroundColor: const Color(0xFFF59E0B),
           duration: const Duration(seconds: 5),
         ),
@@ -132,6 +140,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
       await DraftStorage.save(TriageDraft(
         painPoints: widget.painPoints,
         patientId: widget.patientId,
+        patientCode: widget.patientCode,
         savedAt: DateTime.now(),
       ));
 
@@ -146,7 +155,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not save draft: $e'), backgroundColor: const Color(0xFFF59E0B)),
+        SnackBar(
+            content: Text('Could not save draft: $e'),
+            backgroundColor: const Color(0xFFF59E0B)),
       );
     } finally {
       if (mounted) setState(() => _isSavingDraft = false);
@@ -161,14 +172,23 @@ class _ReviewScreenState extends State<ReviewScreen> {
       appBar: AppBar(
         backgroundColor: AppPalette.surface(context),
         elevation: 0,
-        leading: IconButton(icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)), onPressed: () => Navigator.of(context).pop()),
-        title: Text(t.reviewSubmitTitle, style: TextStyle(color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold, fontSize: 18)),
+        leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
+            onPressed: () => Navigator.of(context).pop()),
+        title: Text(t.reviewSubmitTitle,
+            style: TextStyle(
+                color: AppPalette.textPrimary(context),
+                fontWeight: FontWeight.bold,
+                fontSize: 18)),
         centerTitle: true,
         actions: [
           TextButton.icon(
             onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.edit_outlined, color: Color(0xFF6D28D9), size: 18),
-            label: Text(t.editButton, style: const TextStyle(color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
+            icon: const Icon(Icons.edit_outlined,
+                color: Color(0xFF6D28D9), size: 18),
+            label: Text(t.editButton,
+                style: const TextStyle(
+                    color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -181,32 +201,50 @@ class _ReviewScreenState extends State<ReviewScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(crossAxisAlignment: CrossAxisAlignment.start,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.anonymousPatientLabel, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
-                    Text(t.idGeneratedOnSubmitLabel, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6D28D9))),
+                    Text(t.anonymousPatientLabel,
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: AppPalette.textMuted(context))),
+                    Text(t.idGeneratedOnSubmitLabel,
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF6D28D9))),
                   ],
                 ),
-                Column(crossAxisAlignment: CrossAxisAlignment.end,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(t.timestampLabel, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
-                    Text(_timestamp, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
+                    Text(t.timestampLabel,
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: AppPalette.textMuted(context))),
+                    Text(_timestamp,
+                        style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF475569))),
                   ],
                 ),
               ],
             ),
           ),
           const Divider(height: 1),
-
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(t.clinicalSummaryTitle, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+                  Text(t.clinicalSummaryTitle,
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: AppPalette.textPrimary(context))),
                   const SizedBox(height: 16),
-
                   ...widget.painPoints.asMap().entries.map((entry) {
                     final index = entry.key;
                     final point = entry.value;
@@ -219,31 +257,49 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           children: [
                             Text(
                               t.painPointNumberLabel(index + 1),
-                              style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9)),
+                              style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF6D28D9)),
                             ),
                             const SizedBox(height: 12),
-                            _buildSummaryRow(t.locationLabel, point.region, Icons.location_on),
+                            _buildSummaryRow(t.locationLabel, point.region,
+                                Icons.location_on),
                             const Divider(height: 24),
-                            _buildSummaryRow(t.painTypeLabel, point.painType, Icons.sick),
+                            _buildSummaryRow(
+                                t.painTypeLabel, point.painType, Icons.sick),
                             const Divider(height: 24),
-                            _buildSummaryRow(t.intensityLabel, '${point.severity} / 10', Icons.straighten),
+                            _buildSummaryRow(t.intensityLabel,
+                                '${point.severity} / 10', Icons.straighten),
                             const Divider(height: 24),
-                            _buildSummaryRow(t.directionLabel, point.direction, Icons.arrow_right_alt),
+                            _buildSummaryRow(t.directionLabel, point.direction,
+                                Icons.arrow_right_alt),
                             const Divider(height: 24),
-                            _buildSummaryRow(t.depthLabel, point.depth, Icons.layers),
+                            _buildSummaryRow(
+                                t.depthLabel, point.depth, Icons.layers),
                             const Divider(height: 24),
-                            _buildSummaryRow('Expansion', point.expansionBehavior, Icons.open_in_full),
+                            _buildSummaryRow('Expansion',
+                                point.expansionBehavior, Icons.open_in_full),
                             if (point.triggers.isNotEmpty) ...[
                               const Divider(height: 24),
-                              _buildSummaryRow('Triggers (Worse)', point.triggers.join(', '), Icons.warning_amber_rounded),
+                              _buildSummaryRow(
+                                  'Triggers (Worse)',
+                                  point.triggers.join(', '),
+                                  Icons.warning_amber_rounded),
                             ],
                             if (point.relievers.isNotEmpty) ...[
                               const Divider(height: 24),
-                              _buildSummaryRow('Relievers (Better)', point.relievers.join(', '), Icons.health_and_safety_outlined),
+                              _buildSummaryRow(
+                                  'Relievers (Better)',
+                                  point.relievers.join(', '),
+                                  Icons.health_and_safety_outlined),
                             ],
                             if (point.dailyLimitations.isNotEmpty) ...[
                               const Divider(height: 24),
-                              _buildSummaryRow('Daily Limitations', point.dailyLimitations.join(', '), Icons.block),
+                              _buildSummaryRow(
+                                  'Daily Limitations',
+                                  point.dailyLimitations.join(', '),
+                                  Icons.block),
                             ],
                             if (point.questionAnswers.isNotEmpty) ...[
                               const Divider(height: 24),
@@ -251,16 +307,26 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 6),
                                   child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.question_answer_outlined, size: 16, color: Color(0xFF6D28D9)),
+                                      const Icon(Icons.question_answer_outlined,
+                                          size: 16, color: Color(0xFF6D28D9)),
                                       const SizedBox(width: 10),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Text(entry.key, style: const TextStyle(fontSize: 11, color: Color(0xFF64748B))),
-                                            Text(entry.value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF1E293B))),
+                                            Text(entry.key,
+                                                style: const TextStyle(
+                                                    fontSize: 11,
+                                                    color: Color(0xFF64748B))),
+                                            Text(entry.value,
+                                                style: const TextStyle(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Color(0xFF1E293B))),
                                           ],
                                         ),
                                       ),
@@ -274,18 +340,19 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       ),
                     );
                   }),
-
                   const SizedBox(height: 8),
                   const SizedBox(height: 24),
                   Text(
                     t.consentSubmitNotice,
-                    style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context), fontStyle: FontStyle.italic),
+                    style: TextStyle(
+                        fontSize: 13,
+                        color: AppPalette.textMuted(context),
+                        fontStyle: FontStyle.italic),
                   ),
                 ],
               ),
             ),
           ),
-
           Container(
             padding: const EdgeInsets.all(20),
             color: AppPalette.surface(context),
@@ -296,8 +363,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     child: OutlinedButton(
                       onPressed: _isSavingDraft ? null : _saveDraft,
                       child: _isSavingDraft
-                        ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
-                        : Text(t.saveDraftButton),
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2))
+                          : Text(t.saveDraftButton),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -310,15 +380,27 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         elevation: 3,
                         shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14)),
                       ),
                       child: _isSubmitting
-                        ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
-                        : Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                            Text(t.submitButton, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.send, color: Colors.white, size: 20),
-                          ]),
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 3))
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                  Text(t.submitButton,
+                                      style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white)),
+                                  const SizedBox(width: 8),
+                                  const Icon(Icons.send,
+                                      color: Colors.white, size: 20),
+                                ]),
                     ),
                   ),
                 ],
@@ -333,14 +415,27 @@ class _ReviewScreenState extends State<ReviewScreen> {
   Widget _buildSummaryRow(String label, String value, IconData icon) {
     return Row(
       children: [
-        Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: const Color(0xFF6D28D9).withOpacity(0.1), shape: BoxShape.circle),
-          child: Icon(icon, color: const Color(0xFF6D28D9), size: 20)),
+        Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+                color: const Color(0xFF6D28D9).withOpacity(0.1),
+                shape: BoxShape.circle),
+            child: Icon(icon, color: const Color(0xFF6D28D9), size: 20)),
         const SizedBox(width: 12),
         Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), fontWeight: FontWeight.w500)),
-              Text(value, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+              Text(label,
+                  style: TextStyle(
+                      fontSize: 12,
+                      color: AppPalette.textMuted(context),
+                      fontWeight: FontWeight.w500)),
+              Text(value,
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppPalette.textPrimary(context))),
             ],
           ),
         ),

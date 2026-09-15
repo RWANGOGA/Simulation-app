@@ -21,6 +21,10 @@ class Settings(BaseSettings):
     GROQ_BASE_URL: str = "https://api.groq.com/openai/v1"
     GROQ_TIMEOUT_SECONDS: float = 20.0
     ALLOWED_ORIGINS: str = Field(default="", validation_alias="ALLOWED_ORIGINS")
+    TRUSTED_HOSTS: str = Field(
+        default="atomybridge.com,*.atomybridge.com,api.atomybridge.com,backend-fastapi-linv.onrender.com",
+        validation_alias="TRUSTED_HOSTS",
+    )
     model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
 
 settings = Settings()
