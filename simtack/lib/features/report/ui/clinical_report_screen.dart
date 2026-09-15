@@ -186,7 +186,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
               child: Transform.rotate(
                 angle: -0.3,
                 child: Text(
-                  'SIMTACK CARE',
+                  'SIMTACK',
                   style: TextStyle(
                     fontSize: 60,
                     fontWeight: FontWeight.bold,
@@ -393,6 +393,14 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                     _buildDetailRow(t.painTypeLabel, '${report.painType} (${report.severity}/10)', Icons.sick),
                     _buildDetailRow(t.directionLabel, report.direction ?? t.naLabel, Icons.arrow_right_alt),
                     _buildDetailRow(t.depthLabel, report.depth ?? t.naLabel, Icons.layers),
+                    if (report.expansionBehavior != null && report.expansionBehavior!.isNotEmpty)
+                      _buildDetailRow('Expansion Behavior', report.expansionBehavior!, Icons.open_in_full),
+                    if (report.triggers.isNotEmpty)
+                      _buildDetailRow('Triggers (Makes it worse)', report.triggers.join(', '), Icons.warning_amber_rounded),
+                    if (report.relievers.isNotEmpty)
+                      _buildDetailRow('Relievers (Makes it better)', report.relievers.join(', '), Icons.health_and_safety_outlined),
+                    if (report.dailyLimitations.isNotEmpty)
+                      _buildDetailRow('Daily Life Limitations', report.dailyLimitations.join(', '), Icons.block),
                     _buildDetailRow(t.riskLabel, '${_riskLevelDisplay(context, report.riskScore ?? 0.0)} (${((report.riskScore ?? 0.0) * 100).toInt()}%)', Icons.analytics),
                     _buildDetailRow(t.reportedAtLabel, report.createdAt.toString().substring(0, 16), Icons.access_time),
                     if (report.questionAnswers != null && report.questionAnswers!.isNotEmpty)

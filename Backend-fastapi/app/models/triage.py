@@ -24,3 +24,7 @@ class TriageSession(Base):
     actions_taken = Column(Text, nullable=True)
     clinical_notes = Column(Text, nullable=True)
     question_answers = Column(JSONB, nullable=True)
+    expansion_behavior = Column(String, nullable=True)
+    triggers = Column(Text, nullable=True)
+    relievers = Column(Text, nullable=True)
+    daily_limitations = Column(Text, nullable=True)

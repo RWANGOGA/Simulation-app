@@ -10,6 +10,10 @@ class TriageBase(BaseModel):
     spo2: Optional[float] = Field(None, description="SpO2 estimate (%) from camera PPG — perfusion-based proxy, not clinical pulse-oximetry")
     direction: Optional[str] = Field(None, description="e.g., Towards Back, Radiating Down")
     depth: Optional[str] = Field(None, description="e.g., Superficial, Moderate, Deep")
+    expansion_behavior: Optional[str] = Field(None, description="e.g., Stays Small, Spreading, Multiplying")
+    triggers: Optional[str] = Field(None, description="JSON list or string of aggravating triggers")
+    relievers: Optional[str] = Field(None, description="JSON list or string of relieving factors")
+    daily_limitations: Optional[str] = Field(None, description="JSON list or string of daily functional limitations")
     visit_id: Optional[str] = Field(None, description="Shared id across all pain points from one visit")
     question_answers: Optional[dict[str, Any]] = Field(None, description="Patient answers to suggested anatomy questions")
 

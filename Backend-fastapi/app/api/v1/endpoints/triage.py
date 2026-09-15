@@ -44,6 +44,8 @@ def _session_payload(session: TriageSession, patient) -> dict:
         "body_region": session.body_region, "pain_type": session.pain_type,
         "severity": session.severity, "heart_rate": session.heart_rate,
         "spo2": session.spo2, "direction": session.direction, "depth": session.depth,
+        "expansion_behavior": session.expansion_behavior, "triggers": session.triggers,
+        "relievers": session.relievers, "daily_limitations": session.daily_limitations,
         "visit_id": session.visit_id,
         "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
         "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at,

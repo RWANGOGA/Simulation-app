@@ -185,6 +185,10 @@ class TriageReport {
   final int severity;
   final String? direction;
   final String? depth;
+  final String? expansionBehavior;
+  final List<String>? triggers;
+  final List<String>? relievers;
+  final List<String>? dailyLimitations;
   final int? patientId;
   final String? patientCode;
   final String? visitId;
@@ -196,6 +200,10 @@ class TriageReport {
     required this.severity,
     this.direction,
     this.depth,
+    this.expansionBehavior,
+    this.triggers,
+    this.relievers,
+    this.dailyLimitations,
     this.patientId,
     this.patientCode,
     this.visitId,
@@ -208,6 +216,14 @@ class TriageReport {
         'severity': severity,
         if (direction != null) 'direction': direction,
         if (depth != null) 'depth': depth,
+        if (expansionBehavior != null && expansionBehavior!.isNotEmpty)
+          'expansion_behavior': expansionBehavior,
+        if (triggers != null && triggers!.isNotEmpty)
+          'triggers': jsonEncode(triggers),
+        if (relievers != null && relievers!.isNotEmpty)
+          'relievers': jsonEncode(relievers),
+        if (dailyLimitations != null && dailyLimitations!.isNotEmpty)
+          'daily_limitations': jsonEncode(dailyLimitations),
         if (patientId != null) 'patient_id': patientId,
         if (visitId != null) 'visit_id': visitId,
         if (questionAnswers != null && questionAnswers!.isNotEmpty)
@@ -224,6 +240,10 @@ class TriageResult {
   final int severity;
   final String? direction;
   final String? depth;
+  final String? expansionBehavior;
+  final List<String> triggers;
+  final List<String> relievers;
+  final List<String> dailyLimitations;
   final String? visitId;
   final double? riskScore;
   final String? shapExplanation;
@@ -260,6 +280,10 @@ class TriageResult {
     required this.severity,
     this.direction,
     this.depth,
+    this.expansionBehavior,
+    this.triggers = const [],
+    this.relievers = const [],
+    this.dailyLimitations = const [],
     this.visitId,
     this.riskScore,
     this.shapExplanation,
@@ -300,6 +324,10 @@ class TriageResult {
       severity: json['severity'] as int,
       direction: json['direction'] as String?,
       depth: json['depth'] as String?,
+      expansionBehavior: json['expansion_behavior'] as String?,
+      triggers: _parseListString(json['triggers']),
+      relievers: _parseListString(json['relievers']),
+      dailyLimitations: _parseListString(json['daily_limitations']),
       visitId: json['visit_id'] as String?,
       riskScore: (json['risk_score'] as num?)?.toDouble(),
       shapExplanation: json['shap_explanation'] as String?,
@@ -323,6 +351,19 @@ class TriageResult {
       questionAnswers: (json['question_answers'] as Map<String, dynamic>?)
           ?.map((k, v) => MapEntry(k, v.toString())),
     );
+  }
+
+  static List<String> _parseListString(dynamic raw) {
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    if (raw is String && raw.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is List) return decoded.map((e) => e.toString()).toList();
+      } catch (_) {
+        return [raw];
+      }
+    }
+    return const [];
   }
 
   // actions_taken travels as a JSON array string ("[\"a\", \"b\"]").
