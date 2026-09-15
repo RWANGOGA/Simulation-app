@@ -74,7 +74,7 @@ void main() {
       await tester.pumpWidget(
           _wrap(const ClinicalReportScreen(patientId: 'TEST-12345')));
 
-      expect(find.text('SIMTACK CARE'), findsOneWidget);
+      expect(find.text('SIMTACK'), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
   });
