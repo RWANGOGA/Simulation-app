@@ -233,23 +233,16 @@ def _rrf_fuse(
     return sorted(fusion.items(), key=lambda x: x[1], reverse=True)
 
 
-def retrieve(
-    region: Optional[str] = None,
-    query: str = "",
-    top_k: int = 3,
-) -> List[RetrievalHit]:
-    """Return the top-k chunks most relevant to (region, query) using hybrid search.
-
-    Combines BM25 lexical retrieval with TF-IDF cosine similarity using
-    Reciprocal Rank Fusion (RRF) for robust ranking across both methods.
-    A region match is a strong prior and is applied as a final boost.
-    """
+@lru_cache(maxsize=128)
+def _retrieve_cached_chunk_ids(
+    region_key: str, query_key: str, top_k: int
+) -> Tuple[Tuple[str, float], ...]:
     vectors, chunks = _index()
-    query_tokens = _tokenize(query or "")
+    query_tokens = _tokenize(query_key or "")
     idf = _build_idf(chunks)
     q_vec = _vectorize(query_tokens, idf)
 
-    region_norm = (region or "").strip().lower()
+    region_norm = region_key.strip().lower()
 
     # Precompute BM25 statistics
     chunk_tokens_map = {cid: list(c.tokens) for cid, c in chunks.items()}
@@ -281,16 +274,36 @@ def retrieve(
     # Fuse with RRF
     fused = _rrf_fuse([bm25_ranked, tfidf_ranked])
 
-    # Convert to RetrievalHit objects
-    hits = []
-    for cid, fused_score in fused[: max(1, top_k)]:
-        chunk = chunks[cid]
-        # Use the higher of BM25 or TF-IDF raw score as the displayed score
-        raw_bm25 = dict(bm25_ranked).get(cid, 0.0)
-        raw_tfidf = dict(tfidf_ranked).get(cid, 0.0)
-        hits.append(RetrievalHit(chunk=chunk, score=max(raw_bm25, raw_tfidf)))
+    results = []
+    bm25_dict = dict(bm25_ranked)
+    tfidf_dict = dict(tfidf_ranked)
+    for cid, _ in fused[: max(1, top_k)]:
+        score = max(bm25_dict.get(cid, 0.0), tfidf_dict.get(cid, 0.0))
+        results.append((cid, score))
+    return tuple(results)
 
-    return hits
+
+def retrieve(
+    region: Optional[str] = None,
+    query: str = "",
+    top_k: int = 3,
+) -> List[RetrievalHit]:
+    """Return the top-k chunks most relevant to (region, query) using hybrid search.
+
+    Combines BM25 lexical retrieval with TF-IDF cosine similarity using
+    Reciprocal Rank Fusion (RRF) for robust ranking across both methods.
+    Results are cached per (region, query, top_k) tuple.
+    """
+    chunks = load_kb()
+    r_key = (region or "").strip().lower()
+    q_key = (query or "").strip().lower()
+    
+    cached_hits = _retrieve_cached_chunk_ids(r_key, q_key, top_k)
+    return [
+        RetrievalHit(chunk=chunks[cid], score=score)
+        for cid, score in cached_hits
+        if cid in chunks
+    ]
 
 
 def list_regions() -> List[dict]:

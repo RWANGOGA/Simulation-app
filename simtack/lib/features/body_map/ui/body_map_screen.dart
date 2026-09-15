@@ -210,6 +210,8 @@ class _BodyMapScreenState extends State<BodyMapScreen>
   double _zoomLevel = 1.0;
   late AnimationController _pulseController;
 
+  bool _isAssetsPrecached = false;
+
   @override
   void initState() {
     super.initState();
@@ -217,6 +219,30 @@ class _BodyMapScreenState extends State<BodyMapScreen>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_isAssetsPrecached) {
+      _isAssetsPrecached = true;
+      _precacheAnatomyAssets();
+    }
+  }
+
+  void _precacheAnatomyAssets() {
+    final angles = ['front', 'back', 'left', 'right'];
+    for (final angle in angles) {
+      precacheImage(AssetImage('assets/anatomy/body_visible_$angle.png'), context);
+      precacheImage(AssetImage('assets/anatomy/body_idmap_$angle.png'), context);
+    }
+    final kits = [
+      'hand', 'foot', 'eye', 'earonly', 'noseonly', 'leg', 'torsofront', 'torsoback'
+    ];
+    for (final kit in kits) {
+      precacheImage(AssetImage('assets/anatomy/${kit}_visible.png'), context);
+      precacheImage(AssetImage('assets/anatomy/${kit}_idmap.png'), context);
+    }
   }
 
   @override
