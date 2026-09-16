@@ -5,6 +5,9 @@ import '../../auth/ui/login_screen.dart';
 import '../../../core/network/auth_service.dart';
 import 'practitioner_dashboard_screen.dart';
 import 'patient_overview_pane.dart';
+import 'reports_screen.dart';
+import 'qr_scan_screen.dart';
+import '../../report/ui/clinical_report_screen.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
 // 🌟 ADDED: Import for the new Session History screen
 import '../../history/ui/practitioner_session_history_screen.dart';
@@ -225,9 +228,7 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
                     label,
                     style: TextStyle(
                       fontSize: 14,
-                      fontWeight: isActive
-                          ? FontWeight.w600
-                          : FontWeight.w500,
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
                       color: isActive
                           ? const Color(0xFF6D28D9)
                           : AppPalette.textPrimary(context),
@@ -254,9 +255,14 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
   }
 
   Widget _buildFooter(BuildContext context) {
-    final displayName = _doctorName?.trim().isNotEmpty == true ? _doctorName!.trim() : 'Dr. Practitioner';
-    final displayEmail = _doctorEmail?.trim().isNotEmpty == true ? _doctorEmail!.trim() : 'doctor@simtack.com';
-    final displayHospital = _hospitalName?.trim().isNotEmpty == true ? _hospitalName!.trim() : null;
+    final displayName = _doctorName?.trim().isNotEmpty == true
+        ? _doctorName!.trim()
+        : 'Dr. Practitioner';
+    final displayEmail = _doctorEmail?.trim().isNotEmpty == true
+        ? _doctorEmail!.trim()
+        : 'doctor@simtack.com';
+    final displayHospital =
+        _hospitalName?.trim().isNotEmpty == true ? _hospitalName!.trim() : null;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -351,7 +357,13 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
         break;
       case '/sessions':
         Navigator.of(context).push(
-          AppPageRoute(builder: (_) => const PractitionerSessionHistoryScreen()),
+          AppPageRoute(
+              builder: (_) => const PractitionerSessionHistoryScreen()),
+        );
+        break;
+      case '/reports':
+        Navigator.of(context).push(
+          AppPageRoute(builder: (_) => const ReportsScreen()),
         );
         break;
       case '/settings':
@@ -382,11 +394,17 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
     _navigateToRoute(context, '/profile');
   }
 
-  void _scanQR(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('QR Scanner - Coming soon'),
-        backgroundColor: Color(0xFF6D28D9),
+  Future<void> _scanQR(BuildContext context) async {
+    final code = await Navigator.of(context).push<String>(
+      AppPageRoute(builder: (_) => const QrScanScreen()),
+    );
+    if (code == null || !context.mounted) return;
+    await Navigator.of(context).push(
+      AppPageRoute(
+        builder: (_) => ClinicalReportScreen(
+          patientId: code,
+          practitionerMode: true,
+        ),
       ),
     );
   }

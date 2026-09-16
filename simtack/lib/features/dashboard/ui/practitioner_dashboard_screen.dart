@@ -12,16 +12,19 @@ import '../../settings/ui/accessibility_settings_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import 'qr_scan_screen.dart';
 import 'patient_overview_pane.dart';
+import 'practitioner_scaffold.dart';
 import '../../onboarding/ui/welcome_screen.dart';
 
 class PractitionerDashboardScreen extends StatefulWidget {
   const PractitionerDashboardScreen({super.key});
 
   @override
-  State<PractitionerDashboardScreen> createState() => _PractitionerDashboardScreenState();
+  State<PractitionerDashboardScreen> createState() =>
+      _PractitionerDashboardScreenState();
 }
 
-class _PractitionerDashboardScreenState extends State<PractitionerDashboardScreen> {
+class _PractitionerDashboardScreenState
+    extends State<PractitionerDashboardScreen> {
   Map<String, dynamic>? _stats;
   List<Map<String, dynamic>> _sessions = [];
   List<Map<String, dynamic>> _recentSessions = [];
@@ -72,7 +75,9 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading dashboard: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Error loading dashboard: $e'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -99,7 +104,9 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
       setState(() => _isLoadingMore = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading more: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Error loading more: $e'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -131,7 +138,8 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
     if (code == null || !mounted) return;
     await Navigator.of(context).push(
       AppPageRoute(
-        builder: (_) => ClinicalReportScreen(patientId: code, practitionerMode: true),
+        builder: (_) =>
+            ClinicalReportScreen(patientId: code, practitionerMode: true),
       ),
     );
     _loadData();
@@ -164,20 +172,28 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
 
   Color _getRiskColor(String level) {
     switch (level) {
-      case 'HIGH': return const Color(0xFFDC2626);
-      case 'MEDIUM': return const Color(0xFFF59E0B);
-      case 'LOW': return const Color(0xFF16A34A);
-      default: return AppPalette.textMuted(context);
+      case 'HIGH':
+        return const Color(0xFFDC2626);
+      case 'MEDIUM':
+        return const Color(0xFFF59E0B);
+      case 'LOW':
+        return const Color(0xFF16A34A);
+      default:
+        return AppPalette.textMuted(context);
     }
   }
 
   String _riskDisplayLabel(BuildContext context, String level) {
     final t = AppLocalizations.of(context)!;
     switch (level) {
-      case 'HIGH': return t.statHighRiskLabel.toUpperCase();
-      case 'MEDIUM': return t.statMediumRiskLabel.toUpperCase();
-      case 'LOW': return t.statLowRiskLabel.toUpperCase();
-      default: return t.unknownLabel.toUpperCase();
+      case 'HIGH':
+        return t.statHighRiskLabel.toUpperCase();
+      case 'MEDIUM':
+        return t.statMediumRiskLabel.toUpperCase();
+      case 'LOW':
+        return t.statLowRiskLabel.toUpperCase();
+      default:
+        return t.unknownLabel.toUpperCase();
     }
   }
 
@@ -206,7 +222,8 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                 tooltip: t.displayAccessibilityTooltip,
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const AccessibilitySettingsScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const AccessibilitySettingsScreen()),
                   );
                 },
               ),
@@ -214,7 +231,8 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
           ),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
+                ? const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
                 : _buildMainContent(),
           ),
         ],
@@ -239,10 +257,23 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                 spacing: 16,
                 runSpacing: 16,
                 children: [
-                  _buildStatCard(t.statTotalLabel, _stats!['total'].toString(), const Color(0xFF6D28D9), Icons.people),
-                  _buildStatCard(t.statHighRiskLabel, _stats!['high_risk'].toString(), const Color(0xFFDC2626), Icons.warning),
-                  _buildStatCard(t.statMediumRiskLabel, _stats!['medium_risk'].toString(), const Color(0xFFF59E0B), Icons.trending_up),
-                  _buildStatCard(t.statLowRiskLabel, _stats!['low_risk'].toString(), const Color(0xFF16A34A), Icons.check_circle),
+                  _buildStatCard(t.statTotalLabel, _stats!['total'].toString(),
+                      const Color(0xFF6D28D9), Icons.people),
+                  _buildStatCard(
+                      t.statHighRiskLabel,
+                      _stats!['high_risk'].toString(),
+                      const Color(0xFFDC2626),
+                      Icons.warning),
+                  _buildStatCard(
+                      t.statMediumRiskLabel,
+                      _stats!['medium_risk'].toString(),
+                      const Color(0xFFF59E0B),
+                      Icons.trending_up),
+                  _buildStatCard(
+                      t.statLowRiskLabel,
+                      _stats!['low_risk'].toString(),
+                      const Color(0xFF16A34A),
+                      Icons.check_circle),
                 ],
               ),
 
@@ -290,16 +321,20 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: t.searchPatientIdHint,
-                      prefixIcon: Icon(Icons.search, color: AppPalette.textMuted(context)),
+                      prefixIcon: Icon(Icons.search,
+                          color: AppPalette.textMuted(context)),
                       filled: true,
                       fillColor: AppPalette.inputFill(context),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide.none),
                       contentPadding: const EdgeInsets.symmetric(vertical: 0),
                     ),
                     onChanged: (value) {
                       setState(() => _searchQuery = value.toUpperCase());
                       _searchDebounce?.cancel();
-                      _searchDebounce = Timer(const Duration(milliseconds: 400), () {
+                      _searchDebounce =
+                          Timer(const Duration(milliseconds: 400), () {
                         _loadData();
                       });
                     },
@@ -311,17 +346,21 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                     style: IconButton.styleFrom(
                       backgroundColor: const Color(0xFF6D28D9),
                       foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.qr_code_scanner),
                     onPressed: _scanQr,
                   ),
-                _buildDropdownFilter(_selectedRisk, Icons.filter_list, ['All', 'High', 'Med', 'Low'], (value) {
+                _buildDropdownFilter(_selectedRisk, Icons.filter_list,
+                    ['All', 'High', 'Med', 'Low'], (value) {
                   setState(() => _selectedRisk = value == 'All' ? null : value);
                   _loadData();
                 }),
-                _buildDropdownFilter(_selectedStatus, Icons.folder_open, ['Any', 'Open', 'Closed'], (value) {
-                  setState(() => _selectedStatus = value == 'Any' ? null : value?.toLowerCase());
+                _buildDropdownFilter(_selectedStatus, Icons.folder_open,
+                    ['Any', 'Open', 'Closed'], (value) {
+                  setState(() => _selectedStatus =
+                      value == 'Any' ? null : value?.toLowerCase());
                   _loadData();
                 }),
               ],
@@ -331,11 +370,19 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
 
             Row(
               children: [
-                Text(t.navTriageSessions, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+                Text(t.navTriageSessions,
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppPalette.textPrimary(context))),
                 const Spacer(),
                 TextButton(
                   onPressed: _navigateToSessionList,
-                  child: Text(t.viewAllButton, style: const TextStyle(fontSize: 14, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
+                  child: Text(t.viewAllButton,
+                      style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF6D28D9),
+                          fontWeight: FontWeight.w600)),
                 ),
               ],
             ),
@@ -354,10 +401,13 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                           color: const Color(0xFF6D28D9).withOpacity(0.10),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.inbox_outlined, size: 32, color: Color(0xFF6D28D9)),
+                        child: const Icon(Icons.inbox_outlined,
+                            size: 32, color: Color(0xFF6D28D9)),
                       ),
                       const SizedBox(height: 16),
-                      Text(t.noTriageSessionsFoundMessage, style: TextStyle(color: AppPalette.textMuted(context))),
+                      Text(t.noTriageSessionsFoundMessage,
+                          style:
+                              TextStyle(color: AppPalette.textMuted(context))),
                     ],
                   ),
                 ),
@@ -372,9 +422,13 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                   child: TextButton.icon(
                     onPressed: _isLoadingMore ? null : _loadMore,
                     icon: _isLoadingMore
-                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2))
                         : const Icon(Icons.expand_more),
-                    label: Text(_isLoadingMore ? t.loadingEllipsis : t.loadMoreButton),
+                    label: Text(
+                        _isLoadingMore ? t.loadingEllipsis : t.loadMoreButton),
                   ),
                 ),
               ),
@@ -393,11 +447,19 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
       children: [
         Row(
           children: [
-            Text(t.recentActivityTitle, style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+            Text(t.recentActivityTitle,
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppPalette.textPrimary(context))),
             const Spacer(),
             TextButton(
               onPressed: _navigateToSessionList,
-              child: Text(t.seeAllButton, style: const TextStyle(fontSize: 14, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
+              child: Text(t.seeAllButton,
+                  style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF6D28D9),
+                      fontWeight: FontWeight.w600)),
             ),
           ],
         ),
@@ -410,7 +472,10 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
             border: Border.all(color: AppPalette.border(context)),
           ),
           child: Column(
-            children: _recentSessions.take(5).map((session) => _buildRecentSessionItem(session)).toList(),
+            children: _recentSessions
+                .take(5)
+                .map((session) => _buildRecentSessionItem(session))
+                .toList(),
           ),
         ),
       ],
@@ -453,12 +518,17 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    session['anonymous_code'] ?? AppLocalizations.of(context)!.unknownLabel,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: Color(0xFF1E293B)),
+                    session['anonymous_code'] ??
+                        AppLocalizations.of(context)!.unknownLabel,
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                        color: Color(0xFF1E293B)),
                   ),
                   Text(
                     '${session['body_region']} • ${session['pain_type']}',
-                    style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context)),
+                    style: TextStyle(
+                        fontSize: 12, color: AppPalette.textMuted(context)),
                   ),
                 ],
               ),
@@ -467,15 +537,22 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: riskColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(6),
                   ),
-                  child: Text(_riskDisplayLabel(context, riskLevel), style: TextStyle(fontWeight: FontWeight.bold, color: riskColor, fontSize: 11)),
+                  child: Text(_riskDisplayLabel(context, riskLevel),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: riskColor,
+                          fontSize: 11)),
                 ),
                 const SizedBox(height: 4),
-                Text(formattedDate, style: TextStyle(fontSize: 10, color: AppPalette.textMuted(context))),
+                Text(formattedDate,
+                    style: TextStyle(
+                        fontSize: 10, color: AppPalette.textMuted(context))),
               ],
             ),
           ],
@@ -500,7 +577,8 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
         return Card(
           margin: const EdgeInsets.only(bottom: 12),
           elevation: 1,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           color: AppPalette.surface(context),
           child: ListTile(
             contentPadding: const EdgeInsets.all(16),
@@ -509,21 +587,32 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
               child: Icon(Icons.medical_services, color: riskColor, size: 24),
             ),
             title: Text(
-              session['anonymous_code'] ?? AppLocalizations.of(context)!.unknownIdLabel,
-              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1E293B)),
+              session['anonymous_code'] ??
+                  AppLocalizations.of(context)!.unknownIdLabel,
+              style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: Color(0xFF1E293B)),
             ),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const SizedBox(height: 4),
-                Text('${session['body_region']} • ${session['pain_type']} (${session['severity']}/10)', 
-                     style: TextStyle(color: AppPalette.textSecondary(context))),
+                Text(
+                    '${session['body_region']} • ${session['pain_type']} (${session['severity']}/10)',
+                    style: TextStyle(color: AppPalette.textSecondary(context))),
                 if (_demoLine(session) != null) ...[
                   const SizedBox(height: 4),
-                  Text(_demoLine(session)!, style: const TextStyle(fontSize: 12, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
+                  Text(_demoLine(session)!,
+                      style: const TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF6D28D9),
+                          fontWeight: FontWeight.w600)),
                 ],
                 const SizedBox(height: 4),
-                Text(formattedDate, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context))),
+                Text(formattedDate,
+                    style: TextStyle(
+                        fontSize: 12, color: AppPalette.textMuted(context))),
               ],
             ),
             trailing: Column(
@@ -531,18 +620,30 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: riskColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(color: riskColor.withOpacity(0.3)),
                   ),
-                  child: Text(_riskDisplayLabel(context, riskLevel), style: TextStyle(fontWeight: FontWeight.bold, color: riskColor, fontSize: 12)),
+                  child: Text(_riskDisplayLabel(context, riskLevel),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: riskColor,
+                          fontSize: 12)),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isClosed ? AppLocalizations.of(context)!.statusClosedLabel : AppLocalizations.of(context)!.statusOpenLabel,
-                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: isClosed ? AppPalette.textMuted(context) : const Color(0xFFF59E0B)),
+                  isClosed
+                      ? AppLocalizations.of(context)!.statusClosedLabel
+                      : AppLocalizations.of(context)!.statusOpenLabel,
+                  style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: isClosed
+                          ? AppPalette.textMuted(context)
+                          : const Color(0xFFF59E0B)),
                 ),
               ],
             ),
@@ -563,7 +664,8 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
     );
   }
 
-  Widget _buildStatCard(String label, String value, Color color, IconData icon) {
+  Widget _buildStatCard(
+      String label, String value, Color color, IconData icon) {
     // A fixed minimum width inside a Wrap (see the call site) instead of
     // Expanded inside a Row — on a narrow window the fixed-width sidebar
     // can leave almost no room for 4 Expanded cards, squeezing each one
@@ -577,13 +679,20 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
           color: AppPalette.surface(context),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: AppPalette.border(context)),
-          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2))],
+          boxShadow: [
+            BoxShadow(
+                color: Colors.black.withOpacity(0.02),
+                blurRadius: 8,
+                offset: const Offset(0, 2))
+          ],
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10)),
               child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(width: 16),
@@ -592,8 +701,18 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(value, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color), overflow: TextOverflow.ellipsis),
-                  Text(label, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context), fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+                  Text(value,
+                      style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: color),
+                      overflow: TextOverflow.ellipsis),
+                  Text(label,
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: AppPalette.textMuted(context),
+                          fontWeight: FontWeight.w600),
+                      overflow: TextOverflow.ellipsis),
                 ],
               ),
             ),
@@ -603,7 +722,8 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
     );
   }
 
-  Widget _buildActionCard(String title, String subtitle, IconData icon, Color color, VoidCallback onTap) {
+  Widget _buildActionCard(String title, String subtitle, IconData icon,
+      Color color, VoidCallback onTap) {
     // Same fixed-width-inside-Wrap reasoning as _buildStatCard above.
     // The colored left accent is a separate Container inside a ClipRRect,
     // not a Border side — Flutter's Border.paint refuses a borderRadius on
@@ -620,7 +740,12 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
               color: AppPalette.surface(context),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(color: AppPalette.border(context)),
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.02), blurRadius: 8, offset: const Offset(0, 2))],
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2))
+              ],
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(13),
@@ -636,7 +761,9 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                           children: [
                             Container(
                               padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(color: color.withOpacity(0.1), borderRadius: BorderRadius.circular(10)),
+                              decoration: BoxDecoration(
+                                  color: color.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(10)),
                               child: Icon(icon, color: color, size: 24),
                             ),
                             const SizedBox(width: 16),
@@ -645,13 +772,23 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+                                  Text(title,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              AppPalette.textPrimary(context))),
                                   const SizedBox(height: 4),
-                                  Text(subtitle, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context))),
+                                  Text(subtitle,
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color:
+                                              AppPalette.textMuted(context))),
                                 ],
                               ),
                             ),
-                            Icon(Icons.arrow_forward_ios, size: 14, color: AppPalette.textMuted(context)),
+                            Icon(Icons.arrow_forward_ios,
+                                size: 14, color: AppPalette.textMuted(context)),
                           ],
                         ),
                       ),
@@ -666,15 +803,21 @@ class _PractitionerDashboardScreenState extends State<PractitionerDashboardScree
     );
   }
 
-  Widget _buildDropdownFilter(String? currentValue, IconData icon, List<String> items, void Function(String?) onChanged) {
+  Widget _buildDropdownFilter(String? currentValue, IconData icon,
+      List<String> items, void Function(String?) onChanged) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
-      decoration: BoxDecoration(color: AppPalette.surface(context), borderRadius: BorderRadius.circular(12), border: Border.all(color: AppPalette.border(context))),
+      decoration: BoxDecoration(
+          color: AppPalette.surface(context),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: AppPalette.border(context))),
       child: DropdownButton<String>(
         value: items.contains(currentValue) ? currentValue : null,
         underline: const SizedBox(),
         icon: Icon(icon, color: AppPalette.textMuted(context), size: 20),
-        items: items.map((e) => DropdownMenuItem(value: e, child: Text(e))).toList(),
+        items: items
+            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+            .toList(),
         onChanged: onChanged,
       ),
     );
@@ -723,7 +866,9 @@ class _SessionListScreenState extends State<SessionListScreen> {
       setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading sessions: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Error loading sessions: $e'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -759,20 +904,28 @@ class _SessionListScreenState extends State<SessionListScreen> {
 
   Color _getRiskColor(String level) {
     switch (level) {
-      case 'HIGH': return const Color(0xFFDC2626);
-      case 'MEDIUM': return const Color(0xFFF59E0B);
-      case 'LOW': return const Color(0xFF16A34A);
-      default: return AppPalette.textMuted(context);
+      case 'HIGH':
+        return const Color(0xFFDC2626);
+      case 'MEDIUM':
+        return const Color(0xFFF59E0B);
+      case 'LOW':
+        return const Color(0xFF16A34A);
+      default:
+        return AppPalette.textMuted(context);
     }
   }
 
   String _riskDisplayLabel(BuildContext context, String level) {
     final t = AppLocalizations.of(context)!;
     switch (level) {
-      case 'HIGH': return t.statHighRiskLabel.toUpperCase();
-      case 'MEDIUM': return t.statMediumRiskLabel.toUpperCase();
-      case 'LOW': return t.statLowRiskLabel.toUpperCase();
-      default: return t.unknownLabel.toUpperCase();
+      case 'HIGH':
+        return t.statHighRiskLabel.toUpperCase();
+      case 'MEDIUM':
+        return t.statMediumRiskLabel.toUpperCase();
+      case 'LOW':
+        return t.statLowRiskLabel.toUpperCase();
+      default:
+        return t.unknownLabel.toUpperCase();
     }
   }
 
@@ -784,7 +937,10 @@ class _SessionListScreenState extends State<SessionListScreen> {
       appBar: AppBar(
         backgroundColor: AppPalette.surface(context),
         elevation: 0,
-        title: Text(t.allTriageSessionsTitle, style: TextStyle(color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold)),
+        title: Text(t.allTriageSessionsTitle,
+            style: TextStyle(
+                color: AppPalette.textPrimary(context),
+                fontWeight: FontWeight.bold)),
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: AppPalette.textPrimary(context)),
           onPressed: () => Navigator.of(context).pop(),
@@ -797,12 +953,14 @@ class _SessionListScreenState extends State<SessionListScreen> {
         ],
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
           : Column(
               children: [
                 if (_selectedRisk != null || _selectedStatus != null)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     color: AppPalette.surface(context),
                     child: Row(
                       children: [
@@ -840,7 +998,10 @@ class _SessionListScreenState extends State<SessionListScreen> {
                   ),
                 Expanded(
                   child: _sessions.isEmpty
-                      ? Center(child: Text(t.noSessionsFoundMessage, style: TextStyle(color: AppPalette.textMuted(context))))
+                      ? Center(
+                          child: Text(t.noSessionsFoundMessage,
+                              style: TextStyle(
+                                  color: AppPalette.textMuted(context))))
                       : RefreshIndicator(
                           onRefresh: _loadSessions,
                           child: ListView.builder(
@@ -862,10 +1023,14 @@ class _SessionListScreenState extends State<SessionListScreen> {
                               }
 
                               final session = _sessions[index];
-                              final riskLevel = _getRiskLevel(session['risk_score']);
+                              final riskLevel =
+                                  _getRiskLevel(session['risk_score']);
                               final riskColor = _getRiskColor(riskLevel);
-                              final date = DateTime.parse(session['created_at']);
-                              final formattedDate = DateFormat('MMM dd, yyyy, HH:mm').format(date);
+                              final date =
+                                  DateTime.parse(session['created_at']);
+                              final formattedDate =
+                                  DateFormat('MMM dd, yyyy, HH:mm')
+                                      .format(date);
 
                               return Card(
                                 margin: const EdgeInsets.only(bottom: 12),
@@ -873,27 +1038,41 @@ class _SessionListScreenState extends State<SessionListScreen> {
                                   contentPadding: const EdgeInsets.all(16),
                                   leading: CircleAvatar(
                                     backgroundColor: riskColor.withOpacity(0.1),
-                                    child: Icon(Icons.medical_services, color: riskColor),
+                                    child: Icon(Icons.medical_services,
+                                        color: riskColor),
                                   ),
                                   title: Text(
                                     session['anonymous_code'] ?? t.unknownLabel,
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
                                   ),
                                   subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const SizedBox(height: 4),
-                                      Text('${session['body_region']} • ${session['pain_type']}'),
-                                      Text(formattedDate, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context))),
+                                      Text(
+                                          '${session['body_region']} • ${session['pain_type']}'),
+                                      Text(formattedDate,
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: AppPalette.textMuted(
+                                                  context))),
                                     ],
                                   ),
                                   trailing: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                       color: riskColor.withOpacity(0.1),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
-                                    child: Text(_riskDisplayLabel(context, riskLevel), style: TextStyle(color: riskColor, fontWeight: FontWeight.bold, fontSize: 11)),
+                                    child: Text(
+                                        _riskDisplayLabel(context, riskLevel),
+                                        style: TextStyle(
+                                            color: riskColor,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 11)),
                                   ),
                                   onTap: () async {
                                     await Navigator.of(context).push(
@@ -922,7 +1101,8 @@ class _SessionListScreenState extends State<SessionListScreen> {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppPalette.surface(context),
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
       builder: (context) => StatefulBuilder(
         builder: (context, setSheetState) => Padding(
           padding: const EdgeInsets.all(24),
@@ -930,35 +1110,43 @@ class _SessionListScreenState extends State<SessionListScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(t.filterSessionsTitle, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              Text(t.filterSessionsTitle,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 24),
-              Text(t.riskLevelLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
+              Text(t.riskLevelLabel,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 children: ['All', 'HIGH', 'MEDIUM', 'LOW'].map((level) {
-                  final isSelected = _selectedRisk == level || (_selectedRisk == null && level == 'All');
+                  final isSelected = _selectedRisk == level ||
+                      (_selectedRisk == null && level == 'All');
                   return ChoiceChip(
                     label: Text(level),
                     selected: isSelected,
                     onSelected: (selected) {
-                      setSheetState(() => _selectedRisk = level == 'All' ? null : level);
+                      setSheetState(
+                          () => _selectedRisk = level == 'All' ? null : level);
                     },
                   );
                 }).toList(),
               ),
               const SizedBox(height: 24),
-              Text(t.statusLabel, style: const TextStyle(fontWeight: FontWeight.w600)),
+              Text(t.statusLabel,
+                  style: const TextStyle(fontWeight: FontWeight.w600)),
               const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 children: ['Any', 'open', 'closed'].map((status) {
-                  final isSelected = _selectedStatus == status || (_selectedStatus == null && status == 'Any');
+                  final isSelected = _selectedStatus == status ||
+                      (_selectedStatus == null && status == 'Any');
                   return ChoiceChip(
                     label: Text(status),
                     selected: isSelected,
                     onSelected: (selected) {
-                      setSheetState(() => _selectedStatus = status == 'Any' ? null : status);
+                      setSheetState(() =>
+                          _selectedStatus = status == 'Any' ? null : status);
                     },
                   );
                 }).toList(),
@@ -972,7 +1160,8 @@ class _SessionListScreenState extends State<SessionListScreen> {
                     Navigator.pop(context);
                     _loadSessions();
                   },
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6D28D9)),
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF6D28D9)),
                   child: Text(t.applyFiltersButton),
                 ),
               ),

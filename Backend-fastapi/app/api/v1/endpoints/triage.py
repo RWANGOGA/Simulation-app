@@ -255,6 +255,15 @@ def get_triage_reports(
     def _scoped(q):
         return q.filter(TriageSession.id.in_(session_ids)) if period_start is not None else q
 
+    high_risk_count = _scoped(
+        db.query(func.count(TriageSession.id)).filter(TriageSession.risk_score >= 0.7)
+    ).scalar() or 0
+    medium_risk_count = _scoped(
+        db.query(func.count(TriageSession.id)).filter(
+            (TriageSession.risk_score >= 0.4) & (TriageSession.risk_score < 0.7)
+        )
+    ).scalar() or 0
+
     status_rows = (
         _scoped(db.query(TriageSession.status, func.count(TriageSession.id)))
         .group_by(TriageSession.status)
@@ -284,6 +293,9 @@ def get_triage_reports(
     return {
         "period": period,
         "total": total_sessions,
+        "high_risk_count": high_risk_count,
+        "medium_risk_count": medium_risk_count,
+        "low_risk_count": total_sessions - high_risk_count - medium_risk_count,
         "open_count": open_count,
         "closed_count": closed_count,
         "by_region": [{"region": region, "count": n} for region, n in region_rows],

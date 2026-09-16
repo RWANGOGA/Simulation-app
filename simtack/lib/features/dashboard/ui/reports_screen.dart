@@ -10,6 +10,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
 import '../../../l10n/app_localizations.dart';
+import 'practitioner_scaffold.dart';
 
 const List<Color> _chartPalette = [
   Color(0xFF6D28D9),
@@ -79,11 +80,14 @@ class _ReportsScreenState extends State<ReportsScreen> {
     setState(() => _isExporting = true);
     try {
       final bytes = await _buildReportPdf(reports, _periodLabel);
-      await Printing.sharePdf(bytes: bytes, filename: 'simtack_report_$_period.pdf');
+      await Printing.sharePdf(
+          bytes: bytes, filename: 'simtack_report_$_period.pdf');
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not generate PDF: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Could not generate PDF: $e'),
+              backgroundColor: Colors.red),
         );
       }
     } finally {
@@ -112,7 +116,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       ? const SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
                         )
                       : null,
                 ),
@@ -125,7 +130,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
           ),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
+                ? const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
                 : _error != null
                     ? _buildError(_error!)
                     : _buildContent(_reports!),
@@ -142,9 +148,13 @@ class _ReportsScreenState extends State<ReportsScreen> {
         children: [
           const Icon(Icons.error_outline, color: Colors.red, size: 48),
           const SizedBox(height: 16),
-          Text(message, style: const TextStyle(color: Colors.red, fontSize: 14), textAlign: TextAlign.center),
+          Text(message,
+              style: const TextStyle(color: Colors.red, fontSize: 14),
+              textAlign: TextAlign.center),
           const SizedBox(height: 24),
-          ElevatedButton(onPressed: _loadReports, child: Text(AppLocalizations.of(context)!.retryButton)),
+          ElevatedButton(
+              onPressed: _loadReports,
+              child: Text(AppLocalizations.of(context)!.retryButton)),
         ],
       ),
     );
@@ -159,11 +169,16 @@ class _ReportsScreenState extends State<ReportsScreen> {
         onSelected: (_) => _setPeriod(value),
         selectedColor: const Color(0xFF6D28D9).withOpacity(0.15),
         labelStyle: TextStyle(
-          color: selected ? const Color(0xFF6D28D9) : AppPalette.textMuted(context),
+          color: selected
+              ? const Color(0xFF6D28D9)
+              : AppPalette.textMuted(context),
           fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
           fontSize: 13,
         ),
-        side: BorderSide(color: selected ? const Color(0xFF6D28D9) : AppPalette.border(context)),
+        side: BorderSide(
+            color: selected
+                ? const Color(0xFF6D28D9)
+                : AppPalette.border(context)),
         backgroundColor: AppPalette.surface(context),
       );
     }
@@ -182,6 +197,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
   Widget _buildContent(Map<String, dynamic> reports) {
     final t = AppLocalizations.of(context)!;
     final total = reports['total'] as int? ?? 0;
+    final highRiskCount = reports['high_risk_count'] as int? ?? 0;
+    final mediumRiskCount = reports['medium_risk_count'] as int? ?? 0;
+    final lowRiskCount = reports['low_risk_count'] as int? ?? 0;
     final openCount = reports['open_count'] as int? ?? 0;
     final closedCount = reports['closed_count'] as int? ?? 0;
     final avgSeverity = (reports['avg_severity'] as num?)?.toDouble();
@@ -210,10 +228,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       color: const Color(0xFF6D28D9).withOpacity(0.10),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.inbox_outlined, size: 32, color: Color(0xFF6D28D9)),
+                    child: const Icon(Icons.inbox_outlined,
+                        size: 32, color: Color(0xFF6D28D9)),
                   ),
                   const SizedBox(height: 12),
-                  Text(t.noSessionsInPeriodMessage, style: TextStyle(color: AppPalette.textMuted(context))),
+                  Text(t.noSessionsInPeriodMessage,
+                      style: TextStyle(color: AppPalette.textMuted(context))),
                 ],
               ),
             ),
@@ -236,13 +256,30 @@ class _ReportsScreenState extends State<ReportsScreen> {
               spacing: 16,
               runSpacing: 16,
               children: [
-                _statCard(t.statTotalSessionsLabel, '$total', const Color(0xFF6D28D9), Icons.people),
-                _statCard(t.statusOpenLabel, '$openCount', const Color(0xFF0EA5E9), Icons.folder_open),
-                _statCard(t.statusClosedLabel, '$closedCount', const Color(0xFF16A34A), Icons.check_circle),
+                _statCard(t.statTotalSessionsLabel, '$total',
+                    const Color(0xFF6D28D9), Icons.people),
+                _statCard(t.statHighRiskLabel, '$highRiskCount',
+                    const Color(0xFFDC2626), Icons.warning_amber),
+                _statCard(t.statMediumRiskLabel, '$mediumRiskCount',
+                    const Color(0xFFF59E0B), Icons.trending_up),
+                _statCard(t.statLowRiskLabel, '$lowRiskCount',
+                    const Color(0xFF16A34A), Icons.check_circle),
+                _statCard(t.statusOpenLabel, '$openCount',
+                    const Color(0xFF0EA5E9), Icons.folder_open),
+                _statCard(t.statusClosedLabel, '$closedCount',
+                    const Color(0xFF16A34A), Icons.check_circle),
                 if (avgSeverity != null)
-                  _statCard(t.statAvgSeverityLabel, '${avgSeverity.toStringAsFixed(1)}/10', const Color(0xFFF59E0B), Icons.speed),
+                  _statCard(
+                      t.statAvgSeverityLabel,
+                      '${avgSeverity.toStringAsFixed(1)}/10',
+                      const Color(0xFFF59E0B),
+                      Icons.speed),
                 if (avgRiskScore != null)
-                  _statCard(t.statAvgRiskScoreLabel, avgRiskScore.toStringAsFixed(2), const Color(0xFFDC2626), Icons.warning_amber),
+                  _statCard(
+                      t.statAvgRiskScoreLabel,
+                      avgRiskScore.toStringAsFixed(2),
+                      const Color(0xFFDC2626),
+                      Icons.warning_amber),
               ],
             ),
             const SizedBox(height: 32),
@@ -262,7 +299,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
               _sectionTitle(t.mostReportedRegionsTitle),
               const SizedBox(height: 12),
               _donutWithLegend(
-                byRegion.map((r) => {'label': r['region'] as String? ?? t.unknownLabel, 'count': r['count'] as int}).toList(),
+                byRegion
+                    .map((r) => {
+                          'label': r['region'] as String? ?? t.unknownLabel,
+                          'count': r['count'] as int
+                        })
+                    .toList(),
                 colors: _chartPalette,
               ),
               const SizedBox(height: 32),
@@ -271,7 +313,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
               _sectionTitle(t.painTypeBreakdownTitle),
               const SizedBox(height: 12),
               _donutWithLegend(
-                byPainType.map((r) => {'label': r['pain_type'] as String? ?? t.unknownLabel, 'count': r['count'] as int}).toList(),
+                byPainType
+                    .map((r) => {
+                          'label': r['pain_type'] as String? ?? t.unknownLabel,
+                          'count': r['count'] as int
+                        })
+                    .toList(),
                 colors: _chartPalette,
               ),
             ],
@@ -283,7 +330,10 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
   Widget _sectionTitle(String text) => Text(
         text,
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
+        style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppPalette.textPrimary(context)),
       );
 
   Widget _statCard(String label, String value, Color color, IconData icon) {
@@ -299,13 +349,20 @@ class _ReportsScreenState extends State<ReportsScreen> {
           ),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(color: color.withOpacity(0.25)),
-          boxShadow: [BoxShadow(color: color.withOpacity(0.08), blurRadius: 10, offset: const Offset(0, 3))],
+          boxShadow: [
+            BoxShadow(
+                color: color.withOpacity(0.08),
+                blurRadius: 10,
+                offset: const Offset(0, 3))
+          ],
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(color: color.withOpacity(0.15), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  borderRadius: BorderRadius.circular(10)),
               child: Icon(icon, color: color, size: 22),
             ),
             const SizedBox(width: 12),
@@ -314,8 +371,18 @@ class _ReportsScreenState extends State<ReportsScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(value, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: color), overflow: TextOverflow.ellipsis),
-                  Text(label, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context), fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
+                  Text(value,
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: color),
+                      overflow: TextOverflow.ellipsis),
+                  Text(label,
+                      style: TextStyle(
+                          fontSize: 11,
+                          color: AppPalette.textMuted(context),
+                          fontWeight: FontWeight.w600),
+                      overflow: TextOverflow.ellipsis),
                 ],
               ),
             ),
@@ -329,12 +396,17 @@ class _ReportsScreenState extends State<ReportsScreen> {
   /// top 6 slices (already sorted by count from the backend) plus an
   /// "Other" slice — a chart with 9+ thin slivers stops being readable,
   /// but the legend still lists every row with its exact count.
-  Widget _donutWithLegend(List<Map<String, dynamic>> rows, {required List<Color> colors}) {
+  Widget _donutWithLegend(List<Map<String, dynamic>> rows,
+      {required List<Color> colors}) {
     final sliceRows = <Map<String, dynamic>>[];
     if (rows.length > 6) {
       sliceRows.addAll(rows.take(6));
-      final otherCount = rows.skip(6).fold<int>(0, (sum, r) => sum + (r['count'] as int));
-      sliceRows.add({'label': AppLocalizations.of(context)!.otherLabel, 'count': otherCount});
+      final otherCount =
+          rows.skip(6).fold<int>(0, (sum, r) => sum + (r['count'] as int));
+      sliceRows.add({
+        'label': AppLocalizations.of(context)!.otherLabel,
+        'count': otherCount
+      });
     } else {
       sliceRows.addAll(rows);
     }
@@ -378,24 +450,37 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Row(
                     children: [
-                      Container(width: 10, height: 10, decoration: BoxDecoration(color: colors[i % colors.length], shape: BoxShape.circle)),
+                      Container(
+                          width: 10,
+                          height: 10,
+                          decoration: BoxDecoration(
+                              color: colors[i % colors.length],
+                              shape: BoxShape.circle)),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
                           sliceRows[i]['label'] as String,
-                          style: TextStyle(fontSize: 13, color: AppPalette.textPrimary(context)),
+                          style: TextStyle(
+                              fontSize: 13,
+                              color: AppPalette.textPrimary(context)),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         '${sliceRows[i]['count']}',
-                        style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
+                        style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: AppPalette.textPrimary(context)),
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        total == 0 ? '' : '(${(((sliceRows[i]['count'] as int) / total) * 100).round()}%)',
-                        style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context)),
+                        total == 0
+                            ? ''
+                            : '(${(((sliceRows[i]['count'] as int) / total) * 100).round()}%)',
+                        style: TextStyle(
+                            fontSize: 11, color: AppPalette.textMuted(context)),
                       ),
                     ],
                   ),
@@ -426,52 +511,82 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 }
 
-Future<Uint8List> _buildReportPdf(Map<String, dynamic> reports, String periodLabel) async {
+Future<Uint8List> _buildReportPdf(
+    Map<String, dynamic> reports, String periodLabel) async {
   final doc = pw.Document();
   final total = reports['total'] as int? ?? 0;
   final openCount = reports['open_count'] as int? ?? 0;
   final closedCount = reports['closed_count'] as int? ?? 0;
   final avgSeverity = (reports['avg_severity'] as num?)?.toDouble();
   final avgRiskScore = (reports['avg_risk_score'] as num?)?.toDouble();
-  final byRegion = (reports['by_region'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
-  final byPainType = (reports['by_pain_type'] as List<dynamic>? ?? []).cast<Map<String, dynamic>>();
+  final byRegion = (reports['by_region'] as List<dynamic>? ?? [])
+      .cast<Map<String, dynamic>>();
+  final byPainType = (reports['by_pain_type'] as List<dynamic>? ?? [])
+      .cast<Map<String, dynamic>>();
   const purple = PdfColor.fromInt(0xFF6D28D9);
 
   pw.Widget statBox(String label, String value) => pw.Container(
         padding: const pw.EdgeInsets.all(12),
-        decoration: pw.BoxDecoration(border: pw.Border.all(color: PdfColors.grey300), borderRadius: pw.BorderRadius.circular(6)),
+        decoration: pw.BoxDecoration(
+            border: pw.Border.all(color: PdfColors.grey300),
+            borderRadius: pw.BorderRadius.circular(6)),
         child: pw.Column(
           crossAxisAlignment: pw.CrossAxisAlignment.start,
           children: [
-            pw.Text(value, style: pw.TextStyle(fontSize: 18, fontWeight: pw.FontWeight.bold, color: purple)),
+            pw.Text(value,
+                style: pw.TextStyle(
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold,
+                    color: purple)),
             pw.SizedBox(height: 2),
-            pw.Text(label, style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey700)),
+            pw.Text(label,
+                style:
+                    const pw.TextStyle(fontSize: 9, color: PdfColors.grey700)),
           ],
         ),
       );
 
-  pw.Widget breakdownTable(String title, List<Map<String, dynamic>> rows, String labelKey) {
+  pw.Widget breakdownTable(
+      String title, List<Map<String, dynamic>> rows, String labelKey) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text(title, style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
+        pw.Text(title,
+            style: pw.TextStyle(fontSize: 13, fontWeight: pw.FontWeight.bold)),
         pw.SizedBox(height: 6),
         pw.Table(
           border: pw.TableBorder.all(color: PdfColors.grey300, width: 0.5),
-          columnWidths: const {0: pw.FlexColumnWidth(3), 1: pw.FlexColumnWidth(1)},
+          columnWidths: const {
+            0: pw.FlexColumnWidth(3),
+            1: pw.FlexColumnWidth(1)
+          },
           children: [
             pw.TableRow(
               decoration: const pw.BoxDecoration(color: PdfColors.grey200),
               children: [
-                pw.Padding(padding: const pw.EdgeInsets.all(6), child: pw.Text('Category', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10))),
-                pw.Padding(padding: const pw.EdgeInsets.all(6), child: pw.Text('Count', style: pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 10))),
+                pw.Padding(
+                    padding: const pw.EdgeInsets.all(6),
+                    child: pw.Text('Category',
+                        style: pw.TextStyle(
+                            fontWeight: pw.FontWeight.bold, fontSize: 10))),
+                pw.Padding(
+                    padding: const pw.EdgeInsets.all(6),
+                    child: pw.Text('Count',
+                        style: pw.TextStyle(
+                            fontWeight: pw.FontWeight.bold, fontSize: 10))),
               ],
             ),
             for (final row in rows)
               pw.TableRow(
                 children: [
-                  pw.Padding(padding: const pw.EdgeInsets.all(6), child: pw.Text('${row[labelKey] ?? 'Unknown'}', style: const pw.TextStyle(fontSize: 10))),
-                  pw.Padding(padding: const pw.EdgeInsets.all(6), child: pw.Text('${row['count']}', style: const pw.TextStyle(fontSize: 10))),
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.all(6),
+                      child: pw.Text('${row[labelKey] ?? 'Unknown'}',
+                          style: const pw.TextStyle(fontSize: 10))),
+                  pw.Padding(
+                      padding: const pw.EdgeInsets.all(6),
+                      child: pw.Text('${row['count']}',
+                          style: const pw.TextStyle(fontSize: 10))),
                 ],
               ),
           ],
@@ -484,9 +599,13 @@ Future<Uint8List> _buildReportPdf(Map<String, dynamic> reports, String periodLab
     pw.MultiPage(
       pageFormat: PdfPageFormat.a4,
       build: (context) => [
-        pw.Text('Simtack Triage Report', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold, color: purple)),
+        pw.Text('Simtack Triage Report',
+            style: pw.TextStyle(
+                fontSize: 22, fontWeight: pw.FontWeight.bold, color: purple)),
         pw.SizedBox(height: 4),
-        pw.Text('Period: $periodLabel  •  Generated: ${DateTime.now().toString().split('.').first}', style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
+        pw.Text(
+            'Period: $periodLabel  •  Generated: ${DateTime.now().toString().split('.').first}',
+            style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
         pw.SizedBox(height: 20),
         pw.Wrap(
           spacing: 12,
@@ -495,8 +614,10 @@ Future<Uint8List> _buildReportPdf(Map<String, dynamic> reports, String periodLab
             statBox('Total Sessions', '$total'),
             statBox('Open', '$openCount'),
             statBox('Closed', '$closedCount'),
-            if (avgSeverity != null) statBox('Avg. Severity', '${avgSeverity.toStringAsFixed(1)}/10'),
-            if (avgRiskScore != null) statBox('Avg. Risk Score', avgRiskScore.toStringAsFixed(2)),
+            if (avgSeverity != null)
+              statBox('Avg. Severity', '${avgSeverity.toStringAsFixed(1)}/10'),
+            if (avgRiskScore != null)
+              statBox('Avg. Risk Score', avgRiskScore.toStringAsFixed(2)),
           ],
         ),
         pw.SizedBox(height: 24),
@@ -504,7 +625,8 @@ Future<Uint8List> _buildReportPdf(Map<String, dynamic> reports, String periodLab
           breakdownTable('Most Reported Body Regions', byRegion, 'region'),
           pw.SizedBox(height: 20),
         ],
-        if (byPainType.isNotEmpty) breakdownTable('Pain Type Breakdown', byPainType, 'pain_type'),
+        if (byPainType.isNotEmpty)
+          breakdownTable('Pain Type Breakdown', byPainType, 'pain_type'),
       ],
     ),
   );

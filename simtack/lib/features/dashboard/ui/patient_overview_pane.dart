@@ -15,6 +15,7 @@ import '../../../core/theme/app_header_bar.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import 'qr_scan_screen.dart';
+import 'practitioner_scaffold.dart';
 
 const _regionPositions = <String, Offset>{
   'Headache / Cranial': Offset(0.50, 0.08),
@@ -58,18 +59,26 @@ Offset _positionForRegion(String region) {
     if (r == entry.key.toLowerCase()) return entry.value;
   }
   for (final entry in _regionPositions.entries) {
-    if (r.contains(entry.key.toLowerCase()) || entry.key.toLowerCase().contains(r)) {
+    if (r.contains(entry.key.toLowerCase()) ||
+        entry.key.toLowerCase().contains(r)) {
       return entry.value;
     }
   }
-  if (r.contains('chest') || r.contains('heart')) return const Offset(0.50, 0.27);
-  if (r.contains('head') || r.contains('cranial')) return const Offset(0.50, 0.08);
-  if (r.contains('abdomen') || r.contains('stomach')) return const Offset(0.50, 0.41);
+  if (r.contains('chest') || r.contains('heart'))
+    return const Offset(0.50, 0.27);
+  if (r.contains('head') || r.contains('cranial'))
+    return const Offset(0.50, 0.08);
+  if (r.contains('abdomen') || r.contains('stomach'))
+    return const Offset(0.50, 0.41);
   if (r.contains('back')) return const Offset(0.50, 0.35);
-  if (r.contains('left arm') || r.contains('left shoulder')) return const Offset(0.22, 0.27);
-  if (r.contains('right arm') || r.contains('right shoulder')) return const Offset(0.78, 0.27);
-  if (r.contains('left leg') || r.contains('left knee')) return const Offset(0.38, 0.70);
-  if (r.contains('right leg') || r.contains('right knee')) return const Offset(0.62, 0.70);
+  if (r.contains('left arm') || r.contains('left shoulder'))
+    return const Offset(0.22, 0.27);
+  if (r.contains('right arm') || r.contains('right shoulder'))
+    return const Offset(0.78, 0.27);
+  if (r.contains('left leg') || r.contains('left knee'))
+    return const Offset(0.38, 0.70);
+  if (r.contains('right leg') || r.contains('right knee'))
+    return const Offset(0.62, 0.70);
   return const Offset(0.50, 0.40);
 }
 
@@ -128,7 +137,8 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
       });
       return;
     }
-    _debounce = Timer(const Duration(milliseconds: 500), () => _loadHistory(code));
+    _debounce =
+        Timer(const Duration(milliseconds: 500), () => _loadHistory(code));
   }
 
   Future<void> _loadHistory(String code) async {
@@ -191,9 +201,12 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
   String _riskDisplayLabel(BuildContext context, String level) {
     final t = AppLocalizations.of(context)!;
     switch (level) {
-      case 'HIGH': return t.statHighRiskLabel.toUpperCase();
-      case 'MEDIUM': return t.statMediumRiskLabel.toUpperCase();
-      default: return t.statLowRiskLabel.toUpperCase();
+      case 'HIGH':
+        return t.statHighRiskLabel.toUpperCase();
+      case 'MEDIUM':
+        return t.statMediumRiskLabel.toUpperCase();
+      default:
+        return t.statLowRiskLabel.toUpperCase();
     }
   }
 
@@ -212,7 +225,9 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
               AppHeaderIconButton(
                 icon: Icons.refresh,
                 tooltip: t.refreshDataTooltip,
-                onPressed: _enteredCode.isNotEmpty ? () => _loadHistory(_enteredCode) : null,
+                onPressed: _enteredCode.isNotEmpty
+                    ? () => _loadHistory(_enteredCode)
+                    : null,
               ),
             ],
           ),
@@ -265,12 +280,19 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
             ),
             decoration: InputDecoration(
               hintText: t.patientCodeHint,
-              hintStyle: TextStyle(color: AppPalette.textDisabled(context), fontWeight: FontWeight.normal, letterSpacing: 0),
-              prefixIcon: Icon(Icons.search, color: AppPalette.textMuted(context)),
+              hintStyle: TextStyle(
+                  color: AppPalette.textDisabled(context),
+                  fontWeight: FontWeight.normal,
+                  letterSpacing: 0),
+              prefixIcon:
+                  Icon(Icons.search, color: AppPalette.textMuted(context)),
               filled: true,
               fillColor: AppPalette.inputFill(context),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-              contentPadding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+              border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none),
+              contentPadding:
+                  const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
             ),
             onChanged: _onCodeChanged,
           ),
@@ -283,7 +305,8 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 onPressed: _scanQr,
                 icon: const Icon(Icons.qr_code_scanner, size: 18),
                 label: Text(t.scanPatientQrButton),
-                style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 12)),
+                style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12)),
               ),
             ),
           if (_enteredCode.isNotEmpty) ...[
@@ -293,12 +316,24 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
-              decoration: BoxDecoration(color: const Color(0xFF6D28D9), borderRadius: BorderRadius.circular(10)),
+              decoration: BoxDecoration(
+                  color: const Color(0xFF6D28D9),
+                  borderRadius: BorderRadius.circular(10)),
               child: Column(
                 children: [
-                  Text(t.patientAnonymousIdLabel, style: const TextStyle(fontSize: 10, color: Colors.white70, letterSpacing: 2, fontWeight: FontWeight.w600)),
+                  Text(t.patientAnonymousIdLabel,
+                      style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.white70,
+                          letterSpacing: 2,
+                          fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
-                  Text(_enteredCode, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 2)),
+                  Text(_enteredCode,
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                          letterSpacing: 2)),
                 ],
               ),
             ),
@@ -310,20 +345,30 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.30), width: 2),
+                  border: Border.all(
+                      color: const Color(0xFF6D28D9).withOpacity(0.30),
+                      width: 2),
                 ),
                 child: QrImageView(
                   data: _qrUrl(_enteredCode),
                   version: QrVersions.auto,
                   size: 160,
                   backgroundColor: Colors.white,
-                  eyeStyle: const QrEyeStyle(eyeShape: QrEyeShape.square, color: Color(0xFF6D28D9)),
-                  dataModuleStyle: const QrDataModuleStyle(dataModuleShape: QrDataModuleShape.square, color: Color(0xFF1E293B)),
+                  eyeStyle: const QrEyeStyle(
+                      eyeShape: QrEyeShape.square, color: Color(0xFF6D28D9)),
+                  dataModuleStyle: const QrDataModuleStyle(
+                      dataModuleShape: QrDataModuleShape.square,
+                      color: Color(0xFF1E293B)),
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            Text(t.encryptedQrPassportLabel, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: Color(0xFF64748B))),
+            Text(t.encryptedQrPassportLabel,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF64748B))),
             const SizedBox(height: 16),
             SizedBox(
               width: double.infinity,
@@ -336,7 +381,8 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                   backgroundColor: const Color(0xFF6D28D9),
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10)),
                 ),
               ),
             ),
@@ -374,7 +420,9 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                     children: [
                       Positioned.fill(
                         child: ModelViewer(
-                          src: kIsWeb ? 'models/human_body_male.glb' : 'assets/models/human_body_male.glb',
+                          src: kIsWeb
+                              ? 'models/human_body_male.glb'
+                              : 'assets/models/human_body_male.glb',
                           alt: 'Front-view body map — read only',
                           ar: false,
                           autoRotate: false,
@@ -386,7 +434,8 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                         ),
                       ),
                       Positioned.fill(
-                        child: PointerInterceptor(intercepting: true, child: const SizedBox.expand()),
+                        child: PointerInterceptor(
+                            intercepting: true, child: const SizedBox.expand()),
                       ),
                       if (_sessions.isNotEmpty)
                         ..._sessions.map((s) {
@@ -399,7 +448,8 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                             top: top.clamp(0, constraints.maxHeight - 14),
                             child: IgnorePointer(
                               child: Tooltip(
-                                message: '${s.bodyRegion}\n${_riskDisplayLabel(context, _getRiskLabel(s.riskScore))} (${((s.riskScore ?? 0) * 100).toInt()}%)',
+                                message:
+                                    '${s.bodyRegion}\n${_riskDisplayLabel(context, _getRiskLabel(s.riskScore))} (${((s.riskScore ?? 0) * 100).toInt()}%)',
                                 child: Container(
                                   key: Key('pain_dot_${s.id}'),
                                   width: 14,
@@ -407,8 +457,14 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                                   decoration: BoxDecoration(
                                     color: color,
                                     shape: BoxShape.circle,
-                                    border: Border.all(color: Colors.white, width: 1.5),
-                                    boxShadow: [BoxShadow(color: color.withOpacity(0.55), blurRadius: 6, spreadRadius: 1)],
+                                    border: Border.all(
+                                        color: Colors.white, width: 1.5),
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color: color.withOpacity(0.55),
+                                          blurRadius: 6,
+                                          spreadRadius: 1)
+                                    ],
                                   ),
                                 ),
                               ),
@@ -421,11 +477,17 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                             child: Align(
                               alignment: const Alignment(0, 0.7),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                decoration: BoxDecoration(color: Colors.black.withOpacity(0.40), borderRadius: BorderRadius.circular(8)),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.40),
+                                    borderRadius: BorderRadius.circular(8)),
                                 child: Text(
-                                  _loading ? t.loadingEllipsis : t.bodyMapEmptyHint,
-                                  style: const TextStyle(fontSize: 11, color: Colors.white70),
+                                  _loading
+                                      ? t.loadingEllipsis
+                                      : t.bodyMapEmptyHint,
+                                  style: const TextStyle(
+                                      fontSize: 11, color: Colors.white70),
                                 ),
                               ),
                             ),
@@ -457,9 +519,16 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
 
   Widget _legendDot(Color color, String label) => Row(
         children: [
-          Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+          Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
           const SizedBox(width: 6),
-          Text(label, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context), fontWeight: FontWeight.w500)),
+          Text(label,
+              style: TextStyle(
+                  fontSize: 11,
+                  color: AppPalette.textMuted(context),
+                  fontWeight: FontWeight.w500)),
         ],
       );
 
@@ -475,16 +544,26 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
               if (_sessions.isNotEmpty) ...[
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(color: const Color(0xFF6D28D9).withOpacity(0.10), borderRadius: BorderRadius.circular(8)),
-                  child: Text(t.sessionCountLabel(_sessions.length), style: const TextStyle(fontSize: 11, color: Color(0xFF6D28D9), fontWeight: FontWeight.w600)),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                      color: const Color(0xFF6D28D9).withOpacity(0.10),
+                      borderRadius: BorderRadius.circular(8)),
+                  child: Text(t.sessionCountLabel(_sessions.length),
+                      style: const TextStyle(
+                          fontSize: 11,
+                          color: Color(0xFF6D28D9),
+                          fontWeight: FontWeight.w600)),
                 ),
               ],
             ],
           ),
           const SizedBox(height: 16),
           if (_loading)
-            const Center(child: Padding(padding: EdgeInsets.symmetric(vertical: 24), child: CircularProgressIndicator(strokeWidth: 2)))
+            const Center(
+                child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24),
+                    child: CircularProgressIndicator(strokeWidth: 2)))
           else if (_error != null)
             _errorRow(_error!)
           else if (_sessions.isEmpty && _enteredCode.isEmpty)
@@ -519,10 +598,19 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
       borderRadius: BorderRadius.circular(10),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(color: AppPalette.inputFill(context), borderRadius: BorderRadius.circular(10), border: Border.all(color: AppPalette.border(context))),
+        decoration: BoxDecoration(
+            color: AppPalette.inputFill(context),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: AppPalette.border(context))),
         child: Row(
           children: [
-            Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 1.5))),
+            Container(
+                width: 10,
+                height: 10,
+                decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 1.5))),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -530,36 +618,59 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 children: [
                   Row(
                     children: [
-                      Text(t.sessionNumberLabel(sessionNumber), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+                      Text(t.sessionNumberLabel(sessionNumber),
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppPalette.textPrimary(context))),
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: AppPalette.subtleFill(context),
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          session.status == 'closed' ? t.statusClosedLabel : t.statusOpenLabel,
-                          style: TextStyle(fontSize: 10, color: AppPalette.textMuted(context)),
+                          session.status == 'closed'
+                              ? t.statusClosedLabel
+                              : t.statusOpenLabel,
+                          style: TextStyle(
+                              fontSize: 10,
+                              color: AppPalette.textMuted(context)),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text(dateStr, style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context))),
+                  Text(dateStr,
+                      style: TextStyle(
+                          fontSize: 12, color: AppPalette.textMuted(context))),
                   const SizedBox(height: 4),
-                  Text('${session.bodyRegion} • ${session.painType} (${session.severity}/10)', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12, color: AppPalette.textSecondary(context))),
+                  Text(
+                      '${session.bodyRegion} • ${session.painType} (${session.severity}/10)',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: 12,
+                          color: AppPalette.textSecondary(context))),
                 ],
               ),
             ),
             const SizedBox(width: 12),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(color: color.withOpacity(0.10), borderRadius: BorderRadius.circular(6), border: Border.all(color: color.withOpacity(0.25))),
-              child: Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color)),
+              decoration: BoxDecoration(
+                  color: color.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: color.withOpacity(0.25))),
+              child: Text(label,
+                  style: TextStyle(
+                      fontSize: 11, fontWeight: FontWeight.bold, color: color)),
             ),
             const SizedBox(width: 8),
-            Icon(Icons.chevron_right, size: 18, color: AppPalette.textMuted(context)),
+            Icon(Icons.chevron_right,
+                size: 18, color: AppPalette.textMuted(context)),
           ],
         ),
       ),
@@ -571,17 +682,30 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: const Color(0xFF6D28D9).withOpacity(0.10), borderRadius: BorderRadius.circular(8)),
+            decoration: BoxDecoration(
+                color: const Color(0xFF6D28D9).withOpacity(0.10),
+                borderRadius: BorderRadius.circular(8)),
             child: Icon(icon, color: const Color(0xFF6D28D9), size: 18),
           ),
           const SizedBox(width: 10),
-          Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+          Text(title,
+              style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                  color: AppPalette.textPrimary(context))),
         ],
       );
 
   Widget _errorRow(String message) => Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(children: [const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 18), const SizedBox(width: 8), Expanded(child: Text(message, style: const TextStyle(fontSize: 13, color: Color(0xFFDC2626))))]),
+        child: Row(children: [
+          const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+              child: Text(message,
+                  style:
+                      const TextStyle(fontSize: 13, color: Color(0xFFDC2626))))
+        ]),
       );
 
   Widget _emptyHint(String text) => Center(
@@ -597,10 +721,14 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                   color: const Color(0xFF6D28D9).withOpacity(0.10),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.history, color: Color(0xFF6D28D9), size: 26),
+                child: const Icon(Icons.history,
+                    color: Color(0xFF6D28D9), size: 26),
               ),
               const SizedBox(height: 12),
-              Text(text, textAlign: TextAlign.center, style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context))),
+              Text(text,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 13, color: AppPalette.textMuted(context))),
             ],
           ),
         ),
