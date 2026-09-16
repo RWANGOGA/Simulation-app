@@ -4,6 +4,8 @@ import '../../../core/network/api_client.dart';
 import '../../../core/network/auth_service.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../dashboard/ui/practitioner_dashboard_screen.dart';
+import '../../onboarding/ui/welcome_screen.dart';
+import '../../patient_info/ui/patient_info_screen.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -178,11 +180,60 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
+                const SizedBox(height: 24),
+                _buildDividerWithText('Or'),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _isLoading ? null : () => Navigator.of(context).push(
+                      AppPageRoute(builder: (_) => const WelcomeScreen()),
+                    ),
+                    icon: const Icon(Icons.person_add_alt_1, color: Color(0xFF6D28D9)),
+                    label: const Text('Register Patient',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF6D28D9))),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF6D28D9)),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: _isLoading ? null : () => Navigator.of(context).push(
+                      AppPageRoute(builder: (_) => const PatientInfoScreen()),
+                    ),
+                    icon: const Icon(Icons.fast_forward, color: Color(0xFF16A34A)),
+                    label: const Text('Quick Patient Entry',
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Color(0xFF16A34A))),
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: Color(0xFF16A34A)),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildDividerWithText(String text) {
+    return Row(
+      children: [
+        const Expanded(child: Divider(color: Color(0xFFE2E8F0), thickness: 1)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Text(text, style: TextStyle(color: AppPalette.textMuted(context), fontSize: 14)),
+        ),
+        const Expanded(child: Divider(color: Color(0xFFE2E8F0), thickness: 1)),
+      ],
     );
   }
 }

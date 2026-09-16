@@ -5,11 +5,13 @@ import 'practitioner_sidebar.dart';
 class PractitionerScaffold extends StatelessWidget {
   final String currentRoute;
   final Widget Function(BuildContext context, VoidCallback? openDrawer) contentBuilder;
+  final Widget? footer;
 
   const PractitionerScaffold({
     super.key,
     required this.currentRoute,
     required this.contentBuilder,
+    this.footer,
   });
 
   @override
@@ -31,18 +33,25 @@ class PractitionerScaffold extends StatelessWidget {
           // Scaffold.maybeOf(context)?.openDrawer() was always a no-op.
           body: Builder(
             builder: (scaffoldContext) {
-              return Row(
+              return Column(
                 children: [
-                  if (isWide)
-                    PractitionerSidebar(currentRoute: currentRoute),
                   Expanded(
-                    child: contentBuilder(
-                      scaffoldContext,
-                      isWide
-                          ? null
-                          : () => Scaffold.of(scaffoldContext).openDrawer(),
+                    child: Row(
+                      children: [
+                        if (isWide)
+                          PractitionerSidebar(currentRoute: currentRoute),
+                        Expanded(
+                          child: contentBuilder(
+                            scaffoldContext,
+                            isWide
+                                ? null
+                                : () => Scaffold.of(scaffoldContext).openDrawer(),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
+                  if (footer != null) footer!,
                 ],
               );
             },

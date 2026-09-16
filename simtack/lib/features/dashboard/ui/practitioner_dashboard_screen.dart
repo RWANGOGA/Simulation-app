@@ -14,6 +14,7 @@ import 'qr_scan_screen.dart';
 import 'patient_overview_pane.dart';
 import 'practitioner_scaffold.dart';
 import '../../onboarding/ui/welcome_screen.dart';
+import '../../patient_info/ui/patient_info_screen.dart';
 
 class PractitionerDashboardScreen extends StatefulWidget {
   const PractitionerDashboardScreen({super.key});
@@ -202,6 +203,7 @@ class _PractitionerDashboardScreenState
     final t = AppLocalizations.of(context)!;
     return PractitionerScaffold(
       currentRoute: '/dashboard',
+      footer: _buildFooter(context),
       contentBuilder: (context, openDrawer) => Column(
         children: [
           AppHeaderBar(
@@ -819,6 +821,63 @@ class _PractitionerDashboardScreenState
             .map((e) => DropdownMenuItem(value: e, child: Text(e)))
             .toList(),
         onChanged: onChanged,
+      ),
+    );
+  }
+
+  Widget _buildFooter(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      decoration: BoxDecoration(
+        color: AppPalette.surface(context),
+        border: Border(top: BorderSide(color: AppPalette.border(context))),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.02),
+            blurRadius: 8,
+            offset: const Offset(0, -2),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => Navigator.of(context).pushAndRemoveUntil(
+                  AppPageRoute(builder: (_) => const WelcomeScreen()),
+                  (route) => false,
+                ),
+                icon: const Icon(Icons.home_outlined, size: 20, color: Color(0xFF6D28D9)),
+                label: const Text('Home',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6D28D9))),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFF6D28D9)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () => Navigator.of(context).push(
+                  AppPageRoute(builder: (_) => const PatientInfoScreen()),
+                ),
+                icon: const Icon(Icons.add_circle_outline, size: 20, color: Color(0xFF16A34A)),
+                label: const Text('New Patient',
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF16A34A))),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFF16A34A)),
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
