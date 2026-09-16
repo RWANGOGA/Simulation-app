@@ -39,6 +39,9 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                   'body_region': r.bodyRegion,
                   'risk_score': r.riskScore,
                   'created_at': r.createdAt.toIso8601String(),
+                  'triggers': r.triggers,
+                  'relievers': r.relievers,
+                  'daily_limitations': r.dailyLimitations,
                 })
             .toList();
         _isLoading = false;
