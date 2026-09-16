@@ -111,7 +111,7 @@ void main() {
     expect(find.text('Email is required.'), findsOneWidget);
     expect(find.text('Enter your license or registration number.'),
         findsOneWidget);
-    expect(find.text('At least 8 characters.'), findsOneWidget);
+    expect(find.text('Exactly 8 characters required.'), findsOneWidget);
     expect(await ApiClient.tokenStorage.read(), isNull);
   });
 

@@ -213,10 +213,10 @@ def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
             detail="Full name is required",
         )
     password = payload.password
-    if len(password) < 12 or len(password) > 128:
+    if len(password) != 8:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password must be between 12 and 128 characters",
+            detail="Password must be exactly 8 characters",
         )
     if not re.search(r"[A-Z]", password):
         raise HTTPException(
