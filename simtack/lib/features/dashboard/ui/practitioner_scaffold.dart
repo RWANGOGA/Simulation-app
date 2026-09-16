@@ -4,7 +4,7 @@ import 'practitioner_sidebar.dart';
 
 class PractitionerScaffold extends StatelessWidget {
   final String currentRoute;
-  final Widget Function(BuildContext context, VoidCallback openDrawer) contentBuilder;
+  final Widget Function(BuildContext context, VoidCallback? openDrawer) contentBuilder;
 
   const PractitionerScaffold({
     super.key,
@@ -26,18 +26,26 @@ class PractitionerScaffold extends StatelessWidget {
                   width: MediaQuery.of(context).size.width * 0.75,
                   child: PractitionerSidebar(currentRoute: currentRoute),
                 ),
-          body: Row(
-            children: [
-              if (isWide)
-                PractitionerSidebar(currentRoute: currentRoute),
-              Expanded(
-                child: contentBuilder(context, () {
-                  if (!isWide) {
-                    Scaffold.maybeOf(context)?.openDrawer();
-                  }
-                }),
-              ),
-            ],
+          // Builder sits *under* Scaffold so Scaffold.of(context) can see it.
+          // LayoutBuilder's context is an ancestor, so the old
+          // Scaffold.maybeOf(context)?.openDrawer() was always a no-op.
+          body: Builder(
+            builder: (scaffoldContext) {
+              return Row(
+                children: [
+                  if (isWide)
+                    PractitionerSidebar(currentRoute: currentRoute),
+                  Expanded(
+                    child: contentBuilder(
+                      scaffoldContext,
+                      isWide
+                          ? null
+                          : () => Scaffold.of(scaffoldContext).openDrawer(),
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         );
       },

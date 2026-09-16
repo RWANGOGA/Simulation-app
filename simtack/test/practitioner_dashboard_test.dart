@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:simtack/core/theme/app_header_bar.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_dashboard_screen.dart';
+import 'package:simtack/features/dashboard/ui/practitioner_scaffold.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_sidebar.dart';
 import 'package:simtack/l10n/app_localizations.dart';
 
@@ -67,5 +69,60 @@ void main() {
     await tester.pump();
 
     expect(find.byType(PractitionerSidebar), findsOneWidget);
+  });
+
+  testWidgets('narrow layout hamburger opens the practitioner drawer', (tester) async {
+    tester.view.physicalSize = const Size(400, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      _wrap(
+        PractitionerScaffold(
+          currentRoute: '/dashboard',
+          contentBuilder: (context, openDrawer) => AppHeaderBar(
+            title: 'Dashboard Overview',
+            subtitle: 'sub',
+            onMenuTap: openDrawer,
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byIcon(Icons.menu), findsOneWidget);
+    expect(tester.state<ScaffoldState>(find.byType(Scaffold)).isDrawerOpen, isFalse);
+
+    await tester.tap(find.byIcon(Icons.menu));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    expect(tester.state<ScaffoldState>(find.byType(Scaffold)).isDrawerOpen, isTrue);
+    expect(find.byType(PractitionerSidebar), findsOneWidget);
+    expect(find.text('Patients'), findsOneWidget);
+  });
+
+  testWidgets('wide layout keeps the sidebar visible without a hamburger', (tester) async {
+    tester.view.physicalSize = const Size(1400, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    await tester.pumpWidget(
+      _wrap(
+        PractitionerScaffold(
+          currentRoute: '/dashboard',
+          contentBuilder: (context, openDrawer) => AppHeaderBar(
+            title: 'Dashboard Overview',
+            subtitle: 'sub',
+            onMenuTap: openDrawer,
+          ),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.byIcon(Icons.menu), findsNothing);
+    expect(find.byType(PractitionerSidebar), findsOneWidget);
+    expect(find.text('Patients'), findsOneWidget);
   });
 }

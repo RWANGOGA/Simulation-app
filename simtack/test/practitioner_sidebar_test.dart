@@ -73,6 +73,17 @@ void main() {
     expect(find.text('Dr. Practitioner'), findsOneWidget);
   });
 
+  testWidgets('PractitionerSidebar Reports item shows under-construction snackbar', (tester) async {
+    await tester.pumpWidget(
+      _wrap(const PractitionerSidebar(currentRoute: '/dashboard')),
+    );
+
+    await tester.tap(find.text('Reports'));
+    await tester.pump();
+
+    expect(find.text('This screen is under construction'), findsOneWidget);
+  });
+
   testWidgets('PractitionerSidebar has logout button in footer', (tester) async {
     await tester.pumpWidget(
       _wrap(const PractitionerSidebar(currentRoute: '/dashboard')),
