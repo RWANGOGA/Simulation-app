@@ -10,7 +10,6 @@ import '../../../core/network/api_client.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
 import '../../../l10n/app_localizations.dart';
-import 'practitioner_scaffold.dart';
 
 const List<Color> _chartPalette = [
   Color(0xFF6D28D9),
