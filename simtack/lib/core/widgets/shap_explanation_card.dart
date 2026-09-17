@@ -16,7 +16,7 @@ class ShapExplanationCard extends StatelessWidget {
   const ShapExplanationCard({
     super.key,
     required this.shapExplanation,
-    this.title = 'WHY THIS SCORE',
+    this.title = 'CLINICAL RISK FACTORS',
   });
 
   @override
@@ -61,7 +61,7 @@ class ShapExplanationCard extends StatelessWidget {
                   Icon(
                     isConnection ? Icons.link : Icons.circle,
                     size: isConnection ? 16 : 6,
-                    color: isConnection ? const Color(0xFF6D28D9) : const Color(0xFF94A3B8),
+                    color: isConnection ? const Color(0xFF0284C7) : const Color(0xFF94A3B8),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -69,7 +69,7 @@ class ShapExplanationCard extends StatelessWidget {
                       label,
                       style: TextStyle(
                         fontSize: 13,
-                        color: isConnection ? const Color(0xFF6D28D9) : const Color(0xFF334155),
+                        color: isConnection ? const Color(0xFF0F172A) : const Color(0xFF334155),
                         fontWeight: isConnection ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),

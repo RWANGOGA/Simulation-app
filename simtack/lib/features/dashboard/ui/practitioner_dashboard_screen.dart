@@ -158,9 +158,14 @@ class _PractitionerDashboardScreenState
     );
   }
 
-  void _navigateToSessionList() {
+  void _navigateToSessionList({String? riskLevel, String? status}) {
     Navigator.of(context).push(
-      AppPageRoute(builder: (_) => const SessionListScreen()),
+      AppPageRoute(
+        builder: (_) => SessionListScreen(
+          initialRiskLevel: riskLevel,
+          initialStatus: status,
+        ),
+      ),
     );
   }
 
@@ -259,23 +264,34 @@ class _PractitionerDashboardScreenState
                 spacing: 16,
                 runSpacing: 16,
                 children: [
-                  _buildStatCard(t.statTotalLabel, _stats!['total'].toString(),
-                      const Color(0xFF6D28D9), Icons.people),
                   _buildStatCard(
-                      t.statHighRiskLabel,
-                      _stats!['high_risk'].toString(),
-                      const Color(0xFFDC2626),
-                      Icons.warning),
+                    t.statTotalLabel,
+                    _stats!['total'].toString(),
+                    const Color(0xFF0F172A),
+                    Icons.people,
+                    onTap: () => _navigateToSessionList(),
+                  ),
                   _buildStatCard(
-                      t.statMediumRiskLabel,
-                      _stats!['medium_risk'].toString(),
-                      const Color(0xFFF59E0B),
-                      Icons.trending_up),
+                    t.statHighRiskLabel,
+                    _stats!['high_risk'].toString(),
+                    const Color(0xFFDC2626),
+                    Icons.warning,
+                    onTap: () => _navigateToSessionList(riskLevel: 'HIGH'),
+                  ),
                   _buildStatCard(
-                      t.statLowRiskLabel,
-                      _stats!['low_risk'].toString(),
-                      const Color(0xFF16A34A),
-                      Icons.check_circle),
+                    t.statMediumRiskLabel,
+                    _stats!['medium_risk'].toString(),
+                    const Color(0xFFD97706),
+                    Icons.trending_up,
+                    onTap: () => _navigateToSessionList(riskLevel: 'MEDIUM'),
+                  ),
+                  _buildStatCard(
+                    t.statLowRiskLabel,
+                    _stats!['low_risk'].toString(),
+                    const Color(0xFF059669),
+                    Icons.check_circle,
+                    onTap: () => _navigateToSessionList(riskLevel: 'LOW'),
+                  ),
                 ],
               ),
 
@@ -667,58 +683,61 @@ class _PractitionerDashboardScreenState
   }
 
   Widget _buildStatCard(
-      String label, String value, Color color, IconData icon) {
-    // A fixed minimum width inside a Wrap (see the call site) instead of
-    // Expanded inside a Row — on a narrow window the fixed-width sidebar
-    // can leave almost no room for 4 Expanded cards, squeezing each one
-    // toward zero width and wrapping their text one letter per line. Wrap
-    // lets cards that don't fit drop to a new line instead of collapsing.
+      String label, String value, Color color, IconData icon,
+      {VoidCallback? onTap}) {
     return SizedBox(
       width: 180,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppPalette.surface(context),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppPalette.border(context)),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.02),
-                blurRadius: 8,
-                offset: const Offset(0, 2))
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  color: color.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Icon(icon, color: color, size: 24),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppPalette.surface(context),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppPalette.border(context)),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2))
+              ],
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(value,
-                      style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: color),
-                      overflow: TextOverflow.ellipsis),
-                  Text(label,
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: AppPalette.textMuted(context),
-                          fontWeight: FontWeight.w600),
-                      overflow: TextOverflow.ellipsis),
-                ],
-              ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Icon(icon, color: color, size: 24),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(value,
+                          style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: color),
+                          overflow: TextOverflow.ellipsis),
+                      Text(label,
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: AppPalette.textMuted(context),
+                              fontWeight: FontWeight.w600),
+                          overflow: TextOverflow.ellipsis),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -884,7 +903,14 @@ class _PractitionerDashboardScreenState
 }
 
 class SessionListScreen extends StatefulWidget {
-  const SessionListScreen({super.key});
+  final String? initialRiskLevel;
+  final String? initialStatus;
+
+  const SessionListScreen({
+    super.key,
+    this.initialRiskLevel,
+    this.initialStatus,
+  });
 
   @override
   State<SessionListScreen> createState() => _SessionListScreenState();
@@ -903,6 +929,8 @@ class _SessionListScreenState extends State<SessionListScreen> {
   @override
   void initState() {
     super.initState();
+    _selectedRisk = widget.initialRiskLevel;
+    _selectedStatus = widget.initialStatus;
     _loadSessions();
   }
 

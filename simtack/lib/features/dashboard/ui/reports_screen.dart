@@ -12,14 +12,17 @@ import '../../../core/theme/app_header_bar.dart';
 import '../../../l10n/app_localizations.dart';
 import 'practitioner_scaffold.dart';
 
+import '../../../core/theme/app_page_route.dart';
+import 'practitioner_dashboard_screen.dart';
+
 const List<Color> _chartPalette = [
-  Color(0xFF6D28D9),
-  Color(0xFF0EA5E9),
-  Color(0xFFF59E0B),
-  Color(0xFF16A34A),
-  Color(0xFFDC2626),
-  Color(0xFFEC4899),
-  Color(0xFF64748B),
+  Color(0xFF0F172A), // Slate Navy
+  Color(0xFF0284C7), // Medical Cyan
+  Color(0xFF059669), // Emerald Green
+  Color(0xFFD97706), // Amber
+  Color(0xFFDC2626), // Crimson
+  Color(0xFF475569), // Muted Slate
+  Color(0xFF2563EB), // Royal Blue
 ];
 
 class ReportsScreen extends StatefulWidget {
@@ -131,7 +134,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
           Expanded(
             child: _isLoading
                 ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
+                    child: CircularProgressIndicator(color: Color(0xFF0F172A)))
                 : _error != null
                     ? _buildError(_error!)
                     : _buildContent(_reports!),
@@ -161,25 +164,39 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Widget _periodSelector() {
-    Widget chip(String value, String label) {
+    Widget button(String value, String label) {
       final selected = _period == value;
-      return ChoiceChip(
-        label: Text(label),
-        selected: selected,
-        onSelected: (_) => _setPeriod(value),
-        selectedColor: const Color(0xFF6D28D9).withOpacity(0.15),
-        labelStyle: TextStyle(
-          color: selected
-              ? const Color(0xFF6D28D9)
-              : AppPalette.textMuted(context),
-          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-          fontSize: 13,
+      return Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: () => _setPeriod(value),
+          borderRadius: BorderRadius.circular(8),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: selected
+                  ? const Color(0xFF0F172A)
+                  : AppPalette.surface(context),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: selected
+                    ? const Color(0xFF0F172A)
+                    : AppPalette.border(context),
+              ),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                color: selected
+                    ? Colors.white
+                    : AppPalette.textSecondary(context),
+                fontWeight: selected ? FontWeight.bold : FontWeight.w500,
+                fontSize: 13,
+              ),
+            ),
+          ),
         ),
-        side: BorderSide(
-            color: selected
-                ? const Color(0xFF6D28D9)
-                : AppPalette.border(context)),
-        backgroundColor: AppPalette.surface(context),
       );
     }
 
@@ -187,9 +204,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
     return Wrap(
       spacing: 8,
       children: [
-        chip('week', t.periodThisWeek),
-        chip('month', t.periodThisMonth),
-        chip('all', t.periodAllTime),
+        button('week', t.periodThisWeek),
+        button('month', t.periodThisMonth),
+        button('all', t.periodAllTime),
       ],
     );
   }
@@ -225,11 +242,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
                     width: 72,
                     height: 72,
                     decoration: BoxDecoration(
-                      color: const Color(0xFF6D28D9).withOpacity(0.10),
+                      color: const Color(0xFF0F172A).withOpacity(0.08),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.inbox_outlined,
-                        size: 32, color: Color(0xFF6D28D9)),
+                        size: 32, color: Color(0xFF0F172A)),
                   ),
                   const SizedBox(height: 12),
                   Text(t.noSessionsInPeriodMessage,
@@ -256,30 +273,90 @@ class _ReportsScreenState extends State<ReportsScreen> {
               spacing: 16,
               runSpacing: 16,
               children: [
-                _statCard(t.statTotalSessionsLabel, '$total',
-                    const Color(0xFF6D28D9), Icons.people),
-                _statCard(t.statHighRiskLabel, '$highRiskCount',
-                    const Color(0xFFDC2626), Icons.warning_amber),
-                _statCard(t.statMediumRiskLabel, '$mediumRiskCount',
-                    const Color(0xFFF59E0B), Icons.trending_up),
-                _statCard(t.statLowRiskLabel, '$lowRiskCount',
-                    const Color(0xFF16A34A), Icons.check_circle),
-                _statCard(t.statusOpenLabel, '$openCount',
-                    const Color(0xFF0EA5E9), Icons.folder_open),
-                _statCard(t.statusClosedLabel, '$closedCount',
-                    const Color(0xFF16A34A), Icons.check_circle),
+                _statCard(
+                  t.statTotalSessionsLabel,
+                  '$total',
+                  const Color(0xFF0F172A),
+                  Icons.people,
+                  onTap: () => Navigator.of(context).push(
+                    AppPageRoute(builder: (_) => const SessionListScreen()),
+                  ),
+                ),
+                _statCard(
+                  t.statHighRiskLabel,
+                  '$highRiskCount',
+                  const Color(0xFFDC2626),
+                  Icons.warning_amber,
+                  onTap: () => Navigator.of(context).push(
+                    AppPageRoute(
+                        builder: (_) =>
+                            const SessionListScreen(initialRiskLevel: 'HIGH')),
+                  ),
+                ),
+                _statCard(
+                  t.statMediumRiskLabel,
+                  '$mediumRiskCount',
+                  const Color(0xFFD97706),
+                  Icons.trending_up,
+                  onTap: () => Navigator.of(context).push(
+                    AppPageRoute(
+                        builder: (_) => const SessionListScreen(
+                            initialRiskLevel: 'MEDIUM')),
+                  ),
+                ),
+                _statCard(
+                  t.statLowRiskLabel,
+                  '$lowRiskCount',
+                  const Color(0xFF059669),
+                  Icons.check_circle,
+                  onTap: () => Navigator.of(context).push(
+                    AppPageRoute(
+                        builder: (_) =>
+                            const SessionListScreen(initialRiskLevel: 'LOW')),
+                  ),
+                ),
+                _statCard(
+                  t.statusOpenLabel,
+                  '$openCount',
+                  const Color(0xFF0284C7),
+                  Icons.folder_open,
+                  onTap: () => Navigator.of(context).push(
+                    AppPageRoute(
+                        builder: (_) =>
+                            const SessionListScreen(initialStatus: 'open')),
+                  ),
+                ),
+                _statCard(
+                  t.statusClosedLabel,
+                  '$closedCount',
+                  const Color(0xFF059669),
+                  Icons.check_circle_outline,
+                  onTap: () => Navigator.of(context).push(
+                    AppPageRoute(
+                        builder: (_) =>
+                            const SessionListScreen(initialStatus: 'closed')),
+                  ),
+                ),
                 if (avgSeverity != null)
                   _statCard(
-                      t.statAvgSeverityLabel,
-                      '${avgSeverity.toStringAsFixed(1)}/10',
-                      const Color(0xFFF59E0B),
-                      Icons.speed),
+                    t.statAvgSeverityLabel,
+                    '${avgSeverity.toStringAsFixed(1)}/10',
+                    const Color(0xFFD97706),
+                    Icons.speed,
+                    onTap: () => Navigator.of(context).push(
+                      AppPageRoute(builder: (_) => const SessionListScreen()),
+                    ),
+                  ),
                 if (avgRiskScore != null)
                   _statCard(
-                      t.statAvgRiskScoreLabel,
-                      avgRiskScore.toStringAsFixed(2),
-                      const Color(0xFFDC2626),
-                      Icons.warning_amber),
+                    t.statAvgRiskScoreLabel,
+                    avgRiskScore.toStringAsFixed(2),
+                    const Color(0xFFDC2626),
+                    Icons.warning_amber,
+                    onTap: () => Navigator.of(context).push(
+                      AppPageRoute(builder: (_) => const SessionListScreen()),
+                    ),
+                  ),
               ],
             ),
             const SizedBox(height: 32),
@@ -291,7 +368,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   {'label': t.statusOpenLabel, 'count': openCount},
                   {'label': t.statusClosedLabel, 'count': closedCount},
                 ],
-                colors: const [Color(0xFF0EA5E9), Color(0xFF16A34A)],
+                colors: const [Color(0xFF0284C7), Color(0xFF059669)],
               ),
               const SizedBox(height: 32),
             ],
@@ -336,57 +413,61 @@ class _ReportsScreenState extends State<ReportsScreen> {
             color: AppPalette.textPrimary(context)),
       );
 
-  Widget _statCard(String label, String value, Color color, IconData icon) {
+  Widget _statCard(String label, String value, Color color, IconData icon,
+      {VoidCallback? onTap}) {
     return SizedBox(
       width: 180,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [color.withOpacity(0.10), color.withOpacity(0.03)],
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppPalette.surface(context),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: AppPalette.border(context)),
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.black.withOpacity(0.02),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2))
+              ],
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10)),
+                  child: Icon(icon, color: color, size: 22),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(value,
+                          style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: color),
+                          overflow: TextOverflow.ellipsis),
+                      Text(label,
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: AppPalette.textMuted(context),
+                              fontWeight: FontWeight.w600),
+                          overflow: TextOverflow.ellipsis),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withOpacity(0.25)),
-          boxShadow: [
-            BoxShadow(
-                color: color.withOpacity(0.08),
-                blurRadius: 10,
-                offset: const Offset(0, 3))
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Icon(icon, color: color, size: 22),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(value,
-                      style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: color),
-                      overflow: TextOverflow.ellipsis),
-                  Text(label,
-                      style: TextStyle(
-                          fontSize: 11,
-                          color: AppPalette.textMuted(context),
-                          fontWeight: FontWeight.w600),
-                      overflow: TextOverflow.ellipsis),
-                ],
-              ),
-            ),
-          ],
         ),
       ),
     );
@@ -523,7 +604,7 @@ Future<Uint8List> _buildReportPdf(
       .cast<Map<String, dynamic>>();
   final byPainType = (reports['by_pain_type'] as List<dynamic>? ?? [])
       .cast<Map<String, dynamic>>();
-  const purple = PdfColor.fromInt(0xFF6D28D9);
+  const navyColor = PdfColor.fromInt(0xFF0F172A);
 
   pw.Widget statBox(String label, String value) => pw.Container(
         padding: const pw.EdgeInsets.all(12),
@@ -537,7 +618,7 @@ Future<Uint8List> _buildReportPdf(
                 style: pw.TextStyle(
                     fontSize: 18,
                     fontWeight: pw.FontWeight.bold,
-                    color: purple)),
+                    color: navyColor)),
             pw.SizedBox(height: 2),
             pw.Text(label,
                 style:
@@ -601,7 +682,7 @@ Future<Uint8List> _buildReportPdf(
       build: (context) => [
         pw.Text('Simtack Triage Report',
             style: pw.TextStyle(
-                fontSize: 22, fontWeight: pw.FontWeight.bold, color: purple)),
+                fontSize: 22, fontWeight: pw.FontWeight.bold, color: navyColor)),
         pw.SizedBox(height: 4),
         pw.Text(
             'Period: $periodLabel  •  Generated: ${DateTime.now().toString().split('.').first}',
