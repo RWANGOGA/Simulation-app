@@ -194,6 +194,30 @@ abstract class AppLocalizations {
   /// **'Let\'s get started'**
   String get welcomeSubtitle;
 
+  /// Small pill/badge above the welcome screen's main headline.
+  ///
+  /// In en, this message translates to:
+  /// **'AI-powered triage'**
+  String get welcomeBadge;
+
+  /// First part of the welcome screen's headline, in the normal text color. Combined with welcomeHeadlineHighlight to form one sentence, e.g. 'Point to where it hurts. Understand your risk in minutes.'
+  ///
+  /// In en, this message translates to:
+  /// **'Point to where it hurts. '**
+  String get welcomeHeadlinePrefix;
+
+  /// Second part of the welcome screen's headline, shown in the brand accent color to draw the eye — the key promise of the sentence started by welcomeHeadlinePrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Understand your risk in minutes.'**
+  String get welcomeHeadlineHighlight;
+
+  /// One paragraph explaining what the app does, shown under the welcome screen's headline.
+  ///
+  /// In en, this message translates to:
+  /// **'AtomyBridge Care turns where it hurts into a clear, explainable risk picture for you and your care team — using an interactive 3D body map and AI-assisted insights, even without an internet connection.'**
+  String get welcomeDescription;
+
   /// Privacy reassurance shown under the Continue button.
   ///
   /// In en, this message translates to:

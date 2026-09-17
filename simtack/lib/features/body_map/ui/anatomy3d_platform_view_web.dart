@@ -6,6 +6,12 @@
 import 'dart:ui_web' as ui_web;
 import 'package:web/web.dart' as web;
 
+// Tracked per viewType so Anatomy3DTapView can send messages INTO the
+// iframe later (e.g. to sync pain-point markers) — the view factory only
+// gets called once per platform view, so this is the one place the actual
+// iframe element is ever produced.
+final Map<String, web.HTMLIFrameElement> anatomy3DIframes = {};
+
 String registerAnatomy3DPlatformView(String viewType, String src) {
   ui_web.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
     final iframe = web.HTMLIFrameElement()
@@ -14,7 +20,11 @@ String registerAnatomy3DPlatformView(String viewType, String src) {
       ..style.width = '100%'
       ..style.height = '100%'
       ..allow = 'fullscreen';
+    anatomy3DIframes[viewType] = iframe;
     return iframe;
   });
   return viewType;
 }
+
+web.HTMLIFrameElement? anatomy3DIframeFor(String viewType) =>
+    anatomy3DIframes[viewType];

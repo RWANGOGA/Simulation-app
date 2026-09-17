@@ -160,6 +160,77 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
+  /// Badge + two-tone headline + description, styled after a reference
+  /// the user shared directly (a landing-page hero: pill badge, a big
+  /// headline with one phrase picked out in the accent color, a supporting
+  /// sentence underneath, product visual on the other side) — the earlier
+  /// version was just "Welcome" / "Let's get started" as two plain lines,
+  /// reported as boring next to that reference. The new copy
+  /// (welcomeBadge/welcomeHeadlinePrefix/welcomeHeadlineHighlight/
+  /// welcomeDescription) is real English copy grounded in what the app
+  /// actually does (README: AI-assisted, offline-first triage with a 3D
+  /// body map and explainable risk insights) — added as new translation
+  /// keys in app_en.arb rather than editing generated files directly;
+  /// `flutter gen-l10n` auto-filled the English text into the other four
+  /// locales for just these new keys (confirmed by inspection, not
+  /// assumed), so non-English users still get everything else on this
+  /// screen properly translated and only these four lines in English
+  /// until real translations are written. welcomeTitle/welcomeSubtitle
+  /// are left in place, just unused here now, in case anything else ever
+  /// wants the short version.
+  Widget _welcomeHeader(BuildContext context, AppLocalizations t) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFF6D28D9).withOpacity(0.12),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            t.welcomeBadge,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF6D28D9),
+              letterSpacing: 0.2,
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text.rich(
+          TextSpan(
+            children: [
+              TextSpan(
+                text: t.welcomeHeadlinePrefix,
+                style: TextStyle(color: AppPalette.textPrimary(context)),
+              ),
+              TextSpan(
+                text: t.welcomeHeadlineHighlight,
+                style: const TextStyle(color: Color(0xFF6D28D9)),
+              ),
+            ],
+          ),
+          style: const TextStyle(
+            fontSize: 34,
+            fontWeight: FontWeight.bold,
+            height: 1.15,
+          ),
+        ),
+        const SizedBox(height: 14),
+        Text(
+          t.welcomeDescription,
+          style: TextStyle(
+            fontSize: 15,
+            height: 1.5,
+            color: AppPalette.textMuted(context),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildResumeDraftBanner() {
     if (_drafts.isEmpty) return const SizedBox.shrink();
     final draft = _drafts.first;
@@ -284,43 +355,53 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ),
         const SizedBox(height: 24),
-        Text(
-          t.welcomeTitle,
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-            color: AppPalette.textPrimary(context),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          t.welcomeSubtitle,
-          style: TextStyle(
-            fontSize: 15,
-            color: AppPalette.textMuted(context),
-          ),
-        ),
-        const SizedBox(height: 24),
-        SizedBox(
-          height: 220,
-          child: _ThreeDPlaceholder(
-            web: SizedBox.expand(
-              child: ModelViewer(
-                src: kIsWeb
-                    ? 'models/human_body_male.glb'
-                    : 'assets/models/human_body_male.glb',
-                alt: '3D Human Body Model',
-                autoRotate: true,
-                cameraControls: true,
-                backgroundColor: Colors.transparent,
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 24),
+        // The header grew substantially taller (badge + multi-line
+        // headline + a full paragraph, versus the old two short lines),
+        // and only the resume-draft banner used to be scrollable — on a
+        // shorter viewport (a laptop browser window, or this exact 800x600
+        // default test surface) the fixed-height header now genuinely
+        // doesn't always fit above the fixed-height button/caption at the
+        // bottom. Pulling the header and 3D model into the same scrollable
+        // region as the banner fixes that generally, not just for this one
+        // new header.
         Expanded(
           child: SingleChildScrollView(
-            child: _buildResumeDraftBanner(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _welcomeHeader(context, t),
+                const SizedBox(height: 24),
+                SizedBox(
+                  height: 220,
+                  child: _ThreeDPlaceholder(
+                    web: SizedBox.expand(
+                      child: ModelViewer(
+                        src: kIsWeb
+                            ? 'models/human_body_male.glb'
+                            : 'assets/models/human_body_male.glb',
+                        alt: '3D Human Body Model',
+                        autoRotate: true,
+                        cameraControls: true,
+                        backgroundColor: Colors.transparent,
+                        // Default lighting/shadow was flat and boring — no
+                        // ground shadow at all (shadowIntensity defaults to
+                        // 0) and no environment reflections, which is why
+                        // the model read as a dull gray silhouette. This
+                        // gives it real form: an evenly-lit neutral
+                        // environment, a touch more exposure, and a soft
+                        // grounding shadow.
+                        environmentImage: 'neutral',
+                        exposure: 1.15,
+                        shadowIntensity: 0.8,
+                        shadowSoftness: 0.9,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                _buildResumeDraftBanner(),
+              ],
+            ),
           ),
         ),
         const SizedBox(height: 16),
@@ -420,26 +501,22 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              Text(
-                t.welcomeTitle,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppPalette.textPrimary(context),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                t.welcomeSubtitle,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: AppPalette.textMuted(context),
-                ),
-              ),
-              const SizedBox(height: 24),
+              // Same reasoning as the narrow layout: the header grew
+              // substantially taller, and a fixed-height header above a
+              // fixed-height button/caption can overflow on a shorter
+              // viewport — this is genuinely where that happened (a plain
+              // 800x600 window). Scrolling the header along with the
+              // banner fixes it generally.
               Expanded(
                 child: SingleChildScrollView(
-                  child: _buildResumeDraftBanner(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _welcomeHeader(context, t),
+                      const SizedBox(height: 24),
+                      _buildResumeDraftBanner(),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -492,6 +569,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 autoRotate: true,
                 cameraControls: true,
                 backgroundColor: Colors.transparent,
+                // Default lighting/shadow was flat and boring — no ground
+                // shadow at all (shadowIntensity defaults to 0) and no
+                // environment reflections, which is why the model read as
+                // a dull gray silhouette. This gives it real form: an
+                // evenly-lit neutral environment, a touch more exposure,
+                // and a soft grounding shadow.
+                environmentImage: 'neutral',
+                exposure: 1.15,
+                shadowIntensity: 0.8,
+                shadowSoftness: 0.9,
               ),
             ),
           ),

@@ -60,6 +60,22 @@
   "@welcomeSubtitle": {
     "description": "Welcome screen's subheading."
   },
+  "welcomeBadge": "AI-powered triage",
+  "@welcomeBadge": {
+    "description": "Small pill/badge above the welcome screen's main headline."
+  },
+  "welcomeHeadlinePrefix": "Point to where it hurts. ",
+  "@welcomeHeadlinePrefix": {
+    "description": "First part of the welcome screen's headline, in the normal text color. Combined with welcomeHeadlineHighlight to form one sentence, e.g. 'Point to where it hurts. Understand your risk in minutes.'"
+  },
+  "welcomeHeadlineHighlight": "Understand your risk in minutes.",
+  "@welcomeHeadlineHighlight": {
+    "description": "Second part of the welcome screen's headline, shown in the brand accent color to draw the eye — the key promise of the sentence started by welcomeHeadlinePrefix."
+  },
+  "welcomeDescription": "AtomyBridge Care turns where it hurts into a clear, explainable risk picture for you and your care team — using an interactive 3D body map and AI-assisted insights, even without an internet connection.",
+  "@welcomeDescription": {
+    "description": "One paragraph explaining what the app does, shown under the welcome screen's headline."
+  },
   "privacyCaption": "Your data stays on this device.\nYou are in control.",
   "@privacyCaption": {
     "description": "Privacy reassurance shown under the Continue button."

@@ -8,6 +8,7 @@ import 'package:flutter/services.dart';
 import 'anatomy_3d_tap_view.dart';
 import 'pain_details_screen.dart';
 import 'pain_point.dart';
+import 'web_interop.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/widgets/anatomy_insight_card.dart';
@@ -49,8 +50,7 @@ class BodyMapScreen extends StatefulWidget {
   State<BodyMapScreen> createState() => _BodyMapScreenState();
 }
 
-class _BodyMapScreenState extends State<BodyMapScreen>
-    with SingleTickerProviderStateMixin {
+class _BodyMapScreenState extends State<BodyMapScreen> {
   // Real on-image centroid for each KB region, measured directly from the
   // front-view BodyParts3D render (not guessed) — fixes a pre-existing
   // bug where picking a region from the manual list always dropped the
@@ -101,20 +101,8 @@ class _BodyMapScreenState extends State<BodyMapScreen>
   // Patient answers to suggested anatomy questions, keyed by region.
   final Map<String, Map<String, String>> _questionAnswers = {};
 
-  late AnimationController _pulseController;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
-  }
-
   @override
   void dispose() {
-    _pulseController.dispose();
     _tapLabelTimer?.cancel();
     super.dispose();
   }
@@ -122,23 +110,36 @@ class _BodyMapScreenState extends State<BodyMapScreen>
   /// Called by [Anatomy3DTapView], which already resolves a tap all the way
   /// down to one of the backend's 14 fixed KB region strings itself (see
   /// assets/anatomy3d/region-map.js) — no further mapping needed here,
-  /// unlike the old 2D system this replaced. [partName] is the precise
-  /// structure tapped. Adds (or, on a repeat tap of the same spot, removes)
-  /// the location immediately and fires its AI insight request — no
+  /// unlike the old 2D system this replaced. `tap.partName` is the precise
+  /// structure tapped; `tap.hitX/hitY/hitZ` is the real 3D point on the
+  /// body, stored on the PainPoint so a marker can be drawn as an actual
+  /// object in the 3D scene (rotates correctly with the body) instead of a
+  /// flat overlay that only lined up at the camera angle from the moment
+  /// of the tap. Adds (or, on a repeat tap of the same spot, removes) the
+  /// location immediately and fires its AI insight request — no
   /// confirmation step in between; a brief label naming the tapped
   /// structure shows right at the tap point instead.
-  void _handleBodyPartReceived(
-      String region, double x, double y, String? partName) {
+  void _handleBodyPartReceived(BodyPartTap tap) {
+    final region = tap.part;
+    final x = tap.x ?? 0.5;
+    final y = tap.y ?? 0.5;
     if (!kReleaseMode) {
       debugPrint(
-          'BodyMap: received tap -> region=$region partName=$partName x=$x y=$y');
+          'BodyMap: received tap -> region=$region partName=${tap.partName} x=$x y=$y hit=(${tap.hitX},${tap.hitY},${tap.hitZ})');
     }
-    _addOrRemovePainPoint(region: region, x: x, y: y);
+    _addOrRemovePainPoint(
+      region: region,
+      x: x,
+      y: y,
+      hitX: tap.hitX,
+      hitY: tap.hitY,
+      hitZ: tap.hitZ,
+    );
     _requestAnatomyInsight(region);
 
     _tapLabelTimer?.cancel();
     setState(() {
-      _tapLabel = (text: partName ?? region, x: x, y: y);
+      _tapLabel = (text: tap.partName ?? region, x: x, y: y);
     });
     _tapLabelTimer = Timer(const Duration(milliseconds: 1800), () {
       if (!mounted) return;
@@ -153,6 +154,9 @@ class _BodyMapScreenState extends State<BodyMapScreen>
     required String region,
     double? x,
     double? y,
+    double? hitX,
+    double? hitY,
+    double? hitZ,
     String? symptomDescription,
     List<String>? tags,
   }) {
@@ -170,6 +174,9 @@ class _BodyMapScreenState extends State<BodyMapScreen>
           region: region,
           x: tapX,
           y: tapY,
+          hitX: hitX,
+          hitY: hitY,
+          hitZ: hitZ,
           symptomDescription: symptomDescription,
           tags: tags,
         ));
@@ -290,6 +297,23 @@ class _BodyMapScreenState extends State<BodyMapScreen>
                               child: Anatomy3DTapView(
                                 gender: widget.gender,
                                 onRegionTapped: _handleBodyPartReceived,
+                                // Real 3D markers, drawn inside the scene
+                                // itself (see viewer.js's setMarkers) so
+                                // they stay correctly attached to the body
+                                // through any rotation — points added via
+                                // the manual picker have no 3D hit
+                                // (hitX/Y/Z null) and are simply skipped by
+                                // the viewer rather than drawn at a wrong
+                                // spot.
+                                markers: [
+                                  for (var i = 0; i < _painPoints.length; i++)
+                                    (
+                                      id: '$i',
+                                      x: _painPoints[i].hitX,
+                                      y: _painPoints[i].hitY,
+                                      z: _painPoints[i].hitZ,
+                                    ),
+                                ],
                               ),
                             ),
                             // A gentle nudge for first-time patients — fades
@@ -337,48 +361,6 @@ class _BodyMapScreenState extends State<BodyMapScreen>
                                         ],
                                       ),
                                     ),
-                                  ),
-                                ),
-                              ),
-                            // Pain hotspot pulses, positioned as fractions
-                            // of this same box — matches the normalized x/y
-                            // the 3D viewer reports (fraction of its own
-                            // canvas), same convention the 2D system used.
-                            for (final point in _painPoints)
-                              Positioned(
-                                left: point.x * constraints.maxWidth - 22,
-                                top: point.y * constraints.maxHeight - 22,
-                                child: IgnorePointer(
-                                  child: AnimatedBuilder(
-                                    animation: _pulseController,
-                                    builder: (context, child) {
-                                      return Container(
-                                        width:
-                                            32 + (12 * _pulseController.value),
-                                        height:
-                                            32 + (12 * _pulseController.value),
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: const Color(0xFFEF4444)
-                                              .withOpacity(0.35 *
-                                                  (1 - _pulseController.value)),
-                                          border: Border.all(
-                                            color: const Color(0xFFEF4444),
-                                            width: 2,
-                                          ),
-                                        ),
-                                        child: Center(
-                                          child: Container(
-                                            width: 14,
-                                            height: 14,
-                                            decoration: const BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: Color(0xFFDC2626),
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    },
                                   ),
                                 ),
                               ),
@@ -483,198 +465,6 @@ class _BodyMapScreenState extends State<BodyMapScreen>
             ),
           ),
 
-          // Marked Locations Report — every tapped region's full AI insight,
-          // appended in order into ONE continuously-scrolling panel instead
-          // of separate side-scrolling cards. The earlier horizontal
-          // carousel (one narrow 280px card per region, swipe sideways to
-          // see the next) was reported as scattering related information
-          // across the screen instead of collecting it — tap the eye, then
-          // the ear, then a foot, and each result landed in its own
-          // disconnected card. This is the single organized place all of
-          // that now lives, appended as each location is confirmed.
-          // With nothing marked yet, this panel only has one line of hint
-          // text — giving it a fixed 40% flex share regardless left the 3D
-          // body squeezed into a sliver at the top. It now takes just
-          // enough height for that hint, and only claims real flexible
-          // space once there's an actual list of locations worth scrolling.
-          _painPoints.isEmpty
-              ? Container(
-                  decoration: BoxDecoration(
-                    color: AppPalette.surface(context),
-                    border: Border(
-                      top: BorderSide(color: AppPalette.border(context)),
-                    ),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 44,
-                        height: 44,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: const Color(0xFF6D28D9).withOpacity(0.1),
-                        ),
-                        child: const Icon(Icons.front_hand_outlined,
-                            color: Color(0xFF6D28D9), size: 22),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Your pain report will appear here',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w700,
-                                color: AppPalette.textPrimary(context),
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              t.noLocationsMarkedHint,
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppPalette.textMuted(context),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              : Expanded(
-                  flex: 2,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppPalette.scaffold(context),
-                      border: Border(
-                        top: BorderSide(color: AppPalette.border(context)),
-                      ),
-                    ),
-                    child: ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(12, 14, 12, 8),
-                      itemCount: _painPoints.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 10),
-                      itemBuilder: (context, i) {
-                        final point = _painPoints[i];
-                        // A left accent stripe needs a different color than
-                        // the rest of the border, and Flutter can't paint a
-                        // rounded border whose sides aren't a single
-                        // uniform color — so the accent is its own thin
-                        // Container in a Row instead of a BorderSide, with
-                        // the outer border kept uniform.
-                        return Container(
-                          decoration: BoxDecoration(
-                            color: AppPalette.surface(context),
-                            borderRadius: BorderRadius.circular(16),
-                            border:
-                                Border.all(color: AppPalette.border(context)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.04),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          clipBehavior: Clip.antiAlias,
-                          // IntrinsicHeight resolves the stripe's height
-                          // against the Column's — without it, Row's
-                          // stretch cross-axis alignment has no bounded
-                          // height to stretch to inside a ListView item
-                          // (whose height is otherwise unbounded), and
-                          // layout fails with "BoxConstraints forces an
-                          // infinite height".
-                          child: IntrinsicHeight(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Container(
-                                    width: 4, color: const Color(0xFF6D28D9)),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            12, 10, 4, 0),
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              width: 24,
-                                              height: 24,
-                                              alignment: Alignment.center,
-                                              decoration: const BoxDecoration(
-                                                shape: BoxShape.circle,
-                                                color: Color(0xFF6D28D9),
-                                              ),
-                                              child: Text(
-                                                '${i + 1}',
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            Expanded(
-                                              child: Text(
-                                                point.region,
-                                                style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: AppPalette.textPrimary(
-                                                      context),
-                                                ),
-                                              ),
-                                            ),
-                                            IconButton(
-                                              icon: const Icon(Icons.close,
-                                                  size: 18),
-                                              color:
-                                                  AppPalette.textMuted(context),
-                                              tooltip: t.removeTooltip,
-                                              onPressed: () =>
-                                                  _removePainPointAt(i),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.fromLTRB(
-                                            4, 0, 4, 4),
-                                        child: AnatomyInsightCard(
-                                          region: point.region,
-                                          future: _anatomyFutures[point.region],
-                                          initialAnswers:
-                                              _questionAnswers[point.region],
-                                          onAnswersChanged: (answers) {
-                                            setState(() {
-                                              _questionAnswers[point.region] =
-                                                  answers;
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-
           // Navigation CTA Button — disabled until at least one location
           // is marked, since there's nothing to carry into Pain Details
           // otherwise.
@@ -774,31 +564,122 @@ class _BodyMapScreenState extends State<BodyMapScreen>
                               TextStyle(color: AppPalette.textMuted(context)),
                         ),
                       ),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                          maxHeight:
-                              MediaQuery.of(sheetContext).size.height * 0.4),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: _painPoints.length,
-                        itemBuilder: (context, index) {
-                          final point = _painPoints[index];
-                          return ListTile(
-                            dense: true,
-                            leading: const Icon(Icons.location_on,
-                                color: Color(0xFF6D28D9)),
-                            title: Text(point.region),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.close,
-                                  color: Color(0xFFEF4444)),
-                              tooltip: t.removeTooltip,
-                              onPressed: () {
-                                _removePainPointAt(index);
-                                sheetSetState(() {});
-                              },
-                            ),
-                          );
-                        },
+                    // Full detail per location (numbered, removable, with
+                    // its collapsible AI insight) lives here now — reached
+                    // through the "locations" button instead of sitting
+                    // permanently on the main screen and taking up space
+                    // that was needed for the 3D body itself.
+                    Flexible(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                            maxHeight:
+                                MediaQuery.of(sheetContext).size.height * 0.65),
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          itemCount: _painPoints.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (context, index) {
+                            final point = _painPoints[index];
+                            return Container(
+                              decoration: BoxDecoration(
+                                color: AppPalette.scaffold(context),
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                    color: AppPalette.border(context)),
+                              ),
+                              clipBehavior: Clip.antiAlias,
+                              child: IntrinsicHeight(
+                                child: Row(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Container(
+                                        width: 4,
+                                        color: const Color(0xFF6D28D9)),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.stretch,
+                                        children: [
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                12, 10, 4, 0),
+                                            child: Row(
+                                              children: [
+                                                Container(
+                                                  width: 24,
+                                                  height: 24,
+                                                  alignment: Alignment.center,
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Color(0xFF6D28D9),
+                                                  ),
+                                                  child: Text(
+                                                    '${index + 1}',
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 12,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 10),
+                                                Expanded(
+                                                  child: Text(
+                                                    point.region,
+                                                    style: TextStyle(
+                                                      fontSize: 14,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color: AppPalette
+                                                          .textPrimary(context),
+                                                    ),
+                                                  ),
+                                                ),
+                                                IconButton(
+                                                  icon: const Icon(Icons.close,
+                                                      size: 18),
+                                                  color: AppPalette.textMuted(
+                                                      context),
+                                                  tooltip: t.removeTooltip,
+                                                  onPressed: () {
+                                                    _removePainPointAt(index);
+                                                    sheetSetState(() {});
+                                                  },
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                4, 0, 4, 4),
+                                            child: AnatomyInsightCard(
+                                              region: point.region,
+                                              future:
+                                                  _anatomyFutures[point.region],
+                                              initialAnswers: _questionAnswers[
+                                                  point.region],
+                                              onAnswersChanged: (answers) {
+                                                setState(() {
+                                                  _questionAnswers[
+                                                      point.region] = answers;
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                       ),
                     ),
                     const Divider(height: 24),

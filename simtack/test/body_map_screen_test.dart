@@ -6,12 +6,13 @@
 // platform yet" placeholder (see anatomy_3d_tap_view.dart), so these tests
 // exercise the manual "Add another location" picker instead. That path
 // converges on the exact same downstream code a real 3D tap would drive —
-// _addRegionManually -> _painPoints -> the consolidated report panel — so
-// it's a faithful stand-in for verifying that panel's behavior, which is
-// today's actual new work (replacing the old horizontal card carousel with
-// one appended vertical list, per direct user feedback that the old layout
-// "scattered" each tapped region's info across separate disconnected
-// cards).
+// _addRegionManually -> _painPoints -> the "Selected Locations" sheet's
+// detail list. Direct feedback moved the full per-location report (region
+// name, remove button, collapsible AI insight) out of an always-visible
+// panel on the main screen — which was reported as covering space needed
+// to see the 3D body — and into that sheet, reached via the "locations"
+// button/badge, so the body view keeps full space until you actually want
+// the report.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -87,13 +88,24 @@ void main() {
 
   /// Opens the "Selected Locations" management sheet, then "Add another
   /// location", then taps [region] in the picker list — the same code path
-  /// _addRegionManually drives, independent of the 3D view.
+  /// _addRegionManually drives, independent of the 3D view. The region
+  /// picker sheet pops itself after the tap, so this ends with no sheet
+  /// open; call [openLocationsSheet] afterward to see the added location's
+  /// full detail (region, remove button, AI insight).
   Future<void> addRegionManually(WidgetTester tester, String region) async {
     await tester.tap(find.byIcon(Icons.location_on));
     await settleModalTransition(tester);
     await tester.tap(find.text('Add another location'));
     await settleModalTransition(tester);
     await tester.tap(find.text(region));
+    await settleModalTransition(tester);
+  }
+
+  /// Opens the "Selected Locations" sheet — the one place full per-location
+  /// detail (including the collapsible AI insight) now renders, reached via
+  /// the top badge/button rather than an always-visible panel.
+  Future<void> openLocationsSheet(WidgetTester tester) async {
+    await tester.tap(find.byIcon(Icons.location_on));
     await settleModalTransition(tester);
   }
 
@@ -110,7 +122,7 @@ void main() {
   });
 
   testWidgets(
-      'adding a location appends it to one consolidated report panel, not a separate scattered card',
+      'adding a location makes its full detail reachable through the locations sheet, not shown inline on the main screen',
       (tester) async {
     await useTallViewport(tester);
     await tester.pumpWidget(buildScreen());
@@ -118,21 +130,26 @@ void main() {
 
     await addRegionManually(tester, 'Chest / Heart');
 
-    // The region now appears both as the numbered header in the report
-    // panel and as the AnatomyInsightCard's own title — this only proves
-    // out once per added location, confirming it landed in the single
-    // panel rather than duplicating across separate UI pieces.
-    expect(find.text('Chest / Heart'), findsWidgets);
-    expect(find.text('AI insight: Chest / Heart'), findsOneWidget);
+    // Main screen: no inline report content — that space belongs to the
+    // 3D body now. The region name only appears once anywhere on screen
+    // at this point (as the top badge's own count label doesn't repeat
+    // the region name).
+    expect(find.text('AI insight: Chest / Heart'), findsNothing);
 
-    // Continue button should now be enabled and reflect the count.
+    // Continue button should be enabled and reflect the count regardless
+    // of whether the sheet is open.
     final continueButton = tester.widget<ElevatedButton>(find.widgetWithText(
         ElevatedButton, 'Continue to Pain Details (1)'));
     expect(continueButton.onPressed, isNotNull);
+
+    // Opening the locations sheet is where the full detail now lives.
+    await openLocationsSheet(tester);
+    expect(find.text('Chest / Heart'), findsWidgets);
+    expect(find.text('AI insight: Chest / Heart'), findsOneWidget);
   });
 
   testWidgets(
-      'marking two different locations appends both to the same panel (multi-select), and removing one leaves the other',
+      'marking two different locations makes both reachable via the locations sheet (multi-select), and removing one leaves the other',
       (tester) async {
     await useTallViewport(tester);
     await tester.pumpWidget(buildScreen());
@@ -141,6 +158,7 @@ void main() {
     await addRegionManually(tester, 'Chest / Heart');
     await addRegionManually(tester, 'Left Leg / Knee');
 
+    await openLocationsSheet(tester);
     expect(find.text('AI insight: Chest / Heart'), findsOneWidget);
     expect(find.text('AI insight: Left Leg / Knee'), findsOneWidget);
     expect(
@@ -148,9 +166,7 @@ void main() {
             ElevatedButton, 'Continue to Pain Details (2)')),
         isNotNull);
 
-    // Remove the first one via the report panel's own inline close button
-    // (the new affordance added alongside the consolidated panel) rather
-    // than the separate "Selected Locations" sheet.
+    // Remove the first one via its close button inside the sheet.
     await tester.tap(find.byIcon(Icons.close).first);
     await tester.pump(const Duration(milliseconds: 400));
 

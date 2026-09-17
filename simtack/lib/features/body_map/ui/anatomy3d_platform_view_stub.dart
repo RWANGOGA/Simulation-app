@@ -4,3 +4,5 @@
 // Anatomy3DTapView shows a "not available on this platform yet" message
 // instead of calling this.
 String registerAnatomy3DPlatformView(String viewType, String src) => viewType;
+
+Object? anatomy3DIframeFor(String viewType) => null;

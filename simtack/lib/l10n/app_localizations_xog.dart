@@ -56,6 +56,19 @@ class AppLocalizationsXog extends AppLocalizations {
   String get welcomeSubtitle => 'Let\'s get started';
 
   @override
+  String get welcomeBadge => 'AI-powered triage';
+
+  @override
+  String get welcomeHeadlinePrefix => 'Point to where it hurts. ';
+
+  @override
+  String get welcomeHeadlineHighlight => 'Understand your risk in minutes.';
+
+  @override
+  String get welcomeDescription =>
+      'AtomyBridge Care turns where it hurts into a clear, explainable risk picture for you and your care team — using an interactive 3D body map and AI-assisted insights, even without an internet connection.';
+
+  @override
   String get privacyCaption =>
       'Your data stays on this device.\nYou are in control.';
 
