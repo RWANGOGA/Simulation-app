@@ -56,9 +56,6 @@ class AppLocalizationsLg extends AppLocalizations {
   String get welcomeSubtitle => 'Tutandike';
 
   @override
-  String get welcomeBadge => 'AI-powered triage';
-
-  @override
   String get welcomeHeadlinePrefix => 'Point to where it hurts. ';
 
   @override
@@ -66,7 +63,25 @@ class AppLocalizationsLg extends AppLocalizations {
 
   @override
   String get welcomeDescription =>
-      'AtomyBridge Care turns where it hurts into a clear, explainable risk picture for you and your care team — using an interactive 3D body map and AI-assisted insights, even without an internet connection.';
+      'AtomyBridge Care turns where it hurts into a clear, explainable risk picture for you and your care team, using an interactive 3D body map and AI assisted insights, even without an internet connection.';
+
+  @override
+  String get welcomeStatRegionsValue => '14+';
+
+  @override
+  String get welcomeStatRegionsLabel => 'Mapped pain regions';
+
+  @override
+  String get welcomeStatOfflineValue => 'Offline';
+
+  @override
+  String get welcomeStatOfflineLabel => 'Works with no signal';
+
+  @override
+  String get welcomeStatSpeedValue => 'Under 2 min';
+
+  @override
+  String get welcomeStatSpeedLabel => 'To a risk summary';
 
   @override
   String get privacyCaption =>
