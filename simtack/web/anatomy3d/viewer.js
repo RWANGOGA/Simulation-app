@@ -108,8 +108,13 @@ function addModestyPatch(skinColor) {
 }
 
 async function decodeChunk(chunk) {
-  const res = await fetch(chunk.gzip || chunk.url);
-  if (!res.ok) throw new Error(`Failed to fetch ${chunk.url}`);
+  const requestedUrl = chunk.gzip || chunk.url;
+  const res = await fetch(requestedUrl);
+  // Report the URL actually requested, not always chunk.url — this
+  // previously showed "Failed to fetch .../body-0.bin" even when the real
+  // (gzip) request was what failed, which sent debugging in the wrong
+  // direction once.
+  if (!res.ok) throw new Error(`Failed to fetch ${requestedUrl} (${res.status})`);
   const payload = await res.arrayBuffer();
   const sig = new Uint8Array(payload, 0, 2);
   const isGzip = sig[0] === 0x1f && sig[1] === 0x8b;
