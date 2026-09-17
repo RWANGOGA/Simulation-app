@@ -96,6 +96,16 @@ let currentParts = [];
 let overallBounds = null;
 let modestyPatch = null;
 
+// Declared here, ahead of the marker-mesh helpers further down, because
+// clearScene() reads it and clearScene() runs synchronously inside the
+// very first loadAtlas() call below (before any `await`) — if this were
+// declared after that call, as it originally was, referencing a `const`
+// still in its temporal dead zone threw
+// "can't access lexical declaration 'markerMeshes' before initialization"
+// on every single page load, which aborted the whole load and was the
+// real cause of the 3D body failing to load (unrelated to network).
+const markerMeshes = new Map(); // id -> THREE.Mesh
+
 // The male model's genital anatomy is sculpted directly into the skin
 // surface mesh itself (confirmed: excluding the reproductive-system organs
 // and their vessels, above, left it fully visible — it isn't a separate
@@ -402,8 +412,8 @@ renderer.domElement.addEventListener('pointerup', (e) => {
 // unlike a 2D screen overlay, which only lines up at the camera angle it
 // was drawn at. The parent Flutter app owns the actual list of marked
 // points (it's the one thing that survives navigating away and back); this
-// just mirrors whatever list it's told about.
-const markerMeshes = new Map(); // id -> THREE.Mesh
+// just mirrors whatever list it's told about. (markerMeshes itself is
+// declared earlier, near the other top-level state, see the comment there.)
 const markerGeometry = new THREE.SphereGeometry(0.012, 16, 12);
 const markerMaterial = new THREE.MeshBasicMaterial({ color: 0xdc2626 });
 
