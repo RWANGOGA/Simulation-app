@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
 import '../../body_map/ui/body_map_screen.dart';
 import '../../../core/theme/app_page_route.dart';
+import '../../../core/widgets/flow_progress_bar.dart';
 import '../../../l10n/app_localizations.dart';
 
 class PatientInfoScreen extends StatefulWidget {
@@ -108,6 +109,10 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
           onPressed: () => Navigator.of(context).pop(),
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(20),
+          child: FlowProgressBar(totalSteps: 6, currentStep: 2),
         ),
       ),
       body: SafeArea(

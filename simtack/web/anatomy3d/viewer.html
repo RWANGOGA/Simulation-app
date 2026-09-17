@@ -16,10 +16,37 @@
   #status { color: #64748b; margin: 8px 0; }
   #result { border-top: 1px solid #e2e8f0; padding-top: 8px; margin-top: 8px; line-height: 1.4; }
   .muted { color: #64748b; }
+
+  /* Patient-facing loading state — shown regardless of ?embedded=1 (the
+     debug #panel above is hidden when embedded, but a patient still
+     needs SOME feedback while the ~30MB model streams in; previously
+     that left a blank screen with zero indication anything was
+     happening). Matches the app's purple branding rather than looking
+     like a raw dev status line. */
+  #loading-overlay {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; background: #f2f3f3;
+    transition: opacity 0.35s ease;
+  }
+  #loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  #loading-spinner {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 3px solid rgba(109, 40, 217, 0.18); border-top-color: #6D28D9;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loading-text { color: #475569; font-size: 14px; font-weight: 600; }
+  #loading-progress { color: #94a3b8; font-size: 12px; }
 </style>
 </head>
 <body>
   <div id="canvas-host"></div>
+  <div id="loading-overlay">
+    <div id="loading-spinner"></div>
+    <div id="loading-text">Preparing your 3D body…</div>
+    <div id="loading-progress"></div>
+  </div>
   <div id="panel">
     <h1>3D anatomy tap validation</h1>
     <label>Model
@@ -34,13 +61,28 @@
   </div>
 
   <script>
+    // A load failure previously left an embedded patient staring at a
+    // spinner that never resolved, with no explanation (the debug #status
+    // line carrying the real error is hidden in embedded mode). This
+    // swaps the loading text to something a patient can actually act on,
+    // regardless of embedded mode.
+    function showLoadFailure() {
+      const text = document.getElementById('loading-text');
+      const progress = document.getElementById('loading-progress');
+      const spinner = document.getElementById('loading-spinner');
+      if (text) text.textContent = "Couldn't load the 3D body — check your connection and try again.";
+      if (progress) progress.textContent = '';
+      if (spinner) spinner.style.display = 'none';
+    }
     window.addEventListener('error', (e) => {
       const s = document.getElementById('status');
       if (s) s.textContent = 'JS ERROR: ' + (e.message || e.error);
+      showLoadFailure();
     });
     window.addEventListener('unhandledrejection', (e) => {
       const s = document.getElementById('status');
       if (s) s.textContent = 'PROMISE REJECTION: ' + (e.reason && e.reason.message ? e.reason.message : e.reason);
+      showLoadFailure();
     });
   </script>
   <script type="importmap">

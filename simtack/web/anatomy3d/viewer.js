@@ -47,6 +47,8 @@ const statusEl = document.getElementById('status');
 const resultEl = document.getElementById('result');
 const genderSelect = document.getElementById('gender');
 const skinToggle = document.getElementById('skin-toggle');
+const loadingOverlay = document.getElementById('loading-overlay');
+const loadingProgressEl = document.getElementById('loading-progress');
 
 // Anatomy3DTapView passes ?embedded=1 for the real patient-facing view —
 // this debug panel (model dropdown, skin toggle, raw status/result text)
@@ -177,6 +179,8 @@ function clearScene() {
 
 async function loadAtlas(name) {
   statusEl.textContent = `Loading ${name} atlas…`;
+  loadingOverlay.classList.remove('hidden');
+  loadingProgressEl.textContent = '';
   clearScene();
   resultEl.textContent = '(no tap yet)';
 
@@ -224,6 +228,7 @@ async function loadAtlas(name) {
     }
     loaded++;
     statusEl.textContent = `Loading ${name} atlas… chunk ${loaded}/${atlas.chunks.length}`;
+    loadingProgressEl.textContent = `${Math.round((loaded / atlas.chunks.length) * 100)}%`;
   };
 
   // Three concurrent fetch/decode workers, matching the proven upstream
@@ -240,6 +245,7 @@ async function loadAtlas(name) {
   }));
   if (name !== 'female') addModestyPatch(SYSTEM_COLORS.integumentary);
   statusEl.textContent = `${name} atlas loaded — ${currentParts.length} parts, ${currentMeshes.length} meshes.`;
+  loadingOverlay.classList.add('hidden');
 }
 
 skinToggle.addEventListener('change', () => {
