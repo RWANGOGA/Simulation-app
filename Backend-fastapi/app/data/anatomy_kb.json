@@ -445,6 +445,630 @@
         "Any calf swelling or pain?",
         "Any urinary symptoms?"
       ]
+    },
+    {
+      "id": "right_shoulder",
+      "region": "Right Shoulder",
+      "system": "musculoskeletal",
+      "structures": [
+        "Glenohumeral joint",
+        "Rotator cuff muscles (supraspinatus, infraspinatus, subscapularis, teres minor)",
+        "Deltoid muscle",
+        "Acromioclavicular joint",
+        "Subacromial bursa"
+      ],
+      "text": "Right shoulder pain is usually musculoskeletal — from the rotator cuff, the joint itself, or surrounding tendons — but can occasionally be referred from the gallbladder via the phrenic nerve. Common causes include rotator cuff tendinopathy, shoulder impingement, frozen shoulder, and AC joint sprain. Red flags include sudden pain after a fall with visible deformity, complete inability to move the arm, or numbness spreading down the arm.",
+      "common_conditions": [
+        "Rotator cuff tendinopathy",
+        "Shoulder impingement syndrome",
+        "Frozen shoulder (adhesive capsulitis)",
+        "AC joint sprain",
+        "Gallbladder referred pain"
+      ],
+      "red_flags": [
+        "Visible deformity after a fall or injury",
+        "Complete inability to move the arm",
+        "Numbness or tingling down the arm",
+        "Severe pain with fever (possible joint infection)"
+      ],
+      "suggested_questions": [
+        "Any recent injury or fall?",
+        "Can you raise your arm above your head?",
+        "Any numbness or tingling down the arm?",
+        "Any right upper abdominal pain along with it?"
+      ]
+    },
+    {
+      "id": "left_shoulder",
+      "region": "Left Shoulder",
+      "system": "musculoskeletal",
+      "structures": [
+        "Glenohumeral joint",
+        "Rotator cuff muscles (supraspinatus, infraspinatus, subscapularis, teres minor)",
+        "Deltoid muscle",
+        "Acromioclavicular joint",
+        "Subacromial bursa"
+      ],
+      "text": "Left shoulder pain is usually musculoskeletal, but the left shoulder is also a classic site of referred cardiac pain — chest pain radiating to the left shoulder or arm is a red flag for a heart attack. Other causes include rotator cuff tendinopathy, shoulder impingement, and frozen shoulder. Always ask about chest pain, shortness of breath, sweating, or nausea alongside left shoulder pain before assuming it is purely musculoskeletal.",
+      "common_conditions": [
+        "Rotator cuff tendinopathy",
+        "Shoulder impingement syndrome",
+        "Frozen shoulder (adhesive capsulitis)",
+        "AC joint sprain",
+        "Cardiac referred pain"
+      ],
+      "red_flags": [
+        "Chest pain, tightness, or pressure with the shoulder pain",
+        "Shortness of breath, sweating, or nausea",
+        "Visible deformity after a fall or injury",
+        "Numbness or tingling down the arm"
+      ],
+      "suggested_questions": [
+        "Any chest pain, tightness, or shortness of breath?",
+        "Any recent injury or fall?",
+        "Can you raise your arm above your head?",
+        "Any sweating or nausea with the pain?"
+      ]
+    },
+    {
+      "id": "right_armpit",
+      "region": "Right Armpit",
+      "system": "lymphatic",
+      "structures": [
+        "Axillary lymph nodes",
+        "Axillary artery and vein",
+        "Brachial plexus",
+        "Sweat glands and hair follicles"
+      ],
+      "text": "Armpit pain most often relates to swollen or tender lymph nodes reacting to a nearby infection (an arm cut, a skin infection, or a cold), a skin condition such as folliculitis or hidradenitis suppurativa, or a pulled muscle. A firm, painless, and enlarging lump is worth medical attention rather than home care.",
+      "common_conditions": [
+        "Reactive lymphadenopathy (swollen node from a nearby infection)",
+        "Folliculitis (infected hair follicle)",
+        "Hidradenitis suppurativa",
+        "Muscle strain",
+        "Swollen sweat gland (skin abscess)"
+      ],
+      "red_flags": [
+        "A hard, fixed, or rapidly growing lump",
+        "Lymph node swelling lasting more than two weeks with no clear cause",
+        "Unexplained weight loss or night sweats alongside the swelling",
+        "Spreading redness, warmth, or fever (possible infection)"
+      ],
+      "suggested_questions": [
+        "Can you feel a lump, and has it been growing?",
+        "Any recent cut, shave, or skin infection nearby?",
+        "Any fever, night sweats, or unexplained weight loss?",
+        "Is the skin red, warm, or draining fluid?"
+      ]
+    },
+    {
+      "id": "left_armpit",
+      "region": "Left Armpit",
+      "system": "lymphatic",
+      "structures": [
+        "Axillary lymph nodes",
+        "Axillary artery and vein",
+        "Brachial plexus",
+        "Sweat glands and hair follicles"
+      ],
+      "text": "Armpit pain most often relates to swollen or tender lymph nodes reacting to a nearby infection (an arm cut, a skin infection, or a cold), a skin condition such as folliculitis or hidradenitis suppurativa, or a pulled muscle. A firm, painless, and enlarging lump is worth medical attention rather than home care.",
+      "common_conditions": [
+        "Reactive lymphadenopathy (swollen node from a nearby infection)",
+        "Folliculitis (infected hair follicle)",
+        "Hidradenitis suppurativa",
+        "Muscle strain",
+        "Swollen sweat gland (skin abscess)"
+      ],
+      "red_flags": [
+        "A hard, fixed, or rapidly growing lump",
+        "Lymph node swelling lasting more than two weeks with no clear cause",
+        "Unexplained weight loss or night sweats alongside the swelling",
+        "Spreading redness, warmth, or fever (possible infection)"
+      ],
+      "suggested_questions": [
+        "Can you feel a lump, and has it been growing?",
+        "Any recent cut, shave, or skin infection nearby?",
+        "Any fever, night sweats, or unexplained weight loss?",
+        "Is the skin red, warm, or draining fluid?"
+      ]
+    },
+    {
+      "id": "right_elbow",
+      "region": "Right Elbow",
+      "system": "musculoskeletal",
+      "structures": [
+        "Distal humerus",
+        "Proximal radius and ulna",
+        "Elbow joint",
+        "Ulnar nerve",
+        "Common flexor and extensor tendons"
+      ],
+      "text": "Elbow pain commonly comes from tendon overuse (tennis elbow or golfer's elbow), nerve irritation at the 'funny bone', joint inflammation, or an injury such as a fall onto an outstretched arm.",
+      "common_conditions": [
+        "Lateral epicondylitis (tennis elbow)",
+        "Medial epicondylitis (golfer's elbow)",
+        "Ulnar nerve entrapment",
+        "Elbow bursitis",
+        "Elbow sprain or fracture"
+      ],
+      "red_flags": [
+        "Visible deformity after a fall or injury",
+        "Inability to bend or straighten the arm",
+        "Numbness in the ring and little fingers",
+        "Significant swelling with fever (possible joint infection)"
+      ],
+      "suggested_questions": [
+        "Any recent injury or repetitive strain (lifting, racquet sports)?",
+        "Any numbness or tingling in your fingers?",
+        "Can you fully bend and straighten the elbow?",
+        "Any swelling, warmth, or redness?"
+      ]
+    },
+    {
+      "id": "left_elbow",
+      "region": "Left Elbow",
+      "system": "musculoskeletal",
+      "structures": [
+        "Distal humerus",
+        "Proximal radius and ulna",
+        "Elbow joint",
+        "Ulnar nerve",
+        "Common flexor and extensor tendons"
+      ],
+      "text": "Elbow pain commonly comes from tendon overuse (tennis elbow or golfer's elbow), nerve irritation at the 'funny bone', joint inflammation, or an injury such as a fall onto an outstretched arm.",
+      "common_conditions": [
+        "Lateral epicondylitis (tennis elbow)",
+        "Medial epicondylitis (golfer's elbow)",
+        "Ulnar nerve entrapment",
+        "Elbow bursitis",
+        "Elbow sprain or fracture"
+      ],
+      "red_flags": [
+        "Visible deformity after a fall or injury",
+        "Inability to bend or straighten the arm",
+        "Numbness in the ring and little fingers",
+        "Significant swelling with fever (possible joint infection)"
+      ],
+      "suggested_questions": [
+        "Any recent injury or repetitive strain (lifting, racquet sports)?",
+        "Any numbness or tingling in your fingers?",
+        "Can you fully bend and straighten the elbow?",
+        "Any swelling, warmth, or redness?"
+      ]
+    },
+    {
+      "id": "right_wrist",
+      "region": "Right Wrist",
+      "system": "musculoskeletal",
+      "structures": [
+        "Carpal bones",
+        "Distal radius and ulna",
+        "Carpal tunnel",
+        "Median nerve",
+        "Wrist ligaments and tendons"
+      ],
+      "text": "Wrist pain is often from repetitive strain, carpal tunnel syndrome (median nerve compression), ligament sprains, or a fracture — especially after a fall onto an outstretched hand, where a scaphoid fracture can be easily missed on first exam.",
+      "common_conditions": [
+        "Carpal tunnel syndrome",
+        "Wrist sprain",
+        "De Quervain's tenosynovitis",
+        "Scaphoid fracture",
+        "Wrist arthritis"
+      ],
+      "red_flags": [
+        "Deformity or significant swelling after a fall",
+        "Numbness in the thumb, index, and middle fingers",
+        "Inability to move the wrist",
+        "Persistent pain after a fall even with a normal-looking X-ray (scaphoid fractures are easy to miss early)"
+      ],
+      "suggested_questions": [
+        "Did you fall onto your hand recently?",
+        "Any numbness or tingling in your fingers, especially at night?",
+        "Any weakness gripping objects?",
+        "Does the pain worsen with wrist movement or repetitive motion?"
+      ]
+    },
+    {
+      "id": "left_wrist",
+      "region": "Left Wrist",
+      "system": "musculoskeletal",
+      "structures": [
+        "Carpal bones",
+        "Distal radius and ulna",
+        "Carpal tunnel",
+        "Median nerve",
+        "Wrist ligaments and tendons"
+      ],
+      "text": "Wrist pain is often from repetitive strain, carpal tunnel syndrome (median nerve compression), ligament sprains, or a fracture — especially after a fall onto an outstretched hand, where a scaphoid fracture can be easily missed on first exam.",
+      "common_conditions": [
+        "Carpal tunnel syndrome",
+        "Wrist sprain",
+        "De Quervain's tenosynovitis",
+        "Scaphoid fracture",
+        "Wrist arthritis"
+      ],
+      "red_flags": [
+        "Deformity or significant swelling after a fall",
+        "Numbness in the thumb, index, and middle fingers",
+        "Inability to move the wrist",
+        "Persistent pain after a fall even with a normal-looking X-ray (scaphoid fractures are easy to miss early)"
+      ],
+      "suggested_questions": [
+        "Did you fall onto your hand recently?",
+        "Any numbness or tingling in your fingers, especially at night?",
+        "Any weakness gripping objects?",
+        "Does the pain worsen with wrist movement or repetitive motion?"
+      ]
+    },
+    {
+      "id": "right_hand",
+      "region": "Right Hand",
+      "system": "musculoskeletal",
+      "structures": [
+        "Metacarpals and finger bones (phalanges)",
+        "Finger and thumb joints",
+        "Flexor and extensor tendons",
+        "Digital nerves and vessels"
+      ],
+      "text": "Pain in the hand or fingers can come from joint conditions like arthritis, tendon problems such as trigger finger, nerve irritation, or an injury — including cuts and bites, which carry an infection risk in the hand's tight tissue spaces.",
+      "common_conditions": [
+        "Osteoarthritis",
+        "Trigger finger",
+        "Tendinitis",
+        "Ganglion cyst",
+        "Fracture or sprain from injury"
+      ],
+      "red_flags": [
+        "Visible deformity after an injury",
+        "Inability to move a finger",
+        "Loss of sensation in a finger",
+        "Redness, warmth, or pus after a cut or bite (hand infections can spread quickly)"
+      ],
+      "suggested_questions": [
+        "Any recent injury, cut, or bite?",
+        "Which finger or fingers are affected?",
+        "Any numbness or loss of sensation?",
+        "Any locking or catching when you bend the finger?"
+      ]
+    },
+    {
+      "id": "left_hand",
+      "region": "Left Hand",
+      "system": "musculoskeletal",
+      "structures": [
+        "Metacarpals and finger bones (phalanges)",
+        "Finger and thumb joints",
+        "Flexor and extensor tendons",
+        "Digital nerves and vessels"
+      ],
+      "text": "Pain in the hand or fingers can come from joint conditions like arthritis, tendon problems such as trigger finger, nerve irritation, or an injury — including cuts and bites, which carry an infection risk in the hand's tight tissue spaces.",
+      "common_conditions": [
+        "Osteoarthritis",
+        "Trigger finger",
+        "Tendinitis",
+        "Ganglion cyst",
+        "Fracture or sprain from injury"
+      ],
+      "red_flags": [
+        "Visible deformity after an injury",
+        "Inability to move a finger",
+        "Loss of sensation in a finger",
+        "Redness, warmth, or pus after a cut or bite (hand infections can spread quickly)"
+      ],
+      "suggested_questions": [
+        "Any recent injury, cut, or bite?",
+        "Which finger or fingers are affected?",
+        "Any numbness or loss of sensation?",
+        "Any locking or catching when you bend the finger?"
+      ]
+    },
+    {
+      "id": "right_thigh",
+      "region": "Right Thigh",
+      "system": "musculoskeletal",
+      "structures": [
+        "Femur",
+        "Quadriceps and hamstring muscles",
+        "Femoral artery and nerve",
+        "Sciatic nerve"
+      ],
+      "text": "Thigh pain is most often a muscle strain or cramp, but it can also come from nerve compression (sciatica referred from the lower back), a blood clot in the leg, or irritation of the IT band along the outer thigh.",
+      "common_conditions": [
+        "Muscle strain (quadriceps or hamstring)",
+        "Muscle cramp",
+        "Sciatica referred from the lower back",
+        "Deep vein thrombosis",
+        "IT band syndrome"
+      ],
+      "red_flags": [
+        "Sudden swelling with warmth and tenderness (possible blood clot)",
+        "Inability to bear weight",
+        "Numbness or weakness down the leg",
+        "Pain after a long flight, surgery, or period of immobility"
+      ],
+      "suggested_questions": [
+        "Any recent exercise, strain, or injury?",
+        "Is the thigh swollen or warm to the touch?",
+        "Any numbness or weakness down the leg?",
+        "Any recent long travel or period of immobility?"
+      ]
+    },
+    {
+      "id": "left_thigh",
+      "region": "Left Thigh",
+      "system": "musculoskeletal",
+      "structures": [
+        "Femur",
+        "Quadriceps and hamstring muscles",
+        "Femoral artery and nerve",
+        "Sciatic nerve"
+      ],
+      "text": "Thigh pain is most often a muscle strain or cramp, but it can also come from nerve compression (sciatica referred from the lower back), a blood clot in the leg, or irritation of the IT band along the outer thigh.",
+      "common_conditions": [
+        "Muscle strain (quadriceps or hamstring)",
+        "Muscle cramp",
+        "Sciatica referred from the lower back",
+        "Deep vein thrombosis",
+        "IT band syndrome"
+      ],
+      "red_flags": [
+        "Sudden swelling with warmth and tenderness (possible blood clot)",
+        "Inability to bear weight",
+        "Numbness or weakness down the leg",
+        "Pain after a long flight, surgery, or period of immobility"
+      ],
+      "suggested_questions": [
+        "Any recent exercise, strain, or injury?",
+        "Is the thigh swollen or warm to the touch?",
+        "Any numbness or weakness down the leg?",
+        "Any recent long travel or period of immobility?"
+      ]
+    },
+    {
+      "id": "right_knee",
+      "region": "Right Knee",
+      "system": "musculoskeletal",
+      "structures": [
+        "Patella",
+        "Femur and tibia (joint surfaces)",
+        "Menisci",
+        "Cruciate and collateral ligaments",
+        "Patellar tendon"
+      ],
+      "text": "Knee pain commonly comes from the joint surfaces, the menisci, the surrounding ligaments, or the patellar tendon. Common causes include meniscal tears, ligament sprains, osteoarthritis, and tendinitis from overuse.",
+      "common_conditions": [
+        "Meniscal tear",
+        "ACL or MCL sprain",
+        "Knee osteoarthritis",
+        "Patellar tendinitis",
+        "Knee bursitis"
+      ],
+      "red_flags": [
+        "Inability to bear weight",
+        "Sudden severe swelling",
+        "A knee that locks or gives way",
+        "Visible deformity after an injury"
+      ],
+      "suggested_questions": [
+        "Any recent injury or twisting motion?",
+        "Can you bear weight on the leg?",
+        "Any locking, popping, or the knee giving way?",
+        "Any swelling or warmth around the knee?"
+      ]
+    },
+    {
+      "id": "left_knee",
+      "region": "Left Knee",
+      "system": "musculoskeletal",
+      "structures": [
+        "Patella",
+        "Femur and tibia (joint surfaces)",
+        "Menisci",
+        "Cruciate and collateral ligaments",
+        "Patellar tendon"
+      ],
+      "text": "Knee pain commonly comes from the joint surfaces, the menisci, the surrounding ligaments, or the patellar tendon. Common causes include meniscal tears, ligament sprains, osteoarthritis, and tendinitis from overuse.",
+      "common_conditions": [
+        "Meniscal tear",
+        "ACL or MCL sprain",
+        "Knee osteoarthritis",
+        "Patellar tendinitis",
+        "Knee bursitis"
+      ],
+      "red_flags": [
+        "Inability to bear weight",
+        "Sudden severe swelling",
+        "A knee that locks or gives way",
+        "Visible deformity after an injury"
+      ],
+      "suggested_questions": [
+        "Any recent injury or twisting motion?",
+        "Can you bear weight on the leg?",
+        "Any locking, popping, or the knee giving way?",
+        "Any swelling or warmth around the knee?"
+      ]
+    },
+    {
+      "id": "right_shin_calf",
+      "region": "Right Shin / Calf",
+      "system": "musculoskeletal",
+      "structures": [
+        "Tibia and fibula",
+        "Gastrocnemius and soleus muscles",
+        "Tibialis anterior",
+        "Deep veins of the calf"
+      ],
+      "text": "Shin and calf pain is often muscular — a strain, cramp, or shin splints from running — but a hot, swollen, tender calf can signal a blood clot in the deep veins, which needs urgent attention, especially after travel, surgery, or a period of immobility.",
+      "common_conditions": [
+        "Shin splints",
+        "Calf muscle strain",
+        "Muscle cramp",
+        "Compartment syndrome",
+        "Deep vein thrombosis"
+      ],
+      "red_flags": [
+        "A calf that is hot, swollen, and tender, especially after travel, surgery, or immobility (possible blood clot)",
+        "Severe pain out of proportion to the injury with tight swelling (possible compartment syndrome)",
+        "Sudden inability to bear weight",
+        "Numbness or coldness in the foot"
+      ],
+      "suggested_questions": [
+        "Any recent long travel, surgery, or period of immobility?",
+        "Is the calf swollen, warm, or red?",
+        "Any numbness or coldness in the foot?",
+        "Did the pain start suddenly or build up gradually with activity?"
+      ]
+    },
+    {
+      "id": "left_shin_calf",
+      "region": "Left Shin / Calf",
+      "system": "musculoskeletal",
+      "structures": [
+        "Tibia and fibula",
+        "Gastrocnemius and soleus muscles",
+        "Tibialis anterior",
+        "Deep veins of the calf"
+      ],
+      "text": "Shin and calf pain is often muscular — a strain, cramp, or shin splints from running — but a hot, swollen, tender calf can signal a blood clot in the deep veins, which needs urgent attention, especially after travel, surgery, or a period of immobility.",
+      "common_conditions": [
+        "Shin splints",
+        "Calf muscle strain",
+        "Muscle cramp",
+        "Compartment syndrome",
+        "Deep vein thrombosis"
+      ],
+      "red_flags": [
+        "A calf that is hot, swollen, and tender, especially after travel, surgery, or immobility (possible blood clot)",
+        "Severe pain out of proportion to the injury with tight swelling (possible compartment syndrome)",
+        "Sudden inability to bear weight",
+        "Numbness or coldness in the foot"
+      ],
+      "suggested_questions": [
+        "Any recent long travel, surgery, or period of immobility?",
+        "Is the calf swollen, warm, or red?",
+        "Any numbness or coldness in the foot?",
+        "Did the pain start suddenly or build up gradually with activity?"
+      ]
+    },
+    {
+      "id": "right_ankle",
+      "region": "Right Ankle",
+      "system": "musculoskeletal",
+      "structures": [
+        "Talus, tibia, and fibula (malleoli)",
+        "Ankle ligaments (anterior talofibular, calcaneofibular, deltoid)",
+        "Achilles tendon"
+      ],
+      "text": "Ankle pain is most often a sprain from rolling or twisting the joint, but can also involve the Achilles tendon or, after a significant injury, a fracture.",
+      "common_conditions": [
+        "Ankle sprain",
+        "Achilles tendinitis",
+        "Ankle fracture",
+        "Gout (sudden severe pain, redness, and swelling)"
+      ],
+      "red_flags": [
+        "Inability to bear weight at all or take more than a few steps (possible fracture)",
+        "Visible deformity",
+        "Sudden severe pain, swelling, and redness (possible gout or infection)",
+        "A felt or heard 'pop' at the back of the ankle with sudden weakness (possible Achilles rupture)"
+      ],
+      "suggested_questions": [
+        "Did you twist or roll the ankle?",
+        "Can you take a few steps on it?",
+        "Any bruising or visible deformity?",
+        "Did you feel or hear a pop at the time of injury?"
+      ]
+    },
+    {
+      "id": "left_ankle",
+      "region": "Left Ankle",
+      "system": "musculoskeletal",
+      "structures": [
+        "Talus, tibia, and fibula (malleoli)",
+        "Ankle ligaments (anterior talofibular, calcaneofibular, deltoid)",
+        "Achilles tendon"
+      ],
+      "text": "Ankle pain is most often a sprain from rolling or twisting the joint, but can also involve the Achilles tendon or, after a significant injury, a fracture.",
+      "common_conditions": [
+        "Ankle sprain",
+        "Achilles tendinitis",
+        "Ankle fracture",
+        "Gout (sudden severe pain, redness, and swelling)"
+      ],
+      "red_flags": [
+        "Inability to bear weight at all or take more than a few steps (possible fracture)",
+        "Visible deformity",
+        "Sudden severe pain, swelling, and redness (possible gout or infection)",
+        "A felt or heard 'pop' at the back of the ankle with sudden weakness (possible Achilles rupture)"
+      ],
+      "suggested_questions": [
+        "Did you twist or roll the ankle?",
+        "Can you take a few steps on it?",
+        "Any bruising or visible deformity?",
+        "Did you feel or hear a pop at the time of injury?"
+      ]
+    },
+    {
+      "id": "right_foot",
+      "region": "Right Foot",
+      "system": "musculoskeletal",
+      "structures": [
+        "Metatarsals and toe bones (phalanges)",
+        "Plantar fascia",
+        "Foot arch",
+        "Toe joints"
+      ],
+      "text": "Foot and toe pain often relates to the plantar fascia, footwear, overuse, or joint conditions, and is commonly worse with the first steps in the morning (plantar fasciitis) or after a sudden increase in activity (stress fracture).",
+      "common_conditions": [
+        "Plantar fasciitis",
+        "Bunion",
+        "Morton's neuroma",
+        "Gout",
+        "Stress fracture"
+      ],
+      "red_flags": [
+        "Inability to bear weight",
+        "Sudden severe pain, swelling, and redness (possible gout or infection)",
+        "Numbness or loss of sensation, especially if diabetic",
+        "An open sore or wound that is not healing, especially if diabetic"
+      ],
+      "suggested_questions": [
+        "Is the pain worse with your first steps in the morning?",
+        "Any recent increase in activity or new footwear?",
+        "Any numbness, especially if you have diabetes?",
+        "Any open sores or wounds on the foot?"
+      ]
+    },
+    {
+      "id": "left_foot",
+      "region": "Left Foot",
+      "system": "musculoskeletal",
+      "structures": [
+        "Metatarsals and toe bones (phalanges)",
+        "Plantar fascia",
+        "Foot arch",
+        "Toe joints"
+      ],
+      "text": "Foot and toe pain often relates to the plantar fascia, footwear, overuse, or joint conditions, and is commonly worse with the first steps in the morning (plantar fasciitis) or after a sudden increase in activity (stress fracture).",
+      "common_conditions": [
+        "Plantar fasciitis",
+        "Bunion",
+        "Morton's neuroma",
+        "Gout",
+        "Stress fracture"
+      ],
+      "red_flags": [
+        "Inability to bear weight",
+        "Sudden severe pain, swelling, and redness (possible gout or infection)",
+        "Numbness or loss of sensation, especially if diabetic",
+        "An open sore or wound that is not healing, especially if diabetic"
+      ],
+      "suggested_questions": [
+        "Is the pain worse with your first steps in the morning?",
+        "Any recent increase in activity or new footwear?",
+        "Any numbness, especially if you have diabetes?",
+        "Any open sores or wounds on the foot?"
+      ]
     }
   ]
 }

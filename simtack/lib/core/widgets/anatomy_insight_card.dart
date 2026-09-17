@@ -170,7 +170,13 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
           child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
-          initiallyExpanded: true,
+          // Collapsed by default — with several locations marked quickly,
+          // every card auto-expanding to its full structures/conditions/
+          // red-flags/questions content ate all the space meant for the
+          // 3D body itself. Each card is still a normal ExpansionTile, so
+          // tapping its header is the "button to go see those details"
+          // rather than everything always being shown at once.
+          initiallyExpanded: false,
           leading: const Icon(Icons.psychology_outlined, color: Color(0xFF6D28D9)),
           title: Text(
             'AI insight: ${widget.region}',
