@@ -194,19 +194,13 @@ abstract class AppLocalizations {
   /// **'Let\'s get started'**
   String get welcomeSubtitle;
 
-  /// Small pill/badge above the welcome screen's main headline.
-  ///
-  /// In en, this message translates to:
-  /// **'AI-powered triage'**
-  String get welcomeBadge;
-
   /// First part of the welcome screen's headline, in the normal text color. Combined with welcomeHeadlineHighlight to form one sentence, e.g. 'Point to where it hurts. Understand your risk in minutes.'
   ///
   /// In en, this message translates to:
   /// **'Point to where it hurts. '**
   String get welcomeHeadlinePrefix;
 
-  /// Second part of the welcome screen's headline, shown in the brand accent color to draw the eye — the key promise of the sentence started by welcomeHeadlinePrefix.
+  /// Second part of the welcome screen's headline, shown in the brand accent color to draw the eye, the key promise of the sentence started by welcomeHeadlinePrefix.
   ///
   /// In en, this message translates to:
   /// **'Understand your risk in minutes.'**
@@ -215,8 +209,44 @@ abstract class AppLocalizations {
   /// One paragraph explaining what the app does, shown under the welcome screen's headline.
   ///
   /// In en, this message translates to:
-  /// **'AtomyBridge Care turns where it hurts into a clear, explainable risk picture for you and your care team — using an interactive 3D body map and AI-assisted insights, even without an internet connection.'**
+  /// **'AtomyBridge Care turns where it hurts into a clear, explainable risk picture for you and your care team, using an interactive 3D body map and AI assisted insights, even without an internet connection.'**
   String get welcomeDescription;
+
+  /// First stat on the welcome screen: the big number/value.
+  ///
+  /// In en, this message translates to:
+  /// **'14+'**
+  String get welcomeStatRegionsValue;
+
+  /// First stat on the welcome screen: the small caption under the value.
+  ///
+  /// In en, this message translates to:
+  /// **'Mapped pain regions'**
+  String get welcomeStatRegionsLabel;
+
+  /// Second stat on the welcome screen: the big number/value.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get welcomeStatOfflineValue;
+
+  /// Second stat on the welcome screen: the small caption under the value.
+  ///
+  /// In en, this message translates to:
+  /// **'Works with no signal'**
+  String get welcomeStatOfflineLabel;
+
+  /// Third stat on the welcome screen: the big number/value.
+  ///
+  /// In en, this message translates to:
+  /// **'Under 2 min'**
+  String get welcomeStatSpeedValue;
+
+  /// Third stat on the welcome screen: the small caption under the value.
+  ///
+  /// In en, this message translates to:
+  /// **'To a risk summary'**
+  String get welcomeStatSpeedLabel;
 
   /// Privacy reassurance shown under the Continue button.
   ///

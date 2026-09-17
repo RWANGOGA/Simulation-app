@@ -160,45 +160,36 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  /// Badge + two-tone headline + description, styled after a reference
-  /// the user shared directly (a landing-page hero: pill badge, a big
+  /// Two-tone headline, description, and a stats row, styled after a
+  /// reference the user shared directly (a landing-page hero: a big
   /// headline with one phrase picked out in the accent color, a supporting
   /// sentence underneath, product visual on the other side) — the earlier
   /// version was just "Welcome" / "Let's get started" as two plain lines,
-  /// reported as boring next to that reference. The new copy
-  /// (welcomeBadge/welcomeHeadlinePrefix/welcomeHeadlineHighlight/
-  /// welcomeDescription) is real English copy grounded in what the app
-  /// actually does (README: AI-assisted, offline-first triage with a 3D
-  /// body map and explainable risk insights) — added as new translation
-  /// keys in app_en.arb rather than editing generated files directly;
+  /// reported as boring next to that reference.
+  ///
+  /// No badge here: an earlier version had a small "AI-powered triage"
+  /// pill above the headline — reported directly as unwanted, so it's
+  /// removed for good, not just hidden. The stats row fills the space a
+  /// badge (or, before that, empty vertical gap the user also flagged
+  /// directly) would have — three real facts about the app instead of a
+  /// label.
+  ///
+  /// welcomeHeadlinePrefix/welcomeHeadlineHighlight/welcomeDescription/
+  /// welcomeStat* are real English copy grounded in what the app actually
+  /// does (README: AI assisted, offline first triage with a 3D body map
+  /// and explainable risk insights) — added as new translation keys in
+  /// app_en.arb rather than editing generated files directly;
   /// `flutter gen-l10n` auto-filled the English text into the other four
   /// locales for just these new keys (confirmed by inspection, not
   /// assumed), so non-English users still get everything else on this
-  /// screen properly translated and only these four lines in English
-  /// until real translations are written. welcomeTitle/welcomeSubtitle
-  /// are left in place, just unused here now, in case anything else ever
-  /// wants the short version.
+  /// screen properly translated and only these new lines in English until
+  /// real translations are written. welcomeTitle/welcomeSubtitle/
+  /// welcomeBadge (now removed) are left in the arb files unused rather
+  /// than deleted, in case anything ever wants them again.
   Widget _welcomeHeader(BuildContext context, AppLocalizations t) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: const Color(0xFF6D28D9).withOpacity(0.12),
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Text(
-            t.welcomeBadge,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF6D28D9),
-              letterSpacing: 0.2,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
         Text.rich(
           TextSpan(
             children: [
@@ -226,6 +217,41 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             height: 1.5,
             color: AppPalette.textMuted(context),
           ),
+        ),
+        const SizedBox(height: 28),
+        Wrap(
+          spacing: 28,
+          runSpacing: 16,
+          children: [
+            _welcomeStat(
+                context, t.welcomeStatRegionsValue, t.welcomeStatRegionsLabel),
+            _welcomeStat(
+                context, t.welcomeStatOfflineValue, t.welcomeStatOfflineLabel),
+            _welcomeStat(
+                context, t.welcomeStatSpeedValue, t.welcomeStatSpeedLabel),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _welcomeStat(BuildContext context, String value, String label) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 19,
+            fontWeight: FontWeight.bold,
+            color: AppPalette.textPrimary(context),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context)),
         ),
       ],
     );
