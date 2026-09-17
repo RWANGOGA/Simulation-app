@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'anatomy_3d_tap_view.dart';
 import 'pain_details_screen.dart';
 import 'pain_point.dart';
@@ -553,38 +554,57 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
     setState(() => _openOverlayCount++);
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
-          children: [
-            const Icon(Icons.help_outline, color: Color(0xFF6D28D9)),
-            const SizedBox(width: 8),
-            Text(t.bodyMapHelpTitle),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(t.bodyMapHelpBullet1),
-            const SizedBox(height: 8),
-            Text(t.bodyMapHelpBullet2),
-            const SizedBox(height: 8),
-            Text(t.bodyMapHelpBullet3),
-            const SizedBox(height: 8),
-            Text(t.bodyMapHelpBullet4),
-            const SizedBox(height: 8),
-            Text(t.bodyMapHelpBullet5),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(t.gotItButton,
-                style: const TextStyle(
-                    color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
+      builder: (dialogContext) => PointerInterceptor(
+        child: AlertDialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          title: Row(
+            children: [
+              const Icon(Icons.help_outline, color: Color(0xFF6D28D9)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  t.bodyMapHelpTitle,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppPalette.textPrimary(context),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(t.bodyMapHelpBullet1),
+                const SizedBox(height: 8),
+                Text(t.bodyMapHelpBullet2),
+                const SizedBox(height: 8),
+                Text(t.bodyMapHelpBullet3),
+                const SizedBox(height: 8),
+                Text(t.bodyMapHelpBullet4),
+                const SizedBox(height: 8),
+                Text(t.bodyMapHelpBullet5),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(
+                t.gotItButton,
+                style: const TextStyle(
+                  color: Color(0xFF6D28D9),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     ).whenComplete(() {
       if (mounted) setState(() => _openOverlayCount--);
@@ -666,66 +686,68 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (sheetContext) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Text(
-                  t.selectPainLocationTitle,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppPalette.textPrimary(context),
+        return PointerInterceptor(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  child: Text(
+                    t.selectPainLocationTitle,
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppPalette.textPrimary(context),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: _regionOptions.length,
-                  itemBuilder: (context, index) {
-                    final item = _regionOptions[index];
-                    final alreadyAdded =
-                        widget.painPoints.any((p) => p.region == item);
-                    return ListTile(
-                      dense: true,
-                      leading: Icon(
-                        alreadyAdded
-                            ? Icons.check_circle
-                            : Icons.location_on_outlined,
-                        color: alreadyAdded
-                            ? const Color(0xFF6D28D9)
-                            : AppPalette.textMuted(context),
-                      ),
-                      title: Text(
-                        item,
-                        style: TextStyle(
-                          fontWeight: alreadyAdded
-                              ? FontWeight.bold
-                              : FontWeight.normal,
+                const SizedBox(height: 12),
+                Expanded(
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: _regionOptions.length,
+                    itemBuilder: (context, index) {
+                      final item = _regionOptions[index];
+                      final alreadyAdded =
+                          widget.painPoints.any((p) => p.region == item);
+                      return ListTile(
+                        dense: true,
+                        leading: Icon(
+                          alreadyAdded
+                              ? Icons.check_circle
+                              : Icons.location_on_outlined,
                           color: alreadyAdded
                               ? const Color(0xFF6D28D9)
-                              : AppPalette.textSecondary(context),
+                              : AppPalette.textMuted(context),
                         ),
-                      ),
-                      onTap: () {
-                        if (!alreadyAdded) {
-                          widget.onAddRegion(item);
-                          setState(() {});
-                        }
-                        Navigator.of(sheetContext).pop();
-                      },
-                    );
-                  },
+                        title: Text(
+                          item,
+                          style: TextStyle(
+                            fontWeight: alreadyAdded
+                                ? FontWeight.bold
+                                : FontWeight.normal,
+                            color: alreadyAdded
+                                ? const Color(0xFF6D28D9)
+                                : AppPalette.textSecondary(context),
+                          ),
+                        ),
+                        onTap: () {
+                          if (!alreadyAdded) {
+                            widget.onAddRegion(item);
+                            setState(() {});
+                          }
+                          Navigator.of(sheetContext).pop();
+                        },
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

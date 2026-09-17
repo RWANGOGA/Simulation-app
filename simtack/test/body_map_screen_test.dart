@@ -149,7 +149,7 @@ void main() {
     // 3D body now. The region name only appears once anywhere on screen
     // at this point (as the top badge's own count label doesn't repeat
     // the region name).
-    expect(find.text('AI insight: Chest / Heart'), findsNothing);
+    expect(find.text('Clinical Insight: Chest / Heart'), findsNothing);
 
     // Continue button should be enabled and reflect the count.
     final continueButton = tester.widget<ElevatedButton>(find.widgetWithText(
@@ -159,7 +159,7 @@ void main() {
     // Opening the locations screen is where the full detail now lives.
     await openLocationsScreen(tester);
     expect(find.text('Chest / Heart'), findsWidgets);
-    expect(find.text('AI insight: Chest / Heart'), findsOneWidget);
+    expect(find.text('Clinical Insight: Chest / Heart'), findsOneWidget);
   });
 
   testWidgets(
@@ -180,8 +180,8 @@ void main() {
         isNotNull);
 
     await openLocationsScreen(tester);
-    expect(find.text('AI insight: Chest / Heart'), findsOneWidget);
-    expect(find.text('AI insight: Left Leg / Knee'), findsOneWidget);
+    expect(find.text('Clinical Insight: Chest / Heart'), findsOneWidget);
+    expect(find.text('Clinical Insight: Left Leg / Knee'), findsOneWidget);
 
     // Remove the first one via its own remove button on the locations
     // screen. Both this page and BodyMapScreen mutate the same painPoints
@@ -190,8 +190,8 @@ void main() {
     await tester.tap(find.byTooltip('Remove').first);
     await tester.pump(const Duration(milliseconds: 400));
 
-    expect(find.text('AI insight: Chest / Heart'), findsNothing);
-    expect(find.text('AI insight: Left Leg / Knee'), findsOneWidget);
+    expect(find.text('Clinical Insight: Chest / Heart'), findsNothing);
+    expect(find.text('Clinical Insight: Left Leg / Knee'), findsOneWidget);
 
     await goBackFromLocationsScreen(tester);
     expect(
@@ -208,14 +208,14 @@ void main() {
 
     await addRegionManually(tester, 'Chest / Heart');
     await openLocationsScreen(tester);
-    expect(find.text('AI insight: Chest / Heart'), findsOneWidget);
+    expect(find.text('Clinical Insight: Chest / Heart'), findsOneWidget);
 
     await goBackFromLocationsScreen(tester);
 
     // Back on the main screen, not just scrolled — its own content (no
     // inline AI insight text) and Continue button are showing again, and
     // the location marked on the other screen is still there.
-    expect(find.text('AI insight: Chest / Heart'), findsNothing);
+    expect(find.text('Clinical Insight: Chest / Heart'), findsNothing);
     final continueButton = tester.widget<ElevatedButton>(find.widgetWithText(
         ElevatedButton, 'Continue to Pain Details (1)'));
     expect(continueButton.onPressed, isNotNull);

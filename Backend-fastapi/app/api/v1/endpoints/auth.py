@@ -213,10 +213,10 @@ def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
             detail="Full name is required",
         )
     password = payload.password
-    if len(password) != 8:
+    if len(password) < 8:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Password must be exactly 8 characters",
+            detail="Password must be at least 8 characters long",
         )
     if not re.search(r"[A-Z]", password):
         raise HTTPException(
@@ -238,19 +238,27 @@ def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Password must contain at least one special character (!@#$%^&*()_+-=[]{};':\"|,.<>/? )",
         )
-    existing = db.query(Doctor).filter(Doctor.email == email).first()
-    if existing:
+    existing_email = db.query(Doctor).filter(Doctor.email == email).first()
+    if existing_email:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="A doctor with this email already exists",
+            detail="A practitioner with this email address already exists. Please use a different email.",
         )
+    phone = (payload.phone or "").strip() or None
+    if phone:
+        existing_phone = db.query(Doctor).filter(Doctor.phone == phone).first()
+        if existing_phone:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="A practitioner with this phone number already exists. Please use a different phone number.",
+            )
     doctor = Doctor(
         email=email,
         hashed_password=get_password_hash(password),
         full_name=full_name,
         role=(payload.role or "").strip() or None,
         license_number=(payload.license_number or "").strip() or None,
-        phone=(payload.phone or "").strip() or None,
+        phone=phone,
         hospital_name=(payload.hospital_name or "").strip() or None,
         date_of_birth=payload.date_of_birth,
         is_active=True,
@@ -279,7 +287,15 @@ def update_users_me(payload: DoctorUpdate, current_doctor: Doctor = Depends(get_
     if payload.license_number is not None:
         current_doctor.license_number = payload.license_number.strip() or None
     if payload.phone is not None:
-        current_doctor.phone = payload.phone.strip() or None
+        new_phone = payload.phone.strip() or None
+        if new_phone and new_phone != current_doctor.phone:
+            existing_phone = db.query(Doctor).filter(Doctor.phone == new_phone, Doctor.id != current_doctor.id).first()
+            if existing_phone:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="A practitioner with this phone number already exists. Please use a different phone number.",
+                )
+        current_doctor.phone = new_phone
     if payload.hospital_name is not None:
         current_doctor.hospital_name = payload.hospital_name.strip() or None
     if payload.date_of_birth is not None:

@@ -47,7 +47,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   String? _validatePassword(String? value) {
     final password = value ?? '';
-    if (password.length != 8) return 'Exactly 8 characters required.';
+    if (password.length < 8) return 'At least 8 characters required.';
     if (!RegExp(r'[A-Za-z]').hasMatch(password) ||
         !RegExp(r'\d').hasMatch(password)) {
       return 'Must contain a letter and a number.';
@@ -294,7 +294,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     TextFormField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
-                      maxLength: 8,
                       textInputAction: TextInputAction.next,
                       decoration: _fieldDecoration(
                               label: 'Password', icon: Icons.lock_outline)
@@ -315,7 +314,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     TextFormField(
                       controller: _confirmController,
                       obscureText: _obscurePassword,
-                      maxLength: 8,
                       textInputAction: TextInputAction.done,
                       onFieldSubmitted: (_) => _register(),
                       decoration: _fieldDecoration(
