@@ -494,9 +494,6 @@ class AppLocalizationsXog extends AppLocalizations {
   String get removeTooltip => 'Remove';
 
   @override
-  String get closeButtonTooltip => 'Close';
-
-  @override
   String get addAnotherLocationLabel => 'Add another location';
 
   @override
