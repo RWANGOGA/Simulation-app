@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
-import 'anatomy_tap_view.dart';
+import 'anatomy_3d_tap_view.dart';
 import 'pain_details_screen.dart';
 import 'pain_point.dart';
 import '../../../core/theme/app_page_route.dart';
@@ -48,20 +48,6 @@ class BodyMapScreen extends StatefulWidget {
 
 class _BodyMapScreenState extends State<BodyMapScreen>
     with SingleTickerProviderStateMixin {
-  // Real BodyParts3D regions (lowercase, as produced by the render
-  // pipeline) mapped to the app's existing 14-region anatomy KB names —
-  // this is what actually gets sent to /anatomy/ask, keeping that
-  // endpoint's contract unchanged.
-  static const Map<String, String> _regionToKbName = {
-    'head': 'Headache / Cranial',
-    'neck': 'Neck',
-    'trunk': 'Chest / Heart',
-    'left upper limb': 'Left Arm / Shoulder',
-    'right upper limb': 'Right Arm / Shoulder',
-    'left lower limb': 'Left Leg / Knee',
-    'right lower limb': 'Right Leg / Knee',
-  };
-
   // Real on-image centroid for each KB region, measured directly from the
   // front-view BodyParts3D render (not guessed) — fixes a pre-existing
   // bug where picking a region from the manual list always dropped the
@@ -85,118 +71,17 @@ class _BodyMapScreenState extends State<BodyMapScreen>
     'Right Leg / Knee': (0.548, 0.592),
   };
 
-  // Which zoomed-in close-up views (real per-bone/per-structure BodyParts3D
-  // data) are available from each broad region, tested standalone earlier
-  // as hand_tap.html / foot_tap.html / eye_tap.html / mouth_tap.html /
-  // nose_tap.html before being ported in here.
-  static const Map<String, List<(String label, String kit)>>
-      _zoomOptionsByKbName = {
-    'Left Arm / Shoulder': [('Zoom to hand', 'hand')],
-    'Right Arm / Shoulder': [('Zoom to hand', 'hand')],
-    'Left Leg / Knee': [
-      ('Zoom to thigh/knee/shin', 'leg'),
-      ('Zoom to foot', 'foot')
-    ],
-    'Right Leg / Knee': [
-      ('Zoom to thigh/knee/shin', 'leg'),
-      ('Zoom to foot', 'foot')
-    ],
-    // Mouth is left out here: the underlying data for it is only sparse,
-    // disconnected representative samples (one tooth per type, no
-    // jaw/gum, a separate tongue) that don't compose into a clear image
-    // at any camera angle tried — shipping it would repeat the exact
-    // "not clear" problem being fixed for the other zoom kits.
-    'Headache / Cranial': [
-      ('Zoom to eye', 'eye'),
-      ('Zoom to nose', 'noseonly'),
-      ('Zoom to ear', 'earonly')
-    ],
-    // Torso/organ close-up. Heart, liver, and the general chest/back zones
-    // aren't single meshes in BodyParts3D (only their internal vessel/lobe
-    // sub-parts are) — they're anatomically-positioned hotspots drawn onto
-    // the real torso render, like a patient pointing to where it hurts,
-    // rather than literal tappable organ geometry. Stomach and both
-    // kidneys ARE real single meshes, rendered at their true position.
-    'Chest / Heart': [
-      ('Zoom to chest/abdomen', 'torsofront'),
-      ('Zoom to back', 'torsoback')
-    ],
-    'Abdomen (Upper)': [
-      ('Zoom to chest/abdomen', 'torsofront'),
-      ('Zoom to back', 'torsoback')
-    ],
-    'Back Pain (Upper)': [
-      ('Zoom to chest/abdomen', 'torsofront'),
-      ('Zoom to back', 'torsoback')
-    ],
-    'Back Pain (Lower)': [
-      ('Zoom to chest/abdomen', 'torsofront'),
-      ('Zoom to back', 'torsoback')
-    ],
-  };
-
-  // The backend's /anatomy/ask only gets real retrieval signal from an
-  // EXACT (case-insensitive) match against one of its 14 fixed KB region
-  // strings (see anatomy_retriever.py: a match adds +0.5 to the score;
-  // `complaint` is always sent empty from here, so with no match every
-  // chunk scores 0 and ties resolve to the first chunk in the KB file —
-  // silently returning "Headache / Cranial" content for every fine-
-  // grained zoom-kit tap). None of the zoom kits' specific part labels
-  // ("Stomach", "Index Finger - tip", "Thigh Bone (Femur)", ...) are KB
-  // region strings, so every one of them needs mapping down to the
-  // correct canonical KB region before being sent — this is that map for
-  // parts whose destination doesn't depend on which side of the body the
-  // zoom was opened from (eye/nose/ear only have one reachable path;
-  // torso organs have a fixed anatomical KB category regardless of which
-  // "Chest / Heart"-family region opened the zoom).
-  static const Map<String, String> _fineGrainedLabelToKbName = {
-    'Right Eye - lens': 'Headache / Cranial',
-    'Left Eye - lens': 'Headache / Cranial',
-    'Right Eye - iris': 'Headache / Cranial',
-    'Left Eye - iris': 'Headache / Cranial',
-    'Right Eye - cornea': 'Headache / Cranial',
-    'Left Eye - cornea': 'Headache / Cranial',
-    'Nasal Bone': 'Headache / Cranial',
-    'Nasal Cartilage (septum)': 'Headache / Cranial',
-    'Right Nasal Cartilage (side)': 'Headache / Cranial',
-    'Left Nasal Cartilage (side)': 'Headache / Cranial',
-    'Ear': 'Headache / Cranial',
-    // Torso organs: matched directly against the KB's own listed
-    // structures (e.g. "Abdomen (Upper)" literally lists "Stomach",
-    // "Liver and gallbladder"; "Back Pain (Lower)" literally lists
-    // "Kidneys").
-    'Stomach': 'Abdomen (Upper)',
-    'Liver': 'Abdomen (Upper)',
-    'Heart': 'Chest / Heart',
-    'Right Chest / Lung': 'Chest / Heart',
-    'Right Kidney': 'Back Pain (Lower)',
-    'Left Kidney': 'Back Pain (Lower)',
-    'Upper Back': 'Back Pain (Upper)',
-    'Lower Back': 'Back Pain (Lower)',
-    // 'Lower Abdomen' is left/right-ambiguous by design (one general
-    // hotspot) — handled by x-position in _handleBodyPartReceived instead
-    // of a fixed entry here.
-  };
-
-  // Hand/foot/leg zoom kits are a single generic close-up reused for both
-  // body sides (there's one 'hand' kit, not a separate left/right one), so
-  // their part labels alone can't say which KB side to score against.
-  // Recorded when a zoom button is pressed (see the zoom-option button
-  // below) so _handleBodyPartReceived can fall back to it.
-  String? _zoomedKitSourceRegion;
-
-  // Non-null while showing a zoomed-in close-up (hand/foot/eye/mouth/nose)
-  // instead of the whole body.
-  String? _zoomedKit;
-
   // Every pain location the patient has tapped so far. Tapping the same
   // spot again (within PainPoint.sameSpotThreshold) removes it — this is
   // the multi-select toggle behavior.
   final List<PainPoint> _painPoints = [];
 
   // Holds the most recent detected tap until the user confirms or changes
-  // the region in the confirmation bottom sheet.
-  ({String region, double x, double y})? _pendingTap;
+  // the region in the confirmation bottom sheet. partName is the precise
+  // BodyParts3D structure that was actually tapped (e.g. "Distal phalanx of
+  // left index finger"), shown to the patient alongside the coarser region
+  // — see Anatomy3DTapView / region-map.js for how it's resolved.
+  ({String region, double x, double y, String? partName})? _pendingTap;
 
   // One in-flight AI request per region. Keyed by region label so
   // re-tapping the same region (toggle-off then on) does not re-fetch
@@ -206,11 +91,7 @@ class _BodyMapScreenState extends State<BodyMapScreen>
   // Patient answers to suggested anatomy questions, keyed by region.
   final Map<String, Map<String, String>> _questionAnswers = {};
 
-  String _viewAngle = 'front';
-  double _zoomLevel = 1.0;
   late AnimationController _pulseController;
-
-  bool _isAssetsPrecached = false;
 
   @override
   void initState() {
@@ -222,81 +103,28 @@ class _BodyMapScreenState extends State<BodyMapScreen>
   }
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (!_isAssetsPrecached) {
-      _isAssetsPrecached = true;
-      _precacheAnatomyAssets();
-    }
-  }
-
-  void _precacheAnatomyAssets() {
-    final angles = ['front', 'back', 'left', 'right'];
-    for (final angle in angles) {
-      precacheImage(AssetImage('assets/anatomy/body_visible_$angle.png'), context);
-      precacheImage(AssetImage('assets/anatomy/body_idmap_$angle.png'), context);
-    }
-    final kits = [
-      'hand', 'foot', 'eye', 'earonly', 'noseonly', 'leg', 'torsofront', 'torsoback'
-    ];
-    for (final kit in kits) {
-      precacheImage(AssetImage('assets/anatomy/${kit}_visible.png'), context);
-      precacheImage(AssetImage('assets/anatomy/${kit}_idmap.png'), context);
-    }
-  }
-
-  @override
   void dispose() {
     _pulseController.dispose();
     super.dispose();
   }
 
-  /// Called by [AnatomyTapView] with a real, verified BodyParts3D region
-  /// (e.g. "left upper limb") plus the normalized tap position. Maps it to
-  /// the app's existing KB region name and shows the result immediately —
-  /// no confirmation sheet — matching the direct tap-and-see behavior from
-  /// the standalone HTML pages this was tested against. The manual region
-  /// picker (the separate "Add another location" list) is untouched.
-  void _handleBodyPartReceived(String region, double x, double y) {
-    final mapped = _resolveKbName(region, x);
+  /// Called by [Anatomy3DTapView], which already resolves a tap all the way
+  /// down to one of the backend's 14 fixed KB region strings itself (see
+  /// assets/anatomy3d/region-map.js) — no further mapping needed here,
+  /// unlike the old 2D system this replaced. [partName] is the precise
+  /// structure tapped, shown to the patient alongside the region. Shows the
+  /// result immediately, no confirmation delay — matching the direct
+  /// tap-and-see behavior the 2D system also used.
+  void _handleBodyPartReceived(
+      String region, double x, double y, String? partName) {
     if (!kReleaseMode) {
       debugPrint(
-          'BodyMap: received tap -> region=$region -> $mapped x=$x y=$y');
+          'BodyMap: received tap -> region=$region partName=$partName x=$x y=$y');
     }
     setState(() {
-      _pendingTap = (region: mapped, x: x, y: y);
+      _pendingTap = (region: region, x: x, y: y, partName: partName);
     });
     _showRegionConfirmationSheet();
-  }
-
-  /// Resolves whatever [AnatomyTapView] reported (a whole-body region like
-  /// "trunk", or a zoom-kit part label like "Stomach" or "Index Finger -
-  /// tip") down to one of the backend's 14 fixed KB region strings — see
-  /// the comment on [_fineGrainedLabelToKbName] for why this matters.
-  String _resolveKbName(String region, double x) {
-    final wholeBody = _regionToKbName[region];
-    if (wholeBody != null) return wholeBody;
-
-    if (region == 'Lower Abdomen') {
-      // Patient's left = image-left in this dataset's renders (verified
-      // against the real BodyParts3D coordinates), matching how
-      // 'Abdomen (Lower Left)'/'(Lower Right)' are already used elsewhere.
-      return x < 0.5 ? 'Abdomen (Lower Left)' : 'Abdomen (Lower Right)';
-    }
-    final fineGrained = _fineGrainedLabelToKbName[region];
-    if (fineGrained != null) return fineGrained;
-
-    // Side-ambiguous kits (hand/foot/leg): fall back to whichever broad
-    // region's zoom button was actually pressed to get here.
-    if (_zoomedKitSourceRegion != null) return _zoomedKitSourceRegion!;
-
-    return region;
-  }
-
-  void _handleBodyTapMissed(String message) {
-    if (!kReleaseMode) {
-      debugPrint('BodyMap: tap missed -> $message');
-    }
   }
 
   /// Multi-select toggle: tapping a fresh spot adds a new pain point.
@@ -312,13 +140,7 @@ class _BodyMapScreenState extends State<BodyMapScreen>
     final tapX = x ?? 0.5;
     final tapY = y ?? 0.5;
 
-    // Only compare against points on the SAME image (whole body, or this
-    // specific zoom kit) — the same x/y fraction means a different screen
-    // position on a different image, so it must never toggle off a point
-    // that belongs to a different view.
-    final existingIndex = _painPoints.indexWhere(
-      (p) => p.viewKey == _zoomedKit && p.isNearby(tapX, tapY),
-    );
+    final existingIndex = _painPoints.indexWhere((p) => p.isNearby(tapX, tapY));
 
     HapticFeedback.mediumImpact();
     setState(() {
@@ -329,7 +151,6 @@ class _BodyMapScreenState extends State<BodyMapScreen>
           region: region,
           x: tapX,
           y: tapY,
-          viewKey: _zoomedKit,
           symptomDescription: symptomDescription,
           tags: tags,
         ));
@@ -348,16 +169,6 @@ class _BodyMapScreenState extends State<BodyMapScreen>
       if (!_painPoints.any((p) => p.region == removed.region)) {
         _anatomyFutures.remove(removed.region);
       }
-    });
-  }
-
-  // Switches which pre-rendered angle AnatomyTapView shows (front/back/
-  // left/right) — real image assets, so this is just a state change now,
-  // no camera/3D orbit math needed.
-  void _changeView(String angle) {
-    HapticFeedback.selectionClick();
-    setState(() {
-      _viewAngle = angle;
     });
   }
 
@@ -429,219 +240,67 @@ class _BodyMapScreenState extends State<BodyMapScreen>
               builder: (context, constraints) {
                 return Stack(
                   children: [
-                    // Body viewer: real BodyParts3D anatomy images, tap
-                    // identifies the actual region by pixel color — same
-                    // pure-Dart widget on web, Android, and iOS. Swaps to a
-                    // zoomed-in close-up (hand/foot/eye/mouth/nose) when the
-                    // patient chose to zoom in from the confirmation sheet.
-                    //
-                    // The AspectRatio + inner LayoutBuilder here matters:
-                    // without it, this box and the pain-marker dots below
-                    // used different coordinate spaces (the outer, possibly
-                    // differently-shaped viewer box vs. the image's own
-                    // shape), which is exactly what caused tapping the foot
-                    // to register as the knee, dots landing on the wrong
-                    // spot, and a second tap looking like it "removed" the
-                    // first (both taps' fractions ended up nearly equal
-                    // because the actual image only occupied a narrow slice
-                    // of the outer box). Forcing both the tap widget and the
-                    // markers to share this same boxed-and-sized area fixes
-                    // all three at once.
+                    // Real interactive 3D body (BodyParts3D geometry) — tap
+                    // anywhere on the model, rotate/zoom with drag/scroll
+                    // directly on it (built into the embedded viewer, no
+                    // separate toolbar needed the way the old 2D
+                    // front/back/left/right + zoom buttons were). Reports
+                    // taps already resolved to one of the backend's 14 KB
+                    // region strings, plus the precise structure name
+                    // (partName) for display — see anatomy_3d_tap_view.dart.
                     Positioned.fill(
                       child: Container(
                         color: AppPalette.subtleFill(context),
-                        child: Center(
-                          child: AspectRatio(
-                            // Torso kits are rendered at 800x1000 (same
-                            // proportions as the whole-body images), not
-                            // the 800x800 square the other close-up kits
-                            // use, so they need the 0.8 ratio too -
-                            // otherwise they'd pillarbox inside an
-                            // unnecessarily square box.
-                            aspectRatio: (_zoomedKit == null ||
-                                    _zoomedKit == 'torsofront' ||
-                                    _zoomedKit == 'torsoback')
-                                ? 0.8
-                                : 1.0,
-                            child: LayoutBuilder(
-                              builder: (context, imgConstraints) {
-                                return Transform.scale(
-                                  scale: _zoomLevel,
-                                  child: Stack(
-                                    key: ValueKey(_zoomedKit ?? _viewAngle),
-                                    children: [
-                                      Positioned.fill(
-                                        child: _zoomedKit == null
-                                            ? AnatomyTapView(
-                                                visibleAsset:
-                                                    'assets/anatomy/body_visible_$_viewAngle.png',
-                                                idmapAsset:
-                                                    'assets/anatomy/body_idmap_$_viewAngle.png',
-                                                colorsAsset:
-                                                    'assets/anatomy/region_id_colors.json',
-                                                onRegionTapped:
-                                                    _handleBodyPartReceived,
-                                                onMiss: _handleBodyTapMissed,
-                                              )
-                                            : AnatomyTapView(
-                                                visibleAsset:
-                                                    'assets/anatomy/${_zoomedKit}_visible.png',
-                                                idmapAsset:
-                                                    'assets/anatomy/${_zoomedKit}_idmap.png',
-                                                colorsAsset:
-                                                    'assets/anatomy/${_zoomedKit}_id_colors.json',
-                                                onRegionTapped:
-                                                    _handleBodyPartReceived,
-                                                onMiss: _handleBodyTapMissed,
-                                              ),
-                                      ),
-                                      // Pain hotspot pulses live here now,
-                                      // inside the same image-shaped box, so
-                                      // point.x/point.y (fractions of the
-                                      // actual image) land exactly where the
-                                      // patient tapped instead of being
-                                      // rescaled against a differently-
-                                      // shaped outer container.
-                                      //
-                                      // Filtered to the current view: a
-                                      // point's x/y are only meaningful on
-                                      // the exact image they were tapped on
-                                      // (whole body vs. a specific zoom
-                                      // kit) — showing a whole-body point's
-                                      // fraction on top of a zoomed close-up
-                                      // image lands it at an unrelated,
-                                      // often off-body, spot.
-                                      for (final point in _painPoints.where(
-                                          (p) => p.viewKey == _zoomedKit))
-                                        Positioned(
-                                          left: point.x *
-                                                  imgConstraints.maxWidth -
-                                              22,
-                                          top: point.y *
-                                                  imgConstraints.maxHeight -
-                                              22,
-                                          child: IgnorePointer(
-                                            child: AnimatedBuilder(
-                                              animation: _pulseController,
-                                              builder: (context, child) {
-                                                return Container(
-                                                  width: 32 +
-                                                      (12 *
-                                                          _pulseController
-                                                              .value),
-                                                  height: 32 +
-                                                      (12 *
-                                                          _pulseController
-                                                              .value),
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: const Color(
-                                                            0xFFEF4444)
-                                                        .withOpacity(0.35 *
-                                                            (1 -
-                                                                _pulseController
-                                                                    .value)),
-                                                    border: Border.all(
-                                                      color: const Color(
-                                                          0xFFEF4444),
-                                                      width: 2,
-                                                    ),
-                                                  ),
-                                                  child: Center(
-                                                    child: Container(
-                                                      width: 14,
-                                                      height: 14,
-                                                      decoration:
-                                                          const BoxDecoration(
-                                                        shape: BoxShape.circle,
-                                                        color:
-                                                            Color(0xFFDC2626),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                );
-                                              },
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: Anatomy3DTapView(
+                                gender: widget.gender,
+                                onRegionTapped: _handleBodyPartReceived,
+                              ),
+                            ),
+                            // Pain hotspot pulses, positioned as fractions
+                            // of this same box — matches the normalized x/y
+                            // the 3D viewer reports (fraction of its own
+                            // canvas), same convention the 2D system used.
+                            for (final point in _painPoints)
+                              Positioned(
+                                left: point.x * constraints.maxWidth - 22,
+                                top: point.y * constraints.maxHeight - 22,
+                                child: IgnorePointer(
+                                  child: AnimatedBuilder(
+                                    animation: _pulseController,
+                                    builder: (context, child) {
+                                      return Container(
+                                        width:
+                                            32 + (12 * _pulseController.value),
+                                        height:
+                                            32 + (12 * _pulseController.value),
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: const Color(0xFFEF4444)
+                                              .withOpacity(0.35 *
+                                                  (1 - _pulseController.value)),
+                                          border: Border.all(
+                                            color: const Color(0xFFEF4444),
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: Container(
+                                            width: 14,
+                                            height: 14,
+                                            decoration: const BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              color: Color(0xFFDC2626),
                                             ),
                                           ),
                                         ),
-                                    ],
+                                      );
+                                    },
                                   ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    // Floating Camera & Controls Toolbar (Left Overlay)
-                    Positioned(
-                      left: 16,
-                      top: 24,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 6),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.92),
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.08),
-                              blurRadius: 12,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            _buildOverlayTool(
-                              icon: Icons.center_focus_strong_outlined,
-                              tooltip: t.resetViewTooltip,
-                              onTap: () {
-                                HapticFeedback.lightImpact();
-                                setState(() {
-                                  _viewAngle = 'front';
-                                  _zoomLevel = 1.0;
-                                });
-                              },
-                            ),
-                            const SizedBox(height: 8),
-                            _buildOverlayTool(
-                              icon: Icons.sync,
-                              tooltip: t.rotateModelTooltip,
-                              onTap: () {
-                                final angles = [
-                                  'front',
-                                  'right',
-                                  'back',
-                                  'left'
-                                ];
-                                final currentIndex = angles.indexOf(_viewAngle);
-                                _changeView(
-                                    angles[(currentIndex + 1) % angles.length]);
-                              },
-                            ),
-                            const SizedBox(height: 8),
-                            _buildOverlayTool(
-                              icon: Icons.add,
-                              tooltip: t.zoomInTooltip,
-                              onTap: () {
-                                HapticFeedback.selectionClick();
-                                setState(() => _zoomLevel =
-                                    (_zoomLevel + 0.15).clamp(0.7, 2.0));
-                              },
-                            ),
-                            const SizedBox(height: 8),
-                            _buildOverlayTool(
-                              icon: Icons.remove,
-                              tooltip: t.zoomOutTooltip,
-                              onTap: () {
-                                HapticFeedback.selectionClick();
-                                setState(() => _zoomLevel =
-                                    (_zoomLevel - 0.15).clamp(0.7, 2.0));
-                              },
-                            ),
+                                ),
+                              ),
                           ],
                         ),
                       ),
@@ -723,64 +382,12 @@ class _BodyMapScreenState extends State<BodyMapScreen>
                                   const SizedBox(width: 8),
                               itemBuilder: (context, i) {
                                 final point = _painPoints[i];
-                                final zoomOptions =
-                                    _zoomOptionsByKbName[point.region];
                                 return SizedBox(
                                   width: 280,
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.stretch,
                                     children: [
-                                      // Zoom button comes first and lives
-                                      // outside the scrollable card area —
-                                      // it was previously placed after the
-                                      // card's content inside a short fixed-
-                                      // height scroll box, so it was getting
-                                      // pushed off-screen, requiring a scroll
-                                      // inside that small area to even see it.
-                                      if (zoomOptions != null)
-                                        Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 6),
-                                          child: Wrap(
-                                            spacing: 6,
-                                            runSpacing: 6,
-                                            children: zoomOptions.map((option) {
-                                              return ElevatedButton.icon(
-                                                onPressed: () {
-                                                  HapticFeedback
-                                                      .selectionClick();
-                                                  setState(() {
-                                                    _zoomedKit = option.$2;
-                                                    _zoomedKitSourceRegion =
-                                                        point.region;
-                                                  });
-                                                },
-                                                icon: const Icon(Icons.zoom_in,
-                                                    size: 18,
-                                                    color: Colors.white),
-                                                label: Text(option.$1,
-                                                    style: const TextStyle(
-                                                        fontSize: 13,
-                                                        color: Colors.white,
-                                                        fontWeight:
-                                                            FontWeight.bold)),
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor:
-                                                      const Color(0xFF6D28D9),
-                                                  padding: const EdgeInsets
-                                                      .symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 8),
-                                                  minimumSize: Size.zero,
-                                                  tapTargetSize:
-                                                      MaterialTapTargetSize
-                                                          .shrinkWrap,
-                                                ),
-                                              );
-                                            }).toList(),
-                                          ),
-                                        ),
                                       Expanded(
                                         child: SingleChildScrollView(
                                           child: AnatomyInsightCard(
@@ -807,59 +414,9 @@ class _BodyMapScreenState extends State<BodyMapScreen>
                         ),
                       ),
 
-                    // Placed last so it renders on top of the pain-point
-                    // card above — it used to sit underneath that card
-                    // (both anchored near the bottom-left), making it
-                    // impossible to tap "back" once a zoom was open, since
-                    // opening a zoom always implies at least one pain
-                    // point already exists and the card is showing.
-                    if (_zoomedKit != null)
-                      Positioned(
-                        left: 16,
-                        bottom: _painPoints.isNotEmpty ? 196 : 16,
-                        child: FloatingActionButton.extended(
-                          heroTag: 'back-to-body',
-                          backgroundColor: const Color(0xFF6D28D9),
-                          onPressed: () {
-                            HapticFeedback.lightImpact();
-                            setState(() {
-                              _zoomedKit = null;
-                              _zoomedKitSourceRegion = null;
-                            });
-                          },
-                          icon:
-                              const Icon(Icons.arrow_back, color: Colors.white),
-                          label: const Text('Back to full body',
-                              style: TextStyle(color: Colors.white)),
-                        ),
-                      ),
                   ],
                 );
               },
-            ),
-          ),
-
-          // Bottom View Angle Selectors
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: AppPalette.surface(context),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildViewButton(t.viewFront, 'front'),
-                _buildViewButton(t.viewBack, 'back'),
-                _buildViewButton(t.viewLeft, 'left'),
-                _buildViewButton(t.viewRight, 'right'),
-              ],
             ),
           ),
 
@@ -916,76 +473,13 @@ class _BodyMapScreenState extends State<BodyMapScreen>
     );
   }
 
-  Widget _buildOverlayTool({
-    required IconData icon,
-    required String tooltip,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(20),
-        child: Tooltip(
-          message: tooltip,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Icon(
-              icon,
-              color: const Color(0xFF6D28D9),
-              size: 22,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildViewButton(String label, String angle) {
-    final isSelected = _viewAngle == angle;
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 180),
-          child: ElevatedButton(
-            onPressed: () => _changeView(angle),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: isSelected
-                  ? const Color(0xFF6D28D9)
-                  : AppPalette.subtleFill(context),
-              foregroundColor:
-                  isSelected ? Colors.white : const Color(0xFF475569),
-              elevation: isSelected ? 2 : 0,
-              side: BorderSide(
-                color: isSelected
-                    ? const Color(0xFF6D28D9)
-                    : AppPalette.border(context),
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(vertical: 12),
-            ),
-            child: Text(
-              label,
-              style: TextStyle(
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   /// Shows every currently-marked location with a remove button, plus an
   /// interactive symptom description field & quick quality tags so patients
   /// can describe their symptoms right after tapping a body part.
   void _showRegionConfirmationSheet() {
     if (_pendingTap == null) return;
     final detected = _pendingTap!.region;
+    final detectedPartName = _pendingTap!.partName;
     final regions = [
       'Headache / Cranial',
       'Neck',
@@ -1062,7 +556,9 @@ class _BodyMapScreenState extends State<BodyMapScreen>
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
                         child: Text(
-                          'Detected Region: $detected',
+                          detectedPartName != null
+                              ? 'Detected: $detectedPartName ($detected)'
+                              : 'Detected Region: $detected',
                           style: TextStyle(
                             fontSize: 13,
                             color: AppPalette.textMuted(context),
