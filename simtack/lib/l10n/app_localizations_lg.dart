@@ -503,6 +503,9 @@ class AppLocalizationsLg extends AppLocalizations {
   String get removeTooltip => 'Ggyawo';
 
   @override
+  String get closeButtonTooltip => 'Ggalawo';
+
+  @override
   String get addAnotherLocationLabel => 'Ongerako ekifo ekirala';
 
   @override

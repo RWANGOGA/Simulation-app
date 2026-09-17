@@ -93,6 +93,21 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
   ({String text, double x, double y})? _tapLabel;
   Timer? _tapLabelTimer;
 
+  // The 3D body view (Anatomy3DTapView) is a real iframe, a browser
+  // element that keeps receiving taps for its own screen area even while
+  // a Flutter bottom sheet or dialog is drawn visually on top of it — the
+  // same root cause as the Locations button once being unreachable while
+  // it floated over the iframe (see the AppBar move for that one). A
+  // sheet sliding up from the bottom overlaps the iframe's area too, so
+  // the same fix applies: stop the iframe from accepting touches at all
+  // for as long as any sheet or dialog is open on top of it. A count,
+  // not a bool: the region picker sheet opens from inside the locations
+  // sheet, so a bool would wrongly re-enable the iframe when the inner
+  // one closes while the outer one is still open. Every
+  // showModalBottomSheet/showDialog call in this screen increments this
+  // before opening and decrements it once it closes.
+  int _openOverlayCount = 0;
+
   // One in-flight AI request per region. Keyed by region label so
   // re-tapping the same region (toggle-off then on) does not re-fetch
   // when an answer is already loading.
@@ -323,26 +338,29 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                         child: Stack(
                           children: [
                             Positioned.fill(
-                              child: Anatomy3DTapView(
-                                gender: widget.gender,
-                                onRegionTapped: _handleBodyPartReceived,
-                                // Real 3D markers, drawn inside the scene
-                                // itself (see viewer.js's setMarkers) so
-                                // they stay correctly attached to the body
-                                // through any rotation — points added via
-                                // the manual picker have no 3D hit
-                                // (hitX/Y/Z null) and are simply skipped by
-                                // the viewer rather than drawn at a wrong
-                                // spot.
-                                markers: [
-                                  for (var i = 0; i < _painPoints.length; i++)
-                                    (
-                                      id: '$i',
-                                      x: _painPoints[i].hitX,
-                                      y: _painPoints[i].hitY,
-                                      z: _painPoints[i].hitZ,
-                                    ),
-                                ],
+                              child: IgnorePointer(
+                                ignoring: _openOverlayCount > 0,
+                                child: Anatomy3DTapView(
+                                  gender: widget.gender,
+                                  onRegionTapped: _handleBodyPartReceived,
+                                  // Real 3D markers, drawn inside the scene
+                                  // itself (see viewer.js's setMarkers) so
+                                  // they stay correctly attached to the body
+                                  // through any rotation — points added via
+                                  // the manual picker have no 3D hit
+                                  // (hitX/Y/Z null) and are simply skipped by
+                                  // the viewer rather than drawn at a wrong
+                                  // spot.
+                                  markers: [
+                                    for (var i = 0; i < _painPoints.length; i++)
+                                      (
+                                        id: '$i',
+                                        x: _painPoints[i].hitX,
+                                        y: _painPoints[i].hitY,
+                                        z: _painPoints[i].hitZ,
+                                      ),
+                                  ],
+                                ),
                               ),
                             ),
                             // A gentle nudge for first-time patients — fades
@@ -499,6 +517,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
 
   void _showSelectedLocationsSheet() {
     final t = AppLocalizations.of(context)!;
+    setState(() => _openOverlayCount++);
     showModalBottomSheet(
       context: context,
       backgroundColor: AppPalette.surface(context),
@@ -523,13 +542,25 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
-                      child: Text(
-                        t.painLocationsSheetTitle,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: AppPalette.textPrimary(context),
-                        ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              t.painLocationsSheetTitle,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppPalette.textPrimary(context),
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close),
+                            color: AppPalette.textMuted(context),
+                            tooltip: t.closeButtonTooltip,
+                            onPressed: () => Navigator.of(sheetContext).pop(),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -683,7 +714,9 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
           },
         );
       },
-    );
+    ).whenComplete(() {
+      if (mounted) setState(() => _openOverlayCount--);
+    });
   }
 
   void _showRegionPickerModal() {
@@ -702,6 +735,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
       'Left Leg / Knee',
     ];
 
+    setState(() => _openOverlayCount++);
     showModalBottomSheet(
       context: context,
       backgroundColor: AppPalette.surface(context),
@@ -770,11 +804,14 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
           ),
         );
       },
-    );
+    ).whenComplete(() {
+      if (mounted) setState(() => _openOverlayCount--);
+    });
   }
 
   void _showHelp() {
     final t = AppLocalizations.of(context)!;
+    setState(() => _openOverlayCount++);
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -810,7 +847,9 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
           ),
         ],
       ),
-    );
+    ).whenComplete(() {
+      if (mounted) setState(() => _openOverlayCount--);
+    });
   }
 
   void _navigateToPainDetails() {

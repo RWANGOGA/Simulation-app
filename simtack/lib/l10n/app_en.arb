@@ -395,6 +395,8 @@
   "@noLocationsMarkedHint": {"description": "Empty state inside the pain-locations bottom sheet."},
   "removeTooltip": "Remove",
   "@removeTooltip": {"description": "Tooltip on the remove-location icon."},
+  "closeButtonTooltip": "Close",
+  "@closeButtonTooltip": {"description": "Tooltip on the close icon for the pain-locations bottom sheet."},
   "addAnotherLocationLabel": "Add another location",
   "@addAnotherLocationLabel": {"description": "Entry point into the preset region picker from the locations sheet."},
   "selectPainLocationTitle": "Select Pain Location",
