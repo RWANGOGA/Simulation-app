@@ -137,9 +137,17 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
     );
     _requestAnatomyInsight(region);
 
+    // Show the resolved, human-meaningful region (e.g. "Right Hand"), not
+    // the raw BodyParts3D mesh name in tap.partName — an exterior tap
+    // almost always hits the single outer "Skin" mesh itself, so
+    // tap.partName is "Skin" for nearly every tap regardless of where on
+    // the body it landed, which is not useful shown to a patient. region
+    // is what the geometry/keyword classifier actually resolved that tap
+    // to, and is what the pain point and AI insight below are keyed on
+    // too, so the label now matches what's actually being recorded.
     _tapLabelTimer?.cancel();
     setState(() {
-      _tapLabel = (text: tap.partName ?? region, x: x, y: y);
+      _tapLabel = (text: region, x: x, y: y);
     });
     _tapLabelTimer = Timer(const Duration(milliseconds: 1800), () {
       if (!mounted) return;
@@ -252,6 +260,27 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
         ),
         centerTitle: true,
         actions: [
+          // Was a floating pill overlaid on top of the 3D view further
+          // down (inside the same Stack as Anatomy3DTapView). That view
+          // is a real iframe (a Flutter Web platform view), and a real
+          // browser iframe can swallow every tap within its rectangle
+          // regardless of what a Flutter widget paints visually on top of
+          // it, so the pill looked present but never actually opened the
+          // sheet. Living here in the AppBar instead, it is genuine
+          // Flutter canvas with no iframe anywhere near it, so the tap is
+          // guaranteed to reach it.
+          Badge(
+            label: Text('${_painPoints.length}'),
+            isLabelVisible: _painPoints.isNotEmpty,
+            backgroundColor: const Color(0xFFE85D6B),
+            child: IconButton(
+              icon: const Icon(Icons.location_on, color: Color(0xFF6D28D9)),
+              tooltip: _painPoints.isEmpty
+                  ? t.tapABodyPartLabel
+                  : t.locationsSelectedLabel(_painPoints.length),
+              onPressed: _showSelectedLocationsSheet,
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.help_outline, color: Color(0xFF6D28D9)),
             onPressed: _showHelp,
@@ -406,56 +435,6 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                                 ),
                               ),
                           ],
-                        ),
-                      ),
-                    ),
-
-                    // Selected Locations Badge (Top Right Overlay)
-                    // Now shows a count instead of a single region name,
-                    // and opens the manage-list sheet instead of a picker
-                    // that would overwrite the current selection.
-                    Positioned(
-                      top: 16,
-                      right: 16,
-                      child: GestureDetector(
-                        onTap: _showSelectedLocationsSheet,
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF6D28D9),
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF6D28D9).withOpacity(0.3),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.location_on,
-                                  color: Colors.white, size: 18),
-                              const SizedBox(width: 6),
-                              Text(
-                                _painPoints.isEmpty
-                                    ? t.tapABodyPartLabel
-                                    : t.locationsSelectedLabel(
-                                        _painPoints.length),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              const Icon(Icons.arrow_drop_down,
-                                  color: Colors.white, size: 18),
-                            ],
-                          ),
                         ),
                       ),
                     ),
