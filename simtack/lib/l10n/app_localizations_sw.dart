@@ -508,7 +508,7 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String get bodyMapHelpBullet2 =>
-      '• Tap on body parts to mark pain locations — tap as many as you need.';
+      '• Tap on body parts to mark pain locations. Tap as many as you need.';
 
   @override
   String get bodyMapHelpBullet3 =>
@@ -575,7 +575,7 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String get painDetailsHelpBullet5 =>
-      '• Slide to set pain intensity scale from 1 to 10 — each location can be different.';
+      '• Slide to set pain intensity scale from 1 to 10. Each location can be different.';
 
   @override
   String get vitalsCaptureTitle => '4. Vitals Capture';
@@ -675,7 +675,7 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String submitFailedSavedOfflineSnackbar(String error) {
-    return '⚠️ Could not submit — saved offline, will retry automatically: $error';
+    return '⚠️ Could not submit, saved offline, will retry automatically: $error';
   }
 
   @override

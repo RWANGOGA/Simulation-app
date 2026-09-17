@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -508,12 +509,26 @@ class ApiClient {
 
   static Future<void> logout() => tokenStorage.delete();
 
+  // The live backend is hosted on a free tier that goes to sleep after a
+  // period of inactivity and can take 30 to 50 seconds to wake back up.
+  // The very first request after that sleep can otherwise hang with no
+  // response at all, which browsers then report as a misleading CORS
+  // failure rather than a timeout. A bounded timeout here turns that into
+  // an honest, actionable error instead.
   static Future<PatientResult> createPatient(PatientProfile profile) async {
-    final response = await httpClient.post(
-      Uri.parse('$baseUrl/patients/'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(profile.toJson()),
-    );
+    final http.Response response;
+    try {
+      response = await httpClient
+          .post(
+            Uri.parse('$baseUrl/patients/'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(profile.toJson()),
+          )
+          .timeout(const Duration(seconds: 45));
+    } on TimeoutException {
+      throw Exception(
+          'The hospital server is taking a while to respond, it may be waking up from being idle. Please try again in a moment.');
+    }
     if (response.statusCode == 201) {
       return PatientResult.fromJson(
         jsonDecode(response.body) as Map<String, dynamic>,

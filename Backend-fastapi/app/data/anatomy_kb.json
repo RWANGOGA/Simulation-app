@@ -457,7 +457,7 @@
         "Acromioclavicular joint",
         "Subacromial bursa"
       ],
-      "text": "Right shoulder pain is usually musculoskeletal — from the rotator cuff, the joint itself, or surrounding tendons — but can occasionally be referred from the gallbladder via the phrenic nerve. Common causes include rotator cuff tendinopathy, shoulder impingement, frozen shoulder, and AC joint sprain. Red flags include sudden pain after a fall with visible deformity, complete inability to move the arm, or numbness spreading down the arm.",
+      "text": "Right shoulder pain is usually musculoskeletal, from the rotator cuff, the joint itself, or surrounding tendons, but can occasionally be referred from the gallbladder via the phrenic nerve. Common causes include rotator cuff tendinopathy, shoulder impingement, frozen shoulder, and AC joint sprain. Red flags include sudden pain after a fall with visible deformity, complete inability to move the arm, or numbness spreading down the arm.",
       "common_conditions": [
         "Rotator cuff tendinopathy",
         "Shoulder impingement syndrome",
@@ -489,7 +489,7 @@
         "Acromioclavicular joint",
         "Subacromial bursa"
       ],
-      "text": "Left shoulder pain is usually musculoskeletal, but the left shoulder is also a classic site of referred cardiac pain — chest pain radiating to the left shoulder or arm is a red flag for a heart attack. Other causes include rotator cuff tendinopathy, shoulder impingement, and frozen shoulder. Always ask about chest pain, shortness of breath, sweating, or nausea alongside left shoulder pain before assuming it is purely musculoskeletal.",
+      "text": "Left shoulder pain is usually musculoskeletal, but the left shoulder is also a classic site of referred cardiac pain: chest pain radiating to the left shoulder or arm is a red flag for a heart attack. Other causes include rotator cuff tendinopathy, shoulder impingement, and frozen shoulder. Always ask about chest pain, shortness of breath, sweating, or nausea alongside left shoulder pain before assuming it is purely musculoskeletal.",
       "common_conditions": [
         "Rotator cuff tendinopathy",
         "Shoulder impingement syndrome",
@@ -647,7 +647,7 @@
         "Median nerve",
         "Wrist ligaments and tendons"
       ],
-      "text": "Wrist pain is often from repetitive strain, carpal tunnel syndrome (median nerve compression), ligament sprains, or a fracture — especially after a fall onto an outstretched hand, where a scaphoid fracture can be easily missed on first exam.",
+      "text": "Wrist pain is often from repetitive strain, carpal tunnel syndrome (median nerve compression), ligament sprains, or a fracture, especially after a fall onto an outstretched hand, where a scaphoid fracture can be easily missed on first exam.",
       "common_conditions": [
         "Carpal tunnel syndrome",
         "Wrist sprain",
@@ -679,7 +679,7 @@
         "Median nerve",
         "Wrist ligaments and tendons"
       ],
-      "text": "Wrist pain is often from repetitive strain, carpal tunnel syndrome (median nerve compression), ligament sprains, or a fracture — especially after a fall onto an outstretched hand, where a scaphoid fracture can be easily missed on first exam.",
+      "text": "Wrist pain is often from repetitive strain, carpal tunnel syndrome (median nerve compression), ligament sprains, or a fracture, especially after a fall onto an outstretched hand, where a scaphoid fracture can be easily missed on first exam.",
       "common_conditions": [
         "Carpal tunnel syndrome",
         "Wrist sprain",
@@ -710,7 +710,7 @@
         "Flexor and extensor tendons",
         "Digital nerves and vessels"
       ],
-      "text": "Pain in the hand or fingers can come from joint conditions like arthritis, tendon problems such as trigger finger, nerve irritation, or an injury — including cuts and bites, which carry an infection risk in the hand's tight tissue spaces.",
+      "text": "Pain in the hand or fingers can come from joint conditions like arthritis, tendon problems such as trigger finger, nerve irritation, or an injury, including cuts and bites, which carry an infection risk in the hand's tight tissue spaces.",
       "common_conditions": [
         "Osteoarthritis",
         "Trigger finger",
@@ -741,7 +741,7 @@
         "Flexor and extensor tendons",
         "Digital nerves and vessels"
       ],
-      "text": "Pain in the hand or fingers can come from joint conditions like arthritis, tendon problems such as trigger finger, nerve irritation, or an injury — including cuts and bites, which carry an infection risk in the hand's tight tissue spaces.",
+      "text": "Pain in the hand or fingers can come from joint conditions like arthritis, tendon problems such as trigger finger, nerve irritation, or an injury, including cuts and bites, which carry an infection risk in the hand's tight tissue spaces.",
       "common_conditions": [
         "Osteoarthritis",
         "Trigger finger",
@@ -898,7 +898,7 @@
         "Tibialis anterior",
         "Deep veins of the calf"
       ],
-      "text": "Shin and calf pain is often muscular — a strain, cramp, or shin splints from running — but a hot, swollen, tender calf can signal a blood clot in the deep veins, which needs urgent attention, especially after travel, surgery, or a period of immobility.",
+      "text": "Shin and calf pain is often muscular (a strain, cramp, or shin splints from running), but a hot, swollen, tender calf can signal a blood clot in the deep veins, which needs urgent attention, especially after travel, surgery, or a period of immobility.",
       "common_conditions": [
         "Shin splints",
         "Calf muscle strain",
@@ -929,7 +929,7 @@
         "Tibialis anterior",
         "Deep veins of the calf"
       ],
-      "text": "Shin and calf pain is often muscular — a strain, cramp, or shin splints from running — but a hot, swollen, tender calf can signal a blood clot in the deep veins, which needs urgent attention, especially after travel, surgery, or a period of immobility.",
+      "text": "Shin and calf pain is often muscular (a strain, cramp, or shin splints from running), but a hot, swollen, tender calf can signal a blood clot in the deep veins, which needs urgent attention, especially after travel, surgery, or a period of immobility.",
       "common_conditions": [
         "Shin splints",
         "Calf muscle strain",

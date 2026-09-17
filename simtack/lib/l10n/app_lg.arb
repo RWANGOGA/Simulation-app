@@ -147,7 +147,7 @@
   "selectPainLocationTitle": "Londa Ekifo ky'Obulumi",
   "bodyMapHelpTitle": "Engeri y'okukozesa Ekifaananyi ky'Omubiri",
   "bodyMapHelpBullet1": "• Omubiri mu 3D: Kyuusa era okenneenye mu 360°.",
-  "bodyMapHelpBullet2": "• Kuba ku bitundu by'omubiri okulaga ebifo by'obulumi — kuba nga bwe weetaaga.",
+  "bodyMapHelpBullet2": "• Kuba ku bitundu by'omubiri okulaga ebifo by'obulumi. Kuba nga bwe weetaaga.",
   "bodyMapHelpBullet3": "• Kuba ku kifo kye kimu ate okukiggyawo.",
   "bodyMapHelpBullet4": "• Kozesa ebyuma ku ludda olwa kkono okusembeza, okuggwayo, oba okuddamu okutandika.",
   "bodyMapHelpBullet5": "• Kyusakyusa wakati wa Ebbali, Emabega, Ekkono, oba Eddyo.",
@@ -167,7 +167,7 @@
   "painDetailsHelpBullet2": "• Kozesa Kkubo okulaga w'obulumi bugenda (gamba, Emabega).",
   "painDetailsHelpBullet3": "• Kozesa Obuwanvu okulaga obulumi gye buli (Wangi, Bulijjo, Waggulu).",
   "painDetailsHelpBullet4": "• Kuba ku bika by'obulumi (Obwogi, Obukakali, Okwokya, Okukwata).",
-  "painDetailsHelpBullet5": "• Seeza okuteekawo amaanyi g'obulumi okuva ku 1 okutuuka ku 10 — buli kifo kiyinza okwawukana.",
+  "painDetailsHelpBullet5": "• Seeza okuteekawo amaanyi g'obulumi okuva ku 1 okutuuka ku 10. Buli kifo kiyinza okwawukana.",
 
   "vitalsCaptureTitle": "4. Okupima Obulamu",
   "signalQualityLabel": "Omutindo gw'Akabonero",
@@ -200,7 +200,7 @@
   "saveDraftButton": "Terekera Oluvannyuma",
   "submitButton": "Weereza",
   "draftSavedSnackbar": "✅ Ekiwandiiko kiterekeddwa bulungi!",
-  "submitFailedSavedOfflineSnackbar": "⚠️ Tekiyinzikanga kuweerezebwa — kiterekeddwa, kijja kuddamu kugezaako: {error}",
+  "submitFailedSavedOfflineSnackbar": "⚠️ Tekiyinzikanga kuweerezebwa, kiterekeddwa, kijja kuddamu kugezaako: {error}",
 
   "reportSubmittedTitle": "Lipoota Eweereddwa!",
   "patientIdLabel": "Ekika ky'Omulwadde",

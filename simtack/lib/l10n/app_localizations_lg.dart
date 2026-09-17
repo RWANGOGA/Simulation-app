@@ -517,7 +517,7 @@ class AppLocalizationsLg extends AppLocalizations {
 
   @override
   String get bodyMapHelpBullet2 =>
-      '• Kuba ku bitundu by\'omubiri okulaga ebifo by\'obulumi — kuba nga bwe weetaaga.';
+      '• Kuba ku bitundu by\'omubiri okulaga ebifo by\'obulumi. Kuba nga bwe weetaaga.';
 
   @override
   String get bodyMapHelpBullet3 => '• Kuba ku kifo kye kimu ate okukiggyawo.';
@@ -583,7 +583,7 @@ class AppLocalizationsLg extends AppLocalizations {
 
   @override
   String get painDetailsHelpBullet5 =>
-      '• Seeza okuteekawo amaanyi g\'obulumi okuva ku 1 okutuuka ku 10 — buli kifo kiyinza okwawukana.';
+      '• Seeza okuteekawo amaanyi g\'obulumi okuva ku 1 okutuuka ku 10. Buli kifo kiyinza okwawukana.';
 
   @override
   String get vitalsCaptureTitle => '4. Okupima Obulamu';
@@ -682,7 +682,7 @@ class AppLocalizationsLg extends AppLocalizations {
 
   @override
   String submitFailedSavedOfflineSnackbar(String error) {
-    return '⚠️ Tekiyinzikanga kuweerezebwa — kiterekeddwa, kijja kuddamu kugezaako: $error';
+    return '⚠️ Tekiyinzikanga kuweerezebwa, kiterekeddwa, kijja kuddamu kugezaako: $error';
   }
 
   @override
