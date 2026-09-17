@@ -43,7 +43,7 @@ class _Anatomy3DTapViewState extends State<Anatomy3DTapView> {
       final genderParam = widget.gender == 'Female' ? 'female' : 'male';
       registerAnatomy3DPlatformView(
         _viewType,
-        'anatomy3d/viewer.html?gender=$genderParam',
+        'anatomy3d/viewer.html?gender=$genderParam&embedded=1',
       );
       _registered = true;
       WebInterop.registerBodyPartListener(_handleBodyPart);
