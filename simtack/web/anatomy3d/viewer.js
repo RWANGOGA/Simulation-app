@@ -1,14 +1,29 @@
-// Standalone validation harness for real 3D BodyParts3D tap-to-region
-// picking — mirrors the same test-first pattern this codebase already used
-// for the 2D zoom kits (hand_tap.html, foot_tap.html, etc., "tested
-// standalone earlier ... before being ported in" — see anatomy_tap_view.dart
-// comments). Open viewer.html directly in a browser to verify tap accuracy
-// across the body before this is wired into the Flutter app.
+// Real 3D BodyParts3D tap-to-region picking. This same file serves two
+// purposes: (1) opened directly in a browser, it's a standalone validation
+// harness — same test-first pattern this codebase already used for the 2D
+// zoom kits (hand_tap.html, foot_tap.html, etc.); (2) embedded in an
+// `<iframe>` by the Flutter app's Anatomy3DTapView, it's the real
+// patient-facing 3D body.
 //
-// On a successful tap this dispatches the SAME `atomybridge-bodypart`
-// CustomEvent the app's (currently unused) web_interop_web.dart already
-// listens for — `{part: <one of the 14 KB region strings>, x, y}` — so this
-// harness validates the full contract end-to-end, not just the visuals.
+// On a successful tap this posts a message to the PARENT window via
+// `window.parent.postMessage` — `{type:'atomybridge-bodypart', part: <one
+// of the 14 KB region strings>, partName, x, y}` — which
+// web_interop_web.dart listens for via a `message` event.
+//
+// This matters specifically because of the iframe boundary: an earlier
+// version of this file used `window.dispatchEvent(new CustomEvent(...))`,
+// which only reaches listeners on the SAME window. An iframe has its own
+// separate `window` object from the page embedding it, so that dispatch
+// never reached the parent Flutter app at all — every tap resolved
+// correctly inside this file (visible in the debug panel), but nothing
+// outside the iframe ever found out. `postMessage` is the correct
+// mechanism for crossing that boundary; a plain DOM event is not.
+//
+// `?embedded=1` (set automatically by Anatomy3DTapView) hides the debug
+// panel (model dropdown, skin toggle, status/result text) — that's
+// developer-facing UI for testing this file standalone, not something a
+// patient should see once gender has already been chosen on the previous
+// screen and postMessage is doing the real reporting.
 
 import * as THREE from './vendor/three/three.module.js';
 import { OrbitControls } from './vendor/three/addons/controls/OrbitControls.js';
@@ -32,6 +47,15 @@ const statusEl = document.getElementById('status');
 const resultEl = document.getElementById('result');
 const genderSelect = document.getElementById('gender');
 const skinToggle = document.getElementById('skin-toggle');
+
+// Anatomy3DTapView passes ?embedded=1 for the real patient-facing view —
+// this debug panel (model dropdown, skin toggle, raw status/result text)
+// is developer-facing, for testing this file standalone; a patient has
+// already picked their gender on the previous screen and doesn't need or
+// want to see internal picking debug output.
+if (new URLSearchParams(location.search).get('embedded') === '1') {
+  document.getElementById('panel').hidden = true;
+}
 
 const SYSTEM_COLORS = {
   skeletal: '#e2d9ba', muscular: '#a85b50', cardiac: '#b96760',
@@ -335,9 +359,21 @@ renderer.domElement.addEventListener('pointerup', (e) => {
   // left index finger"), for the app to show the patient a more specific
   // label than the coarse region alone, without changing what gets sent to
   // /anatomy/ask.
-  window.dispatchEvent(new CustomEvent('atomybridge-bodypart', {
-    detail: { part: region, partName: part.name, x: normX, y: normY },
-  }));
+  //
+  // postMessage, not a same-window CustomEvent: when this page is embedded
+  // in an iframe (the real, patient-facing case), `window` here is the
+  // IFRAME's own window, not the Flutter app's — a dispatchEvent on it
+  // never reaches anything outside the iframe. window.parent is always
+  // reachable and resolves to the embedding page (or to this same window
+  // when not embedded at all, i.e. the standalone harness use case, where
+  // it's a harmless no-op since nothing listens for it there).
+  window.parent.postMessage({
+    type: 'atomybridge-bodypart',
+    part: region,
+    partName: part.name,
+    x: normX,
+    y: normY,
+  }, '*');
 });
 
 function resize() {

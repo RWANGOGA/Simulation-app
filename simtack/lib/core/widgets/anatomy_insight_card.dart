@@ -151,13 +151,23 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
     return Container(
       margin: const EdgeInsets.only(top: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F3FF),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.18)),
       ),
-      child: Theme(
-        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
-        child: ExpansionTile(
+      // ExpansionTile paints its own background/ink splashes on the nearest
+      // Material ancestor — without this, the outer Container's own
+      // decoration (moved onto this Material below instead) sat between
+      // ExpansionTile and any Material further up the tree, silently
+      // swallowing its tap ink splashes. Never visibly obvious (no crash,
+      // no exception in release builds), only surfaced once a test
+      // actually rendered this card under Flutter's debug-mode assertions.
+      child: Material(
+        color: const Color(0xFFF5F3FF),
+        borderRadius: BorderRadius.circular(14),
+        clipBehavior: Clip.antiAlias,
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
           tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
           childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
           initiallyExpanded: true,
@@ -226,6 +236,7 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
               },
             ),
           ],
+        ),
         ),
       ),
     );
