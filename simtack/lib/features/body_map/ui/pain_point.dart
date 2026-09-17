@@ -10,6 +10,20 @@ class PainPoint {
   final double y; // 0..1 fraction of the model canvas
   final String? viewKey;
 
+  // The real 3D point on the body (in the 3D viewer's own world-space
+  // coordinates) that was actually tapped — null for points added via the
+  // manual region picker, which has no 3D tap to record. This is what the
+  // 3D marker is drawn at now, instead of the flat x/y screen fraction:
+  // a screen-space position only means anything at the exact camera angle
+  // it was captured at, so rotating the model used to leave the marker
+  // stuck in its original 2D spot while the body moved underneath it.
+  // A real 3D point rotates correctly with the model because it's a
+  // genuine object in the same scene, not an overlay guessing where the
+  // body currently is.
+  final double? hitX;
+  final double? hitY;
+  final double? hitZ;
+
   // Which image these x/y fractions were measured against: null for the
   // whole-body view, or a zoom-kit name (e.g. "hand") for a close-up. The
   // same 0..1 point means a completely different screen position on a
@@ -36,6 +50,9 @@ class PainPoint {
     required this.x,
     required this.y,
     this.viewKey,
+    this.hitX,
+    this.hitY,
+    this.hitZ,
     this.painType = 'Sharp',
     this.severity = 5,
     this.direction = 'Towards Back',
@@ -70,6 +87,9 @@ class PainPoint {
         'x': x,
         'y': y,
         'viewKey': viewKey,
+        'hitX': hitX,
+        'hitY': hitY,
+        'hitZ': hitZ,
         'painType': painType,
         'severity': severity,
         'direction': direction,
@@ -88,16 +108,32 @@ class PainPoint {
         x: (json['x'] as num).toDouble(),
         y: (json['y'] as num).toDouble(),
         viewKey: json['viewKey'] as String?,
+        hitX: (json['hitX'] as num?)?.toDouble(),
+        hitY: (json['hitY'] as num?)?.toDouble(),
+        hitZ: (json['hitZ'] as num?)?.toDouble(),
         painType: json['painType'] as String? ?? 'Sharp',
         severity: json['severity'] as int? ?? 5,
         direction: json['direction'] as String? ?? 'Towards Back',
         depth: json['depth'] as String? ?? 'Moderate',
-        expansionBehavior: json['expansionBehavior'] as String? ?? 'Stays Small',
-        triggers: (json['triggers'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
-        relievers: (json['relievers'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
-        dailyLimitations: (json['dailyLimitations'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+        expansionBehavior:
+            json['expansionBehavior'] as String? ?? 'Stays Small',
+        triggers: (json['triggers'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            [],
+        relievers: (json['relievers'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            [],
+        dailyLimitations: (json['dailyLimitations'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            [],
         symptomDescription: json['symptomDescription'] as String?,
-        tags: (json['tags'] as List<dynamic>?)?.map((e) => e as String).toList() ?? [],
+        tags: (json['tags'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            [],
         questionAnswers: (json['questionAnswers'] as Map<String, dynamic>?)
                 ?.map((k, v) => MapEntry(k, v as String)) ??
             {},

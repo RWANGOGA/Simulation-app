@@ -5,11 +5,22 @@ import 'package:web/web.dart' as web;
 // `part` is always one of the backend's 14 fixed KB region strings (the
 // resolved region — unchanged contract). `partName`, when present, is the
 // precise anatomical structure that was actually tapped in the 3D view
-// (e.g. "Distal phalanx of left index finger"), for showing the patient a
-// more specific label than the coarse region alone; the 2D tap view never
-// sends it, so it's null there.
-typedef BodyPartCallback = void Function(
-    String part, double? x, double? y, String? partName);
+// (e.g. "Distal phalanx of left index finger"). `hitX/hitY/hitZ` is the
+// real 3D point in the viewer's own world-space that was tapped — used to
+// place a marker as an actual object in that scene (so it rotates
+// correctly with the body) rather than a flat 2D overlay positioned only
+// for the camera angle at tap time. The 2D tap view never sends any of
+// partName/hitX/hitY/hitZ, so they're null there.
+typedef BodyPartTap = ({
+  String part,
+  double? x,
+  double? y,
+  String? partName,
+  double? hitX,
+  double? hitY,
+  double? hitZ,
+});
+typedef BodyPartCallback = void Function(BodyPartTap tap);
 
 class WebInterop {
   static final Map<BodyPartCallback, JSFunction> _listeners = {};
@@ -32,22 +43,21 @@ class WebInterop {
       if (converted['type'] != 'atomybridge-bodypart') return;
 
       final p = converted['part'];
-      final rx = converted['x'];
-      final ry = converted['y'];
-      final pn = converted['partName'];
+      if (p is! String || p.isEmpty) return;
 
-      String? part;
-      double? x;
-      double? y;
-      String? partName;
-      if (p is String) part = p;
-      if (rx is num) x = rx.toDouble();
-      if (ry is num) y = ry.toDouble();
-      if (pn is String) partName = pn;
+      double? asDouble(Object? v) => v is num ? v.toDouble() : null;
 
-      if (part != null && part.isNotEmpty) {
-        onBodyPart(part, x, y, partName);
-      }
+      onBodyPart((
+        part: p,
+        x: asDouble(converted['x']),
+        y: asDouble(converted['y']),
+        partName: converted['partName'] is String
+            ? converted['partName'] as String
+            : null,
+        hitX: asDouble(converted['hx']),
+        hitY: asDouble(converted['hy']),
+        hitZ: asDouble(converted['hz']),
+      ));
     }
 
     final jsListener = listener.toJS;
@@ -71,5 +81,16 @@ class WebInterop {
     } catch (_) {
       // Ignored if unsupported in older model-viewer builds
     }
+  }
+
+  /// Sends a message INTO the embedded 3D viewer's iframe — the reverse
+  /// direction of [registerBodyPartListener]. Used to push the current
+  /// list of marked pain points into the scene so it can draw/update/
+  /// remove the actual 3D marker objects at each point's real position.
+  static void postToIframe(
+      web.HTMLIFrameElement iframe, Map<String, Object?> message) {
+    final win = iframe.contentWindow;
+    if (win == null) return;
+    win.postMessage(message.jsify(), '*'.toJS);
   }
 }

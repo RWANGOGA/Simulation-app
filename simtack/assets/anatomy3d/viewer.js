@@ -169,6 +169,11 @@ function clearScene() {
   }
   currentMeshes = [];
   currentParts = [];
+  // Markers are positioned relative to this specific body's geometry —
+  // switching model/gender invalidates them, so clear rather than leave
+  // stale markers floating at the old body's coordinates.
+  for (const mesh of markerMeshes.values()) scene.remove(mesh);
+  markerMeshes.clear();
   if (modestyPatch) {
     modestyPatch.geometry.dispose();
     modestyPatch.material.dispose();
@@ -379,7 +384,54 @@ renderer.domElement.addEventListener('pointerup', (e) => {
     partName: part.name,
     x: normX,
     y: normY,
+    // The real 3D point, in this scene's own world-space — the parent app
+    // stores this per pain point and sends the full list back via
+    // 'atomybridge-set-markers' (below) so markers can be drawn as actual
+    // objects in this scene, which then rotate correctly with the body
+    // instead of a flat overlay that only matched the camera angle at the
+    // moment of the original tap.
+    hx: hitPoint[0],
+    hy: hitPoint[1],
+    hz: hitPoint[2],
   }, '*');
+});
+
+// --- Persistent 3D pain markers -------------------------------------------
+// Small red spheres placed at the real 3D point of each marked location,
+// so they stay correctly attached to the body through any rotation —
+// unlike a 2D screen overlay, which only lines up at the camera angle it
+// was drawn at. The parent Flutter app owns the actual list of marked
+// points (it's the one thing that survives navigating away and back); this
+// just mirrors whatever list it's told about.
+const markerMeshes = new Map(); // id -> THREE.Mesh
+const markerGeometry = new THREE.SphereGeometry(0.012, 16, 12);
+const markerMaterial = new THREE.MeshBasicMaterial({ color: 0xdc2626 });
+
+function setMarkers(points) {
+  const seen = new Set();
+  for (const p of points) {
+    if (typeof p.x !== 'number' || typeof p.y !== 'number' || typeof p.z !== 'number') continue;
+    seen.add(p.id);
+    let mesh = markerMeshes.get(p.id);
+    if (!mesh) {
+      mesh = new THREE.Mesh(markerGeometry, markerMaterial);
+      scene.add(mesh);
+      markerMeshes.set(p.id, mesh);
+    }
+    mesh.position.set(p.x, p.y, p.z);
+  }
+  for (const [id, mesh] of markerMeshes) {
+    if (seen.has(id)) continue;
+    scene.remove(mesh);
+    mesh.geometry === markerGeometry ? null : mesh.geometry.dispose();
+    markerMeshes.delete(id);
+  }
+}
+
+window.addEventListener('message', (event) => {
+  const data = event.data;
+  if (!data || data.type !== 'atomybridge-set-markers' || !Array.isArray(data.points)) return;
+  setMarkers(data.points);
 });
 
 function resize() {
@@ -392,6 +444,13 @@ addEventListener('resize', resize);
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
+  // Gentle pulse on the pain markers, echoing the old 2D view's growing/
+  // shrinking ring — purely cosmetic, doesn't affect their (correct,
+  // rotation-stable) position.
+  if (markerMeshes.size > 0) {
+    const pulse = 1 + 0.35 * (0.5 + 0.5 * Math.sin(performance.now() / 260));
+    for (const mesh of markerMeshes.values()) mesh.scale.setScalar(pulse);
+  }
   renderer.render(scene, camera);
 }
 animate();
