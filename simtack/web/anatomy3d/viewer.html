@@ -66,11 +66,19 @@
     // line carrying the real error is hidden in embedded mode). This
     // swaps the loading text to something a patient can actually act on,
     // regardless of embedded mode.
+    //
+    // This handler fires for ANY window error or unhandled promise
+    // rejection on the page, not only failed network fetches (a bug in
+    // this script, or a Three.js runtime error, would land here too), so
+    // the message must not claim a specific cause it cannot actually
+    // confirm. It previously said "check your connection", which is
+    // wrong and misleading whenever the real cause is unrelated to the
+    // network.
     function showLoadFailure() {
       const text = document.getElementById('loading-text');
       const progress = document.getElementById('loading-progress');
       const spinner = document.getElementById('loading-spinner');
-      if (text) text.textContent = "Couldn't load the 3D body — check your connection and try again.";
+      if (text) text.textContent = "Couldn't load the 3D body. Please try again.";
       if (progress) progress.textContent = '';
       if (spinner) spinner.style.display = 'none';
     }

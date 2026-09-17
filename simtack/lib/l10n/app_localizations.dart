@@ -995,7 +995,7 @@ abstract class AppLocalizations {
   /// Second bullet in the Body Map help dialog.
   ///
   /// In en, this message translates to:
-  /// **'• Tap on body parts to mark pain locations — tap as many as you need.'**
+  /// **'• Tap on body parts to mark pain locations. Tap as many as you need.'**
   String get bodyMapHelpBullet2;
 
   /// Third bullet in the Body Map help dialog.
@@ -1109,7 +1109,7 @@ abstract class AppLocalizations {
   /// Fifth bullet in the Pain Details help dialog.
   ///
   /// In en, this message translates to:
-  /// **'• Slide to set pain intensity scale from 1 to 10 — each location can be different.'**
+  /// **'• Slide to set pain intensity scale from 1 to 10. Each location can be different.'**
   String get painDetailsHelpBullet5;
 
   /// Vitals Capture app bar title.
@@ -1295,7 +1295,7 @@ abstract class AppLocalizations {
   /// Snackbar shown when submission fails and is queued offline instead.
   ///
   /// In en, this message translates to:
-  /// **'⚠️ Could not submit — saved offline, will retry automatically: {error}'**
+  /// **'⚠️ Could not submit, saved offline, will retry automatically: {error}'**
   String submitFailedSavedOfflineSnackbar(String error);
 
   /// Success screen heading.

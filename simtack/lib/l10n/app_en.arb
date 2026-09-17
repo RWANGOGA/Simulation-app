@@ -403,7 +403,7 @@
   "@bodyMapHelpTitle": {"description": "Title of the Body Map help dialog."},
   "bodyMapHelpBullet1": "• 3D Body (OpenHuman model): Rotate & inspect in 360°.",
   "@bodyMapHelpBullet1": {"description": "First bullet in the Body Map help dialog."},
-  "bodyMapHelpBullet2": "• Tap on body parts to mark pain locations — tap as many as you need.",
+  "bodyMapHelpBullet2": "• Tap on body parts to mark pain locations. Tap as many as you need.",
   "@bodyMapHelpBullet2": {"description": "Second bullet in the Body Map help dialog."},
   "bodyMapHelpBullet3": "• Tap the same spot again to remove that marker.",
   "@bodyMapHelpBullet3": {"description": "Third bullet in the Body Map help dialog."},
@@ -448,7 +448,7 @@
   "@painDetailsHelpBullet3": {"description": "Third bullet in the Pain Details help dialog."},
   "painDetailsHelpBullet4": "• Tap pain type chips (Sharp, Dull, Burning, Cramping).",
   "@painDetailsHelpBullet4": {"description": "Fourth bullet in the Pain Details help dialog."},
-  "painDetailsHelpBullet5": "• Slide to set pain intensity scale from 1 to 10 — each location can be different.",
+  "painDetailsHelpBullet5": "• Slide to set pain intensity scale from 1 to 10. Each location can be different.",
   "@painDetailsHelpBullet5": {"description": "Fifth bullet in the Pain Details help dialog."},
 
   "vitalsCaptureTitle": "4. Vitals Capture",
@@ -515,7 +515,7 @@
   "@submitButton": {"description": "Final submit button on the review screen."},
   "draftSavedSnackbar": "✅ Draft saved offline successfully!",
   "@draftSavedSnackbar": {"description": "Confirmation snackbar after saving a draft."},
-  "submitFailedSavedOfflineSnackbar": "⚠️ Could not submit — saved offline, will retry automatically: {error}",
+  "submitFailedSavedOfflineSnackbar": "⚠️ Could not submit, saved offline, will retry automatically: {error}",
   "@submitFailedSavedOfflineSnackbar": {
     "description": "Snackbar shown when submission fails and is queued offline instead.",
     "placeholders": {"error": {"type": "String"}}
