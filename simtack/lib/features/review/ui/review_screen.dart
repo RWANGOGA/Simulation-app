@@ -9,6 +9,7 @@ import '../../success/ui/success_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
 import '../../body_map/ui/pain_point.dart';
+import '../../../core/widgets/flow_progress_bar.dart';
 import '../../../l10n/app_localizations.dart';
 
 class ReviewScreen extends StatefulWidget {
@@ -195,6 +196,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
           ),
         ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(20),
+          child: FlowProgressBar(totalSteps: 6, currentStep: 5),
+        ),
       ),
       body: Column(
         children: [

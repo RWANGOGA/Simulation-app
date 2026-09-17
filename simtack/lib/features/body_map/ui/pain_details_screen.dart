@@ -7,6 +7,7 @@ import 'pain_point.dart';
 import 'pain_profile_functional_impact_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
+import '../../../core/widgets/flow_progress_bar.dart';
 import '../../../l10n/app_localizations.dart';
 
 class PainDetailsScreen extends StatefulWidget {
@@ -122,6 +123,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
             onPressed: _showHelp,
           ),
         ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(20),
+          child: FlowProgressBar(totalSteps: 6, currentStep: 4),
+        ),
       ),
       body: Column(
         children: [

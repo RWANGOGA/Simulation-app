@@ -11,6 +11,7 @@ import 'pain_point.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/widgets/anatomy_insight_card.dart';
+import '../../../core/widgets/flow_progress_bar.dart';
 import '../../../l10n/app_localizations.dart';
 
 class BodyMapScreen extends StatefulWidget {
@@ -249,6 +250,10 @@ class _BodyMapScreenState extends State<BodyMapScreen>
             onPressed: _showHelp,
           ),
         ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(20),
+          child: FlowProgressBar(totalSteps: 6, currentStep: 3),
+        ),
       ),
       body: Column(
         children: [
