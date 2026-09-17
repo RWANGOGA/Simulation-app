@@ -293,7 +293,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
               tooltip: _painPoints.isEmpty
                   ? t.tapABodyPartLabel
                   : t.locationsSelectedLabel(_painPoints.length),
-              onPressed: _showSelectedLocationsSheet,
+              onPressed: _openSelectedLocationsScreen,
             ),
           ),
           IconButton(
@@ -515,297 +515,36 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
     );
   }
 
-  void _showSelectedLocationsSheet() {
-    final t = AppLocalizations.of(context)!;
-    setState(() => _openOverlayCount++);
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppPalette.surface(context),
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+  // A bottom sheet floating over the 3D body previously covered this, but
+  // the 3D view is a real iframe (a Flutter Web platform view) and kept
+  // swallowing every tap meant for the sheet regardless of what was
+  // drawn on top of it — attempting to gate that with IgnorePointer (see
+  // _openOverlayCount, still used by _showHelp below) did not reliably
+  // stop it either. A dedicated page sidesteps the problem entirely:
+  // pushing a new route removes the previous screen, iframe included,
+  // from what can actually receive touches, so there is nothing left
+  // for it to swallow.
+  void _openSelectedLocationsScreen() {
+    Navigator.of(context)
+        .push(
+      AppPageRoute(
+        builder: (_) => _SelectedLocationsPage(
+          painPoints: _painPoints,
+          anatomyFutureFor: (region) => _anatomyFutures[region],
+          initialAnswersFor: (region) => _questionAnswers[region],
+          onRemove: _removePainPointAt,
+          onAnswersChanged: (region, answers) =>
+              _questionAnswers[region] = answers,
+          onAddRegion: _addRegionManually,
+        ),
       ),
-      builder: (sheetContext) {
-        return StatefulBuilder(
-          builder: (sheetContext, sheetSetState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
-              ),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              t.painLocationsSheetTitle,
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppPalette.textPrimary(context),
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.close),
-                            color: AppPalette.textMuted(context),
-                            tooltip: t.closeButtonTooltip,
-                            onPressed: () => Navigator.of(sheetContext).pop(),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    if (_painPoints.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 16),
-                        child: Text(
-                          t.noLocationsMarkedHint,
-                          style:
-                              TextStyle(color: AppPalette.textMuted(context)),
-                        ),
-                      ),
-                    // Full detail per location (numbered, removable, with
-                    // its collapsible AI insight) lives here now — reached
-                    // through the "locations" button instead of sitting
-                    // permanently on the main screen and taking up space
-                    // that was needed for the 3D body itself.
-                    Flexible(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                            maxHeight:
-                                MediaQuery.of(sheetContext).size.height * 0.65),
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          itemCount: _painPoints.length,
-                          separatorBuilder: (_, __) =>
-                              const SizedBox(height: 10),
-                          itemBuilder: (context, index) {
-                            final point = _painPoints[index];
-                            return Container(
-                              decoration: BoxDecoration(
-                                color: AppPalette.scaffold(context),
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(
-                                    color: AppPalette.border(context)),
-                              ),
-                              clipBehavior: Clip.antiAlias,
-                              child: IntrinsicHeight(
-                                child: Row(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    Container(
-                                        width: 4,
-                                        color: const Color(0xFF6D28D9)),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.stretch,
-                                        children: [
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                12, 10, 4, 0),
-                                            child: Row(
-                                              children: [
-                                                Container(
-                                                  width: 24,
-                                                  height: 24,
-                                                  alignment: Alignment.center,
-                                                  decoration:
-                                                      const BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: Color(0xFF6D28D9),
-                                                  ),
-                                                  child: Text(
-                                                    '${index + 1}',
-                                                    style: const TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 12,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
-                                                  ),
-                                                ),
-                                                const SizedBox(width: 10),
-                                                Expanded(
-                                                  child: Text(
-                                                    point.region,
-                                                    style: TextStyle(
-                                                      fontSize: 14,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: AppPalette
-                                                          .textPrimary(context),
-                                                    ),
-                                                  ),
-                                                ),
-                                                IconButton(
-                                                  icon: const Icon(Icons.close,
-                                                      size: 18),
-                                                  color: AppPalette.textMuted(
-                                                      context),
-                                                  tooltip: t.removeTooltip,
-                                                  onPressed: () {
-                                                    _removePainPointAt(index);
-                                                    sheetSetState(() {});
-                                                  },
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.fromLTRB(
-                                                4, 0, 4, 4),
-                                            child: AnatomyInsightCard(
-                                              region: point.region,
-                                              future:
-                                                  _anatomyFutures[point.region],
-                                              initialAnswers: _questionAnswers[
-                                                  point.region],
-                                              onAnswersChanged: (answers) {
-                                                setState(() {
-                                                  _questionAnswers[
-                                                      point.region] = answers;
-                                                });
-                                              },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    const Divider(height: 24),
-                    ListTile(
-                      leading: const Icon(Icons.add_circle_outline,
-                          color: Color(0xFF6D28D9)),
-                      title: Text(
-                        t.addAnotherLocationLabel,
-                        style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF6D28D9)),
-                      ),
-                      onTap: () {
-                        Navigator.of(sheetContext).pop();
-                        _showRegionPickerModal();
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    ).whenComplete(() {
-      if (mounted) setState(() => _openOverlayCount--);
-    });
-  }
-
-  void _showRegionPickerModal() {
-    final t = AppLocalizations.of(context)!;
-    final regions = [
-      'Abdomen (Lower Right)',
-      'Abdomen (Lower Left)',
-      'Abdomen (Upper)',
-      'Chest / Heart',
-      'Headache / Cranial',
-      'Back Pain (Lower)',
-      'Back Pain (Upper)',
-      'Right Arm / Shoulder',
-      'Left Arm / Shoulder',
-      'Right Leg / Knee',
-      'Left Leg / Knee',
-    ];
-
-    setState(() => _openOverlayCount++);
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppPalette.surface(context),
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Text(
-                  t.selectPainLocationTitle,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppPalette.textPrimary(context),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Expanded(
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: regions.length,
-                  itemBuilder: (context, index) {
-                    final item = regions[index];
-                    final alreadyAdded =
-                        _painPoints.any((p) => p.region == item);
-                    return ListTile(
-                      dense: true,
-                      leading: Icon(
-                        alreadyAdded
-                            ? Icons.check_circle
-                            : Icons.location_on_outlined,
-                        color: alreadyAdded
-                            ? const Color(0xFF6D28D9)
-                            : AppPalette.textMuted(context),
-                      ),
-                      title: Text(
-                        item,
-                        style: TextStyle(
-                          fontWeight: alreadyAdded
-                              ? FontWeight.bold
-                              : FontWeight.normal,
-                          color: alreadyAdded
-                              ? const Color(0xFF6D28D9)
-                              : AppPalette.textSecondary(context),
-                        ),
-                      ),
-                      onTap: () {
-                        if (!alreadyAdded) {
-                          _addRegionManually(item);
-                        }
-                        Navigator.of(context).pop();
-                      },
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    ).whenComplete(() {
-      if (mounted) setState(() => _openOverlayCount--);
+    )
+        .then((_) {
+      // The pushed page mutates the same _painPoints/_questionAnswers
+      // objects directly, so this screen's own state is already correct
+      // underneath — it just needs a rebuild to show it (the badge count,
+      // the Continue button) now that it's visible again.
+      if (mounted) setState(() {});
     });
   }
 
@@ -866,6 +605,270 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
           patientId: widget.patientId,
           patientCode: widget.patientCode,
           modelAsset: widget.modelAsset,
+        ),
+      ),
+    );
+  }
+}
+
+/// A dedicated page for reviewing and managing marked pain locations, in
+/// place of a bottom sheet — see the comment on
+/// _BodyMapScreenState._openSelectedLocationsScreen for why a sheet
+/// could not reliably be dismissed or interacted with here (the 3D body
+/// view behind it is a real iframe that kept eating its taps). This page
+/// reads and mutates the same painPoints list and per-region maps that
+/// BodyMapScreen owns (passed down by reference, not copied), so the
+/// caller sees the same changes once this page is popped.
+class _SelectedLocationsPage extends StatefulWidget {
+  const _SelectedLocationsPage({
+    required this.painPoints,
+    required this.anatomyFutureFor,
+    required this.initialAnswersFor,
+    required this.onRemove,
+    required this.onAnswersChanged,
+    required this.onAddRegion,
+  });
+
+  final List<PainPoint> painPoints;
+  final Future<AnatomyInsight>? Function(String region) anatomyFutureFor;
+  final Map<String, String>? Function(String region) initialAnswersFor;
+  final void Function(int index) onRemove;
+  final void Function(String region, Map<String, String> answers)
+      onAnswersChanged;
+  final void Function(String region) onAddRegion;
+
+  @override
+  State<_SelectedLocationsPage> createState() =>
+      _SelectedLocationsPageState();
+}
+
+class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
+  static const _regionOptions = [
+    'Abdomen (Lower Right)',
+    'Abdomen (Lower Left)',
+    'Abdomen (Upper)',
+    'Chest / Heart',
+    'Headache / Cranial',
+    'Back Pain (Lower)',
+    'Back Pain (Upper)',
+    'Right Arm / Shoulder',
+    'Left Arm / Shoulder',
+    'Right Leg / Knee',
+    'Left Leg / Knee',
+  ];
+
+  void _openRegionPicker() {
+    final t = AppLocalizations.of(context)!;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppPalette.surface(context),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                child: Text(
+                  t.selectPainLocationTitle,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: AppPalette.textPrimary(context),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: _regionOptions.length,
+                  itemBuilder: (context, index) {
+                    final item = _regionOptions[index];
+                    final alreadyAdded =
+                        widget.painPoints.any((p) => p.region == item);
+                    return ListTile(
+                      dense: true,
+                      leading: Icon(
+                        alreadyAdded
+                            ? Icons.check_circle
+                            : Icons.location_on_outlined,
+                        color: alreadyAdded
+                            ? const Color(0xFF6D28D9)
+                            : AppPalette.textMuted(context),
+                      ),
+                      title: Text(
+                        item,
+                        style: TextStyle(
+                          fontWeight: alreadyAdded
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: alreadyAdded
+                              ? const Color(0xFF6D28D9)
+                              : AppPalette.textSecondary(context),
+                        ),
+                      ),
+                      onTap: () {
+                        if (!alreadyAdded) {
+                          widget.onAddRegion(item);
+                          setState(() {});
+                        }
+                        Navigator.of(sheetContext).pop();
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return Scaffold(
+      backgroundColor: AppPalette.scaffold(context),
+      appBar: AppBar(
+        backgroundColor: AppPalette.surface(context),
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        title: Text(
+          t.painLocationsSheetTitle,
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppPalette.textPrimary(context),
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: widget.painPoints.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.all(24),
+                child: Text(
+                  t.noLocationsMarkedHint,
+                  style: TextStyle(color: AppPalette.textMuted(context)),
+                ),
+              )
+            : ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: widget.painPoints.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 10),
+                itemBuilder: (context, index) {
+                  final point = widget.painPoints[index];
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: AppPalette.scaffold(context),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: AppPalette.border(context)),
+                    ),
+                    clipBehavior: Clip.antiAlias,
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Container(width: 4, color: const Color(0xFF6D28D9)),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                      12, 10, 4, 0),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 24,
+                                        height: 24,
+                                        alignment: Alignment.center,
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Color(0xFF6D28D9),
+                                        ),
+                                        child: Text(
+                                          '${index + 1}',
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10),
+                                      Expanded(
+                                        child: Text(
+                                          point.region,
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppPalette.textPrimary(
+                                                context),
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.close,
+                                            size: 18),
+                                        color: AppPalette.textMuted(context),
+                                        tooltip: t.removeTooltip,
+                                        onPressed: () {
+                                          widget.onRemove(index);
+                                          setState(() {});
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(4, 0, 4, 4),
+                                  child: AnatomyInsightCard(
+                                    region: point.region,
+                                    future: widget.anatomyFutureFor(
+                                        point.region),
+                                    initialAnswers: widget
+                                        .initialAnswersFor(point.region),
+                                    onAnswersChanged: (answers) {
+                                      widget.onAnswersChanged(
+                                          point.region, answers);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: OutlinedButton.icon(
+            onPressed: _openRegionPicker,
+            icon: const Icon(Icons.add_circle_outline,
+                color: Color(0xFF6D28D9)),
+            label: Text(
+              t.addAnotherLocationLabel,
+              style: const TextStyle(
+                  fontWeight: FontWeight.w600, color: Color(0xFF6D28D9)),
+            ),
+          ),
         ),
       ),
     );

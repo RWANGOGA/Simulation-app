@@ -6,13 +6,16 @@
 // platform yet" placeholder (see anatomy_3d_tap_view.dart), so these tests
 // exercise the manual "Add another location" picker instead. That path
 // converges on the exact same downstream code a real 3D tap would drive —
-// _addRegionManually -> _painPoints -> the "Selected Locations" sheet's
+// _addRegionManually -> _painPoints -> the "Selected Locations" screen's
 // detail list. Direct feedback moved the full per-location report (region
 // name, remove button, collapsible AI insight) out of an always-visible
 // panel on the main screen — which was reported as covering space needed
-// to see the 3D body — and into that sheet, reached via the "locations"
-// button/badge, so the body view keeps full space until you actually want
-// the report.
+// to see the 3D body — into a bottom sheet reached via the "locations"
+// button/badge, and then, once it turned out the 3D view is a real iframe
+// that kept swallowing every tap meant for a sheet floating on top of it,
+// into a dedicated pushed page instead (see _SelectedLocationsPage in
+// body_map_screen.dart), so the body view keeps full space until you
+// actually want the report, and the report itself is fully interactive.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
@@ -86,27 +89,39 @@ void main() {
     await tester.pump(const Duration(milliseconds: 500));
   }
 
-  /// Opens the "Selected Locations" management sheet, then "Add another
-  /// location", then taps [region] in the picker list — the same code path
-  /// _addRegionManually drives, independent of the 3D view. The region
-  /// picker sheet pops itself after the tap, so this ends with no sheet
-  /// open; call [openLocationsSheet] afterward to see the added location's
-  /// full detail (region, remove button, AI insight).
-  Future<void> addRegionManually(WidgetTester tester, String region) async {
+  /// Opens the "Selected Locations" page — the one place full per-location
+  /// detail (including the collapsible AI insight) now renders, reached via
+  /// the top badge/button rather than an always-visible panel. A full page
+  /// (not a bottom sheet) specifically because the 3D view behind it is a
+  /// real iframe that kept receiving taps meant for a sheet floating on
+  /// top of it; pushing a whole new route removes that iframe from what
+  /// can be interacted with instead of merely drawing over it.
+  Future<void> openLocationsScreen(WidgetTester tester) async {
     await tester.tap(find.byIcon(Icons.location_on));
     await settleModalTransition(tester);
+  }
+
+  /// Taps the locations screen's own back arrow, returning to BodyMapScreen.
+  Future<void> goBackFromLocationsScreen(WidgetTester tester) async {
+    await tester.tap(find.byIcon(Icons.arrow_back).first);
+    await settleModalTransition(tester);
+  }
+
+  /// Opens the "Selected Locations" page, then "Add another location"
+  /// (a bottom sheet on top of that page — safe there, unlike on the main
+  /// screen, since this page has no iframe underneath it to swallow the
+  /// tap), then taps [region] in the picker list, then navigates back to
+  /// the main screen — the same code path a real 3D tap would drive via
+  /// _addRegionManually -> _painPoints. Ends back where it started, on
+  /// BodyMapScreen, with the location marked; call [openLocationsScreen]
+  /// afterward to see its full detail (region, remove button, AI insight).
+  Future<void> addRegionManually(WidgetTester tester, String region) async {
+    await openLocationsScreen(tester);
     await tester.tap(find.text('Add another location'));
     await settleModalTransition(tester);
     await tester.tap(find.text(region));
     await settleModalTransition(tester);
-  }
-
-  /// Opens the "Selected Locations" sheet — the one place full per-location
-  /// detail (including the collapsible AI insight) now renders, reached via
-  /// the top badge/button rather than an always-visible panel.
-  Future<void> openLocationsSheet(WidgetTester tester) async {
-    await tester.tap(find.byIcon(Icons.location_on));
-    await settleModalTransition(tester);
+    await goBackFromLocationsScreen(tester);
   }
 
   testWidgets('shows the empty-state hint and a disabled Continue button with no locations marked',
@@ -122,7 +137,7 @@ void main() {
   });
 
   testWidgets(
-      'adding a location makes its full detail reachable through the locations sheet, not shown inline on the main screen',
+      'adding a location makes its full detail reachable through the locations screen, not shown inline on the main screen',
       (tester) async {
     await useTallViewport(tester);
     await tester.pumpWidget(buildScreen());
@@ -136,20 +151,19 @@ void main() {
     // the region name).
     expect(find.text('AI insight: Chest / Heart'), findsNothing);
 
-    // Continue button should be enabled and reflect the count regardless
-    // of whether the sheet is open.
+    // Continue button should be enabled and reflect the count.
     final continueButton = tester.widget<ElevatedButton>(find.widgetWithText(
         ElevatedButton, 'Continue to Pain Details (1)'));
     expect(continueButton.onPressed, isNotNull);
 
-    // Opening the locations sheet is where the full detail now lives.
-    await openLocationsSheet(tester);
+    // Opening the locations screen is where the full detail now lives.
+    await openLocationsScreen(tester);
     expect(find.text('Chest / Heart'), findsWidgets);
     expect(find.text('AI insight: Chest / Heart'), findsOneWidget);
   });
 
   testWidgets(
-      'marking two different locations makes both reachable via the locations sheet (multi-select), and removing one leaves the other',
+      'marking two different locations makes both reachable via the locations screen (multi-select), and removing one leaves the other',
       (tester) async {
     await useTallViewport(tester);
     await tester.pumpWidget(buildScreen());
@@ -158,47 +172,49 @@ void main() {
     await addRegionManually(tester, 'Chest / Heart');
     await addRegionManually(tester, 'Left Leg / Knee');
 
-    await openLocationsSheet(tester);
-    expect(find.text('AI insight: Chest / Heart'), findsOneWidget);
-    expect(find.text('AI insight: Left Leg / Knee'), findsOneWidget);
+    // Continue button reflects the count on the main screen, before the
+    // locations screen is even opened.
     expect(
         tester.widget<ElevatedButton>(find.widgetWithText(
             ElevatedButton, 'Continue to Pain Details (2)')),
         isNotNull);
 
-    // Remove the first one via its own remove button inside the sheet —
-    // found by tooltip rather than find.byIcon(Icons.close).first, since
-    // the sheet now also has its own header close button using the same
-    // icon (see body_map_screen_test's "locations sheet has a visible
-    // close button" test below), which would otherwise make ".first"
-    // ambiguous and ordering-dependent.
+    await openLocationsScreen(tester);
+    expect(find.text('AI insight: Chest / Heart'), findsOneWidget);
+    expect(find.text('AI insight: Left Leg / Knee'), findsOneWidget);
+
+    // Remove the first one via its own remove button on the locations
+    // screen. Both this page and BodyMapScreen mutate the same painPoints
+    // list, so the removal is reflected on the main screen too once we
+    // navigate back, checked below.
     await tester.tap(find.byTooltip('Remove').first);
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('AI insight: Chest / Heart'), findsNothing);
     expect(find.text('AI insight: Left Leg / Knee'), findsOneWidget);
+
+    await goBackFromLocationsScreen(tester);
     expect(
         tester.widget<ElevatedButton>(find.widgetWithText(
             ElevatedButton, 'Continue to Pain Details (1)')),
         isNotNull);
   });
 
-  testWidgets('locations sheet has a visible close button that dismisses it',
+  testWidgets('locations screen has a back button that returns to the main screen',
       (tester) async {
     await useTallViewport(tester);
     await tester.pumpWidget(buildScreen());
     await tester.pump(const Duration(milliseconds: 400));
 
     await addRegionManually(tester, 'Chest / Heart');
-    await openLocationsSheet(tester);
+    await openLocationsScreen(tester);
     expect(find.text('AI insight: Chest / Heart'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Close'));
-    await settleModalTransition(tester);
+    await goBackFromLocationsScreen(tester);
 
-    // The sheet is gone, not just its content scrolled out of view — the
-    // location itself is still marked (the tap only closes the sheet, it
-    // does not remove anything).
+    // Back on the main screen, not just scrolled — its own content (no
+    // inline AI insight text) and Continue button are showing again, and
+    // the location marked on the other screen is still there.
     expect(find.text('AI insight: Chest / Heart'), findsNothing);
     final continueButton = tester.widget<ElevatedButton>(find.widgetWithText(
         ElevatedButton, 'Continue to Pain Details (1)'));

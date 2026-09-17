@@ -968,12 +968,6 @@ abstract class AppLocalizations {
   /// **'Remove'**
   String get removeTooltip;
 
-  /// Tooltip on the close icon for the pain-locations bottom sheet.
-  ///
-  /// In en, this message translates to:
-  /// **'Close'**
-  String get closeButtonTooltip;
-
   /// Entry point into the preset region picker from the locations sheet.
   ///
   /// In en, this message translates to:
