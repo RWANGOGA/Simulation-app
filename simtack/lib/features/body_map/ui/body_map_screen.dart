@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 
 import 'package:flutter/material.dart';
@@ -76,12 +78,19 @@ class _BodyMapScreenState extends State<BodyMapScreen>
   // the multi-select toggle behavior.
   final List<PainPoint> _painPoints = [];
 
-  // Holds the most recent detected tap until the user confirms or changes
-  // the region in the confirmation bottom sheet. partName is the precise
-  // BodyParts3D structure that was actually tapped (e.g. "Distal phalanx of
-  // left index finger"), shown to the patient alongside the coarser region
-  // — see Anatomy3DTapView / region-map.js for how it's resolved.
-  ({String region, double x, double y, String? partName})? _pendingTap;
+  // A brief floating label near the tap point naming exactly what was
+  // touched (e.g. "Left ear" / "Distal phalanx of left index finger"),
+  // shown for a moment right where the patient tapped, then cleared. This
+  // replaced an earlier confirmation bottom sheet that interrupted every
+  // single tap with a "Confirm & Describe Pain" modal and its own
+  // re-pick-from-a-short-list step — reported directly as breaking the
+  // flow and undoing the 3D view's own precision (e.g. tapping the ear
+  // only offered to re-file it under the broad "Headache / Cranial" from a
+  // 4-item list). Tapping now adds the location immediately; PainDetails
+  // (the next screen) is still where symptom description/quality get
+  // captured per point, same as before.
+  ({String text, double x, double y})? _tapLabel;
+  Timer? _tapLabelTimer;
 
   // One in-flight AI request per region. Keyed by region label so
   // re-tapping the same region (toggle-off then on) does not re-fetch
@@ -105,6 +114,7 @@ class _BodyMapScreenState extends State<BodyMapScreen>
   @override
   void dispose() {
     _pulseController.dispose();
+    _tapLabelTimer?.cancel();
     super.dispose();
   }
 
@@ -112,19 +122,27 @@ class _BodyMapScreenState extends State<BodyMapScreen>
   /// down to one of the backend's 14 fixed KB region strings itself (see
   /// assets/anatomy3d/region-map.js) — no further mapping needed here,
   /// unlike the old 2D system this replaced. [partName] is the precise
-  /// structure tapped, shown to the patient alongside the region. Shows the
-  /// result immediately, no confirmation delay — matching the direct
-  /// tap-and-see behavior the 2D system also used.
+  /// structure tapped. Adds (or, on a repeat tap of the same spot, removes)
+  /// the location immediately and fires its AI insight request — no
+  /// confirmation step in between; a brief label naming the tapped
+  /// structure shows right at the tap point instead.
   void _handleBodyPartReceived(
       String region, double x, double y, String? partName) {
     if (!kReleaseMode) {
       debugPrint(
           'BodyMap: received tap -> region=$region partName=$partName x=$x y=$y');
     }
+    _addOrRemovePainPoint(region: region, x: x, y: y);
+    _requestAnatomyInsight(region);
+
+    _tapLabelTimer?.cancel();
     setState(() {
-      _pendingTap = (region: region, x: x, y: y, partName: partName);
+      _tapLabel = (text: partName ?? region, x: x, y: y);
     });
-    _showRegionConfirmationSheet();
+    _tapLabelTimer = Timer(const Duration(milliseconds: 1800), () {
+      if (!mounted) return;
+      setState(() => _tapLabel = null);
+    });
   }
 
   /// Multi-select toggle: tapping a fresh spot adds a new pain point.
@@ -251,7 +269,16 @@ class _BodyMapScreenState extends State<BodyMapScreen>
                     // (partName) for display — see anatomy_3d_tap_view.dart.
                     Positioned.fill(
                       child: Container(
-                        color: AppPalette.subtleFill(context),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              AppPalette.subtleFill(context),
+                              const Color(0xFF6D28D9).withOpacity(0.06),
+                            ],
+                          ),
+                        ),
                         child: Stack(
                           children: [
                             Positioned.fill(
@@ -260,6 +287,54 @@ class _BodyMapScreenState extends State<BodyMapScreen>
                                 onRegionTapped: _handleBodyPartReceived,
                               ),
                             ),
+                            // A gentle nudge for first-time patients — fades
+                            // once at least one location is marked, since
+                            // the badge/panel below take over from there.
+                            if (_painPoints.isEmpty)
+                              Positioned(
+                                left: 0,
+                                right: 0,
+                                bottom: 16,
+                                child: Center(
+                                  child: IgnorePointer(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16, vertical: 10),
+                                      decoration: BoxDecoration(
+                                        color: AppPalette.surface(context)
+                                            .withOpacity(0.92),
+                                        borderRadius: BorderRadius.circular(20),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.08),
+                                            blurRadius: 10,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          const Icon(Icons.threed_rotation,
+                                              size: 16,
+                                              color: Color(0xFF6D28D9)),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            'Rotate to look around, tap where it hurts',
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w600,
+                                              color: AppPalette.textSecondary(
+                                                  context),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             // Pain hotspot pulses, positioned as fractions
                             // of this same box — matches the normalized x/y
                             // the 3D viewer reports (fraction of its own
@@ -299,6 +374,47 @@ class _BodyMapScreenState extends State<BodyMapScreen>
                                         ),
                                       );
                                     },
+                                  ),
+                                ),
+                              ),
+                            // Names exactly what was just tapped, right at
+                            // the tap point, then fades — the replacement
+                            // for the old confirmation modal's "Detected:
+                            // ..." line, without stopping to ask anything.
+                            if (_tapLabel != null)
+                              AnimatedPositioned(
+                                duration: const Duration(milliseconds: 200),
+                                left: (_tapLabel!.x * constraints.maxWidth)
+                                        .clamp(0, constraints.maxWidth) -
+                                    90,
+                                top: _tapLabel!.y * constraints.maxHeight - 56,
+                                width: 180,
+                                child: IgnorePointer(
+                                  child: AnimatedOpacity(
+                                    key: ValueKey(_tapLabel),
+                                    opacity: 1,
+                                    duration: const Duration(milliseconds: 150),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 6),
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF1E293B)
+                                            .withOpacity(0.92),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Text(
+                                        _tapLabel!.text,
+                                        textAlign: TextAlign.center,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -371,90 +487,188 @@ class _BodyMapScreenState extends State<BodyMapScreen>
           // the ear, then a foot, and each result landed in its own
           // disconnected card. This is the single organized place all of
           // that now lives, appended as each location is confirmed.
-          Expanded(
-            flex: 2,
-            child: Container(
-              decoration: BoxDecoration(
-                color: AppPalette.surface(context),
-                border: Border(
-                  top: BorderSide(color: AppPalette.border(context)),
-                ),
-              ),
-              child: _painPoints.isEmpty
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(24),
-                        child: Text(
-                          t.noLocationsMarkedHint,
-                          textAlign: TextAlign.center,
-                          style:
-                              TextStyle(color: AppPalette.textMuted(context)),
+          // With nothing marked yet, this panel only has one line of hint
+          // text — giving it a fixed 40% flex share regardless left the 3D
+          // body squeezed into a sliver at the top. It now takes just
+          // enough height for that hint, and only claims real flexible
+          // space once there's an actual list of locations worth scrolling.
+          _painPoints.isEmpty
+              ? Container(
+                  decoration: BoxDecoration(
+                    color: AppPalette.surface(context),
+                    border: Border(
+                      top: BorderSide(color: AppPalette.border(context)),
+                    ),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 22),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 44,
+                        height: 44,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: const Color(0xFF6D28D9).withOpacity(0.1),
+                        ),
+                        child: const Icon(Icons.front_hand_outlined,
+                            color: Color(0xFF6D28D9), size: 22),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Your pain report will appear here',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: AppPalette.textPrimary(context),
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              t.noLocationsMarkedHint,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: AppPalette.textMuted(context),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    )
-                  : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+                    ],
+                  ),
+                )
+              : Expanded(
+                  flex: 2,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: AppPalette.scaffold(context),
+                      border: Border(
+                        top: BorderSide(color: AppPalette.border(context)),
+                      ),
+                    ),
+                    child: ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(12, 14, 12, 8),
                       itemCount: _painPoints.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: 4),
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (context, i) {
                         final point = _painPoints[i];
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Row(
+                        // A left accent stripe needs a different color than
+                        // the rest of the border, and Flutter can't paint a
+                        // rounded border whose sides aren't a single
+                        // uniform color — so the accent is its own thin
+                        // Container in a Row instead of a BorderSide, with
+                        // the outer border kept uniform.
+                        return Container(
+                          decoration: BoxDecoration(
+                            color: AppPalette.surface(context),
+                            borderRadius: BorderRadius.circular(16),
+                            border:
+                                Border.all(color: AppPalette.border(context)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          clipBehavior: Clip.antiAlias,
+                          // IntrinsicHeight resolves the stripe's height
+                          // against the Column's — without it, Row's
+                          // stretch cross-axis alignment has no bounded
+                          // height to stretch to inside a ListView item
+                          // (whose height is otherwise unbounded), and
+                          // layout fails with "BoxConstraints forces an
+                          // infinite height".
+                          child: IntrinsicHeight(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Container(
-                                  width: 22,
-                                  height: 22,
-                                  alignment: Alignment.center,
-                                  decoration: const BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: Color(0xFF6D28D9),
-                                  ),
-                                  child: Text(
-                                    '${i + 1}',
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 8),
+                                    width: 4, color: const Color(0xFF6D28D9)),
                                 Expanded(
-                                  child: Text(
-                                    point.region,
-                                    style: TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                      color: AppPalette.textPrimary(context),
-                                    ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.stretch,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            12, 10, 4, 0),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              width: 24,
+                                              height: 24,
+                                              alignment: Alignment.center,
+                                              decoration: const BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color: Color(0xFF6D28D9),
+                                              ),
+                                              child: Text(
+                                                '${i + 1}',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: Text(
+                                                point.region,
+                                                style: TextStyle(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppPalette.textPrimary(
+                                                      context),
+                                                ),
+                                              ),
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.close,
+                                                  size: 18),
+                                              color:
+                                                  AppPalette.textMuted(context),
+                                              tooltip: t.removeTooltip,
+                                              onPressed: () =>
+                                                  _removePainPointAt(i),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.fromLTRB(
+                                            4, 0, 4, 4),
+                                        child: AnatomyInsightCard(
+                                          region: point.region,
+                                          future: _anatomyFutures[point.region],
+                                          initialAnswers:
+                                              _questionAnswers[point.region],
+                                          onAnswersChanged: (answers) {
+                                            setState(() {
+                                              _questionAnswers[point.region] =
+                                                  answers;
+                                            });
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.close, size: 18),
-                                  color: AppPalette.textMuted(context),
-                                  tooltip: t.removeTooltip,
-                                  onPressed: () => _removePainPointAt(i),
                                 ),
                               ],
                             ),
-                            AnatomyInsightCard(
-                              region: point.region,
-                              future: _anatomyFutures[point.region],
-                              initialAnswers: _questionAnswers[point.region],
-                              onAnswersChanged: (answers) {
-                                setState(() {
-                                  _questionAnswers[point.region] = answers;
-                                });
-                              },
-                            ),
-                          ],
+                          ),
                         );
                       },
                     ),
-            ),
-          ),
+                  ),
+                ),
 
           // Navigation CTA Button — disabled until at least one location
           // is marked, since there's nothing to carry into Pain Details
@@ -506,264 +720,6 @@ class _BodyMapScreenState extends State<BodyMapScreen>
           ),
         ],
       ),
-    );
-  }
-
-  /// Shows every currently-marked location with a remove button, plus an
-  /// interactive symptom description field & quick quality tags so patients
-  /// can describe their symptoms right after tapping a body part.
-  void _showRegionConfirmationSheet() {
-    if (_pendingTap == null) return;
-    final detected = _pendingTap!.region;
-    final detectedPartName = _pendingTap!.partName;
-    final regions = [
-      'Headache / Cranial',
-      'Neck',
-      'Chest / Heart',
-      'Abdomen (Upper)',
-      'Abdomen (Lower Right)',
-      'Abdomen (Lower Left)',
-      'Hips / Groin',
-      'Thighs',
-      'Back Pain (Upper)',
-      'Back Pain (Lower)',
-      'Right Arm / Shoulder',
-      'Left Arm / Shoulder',
-      'Right Leg / Knee',
-      'Left Leg / Knee',
-    ];
-
-    final availableTags = [
-      'Sharp',
-      'Dull',
-      'Burning',
-      'Throbbing',
-      'Pressure',
-      'Constant',
-      'Intermittent'
-    ];
-
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppPalette.surface(context),
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (sheetContext) {
-        String selectedRegion = detected;
-        final symptomController = TextEditingController();
-        final Set<String> selectedTags = {};
-
-        return StatefulBuilder(
-          builder: (sheetContext, sheetSetState) {
-            return Padding(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
-              ),
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.pin_drop_rounded,
-                                color: Color(0xFF6D28D9), size: 24),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Confirm & Describe Pain',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: AppPalette.textPrimary(context),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                          detectedPartName != null
-                              ? 'Detected: $detectedPartName ($detected)'
-                              : 'Detected Region: $detected',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: AppPalette.textMuted(context),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ConstrainedBox(
-                        constraints: BoxConstraints(
-                            maxHeight:
-                                MediaQuery.of(sheetContext).size.height * 0.25),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: regions.length,
-                          itemBuilder: (context, index) {
-                            final item = regions[index];
-                            final isSelected = selectedRegion == item;
-                            return ListTile(
-                              dense: true,
-                              leading: Icon(
-                                isSelected
-                                    ? Icons.check_circle
-                                    : Icons.location_on_outlined,
-                                color: isSelected
-                                    ? const Color(0xFF6D28D9)
-                                    : AppPalette.textMuted(context),
-                              ),
-                              title: Text(
-                                item,
-                                style: TextStyle(
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                  color: isSelected
-                                      ? const Color(0xFF6D28D9)
-                                      : AppPalette.textSecondary(context),
-                                ),
-                              ),
-                              onTap: () {
-                                sheetSetState(() {
-                                  selectedRegion = item;
-                                });
-                              },
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Describe Your Symptoms (Optional)',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppPalette.textPrimary(context),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      TextField(
-                        controller: symptomController,
-                        maxLines: 2,
-                        decoration: InputDecoration(
-                          hintText:
-                              'e.g. Sharp pain when taking a deep breath, throbbing behind eyes...',
-                          hintStyle: TextStyle(
-                              color: AppPalette.textMuted(context),
-                              fontSize: 13),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide:
-                                BorderSide(color: AppPalette.border(context)),
-                          ),
-                          contentPadding: const EdgeInsets.all(12),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Symptom Tags',
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: AppPalette.textSecondary(context),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 6,
-                        children: availableTags.map((tag) {
-                          final isSelected = selectedTags.contains(tag);
-                          return FilterChip(
-                            label: Text(tag,
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: isSelected
-                                        ? Colors.white
-                                        : AppPalette.textPrimary(context))),
-                            selected: isSelected,
-                            selectedColor: const Color(0xFF6D28D9),
-                            onSelected: (selected) {
-                              sheetSetState(() {
-                                if (selected) {
-                                  selectedTags.add(tag);
-                                } else {
-                                  selectedTags.remove(tag);
-                                }
-                              });
-                            },
-                          );
-                        }).toList(),
-                      ),
-                      const Divider(height: 24),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextButton(
-                              onPressed: () {
-                                Navigator.of(sheetContext).pop();
-                                setState(() => _pendingTap = null);
-                              },
-                              child: const Text('Cancel',
-                                  style: TextStyle(color: Color(0xFF64748B))),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                final textSymptom =
-                                    symptomController.text.trim();
-                                final tagsList = selectedTags.toList();
-                                final combinedComplaint = [
-                                  if (textSymptom.isNotEmpty) textSymptom,
-                                  if (tagsList.isNotEmpty)
-                                    'Quality: ${tagsList.join(", ")}',
-                                ].join('. ');
-
-                                Navigator.of(sheetContext).pop();
-                                final confirmed = _pendingTap!;
-                                _pendingTap = null;
-                                _addOrRemovePainPoint(
-                                  region: selectedRegion,
-                                  x: confirmed.x,
-                                  y: confirmed.y,
-                                  symptomDescription: textSymptom.isNotEmpty
-                                      ? textSymptom
-                                      : null,
-                                  tags: tagsList,
-                                );
-                                _requestAnatomyInsight(selectedRegion,
-                                    complaint: combinedComplaint);
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF6D28D9),
-                                foregroundColor: Colors.white,
-                              ),
-                              child: const Text('Confirm & Map'),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
     );
   }
 
