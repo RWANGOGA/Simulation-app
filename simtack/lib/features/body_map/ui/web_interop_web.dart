@@ -2,7 +2,14 @@ import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
 import 'package:web/web.dart' as web;
 
-typedef BodyPartCallback = void Function(String part, double? x, double? y);
+// `part` is always one of the backend's 14 fixed KB region strings (the
+// resolved region — unchanged contract). `partName`, when present, is the
+// precise anatomical structure that was actually tapped in the 3D view
+// (e.g. "Distal phalanx of left index finger"), for showing the patient a
+// more specific label than the coarse region alone; the 2D tap view never
+// sends it, so it's null there.
+typedef BodyPartCallback = void Function(
+    String part, double? x, double? y, String? partName);
 
 class WebInterop {
   static final Map<BodyPartCallback, JSFunction> _listeners = {};
@@ -16,6 +23,7 @@ class WebInterop {
       String? part;
       double? x;
       double? y;
+      String? partName;
 
       if (converted is String) {
         part = converted;
@@ -23,13 +31,15 @@ class WebInterop {
         final p = converted['part'];
         final rx = converted['x'];
         final ry = converted['y'];
+        final pn = converted['partName'];
         if (p is String) part = p;
         if (rx is num) x = rx.toDouble();
         if (ry is num) y = ry.toDouble();
+        if (pn is String) partName = pn;
       }
 
       if (part != null && part.isNotEmpty) {
-        onBodyPart(part, x, y);
+        onBodyPart(part, x, y, partName);
       }
     }
 

@@ -1,4 +1,5 @@
-typedef BodyPartCallback = void Function(String part, double? x, double? y);
+typedef BodyPartCallback = void Function(
+    String part, double? x, double? y, String? partName);
 
 class WebInterop {
   static void registerBodyPartListener(BodyPartCallback onBodyPart) {}
