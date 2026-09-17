@@ -166,8 +166,13 @@ void main() {
             ElevatedButton, 'Continue to Pain Details (2)')),
         isNotNull);
 
-    // Remove the first one via its close button inside the sheet.
-    await tester.tap(find.byIcon(Icons.close).first);
+    // Remove the first one via its own remove button inside the sheet —
+    // found by tooltip rather than find.byIcon(Icons.close).first, since
+    // the sheet now also has its own header close button using the same
+    // icon (see body_map_screen_test's "locations sheet has a visible
+    // close button" test below), which would otherwise make ".first"
+    // ambiguous and ordering-dependent.
+    await tester.tap(find.byTooltip('Remove').first);
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('AI insight: Chest / Heart'), findsNothing);
@@ -176,6 +181,28 @@ void main() {
         tester.widget<ElevatedButton>(find.widgetWithText(
             ElevatedButton, 'Continue to Pain Details (1)')),
         isNotNull);
+  });
+
+  testWidgets('locations sheet has a visible close button that dismisses it',
+      (tester) async {
+    await useTallViewport(tester);
+    await tester.pumpWidget(buildScreen());
+    await tester.pump(const Duration(milliseconds: 400));
+
+    await addRegionManually(tester, 'Chest / Heart');
+    await openLocationsSheet(tester);
+    expect(find.text('AI insight: Chest / Heart'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Close'));
+    await settleModalTransition(tester);
+
+    // The sheet is gone, not just its content scrolled out of view — the
+    // location itself is still marked (the tap only closes the sheet, it
+    // does not remove anything).
+    expect(find.text('AI insight: Chest / Heart'), findsNothing);
+    final continueButton = tester.widget<ElevatedButton>(find.widgetWithText(
+        ElevatedButton, 'Continue to Pain Details (1)'));
+    expect(continueButton.onPressed, isNotNull);
   });
 
   testWidgets('3D view placeholder renders without crashing on a non-web test target',
