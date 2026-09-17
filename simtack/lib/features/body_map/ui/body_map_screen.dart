@@ -236,6 +236,7 @@ class _BodyMapScreenState extends State<BodyMapScreen>
         children: [
           // 3D Canvas Area
           Expanded(
+            flex: 3,
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return Stack(
@@ -355,68 +356,103 @@ class _BodyMapScreenState extends State<BodyMapScreen>
                         ),
                       ),
                     ),
-                    if (_painPoints.isNotEmpty)
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                AppPalette.subtleFill(context).withOpacity(0.0),
-                                AppPalette.subtleFill(context)
-                                    .withOpacity(0.95),
-                              ],
-                            ),
-                          ),
-                          padding: const EdgeInsets.fromLTRB(12, 24, 12, 12),
-                          child: SizedBox(
-                            height: 180,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: _painPoints.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(width: 8),
-                              itemBuilder: (context, i) {
-                                final point = _painPoints[i];
-                                return SizedBox(
-                                  width: 280,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.stretch,
-                                    children: [
-                                      Expanded(
-                                        child: SingleChildScrollView(
-                                          child: AnatomyInsightCard(
-                                            region: point.region,
-                                            future:
-                                                _anatomyFutures[point.region],
-                                            initialAnswers:
-                                                _questionAnswers[point.region],
-                                            onAnswersChanged: (answers) {
-                                              setState(() {
-                                                _questionAnswers[point.region] =
-                                                    answers;
-                                              });
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-
                   ],
                 );
               },
+            ),
+          ),
+
+          // Marked Locations Report — every tapped region's full AI insight,
+          // appended in order into ONE continuously-scrolling panel instead
+          // of separate side-scrolling cards. The earlier horizontal
+          // carousel (one narrow 280px card per region, swipe sideways to
+          // see the next) was reported as scattering related information
+          // across the screen instead of collecting it — tap the eye, then
+          // the ear, then a foot, and each result landed in its own
+          // disconnected card. This is the single organized place all of
+          // that now lives, appended as each location is confirmed.
+          Expanded(
+            flex: 2,
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppPalette.surface(context),
+                border: Border(
+                  top: BorderSide(color: AppPalette.border(context)),
+                ),
+              ),
+              child: _painPoints.isEmpty
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(24),
+                        child: Text(
+                          t.noLocationsMarkedHint,
+                          textAlign: TextAlign.center,
+                          style:
+                              TextStyle(color: AppPalette.textMuted(context)),
+                        ),
+                      ),
+                    )
+                  : ListView.separated(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+                      itemCount: _painPoints.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 4),
+                      itemBuilder: (context, i) {
+                        final point = _painPoints[i];
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Row(
+                              children: [
+                                Container(
+                                  width: 22,
+                                  height: 22,
+                                  alignment: Alignment.center,
+                                  decoration: const BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: Color(0xFF6D28D9),
+                                  ),
+                                  child: Text(
+                                    '${i + 1}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    point.region,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppPalette.textPrimary(context),
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.close, size: 18),
+                                  color: AppPalette.textMuted(context),
+                                  tooltip: t.removeTooltip,
+                                  onPressed: () => _removePainPointAt(i),
+                                ),
+                              ],
+                            ),
+                            AnatomyInsightCard(
+                              region: point.region,
+                              future: _anatomyFutures[point.region],
+                              initialAnswers: _questionAnswers[point.region],
+                              onAnswersChanged: (answers) {
+                                setState(() {
+                                  _questionAnswers[point.region] = answers;
+                                });
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
             ),
           ),
 
