@@ -1,5 +1,6 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
+import 'api_client.dart';
 
 /// Singleton service that monitors network connectivity.
 /// Provides a stream of connectivity changes and a current status getter.
@@ -11,6 +12,8 @@ class ConnectivityService {
   final Connectivity _connectivity = Connectivity();
   ConnectivityResult _latestResult = ConnectivityResult.none;
   bool _initialized = false;
+  DateTime? _lastActualCheck;
+  bool _lastActualOnline = false;
 
   /// Current connectivity status (cached from last event).
   ConnectivityResult get latestResult => _latestResult;
@@ -38,6 +41,8 @@ class ConnectivityService {
     if (kDebugMode) {
       debugPrint('[ConnectivityService] Initialized: $_latestResult');
     }
+    // Do an actual connectivity check after initialization
+    await _verifyActualConnectivity();
   }
 
   /// Convenience: one-time check (bypasses cache).
@@ -46,11 +51,49 @@ class ConnectivityService {
     _latestResult = results.any((r) => r != ConnectivityResult.none)
         ? results.firstWhere((r) => r != ConnectivityResult.none)
         : ConnectivityResult.none;
-    return isOnline;
+    
+    // Also verify actual internet connectivity (not just network interface)
+    await _verifyActualConnectivity();
+    return _lastActualOnline;
+  }
+
+  /// Verify actual internet connectivity by making a lightweight request.
+  /// Caches result for 30 seconds to avoid excessive requests.
+  Future<void> _verifyActualConnectivity() async {
+    final now = DateTime.now();
+    if (_lastActualCheck != null && 
+        now.difference(_lastActualCheck!) < const Duration(seconds: 30)) {
+      return; // Use cached result
+    }
+    _lastActualCheck = now;
+
+    try {
+      // Try to reach the API health endpoint or a simple public endpoint
+      // Using a short timeout to fail fast when offline
+      final client = ApiClient.httpClient;
+      final response = await client.get(
+        Uri.parse('${ApiClient.baseUrl}/healthy'),
+      ).timeout(const Duration(seconds: 5));
+      
+      _lastActualOnline = response.statusCode == 200;
+      if (kDebugMode) {
+        debugPrint('[ConnectivityService] Actual connectivity check: $_lastActualOnline');
+      }
+    } catch (_) {
+      _lastActualOnline = false;
+      if (kDebugMode) {
+        debugPrint('[ConnectivityService] Actual connectivity check: false (offline)');
+      }
+    }
   }
 
   /// Update cached result from stream listener.
   void updateCachedResult(ConnectivityResult result) {
     _latestResult = result;
+    // Trigger actual connectivity verification when network interface changes
+    _verifyActualConnectivity();
   }
+
+  /// Get the actual internet connectivity status (verified via request).
+  bool get isActuallyOnline => _lastActualOnline;
 }
