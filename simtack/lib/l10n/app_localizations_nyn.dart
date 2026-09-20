@@ -750,7 +750,7 @@ class AppLocalizationsNyn extends AppLocalizations {
   String get officialDocumentSubtitle => 'Simtack Care • Official Document';
 
   @override
-  String get aiRiskAssessmentHighestLabel => 'AI RISK ASSESSMENT (HIGHEST)';
+  String get riskAssessmentHighestLabel => 'RISK ASSESSMENT (HIGHEST)';
 
   @override
   String drivenByLabel(String region) {
@@ -773,6 +773,32 @@ class AppLocalizationsNyn extends AppLocalizations {
 
   @override
   String get reportedAtLabel => 'Reported At';
+
+  @override
+  String get primaryPainCharacteristicsText => 'PRIMARY PAIN CHARACTERISTICS';
+
+  @override
+  String get painExpansionBehaviorSectionText =>
+      'SECTION A: PAIN EXPANSION BEHAVIOR';
+
+  @override
+  String get aggravatingAlleviatingFactorsText =>
+      'SECTION B: AGGRAVATING & ALLEVIATING FACTORS';
+
+  @override
+  String get triggersWorseLabel => 'Triggers (Makes it Worse)';
+
+  @override
+  String get relieversBetterLabel => 'Relievers (Makes it Better)';
+
+  @override
+  String get dailyLifeImpactSectionText => 'SECTION C: DAILY LIFE IMPACT';
+
+  @override
+  String get assessmentSectionText => 'ASSESSMENT';
+
+  @override
+  String get intakeQuestionnaireSectionText => 'INTAKE QUESTIONNAIRE';
 
   @override
   String get patientProfileSectionTitle => 'PATIENT PROFILE';

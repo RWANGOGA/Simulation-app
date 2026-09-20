@@ -1433,8 +1433,56 @@ abstract class AppLocalizations {
   /// Caption over the worst-finding risk score in a multi-point visit.
   ///
   /// In en, this message translates to:
-  /// **'AI RISK ASSESSMENT (HIGHEST)'**
-  String get aiRiskAssessmentHighestLabel;
+  /// **'RISK ASSESSMENT (HIGHEST)'**
+  String get riskAssessmentHighestLabel;
+
+  /// All-caps section header over the primary pain characteristics rows.
+  ///
+  /// In en, this message translates to:
+  /// **'PRIMARY PAIN CHARACTERISTICS'**
+  String get primaryPainCharacteristicsText;
+
+  /// All-caps section header over the pain expansion behavior badge.
+  ///
+  /// In en, this message translates to:
+  /// **'SECTION A: PAIN EXPANSION BEHAVIOR'**
+  String get painExpansionBehaviorSectionText;
+
+  /// All-caps section header over the triggers and relievers group.
+  ///
+  /// In en, this message translates to:
+  /// **'SECTION B: AGGRAVATING & ALLEVIATING FACTORS'**
+  String get aggravatingAlleviatingFactorsText;
+
+  /// Sub-label above the red trigger tags.
+  ///
+  /// In en, this message translates to:
+  /// **'Triggers (Makes it Worse)'**
+  String get triggersWorseLabel;
+
+  /// Sub-label above the green reliever tags.
+  ///
+  /// In en, this message translates to:
+  /// **'Relievers (Makes it Better)'**
+  String get relieversBetterLabel;
+
+  /// All-caps section header over the daily-life-impact badges.
+  ///
+  /// In en, this message translates to:
+  /// **'SECTION C: DAILY LIFE IMPACT'**
+  String get dailyLifeImpactSectionText;
+
+  /// All-caps section header over the per-point risk and timestamp rows.
+  ///
+  /// In en, this message translates to:
+  /// **'ASSESSMENT'**
+  String get assessmentSectionText;
+
+  /// All-caps section header over the intake questionnaire Q&A rows.
+  ///
+  /// In en, this message translates to:
+  /// **'INTAKE QUESTIONNAIRE'**
+  String get intakeQuestionnaireSectionText;
 
   /// Notes which body region produced the visit's highest risk score.
   ///
@@ -1556,7 +1604,7 @@ abstract class AppLocalizations {
   /// **'TRIAGE DECISION'**
   String get triageDecisionTitle;
 
-  /// Label before the AI-suggested priority in the decision card.
+  /// Label before the clinically-suggested priority in the decision card.
   ///
   /// In en, this message translates to:
   /// **'Suggested Priority'**

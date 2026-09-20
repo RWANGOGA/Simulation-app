@@ -758,8 +758,7 @@ class AppLocalizationsLg extends AppLocalizations {
       'Simtack Care • Ekiwandiiko Ekikakasibwa';
 
   @override
-  String get aiRiskAssessmentHighestLabel =>
-      'OKWEKENNEENYA AKABI KA AI (AKASINGAYO)';
+  String get riskAssessmentHighestLabel => 'Okwekenneenya Akabi (Akingi)';
 
   @override
   String drivenByLabel(String region) {
@@ -782,6 +781,32 @@ class AppLocalizationsLg extends AppLocalizations {
 
   @override
   String get reportedAtLabel => 'Kyawandiikibwa';
+
+  @override
+  String get primaryPainCharacteristicsText => 'PRIMARY PAIN CHARACTERISTICS';
+
+  @override
+  String get painExpansionBehaviorSectionText =>
+      'SECTION A: PAIN EXPANSION BEHAVIOR';
+
+  @override
+  String get aggravatingAlleviatingFactorsText =>
+      'SECTION B: AGGRAVATING & ALLEVIATING FACTORS';
+
+  @override
+  String get triggersWorseLabel => 'Triggers (Makes it Worse)';
+
+  @override
+  String get relieversBetterLabel => 'Relievers (Makes it Better)';
+
+  @override
+  String get dailyLifeImpactSectionText => 'SECTION C: DAILY LIFE IMPACT';
+
+  @override
+  String get assessmentSectionText => 'ASSESSMENT';
+
+  @override
+  String get intakeQuestionnaireSectionText => 'INTAKE QUESTIONNAIRE';
 
   @override
   String get patientProfileSectionTitle => 'BBALUWA Y\'OMULWADDE';
