@@ -1,12 +1,17 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'dart:async';
 import '../../../core/theme/app_palette.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
 import 'package:intl/intl.dart';
 import '../../../core/storage/draft_storage.dart';
 import '../../../core/storage/draft_sync_service.dart';
+import '../../../core/storage/patient_draft_sync_service.dart';
+import '../../../core/storage/doctor_draft_sync_service.dart';
 import '../../../core/storage/triage_draft.dart';
+import '../../../core/network/connectivity_service.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../patient_info/ui/patient_info_screen.dart';
 import '../../review/ui/review_screen.dart';
@@ -26,25 +31,51 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   // picker so none of them are hidden behind the latest.
   List<TriageDraft> _drafts = [];
 
+  late final StreamSubscription<ConnectivityResult> _connectivitySubscription;
+
   @override
   void initState() {
     super.initState();
+    _initConnectivityListener();
     _syncThenLoadDrafts();
   }
 
-  // Auto-sync runs once, at startup, before the drafts are loaded for
-  // display — any draft that syncs successfully disappears from the
-  // banner/picker entirely rather than briefly flashing then vanishing.
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  void _initConnectivityListener() {
+    _connectivitySubscription = ConnectivityService.instance.onConnectivityChanged.listen((result) {
+      final wasOffline = !ConnectivityService.instance.isOnline;
+      
+      // Update cached result
+      ConnectivityService.instance.updateCachedResult(result);
+      
+      // If we just came online, trigger sync
+      if (wasOffline && ConnectivityService.instance.isOnline) {
+        _syncThenLoadDrafts();
+      }
+    });
+  }
+
+// Auto-sync runs at startup and whenever connectivity is restored.
   Future<void> _syncThenLoadDrafts() async {
-    final syncedCount = await DraftSyncService.syncAll();
+    final triageSynced = await DraftSyncService.syncAll();
+    final patientSynced = await PatientDraftSyncService.syncAll();
+    final doctorSynced = await DoctorDraftSyncService.syncAll();
+    final totalSynced = triageSynced + patientSynced + doctorSynced;
+
     await _loadDrafts();
-    if (syncedCount > 0 && mounted) {
+
+    if (totalSynced > 0 && mounted) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(AppLocalizations.of(context)!
-                .draftsSyncedSnackbar(syncedCount)),
+                .draftsSyncedSnackbar(totalSynced)),
             backgroundColor: const Color(0xFF16A34A),
             behavior: SnackBarBehavior.floating,
           ),

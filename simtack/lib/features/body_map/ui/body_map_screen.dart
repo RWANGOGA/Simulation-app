@@ -18,7 +18,7 @@ import '../../../l10n/app_localizations.dart';
 
 class BodyMapScreen extends StatefulWidget {
   final int patientId;
-  final String patientCode;
+  final String? patientCode;
   final String gender;
   final double weightKg;
   final double heightCm;
@@ -27,12 +27,15 @@ class BodyMapScreen extends StatefulWidget {
   BodyMapScreen({
     super.key,
     required this.patientId,
-    required this.patientCode,
+    this.patientCode,
     required this.gender,
     required this.weightKg,
     required this.heightCm,
     String? conversationId,
   }) : conversationId = conversationId ?? _generateConversationId();
+
+  /// Returns the patient code, generating a temporary one for offline use.
+  String get effectivePatientCode => patientCode ?? 'OFFLINE-${patientId.abs()}';
 
   static String _generateConversationId() {
     return 'conv_${DateTime.now().millisecondsSinceEpoch}_${(DateTime.now().microsecond % 10000).toString().padLeft(4, '0')}';
@@ -623,7 +626,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
         builder: (_) => PainDetailsScreen(
           painPoints: _painPoints,
           patientId: widget.patientId,
-          patientCode: widget.patientCode,
+          patientCode: widget.effectivePatientCode,
           modelAsset: widget.modelAsset,
         ),
       ),

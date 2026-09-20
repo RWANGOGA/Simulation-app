@@ -11,23 +11,24 @@ dependencies:
     sdk: flutter
   http: ^1.2.0
   model_viewer_plus: ^1.7.0
-  webview_flutter: ^4.8.0    # JavaScriptMessage type for the mobile 3D tap bridge
+  webview_flutter: ^4.8.0
   qr_flutter: ^4.1.0
-  mobile_scanner: ^5.2.3     # practitioner QR passport scanner (Android/iOS)
+  mobile_scanner: ^5.2.3
   cupertino_icons: ^1.0.6
-  math_expressions: ^2.4.0  
-  share_plus: ^7.2.1         # To share the link or image
-  universal_html: ^2.2.4     # REQUIRED: For triggering web downloads
+  math_expressions: ^2.4.0
+  share_plus: ^7.2.1
+  universal_html: ^2.2.4
   cross_file: ^0.3.4+2
   pointer_interceptor: ^0.10.1
-  intl: ^0.20.3    # Compatible with the Flutter 3.22 / Dart 3.4 toolchain.
   url_launcher: ^6.2.5
   shared_preferences: ^2.3.3
   flutter_secure_storage: ^10.3.1
-  web: ^1.1.0                # dart:html/dart:js_util replacement (js_util was removed from the SDK)
+  web: ^1.1.0
   fl_chart: ^0.69.0
   pdf: ^3.11.1
   printing: ^5.13.3
+  connectivity_plus: ^6.0.5
+  intl: ^0.19.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -42,9 +43,6 @@ flutter:
     - assets/avatars/
     - assets/anatomy/
   fonts:
-    # Inter (SIL OFL) — bundled as an asset, not fetched at runtime, since
-    # the app has to work fully offline. It's a variable font: every weight
-    # below maps to the same file, and Skia picks the right instance.
     - family: Inter
       fonts:
         - asset: assets/fonts/Inter-Variable.ttf

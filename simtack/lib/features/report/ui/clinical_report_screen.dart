@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/models/patient_profile.dart';
 import '../../../l10n/app_localizations.dart';
 
 // ──────────────────────────────────────────────────────────────────────────────

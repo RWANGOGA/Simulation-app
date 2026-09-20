@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:simtack/core/models/patient_profile.dart';
 import 'package:simtack/core/network/api_client.dart';
 
 void main() {

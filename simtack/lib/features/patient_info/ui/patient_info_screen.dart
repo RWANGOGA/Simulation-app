@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/models/patient_profile.dart';
+import '../../../core/storage/patient_draft_storage.dart';
+import '../../../core/storage/patient_draft.dart';
+import '../../../core/network/connectivity_service.dart';
 import '../../body_map/ui/body_map_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/widgets/flow_progress_bar.dart';
@@ -379,40 +383,64 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
-    try {
-      final patient = await ApiClient.createPatient(PatientProfile(
-        age: int.parse(_ageController.text),
-        gender: _gender,
-        weight: double.parse(_weightController.text),
-        height: double.parse(_heightController.text),
-        fullName: _nameController.text,
-        dateOfBirth: _dateOfBirth,
-        phone: _phoneController.text,
-        address: _addressController.text,
-        nextOfKinName: _nextOfKinNameController.text,
-        nextOfKinPhone: _nextOfKinPhoneController.text,
-        hospitalName: _hospitalController.text,
-      ));
+    
+    // Build the patient profile
+    final profile = PatientProfile(
+      age: int.parse(_ageController.text),
+      gender: _gender,
+      weight: double.parse(_weightController.text),
+      height: double.parse(_heightController.text),
+      fullName: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
+      dateOfBirth: _dateOfBirth,
+      phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
+      address: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
+      nextOfKinName: _nextOfKinNameController.text.trim().isEmpty ? null : _nextOfKinNameController.text.trim(),
+      nextOfKinPhone: _nextOfKinPhoneController.text.trim().isEmpty ? null : _nextOfKinPhoneController.text.trim(),
+      hospitalName: _hospitalController.text.trim().isEmpty ? null : _hospitalController.text.trim(),
+    );
 
-      if (!mounted) return;
-      Navigator.of(context).push(
-        AppPageRoute(
-          builder: (_) => BodyMapScreen(
-            patientId: patient.id,
-            patientCode: patient.anonymousCode,
-            gender: _gender,
-            weightKg: double.parse(_weightController.text),
-            heightCm: double.parse(_heightController.text),
-          ),
-        ),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Could not save profile: $e')),
-      );
-    } finally {
-      if (mounted) setState(() => _isSubmitting = false);
+    // Always save locally first (offline-first)
+    final localDraft = PatientDraft.createOffline(profile);
+    await PatientDraftStorage.save(localDraft);
+
+    // Use local IDs for navigation (negative = offline)
+    int patientId = localDraft.localId;
+    String? patientCode;
+
+    // If online, try to sync to backend
+    final isOnline = await ConnectivityService.instance.checkOnline();
+    if (isOnline) {
+      try {
+        final result = await ApiClient.createPatient(profile);
+        patientId = result.id;
+        patientCode = result.anonymousCode;
+        
+        // Update local draft with server response
+        final syncedDraft = localDraft.copyWith(
+          patientId: result.id,
+          patientCode: result.anonymousCode,
+          isSynced: true,
+        );
+        await PatientDraftStorage.save(syncedDraft);
+      } catch (_) {
+        // Sync failed, keep local draft for later sync
+        // patientCode remains null, will be generated on review submission
+      }
     }
+
+    if (!mounted) return;
+    Navigator.of(context).push(
+      AppPageRoute(
+        builder: (_) => BodyMapScreen(
+          patientId: patientId,
+          patientCode: patientCode,
+          gender: _gender,
+          weightKg: double.parse(_weightController.text),
+          heightCm: double.parse(_heightController.text),
+        ),
+      ),
+    );
+    
+    if (mounted) setState(() => _isSubmitting = false);
   }
 }

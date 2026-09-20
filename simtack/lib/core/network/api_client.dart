@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../models/patient_profile.dart';
 
 /// Storage contract for the auth token — abstracted so tests can inject
 /// an in-memory fake instead of touching platform secure storage.
@@ -66,8 +67,8 @@ class Doctor {
   factory Doctor.fromJson(Map<String, dynamic> json) => Doctor(
         id: json['id'] as int,
         email: json['email'] as String,
-        fullName: json['full_name'] as String,
-        isActive: json['is_active'] as bool,
+        fullName: (json['full_name'] as String?) ?? '',
+        isActive: json['is_active'] as bool? ?? true,
         role: json['role'] as String?,
         licenseNumber: json['license_number'] as String?,
         phone: json['phone'] as String?,
@@ -113,59 +114,6 @@ class ApiException implements Exception {
       );
     }
   }
-}
-
-class PatientProfile {
-  final int age;
-  final String gender;
-  final double weight;
-  final double height;
-  // Optional personal demographics — the flow stays fast for anonymous
-  // walk-ins, but anything provided is stored and carried onto the
-  // clinical report / QR-scan lookup.
-  final String? fullName;
-  final DateTime? dateOfBirth;
-  final String? phone;
-  final String? address;
-  final String? nextOfKinName;
-  final String? nextOfKinPhone;
-  final String? hospitalName;
-
-  const PatientProfile({
-    required this.age,
-    required this.gender,
-    required this.weight,
-    required this.height,
-    this.fullName,
-    this.dateOfBirth,
-    this.phone,
-    this.address,
-    this.nextOfKinName,
-    this.nextOfKinPhone,
-    this.hospitalName,
-  });
-
-  Map<String, dynamic> toJson() => {
-        'age': age,
-        'gender': gender,
-        'weight': weight,
-        'height': height,
-        if (fullName != null && fullName!.trim().isNotEmpty)
-          'full_name': fullName!.trim(),
-        if (dateOfBirth != null)
-          'date_of_birth': '${dateOfBirth!.year.toString().padLeft(4, '0')}-'
-              '${dateOfBirth!.month.toString().padLeft(2, '0')}-'
-              '${dateOfBirth!.day.toString().padLeft(2, '0')}',
-        if (phone != null && phone!.trim().isNotEmpty) 'phone': phone!.trim(),
-        if (address != null && address!.trim().isNotEmpty)
-          'address': address!.trim(),
-        if (nextOfKinName != null && nextOfKinName!.trim().isNotEmpty)
-          'next_of_kin_name': nextOfKinName!.trim(),
-        if (nextOfKinPhone != null && nextOfKinPhone!.trim().isNotEmpty)
-          'next_of_kin_phone': nextOfKinPhone!.trim(),
-        if (hospitalName != null && hospitalName!.trim().isNotEmpty)
-          'hospital_name': hospitalName!.trim(),
-      };
 }
 
 class PatientResult {
