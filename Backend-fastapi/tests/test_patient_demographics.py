@@ -1,8 +1,14 @@
 import uuid
 from fastapi.testclient import TestClient
 from app.main import app
+from tests.conftest import DOCTOR_EMAIL, DOCTOR_LOGIN
 
 client = TestClient(app)
+
+
+def _doctor_headers() -> dict:
+    token = client.post("/api/v1/auth/login", data=DOCTOR_LOGIN).json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
 
 FULL_DEMOGRAPHICS = {
     "age": 8,
@@ -61,6 +67,7 @@ def test_triage_response_carries_patient_demographics():
             "pain_type": "throbbing",
             "severity": 6,
         },
+        headers={"X-Patient-Code": patient["anonymous_code"]},
     )
     assert response.status_code == 201
     data = response.json()
@@ -74,12 +81,13 @@ def test_triage_response_carries_patient_demographics():
 
 
 def test_register_stores_contact_and_hospital():
-    email = f"newdoc-{uuid.uuid4().hex[:8]}@simtack.com"
+    domain = DOCTOR_EMAIL.split("@")[1]
+    email = f"newdoc-{uuid.uuid4().hex[:8]}@{domain}"
     response = client.post(
         "/api/v1/auth/register",
         json={
             "email": email,
-            "password": "Secure123",
+            "password": "Secure123!xY",
             "full_name": "Dr. Contact",
             "role": "Doctor",
             "license_number": "LIC-9",
@@ -93,3 +101,36 @@ def test_register_stores_contact_and_hospital():
     assert data["phone"] == "+256772000000"
     assert data["hospital_name"] == "Rubaga Hospital"
     assert data["date_of_birth"] == "1985-06-01"
+
+
+def test_update_patient_corrects_a_single_field():
+    patient = client.post("/api/v1/patients/", json=FULL_DEMOGRAPHICS).json()
+    response = client.patch(
+        f"/api/v1/patients/{patient['anonymous_code']}",
+        json={"phone": "+256700999999"},
+        headers=_doctor_headers(),
+    )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["phone"] == "+256700999999"
+    # Untouched fields must survive an update that only sent one field.
+    assert data["full_name"] == "Amara Nansubuga"
+    assert data["hospital_name"] == "Mulago National Referral Hospital"
+
+
+def test_update_patient_requires_jwt():
+    patient = client.post("/api/v1/patients/", json=FULL_DEMOGRAPHICS).json()
+    response = client.patch(
+        f"/api/v1/patients/{patient['anonymous_code']}",
+        json={"phone": "+256700999999"},
+    )
+    assert response.status_code == 401
+
+
+def test_update_patient_unknown_code_404():
+    response = client.patch(
+        "/api/v1/patients/P-DOESNOTEXIST",
+        json={"phone": "+256700999999"},
+        headers=_doctor_headers(),
+    )
+    assert response.status_code == 404

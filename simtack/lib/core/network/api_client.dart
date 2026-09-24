@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +9,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 abstract class TokenStorage {
   Future<void> write(String value);
   Future<String?> read();
+  Future<void> writeRefreshToken(String value) async {}
+  Future<String?> readRefreshToken() async => null;
   Future<void> delete();
 }
 
@@ -16,15 +19,27 @@ class SecureTokenStorage implements TokenStorage {
     aOptions: AndroidOptions(),
   );
   static const _tokenKey = 'auth_token';
+  static const _refreshTokenKey = 'refresh_token';
 
   @override
-  Future<void> write(String value) => _storage.write(key: _tokenKey, value: value);
+  Future<void> write(String value) =>
+      _storage.write(key: _tokenKey, value: value);
 
   @override
   Future<String?> read() => _storage.read(key: _tokenKey);
 
   @override
-  Future<void> delete() => _storage.delete(key: _tokenKey);
+  Future<void> writeRefreshToken(String value) =>
+      _storage.write(key: _refreshTokenKey, value: value);
+
+  @override
+  Future<String?> readRefreshToken() => _storage.read(key: _refreshTokenKey);
+
+  @override
+  Future<void> delete() async {
+    await _storage.delete(key: _tokenKey);
+    await _storage.delete(key: _refreshTokenKey);
+  }
 }
 
 class Doctor {
@@ -138,8 +153,7 @@ class PatientProfile {
         if (fullName != null && fullName!.trim().isNotEmpty)
           'full_name': fullName!.trim(),
         if (dateOfBirth != null)
-          'date_of_birth':
-              '${dateOfBirth!.year.toString().padLeft(4, '0')}-'
+          'date_of_birth': '${dateOfBirth!.year.toString().padLeft(4, '0')}-'
               '${dateOfBirth!.month.toString().padLeft(2, '0')}-'
               '${dateOfBirth!.day.toString().padLeft(2, '0')}',
         if (phone != null && phone!.trim().isNotEmpty) 'phone': phone!.trim(),
@@ -172,10 +186,14 @@ class TriageReport {
   final int severity;
   final String? direction;
   final String? depth;
-  final double? heartRate;
-  final double? spo2;
+  final String? expansionBehavior;
+  final List<String>? triggers;
+  final List<String>? relievers;
+  final List<String>? dailyLimitations;
   final int? patientId;
+  final String? patientCode;
   final String? visitId;
+  final Map<String, String>? questionAnswers;
 
   const TriageReport({
     required this.bodyRegion,
@@ -183,10 +201,14 @@ class TriageReport {
     required this.severity,
     this.direction,
     this.depth,
-    this.heartRate,
-    this.spo2,
+    this.expansionBehavior,
+    this.triggers,
+    this.relievers,
+    this.dailyLimitations,
     this.patientId,
+    this.patientCode,
     this.visitId,
+    this.questionAnswers,
   });
 
   Map<String, dynamic> toJson() => {
@@ -195,10 +217,18 @@ class TriageReport {
         'severity': severity,
         if (direction != null) 'direction': direction,
         if (depth != null) 'depth': depth,
-        if (heartRate != null) 'heart_rate': heartRate,
-        if (spo2 != null) 'spo2': spo2,
+        if (expansionBehavior != null && expansionBehavior!.isNotEmpty)
+          'expansion_behavior': expansionBehavior,
+        if (triggers != null && triggers!.isNotEmpty)
+          'triggers': jsonEncode(triggers),
+        if (relievers != null && relievers!.isNotEmpty)
+          'relievers': jsonEncode(relievers),
+        if (dailyLimitations != null && dailyLimitations!.isNotEmpty)
+          'daily_limitations': jsonEncode(dailyLimitations),
         if (patientId != null) 'patient_id': patientId,
         if (visitId != null) 'visit_id': visitId,
+        if (questionAnswers != null && questionAnswers!.isNotEmpty)
+          'question_answers': questionAnswers,
       };
 }
 
@@ -209,10 +239,12 @@ class TriageResult {
   final String bodyRegion;
   final String painType;
   final int severity;
-  final double? heartRate;
-  final double? spo2;
   final String? direction;
   final String? depth;
+  final String? expansionBehavior;
+  final List<String> triggers;
+  final List<String> relievers;
+  final List<String> dailyLimitations;
   final String? visitId;
   final double? riskScore;
   final String? shapExplanation;
@@ -238,6 +270,7 @@ class TriageResult {
   final String? priority;
   final List<String> actionsTaken;
   final String? clinicalNotes;
+  final Map<String, String>? questionAnswers;
 
   const TriageResult({
     required this.id,
@@ -246,10 +279,12 @@ class TriageResult {
     required this.bodyRegion,
     required this.painType,
     required this.severity,
-    this.heartRate,
-    this.spo2,
     this.direction,
     this.depth,
+    this.expansionBehavior,
+    this.triggers = const [],
+    this.relievers = const [],
+    this.dailyLimitations = const [],
     this.visitId,
     this.riskScore,
     this.shapExplanation,
@@ -270,6 +305,7 @@ class TriageResult {
     this.priority,
     this.actionsTaken = const [],
     this.clinicalNotes,
+    this.questionAnswers,
   });
 
   String get riskLevel {
@@ -287,10 +323,12 @@ class TriageResult {
       bodyRegion: json['body_region'] as String,
       painType: json['pain_type'] as String,
       severity: json['severity'] as int,
-      heartRate: (json['heart_rate'] as num?)?.toDouble(),
-      spo2: (json['spo2'] as num?)?.toDouble(),
       direction: json['direction'] as String?,
       depth: json['depth'] as String?,
+      expansionBehavior: json['expansion_behavior'] as String?,
+      triggers: _parseListString(json['triggers']),
+      relievers: _parseListString(json['relievers']),
+      dailyLimitations: _parseListString(json['daily_limitations']),
       visitId: json['visit_id'] as String?,
       riskScore: (json['risk_score'] as num?)?.toDouble(),
       shapExplanation: json['shap_explanation'] as String?,
@@ -311,7 +349,22 @@ class TriageResult {
       priority: json['priority'] as String?,
       actionsTaken: _parseActionsTaken(json['actions_taken']),
       clinicalNotes: json['clinical_notes'] as String?,
+      questionAnswers: (json['question_answers'] as Map<String, dynamic>?)
+          ?.map((k, v) => MapEntry(k, v.toString())),
     );
+  }
+
+  static List<String> _parseListString(dynamic raw) {
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    if (raw is String && raw.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is List) return decoded.map((e) => e.toString()).toList();
+      } catch (_) {
+        return [raw];
+      }
+    }
+    return const [];
   }
 
   // actions_taken travels as a JSON array string ("[\"a\", \"b\"]").
@@ -330,8 +383,14 @@ class TriageResult {
 
 class ApiClient {
   static String get baseUrl {
+    const configuredUrl = String.fromEnvironment('API_BASE_URL');
+    if (configuredUrl.isNotEmpty) return configuredUrl;
     if (kDebugMode) {
-      return 'http://127.0.0.1:8000/api/v1';
+      const debugHost = String.fromEnvironment(
+        'API_DEBUG_HOST',
+        defaultValue: '127.0.0.1',
+      );
+      return 'http://$debugHost:8000/api/v1';
     } else {
       return 'https://backend-fastapi-linv.onrender.com/api/v1';
     }
@@ -348,7 +407,8 @@ class ApiClient {
     };
   }
 
-  static Future<Doctor> login({required String email, required String password}) async {
+  static Future<Doctor> login(
+      {required String email, required String password}) async {
     final response = await httpClient.post(
       Uri.parse('$baseUrl/auth/login'),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
@@ -360,10 +420,37 @@ class ApiClient {
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final token = data['access_token'] as String?;
     if (token == null) {
-      throw ApiException(message: 'Login response was missing an access token.');
+      throw ApiException(
+          message: 'Login response was missing an access token.');
     }
     await tokenStorage.write(token);
+    final refreshToken = data['refresh_token'] as String?;
+    if (refreshToken != null) {
+      await tokenStorage.writeRefreshToken(refreshToken);
+    }
     return getCurrentDoctor();
+  }
+
+  static Future<void> refreshAccessToken() async {
+    final refreshToken = await tokenStorage.readRefreshToken();
+    if (refreshToken == null) {
+      throw ApiException(message: 'No refresh token is available.');
+    }
+    final response = await httpClient.post(
+      Uri.parse('$baseUrl/auth/refresh'),
+      body: {'refresh_token': refreshToken},
+    );
+    if (response.statusCode != 200) {
+      await tokenStorage.delete();
+      throw ApiException.fromResponse(response.statusCode, response.body);
+    }
+    final data = jsonDecode(response.body) as Map<String, dynamic>;
+    final token = data['access_token'] as String?;
+    if (token == null) {
+      throw ApiException(
+          message: 'Refresh response was missing an access token.');
+    }
+    await tokenStorage.write(token);
   }
 
   /// Creates a practitioner account, then logs in with the same
@@ -377,6 +464,7 @@ class ApiClient {
     String? phone,
     String? hospitalName,
     DateTime? dateOfBirth,
+    String? inviteCode,
   }) async {
     final response = await httpClient.post(
       Uri.parse('$baseUrl/auth/register'),
@@ -392,10 +480,11 @@ class ApiClient {
         if (hospitalName != null && hospitalName.trim().isNotEmpty)
           'hospital_name': hospitalName.trim(),
         if (dateOfBirth != null)
-          'date_of_birth':
-              '${dateOfBirth.year.toString().padLeft(4, '0')}-'
+          'date_of_birth': '${dateOfBirth.year.toString().padLeft(4, '0')}-'
               '${dateOfBirth.month.toString().padLeft(2, '0')}-'
               '${dateOfBirth.day.toString().padLeft(2, '0')}',
+        if (inviteCode != null && inviteCode.trim().isNotEmpty)
+          'invite_code': inviteCode.trim(),
       }),
     );
     if (response.statusCode != 201) {
@@ -415,29 +504,64 @@ class ApiClient {
     return Doctor.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
-  static Future<bool> get isLoggedIn async => (await tokenStorage.read()) != null;
+  static Future<bool> get isLoggedIn async =>
+      (await tokenStorage.read()) != null;
 
   static Future<void> logout() => tokenStorage.delete();
 
+  // The live backend is hosted on a free tier that goes to sleep after a
+  // period of inactivity and can take 30 to 50 seconds to wake back up.
+  // The very first request after that sleep can otherwise hang with no
+  // response at all, which browsers then report as a misleading CORS
+  // failure rather than a timeout. A bounded timeout here turns that into
+  // an honest, actionable error instead.
   static Future<PatientResult> createPatient(PatientProfile profile) async {
-    final response = await httpClient.post(
-      Uri.parse('$baseUrl/patients/'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(profile.toJson()),
-    );
+    final http.Response response;
+    try {
+      response = await httpClient
+          .post(
+            Uri.parse('$baseUrl/patients/'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode(profile.toJson()),
+          )
+          .timeout(const Duration(seconds: 45));
+    } on TimeoutException {
+      throw Exception(
+          'The hospital server is taking a while to respond, it may be waking up from being idle. Please try again in a moment.');
+    }
     if (response.statusCode == 201) {
       return PatientResult.fromJson(
         jsonDecode(response.body) as Map<String, dynamic>,
       );
     }
-    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+    throw Exception(
+        'Hospital answered ${response.statusCode}: ${response.body}');
+  }
+
+  /// Practitioner-only correction of a patient's demographics — sends only
+  /// the fields the caller actually set on [profile] (see
+  /// PatientProfile.toJson), so an edit to just one field doesn't clobber
+  /// the rest. JWT-guarded on the backend.
+  static Future<void> updatePatientDemographics(
+      String anonymousCode, PatientProfile profile) async {
+    final response = await httpClient.patch(
+      Uri.parse('$baseUrl/patients/$anonymousCode'),
+      headers: await _authHeaders(),
+      body: jsonEncode(profile.toJson()),
+    );
+    if (response.statusCode != 200) {
+      throw ApiException.fromResponse(response.statusCode, response.body);
+    }
   }
 
   static Future<TriageResult> sendTriage(TriageReport report) async {
     debugPrint('🚀 Sending to backend ($baseUrl): ${report.toJson()}');
     final response = await httpClient.post(
       Uri.parse('$baseUrl/triage/'),
-      headers: {'Content-Type': 'application/json'},
+      headers: {
+        'Content-Type': 'application/json',
+        if (report.patientCode != null) 'X-Patient-Code': report.patientCode!,
+      },
       body: jsonEncode(report.toJson()),
     );
     if (response.statusCode == 201) {
@@ -445,7 +569,8 @@ class ApiClient {
         jsonDecode(response.body) as Map<String, dynamic>,
       );
     }
-    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+    throw Exception(
+        'Hospital answered ${response.statusCode}: ${response.body}');
   }
 
   static Future<List<TriageResult>> getLatestVisit(String patientCode) async {
@@ -460,12 +585,14 @@ class ApiClient {
           .map((e) => TriageResult.fromJson(e as Map<String, dynamic>))
           .toList();
     }
-    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+    throw Exception(
+        'Hospital answered ${response.statusCode}: ${response.body}');
   }
 
   /// Practitioner-only: every session the patient ever submitted, newest
   /// first. Powers the visit timeline on the clinical report.
-  static Future<List<TriageResult>> getPatientHistory(String patientCode) async {
+  static Future<List<TriageResult>> getPatientHistory(
+      String patientCode) async {
     final response = await httpClient.get(
       Uri.parse('$baseUrl/triage/patient/$patientCode/history'),
       headers: await _authHeaders(),
@@ -476,7 +603,8 @@ class ApiClient {
           .map((e) => TriageResult.fromJson(e as Map<String, dynamic>))
           .toList();
     }
-    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+    throw Exception(
+        'Hospital answered ${response.statusCode}: ${response.body}');
   }
 
   static Future<Map<String, dynamic>> getTriageStats() async {
@@ -489,6 +617,19 @@ class ApiClient {
       return jsonDecode(response.body) as Map<String, dynamic>;
     }
     throw Exception('Failed to load stats: ${response.body}');
+  }
+
+  static Future<Map<String, dynamic>> getTriageReports(
+      {String period = 'all'}) async {
+    // Doctor-only endpoint — must carry the JWT.
+    final response = await httpClient.get(
+      Uri.parse('$baseUrl/triage/reports?period=$period'),
+      headers: await _authHeaders(),
+    );
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    }
+    throw ApiException.fromResponse(response.statusCode, response.body);
   }
 
   static Future<List<Map<String, dynamic>>> getTriageList({
@@ -534,8 +675,259 @@ class ApiClient {
       }),
     );
     if (response.statusCode == 200) {
-      return TriageResult.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+      return TriageResult.fromJson(
+          jsonDecode(response.body) as Map<String, dynamic>);
     }
-    throw Exception('Hospital answered ${response.statusCode}: ${response.body}');
+    throw Exception(
+        'Hospital answered ${response.statusCode}: ${response.body}');
+  }
+
+  static Future<Doctor> updateDoctorProfile({
+    String? fullName,
+    String? role,
+    String? licenseNumber,
+    String? phone,
+    String? hospitalName,
+    DateTime? dateOfBirth,
+  }) async {
+    final body = <String, dynamic>{};
+    if (fullName != null) body['full_name'] = fullName.trim();
+    if (role != null) body['role'] = role.trim().isEmpty ? null : role.trim();
+    if (licenseNumber != null)
+      body['license_number'] =
+          licenseNumber.trim().isEmpty ? null : licenseNumber.trim();
+    if (phone != null)
+      body['phone'] = phone.trim().isEmpty ? null : phone.trim();
+    if (hospitalName != null)
+      body['hospital_name'] =
+          hospitalName.trim().isEmpty ? null : hospitalName.trim();
+    if (dateOfBirth != null)
+      body['date_of_birth'] =
+          '${dateOfBirth.year.toString().padLeft(4, '0')}-${dateOfBirth.month.toString().padLeft(2, '0')}-${dateOfBirth.day.toString().padLeft(2, '0')}';
+
+    final response = await httpClient.patch(
+      Uri.parse('$baseUrl/auth/me'),
+      headers: await _authHeaders(),
+      body: jsonEncode(body),
+    );
+    if (response.statusCode == 200) {
+      return Doctor.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+    }
+    throw ApiException.fromResponse(response.statusCode, response.body);
+  }
+
+  // ── Anatomy assistant (Step 7.5) ──────────────────────────────────────
+
+  static Future<AnatomyInsight> askAnatomy({
+    required String region,
+    String complaint = '',
+    int topK = 3,
+    String? conversationId,
+  }) async {
+    final body = <String, dynamic>{
+      'region': region,
+      'complaint': complaint,
+      'top_k': topK,
+    };
+    if (conversationId != null && conversationId.isNotEmpty) {
+      body['conversation_id'] = conversationId;
+    }
+    final response = await httpClient.post(
+      Uri.parse('$baseUrl/anatomy/ask'),
+      headers: await _authHeaders(),
+      body: jsonEncode(body),
+    );
+    if (response.statusCode == 200) {
+      return AnatomyInsight.fromJson(
+          jsonDecode(response.body) as Map<String, dynamic>);
+    }
+    throw ApiException.fromResponse(response.statusCode, response.body);
+  }
+
+  static Future<List<AnatomyRegion>> listAnatomyRegions() async {
+    final response = await httpClient.get(
+      Uri.parse('$baseUrl/anatomy/regions'),
+      headers: await _authHeaders(),
+    );
+    if (response.statusCode != 200) {
+      throw ApiException.fromResponse(response.statusCode, response.body);
+    }
+    final body = jsonDecode(response.body) as Map<String, dynamic>;
+    final list = (body['regions'] as List?) ?? const [];
+    return list
+        .whereType<Map<String, dynamic>>()
+        .map(AnatomyRegion.fromJson)
+        .toList();
+  }
+}
+
+/// Lightweight descriptor returned by GET /anatomy/regions. Used to render
+/// pickers and (optionally) to prefetch insights on screen open.
+class AnatomyRegion {
+  final String id;
+  final String region;
+  final String system;
+
+  const AnatomyRegion(
+      {required this.id, required this.region, required this.system});
+
+  factory AnatomyRegion.fromJson(Map<String, dynamic> json) => AnatomyRegion(
+        id: (json['id'] as String?) ?? '',
+        region: (json['region'] as String?) ?? '',
+        system: (json['system'] as String?) ?? '',
+      );
+}
+
+/// One likely condition with a short rationale, as returned by the LLM
+/// in /anatomy/ask.
+class AnatomyCondition {
+  final String name;
+  final String rationale;
+
+  const AnatomyCondition({required this.name, required this.rationale});
+
+  factory AnatomyCondition.fromJson(Map<String, dynamic> json) =>
+      AnatomyCondition(
+        name: (json['name'] as String?) ?? '',
+        rationale: (json['rationale'] as String?) ?? '',
+      );
+}
+
+/// One retrieved chunk surfaced alongside the LLM answer, so the UI can
+/// show "based on: Chest / Heart, Abdomen (Upper)...".
+class AnatomySource {
+  final String id;
+  final String region;
+  final String system;
+  final double score;
+  final String text;
+  final List<String> structures;
+  final List<String> commonConditions;
+  final List<String> redFlags;
+  final List<String> suggestedQuestions;
+
+  const AnatomySource({
+    required this.id,
+    required this.region,
+    required this.system,
+    required this.score,
+    required this.text,
+    required this.structures,
+    required this.commonConditions,
+    required this.redFlags,
+    required this.suggestedQuestions,
+  });
+
+  factory AnatomySource.fromJson(Map<String, dynamic> json) => AnatomySource(
+        id: (json['id'] as String?) ?? '',
+        region: (json['region'] as String?) ?? '',
+        system: (json['system'] as String?) ?? '',
+        score: (json['score'] as num?)?.toDouble() ?? 0.0,
+        text: (json['text'] as String?) ?? '',
+        structures: (json['structures'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            const [],
+        commonConditions: (json['common_conditions'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            const [],
+        redFlags: (json['red_flags'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            const [],
+        suggestedQuestions: (json['suggested_questions'] as List<dynamic>?)
+                ?.map((e) => e as String)
+                .toList() ??
+            const [],
+      );
+}
+
+class AnatomyCitation {
+  final String text;
+  final String region;
+  final String system;
+  final String chunkId;
+
+  const AnatomyCitation({
+    required this.text,
+    required this.region,
+    required this.system,
+    required this.chunkId,
+  });
+
+  factory AnatomyCitation.fromJson(Map<String, dynamic> json) =>
+      AnatomyCitation(
+        text: (json['text'] as String?) ?? '',
+        region: (json['region'] as String?) ?? '',
+        system: (json['system'] as String?) ?? '',
+        chunkId: (json['chunk_id'] as String?) ?? '',
+      );
+}
+
+/// Full response of POST /anatomy/ask. The `llmUsed` and `cached` flags let
+/// the UI show an "AI" / "KB" / "Cached" badge so the clinician knows where
+/// the answer came from.
+class AnatomyInsight {
+  final String? region;
+  final String complaint;
+  final bool llmUsed;
+  final bool cached;
+  final String summary;
+  final List<String> structures;
+  final List<AnatomyCondition> likelyConditions;
+  final List<String> redFlags;
+  final List<String> suggestedQuestions;
+  final String disclaimer;
+  final List<AnatomySource> sources;
+  final List<AnatomyCitation> citations;
+
+  const AnatomyInsight({
+    required this.region,
+    required this.complaint,
+    required this.llmUsed,
+    required this.cached,
+    required this.summary,
+    required this.structures,
+    required this.likelyConditions,
+    required this.redFlags,
+    required this.suggestedQuestions,
+    required this.disclaimer,
+    required this.sources,
+    required this.citations,
+  });
+
+  factory AnatomyInsight.fromJson(Map<String, dynamic> json) {
+    List<String> strList(String key) {
+      final v = json[key];
+      if (v is List) {
+        return v.whereType<String>().toList();
+      }
+      return const [];
+    }
+
+    return AnatomyInsight(
+      region: json['region'] as String?,
+      complaint: (json['complaint'] as String?) ?? '',
+      llmUsed: (json['llm_used'] as bool?) ?? false,
+      cached: (json['cached'] as bool?) ?? false,
+      summary: (json['summary'] as String?) ?? '',
+      structures: strList('structures'),
+      likelyConditions: ((json['likely_conditions'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(AnatomyCondition.fromJson)
+          .toList(),
+      redFlags: strList('red_flags'),
+      suggestedQuestions: strList('suggested_questions'),
+      disclaimer: (json['disclaimer'] as String?) ?? '',
+      sources: ((json['sources'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(AnatomySource.fromJson)
+          .toList(),
+      citations: ((json['citations'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(AnatomyCitation.fromJson)
+          .toList(),
+    );
   }
 }

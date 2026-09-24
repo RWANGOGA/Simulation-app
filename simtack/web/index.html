@@ -9,6 +9,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Simtack">
+  <meta name="mobile-web-app-capable" content="yes">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
   <link rel="icon" type="image/png" href="favicon.png"/>
   <title>Simtack</title>
@@ -85,41 +86,58 @@
         const minX = center.x - dims.x / 2;
         const minY = center.y - dims.y / 2;
 
-        const rx = (hit.position.x - minX) / dims.x;
-        const ry = 1 - (hit.position.y - minY) / dims.y;
+        const nx = (hit.position.x - minX) / dims.x;
+        const ny = 1 - (hit.position.y - minY) / dims.y;
 
         let part = 'Unknown';
-        if (ry < 0.20) {
+        if (ny < 0.24) {
           part = 'Headache / Cranial';
-        } else if (ry < 0.50) {
-          if (rx < 0.30) {
+        } else if (ny < 0.33) {
+          if (nx < 0.33) {
             part = 'Right Arm / Shoulder';
-          } else if (rx > 0.70) {
+          } else if (nx > 0.67) {
             part = 'Left Arm / Shoulder';
-          } else if (ry < 0.35) {
-            part = 'Chest / Heart';
           } else {
-            part = 'Abdomen (Upper)';
+            part = 'Neck';
+          }
+        } else if (ny < 0.46) {
+          if (nx < 0.30) {
+            part = 'Right Arm / Shoulder';
+          } else if (nx > 0.70) {
+            part = 'Left Arm / Shoulder';
+          } else {
+            part = 'Chest / Heart';
+          }
+        } else if (ny < 0.62) {
+          if (nx < 0.28) {
+            part = 'Right Arm / Shoulder';
+          } else if (nx > 0.72) {
+            part = 'Left Arm / Shoulder';
+          } else {
+            part = 'Abdomen';
+          }
+        } else if (ny < 0.72) {
+          if (nx < 0.40) {
+            part = 'Right Leg / Knee';
+          } else if (nx > 0.60) {
+            part = 'Left Leg / Knee';
+          } else {
+            part = 'Hips / Groin';
           }
         } else {
-          if (rx < 0.45) {
+          if (nx < 0.45) {
             part = 'Right Leg / Knee';
-          } else {
+          } else if (nx > 0.55) {
             part = 'Left Leg / Knee';
+          } else {
+            part = 'Thighs';
           }
         }
 
-        // rx/ry (above) are fractions of the MODEL's own bounding box — good
-        // for classifying which body part was hit, but wrong for drawing
-        // the marker: the model rarely fills the canvas edge-to-edge (camera
-        // framing leaves margin), so "10% down the model" and "10% down the
-        // canvas" are different points. The marker needs to sit where the
-        // patient's finger/cursor actually was, so it uses the raw tap
-        // pixel position instead, as a fraction of the visible canvas.
         const screenX = pixelX / rect.width;
         const screenY = pixelY / rect.height;
 
-        console.log('🩺 Model tapped! Part:', part, '| body-space rx/ry:', rx.toFixed(2), ry.toFixed(2), '| screen x/y:', screenX.toFixed(2), screenY.toFixed(2));
+        console.log('🩺 Model tapped! Part:', part, '| body-space nx/ny:', nx.toFixed(2), ny.toFixed(2), '| screen x/y:', screenX.toFixed(2), screenY.toFixed(2));
 
         window.dispatchEvent(new CustomEvent('atomybridge-bodypart', {
           detail: { part: part, x: screenX, y: screenY }
@@ -150,6 +168,34 @@
       });
       observer.observe(document.body, { childList: true, subtree: true });
     });
+
+    // Suppress "Blocked aria-hidden on an element because its descendant
+    // retained focus" warnings. Flutter wraps each platform view in a
+    // <flt-platform-view aria-hidden="true">; the WebView inside still
+    // owns focus, which trips the WAI-ARIA rule. Setting `inert` on the
+    // same element removes it from the focus chain and keeps the screen-
+    // reader semantics correct. The model_viewer_plus code applies
+    // aria-hidden to its own wrapper, so this stays in sync via the
+    // MutationObserver below.
+    function applyInertToPlatformViews(root) {
+      if (!root || !root.querySelectorAll) return;
+      root.querySelectorAll('flt-platform-view[aria-hidden="true"]').forEach((el) => {
+        try { el.inert = true; } catch (_) {}
+      });
+    }
+    applyInertToPlatformViews(document.body);
+    new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            applyInertToPlatformViews(node);
+          }
+        }
+        if (mutation.type === 'attributes' && mutation.target) {
+          applyInertToPlatformViews(mutation.target);
+        }
+      }
+    }).observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ['aria-hidden'] });
   </script>
 </body>
 </html>

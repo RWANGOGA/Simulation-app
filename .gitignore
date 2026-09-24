@@ -10,6 +10,8 @@ untitled folder/
 
 # Python backend
 Backend-fastapi/.env
+Backend-fastapi/postgres
+postgres/
 Backend-fastapi/**/__pycache__/
 Backend-fastapi/**/*.pyc
 
@@ -27,3 +29,4 @@ simtack/ios/.symlinks/
 
 # Local 3D model tooling/scratch (not part of the app)
 model-source/
+simtack/assets/anatomy3d/

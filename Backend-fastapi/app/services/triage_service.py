@@ -13,8 +13,7 @@ REGION_WEIGHTS: Dict[str, float] = {
     "Left Leg": 0.10, "Right Leg": 0.10
 }
 # Lowercase keys; lookups normalize input via _pain_type_weight so the
-# client's title-case labels ("Sharp", "Cramping") still match. "cramping"
-# was previously missing entirely and fell to the 0.05 default.
+# client's title-case labels ("Sharp", "Cramping") still match.
 PAIN_TYPE_WEIGHTS: Dict[str, float] = {
     "crushing": 0.20, "stabbing": 0.15, "sharp": 0.12,
     "burning": 0.10, "cramping": 0.09, "throbbing": 0.08, "numb": 0.08,
@@ -23,10 +22,9 @@ PAIN_TYPE_WEIGHTS: Dict[str, float] = {
 
 def _region_weight(body_region: Optional[str]) -> float:
     """
-    Match the region by clinical keyword instead of an exact string.
-    The app sends labels like "Chest / Heart" or "Abdomen (Upper)", which
-    never matched the old exact keys, so every region silently fell back to
-    the 0.10 default. Keyword matching also tolerates future label tweaks.
+    Match the region by clinical keyword instead of an exact string, so
+    labels like "Chest / Heart" or "Abdomen (Upper)" resolve correctly and
+    future label tweaks don't silently fall back to the 0.10 default.
     """
     r = (body_region or "").lower()
     if "chest" in r or "heart" in r:

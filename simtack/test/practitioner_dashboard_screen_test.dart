@@ -11,13 +11,24 @@ import 'package:simtack/features/report/ui/clinical_report_screen.dart';
 /// In-memory token storage so tests never touch platform secure storage.
 class FakeTokenStorage implements TokenStorage {
   String? _token;
+  String? _refreshToken;
 
   @override
   Future<void> write(String value) async => _token = value;
   @override
   Future<String?> read() async => _token;
+
   @override
-  Future<void> delete() async => _token = null;
+  Future<void> writeRefreshToken(String value) async => _refreshToken = value;
+
+  @override
+  Future<String?> readRefreshToken() async => _refreshToken;
+
+  @override
+  Future<void> delete() async {
+    _token = null;
+    _refreshToken = null;
+  }
 }
 
 /// Mock client that handles all dashboard endpoints with realistic data.

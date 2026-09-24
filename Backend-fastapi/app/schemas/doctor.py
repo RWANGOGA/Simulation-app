@@ -1,6 +1,6 @@
-from datetime import date
+from datetime import date, datetime
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class DoctorResponse(BaseModel):
     id: int
@@ -12,6 +12,14 @@ class DoctorResponse(BaseModel):
     hospital_name: Optional[str] = None
     date_of_birth: Optional[date] = None
     is_active: bool
+    created_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
+
+class DoctorUpdate(BaseModel):
+    full_name: Optional[str] = None
+    role: Optional[str] = None
+    license_number: Optional[str] = None
+    phone: Optional[str] = None
+    hospital_name: Optional[str] = None
+    date_of_birth: Optional[date] = None

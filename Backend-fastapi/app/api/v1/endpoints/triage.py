@@ -1,5 +1,6 @@
+from datetime import datetime, timedelta, timezone
 from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 import json
@@ -12,6 +13,27 @@ from app.api.v1.endpoints.auth import get_current_doctor
 
 router = APIRouter(prefix="/triage", tags=["triage"])
 
+# IP-based rate limiting for public endpoints
+_triage_rate_limit: dict[str, list[datetime]] = {}
+TRIAGE_RATE_LIMIT = 10  # requests per window
+TRIAGE_RATE_WINDOW = timedelta(minutes=5)
+
+def _check_triage_rate_limit(request: Request):
+    client_ip = request.client.host if request.client else "unknown"
+    now = datetime.now(timezone.utc)
+    cutoff = now - TRIAGE_RATE_WINDOW
+    
+    attempts = [t for t in _triage_rate_limit.get(client_ip, []) if t > cutoff]
+    _triage_rate_limit[client_ip] = attempts
+    
+    if len(attempts) >= TRIAGE_RATE_LIMIT:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Too many requests. Please try again later.",
+        )
+    
+    _triage_rate_limit[client_ip].append(now)
+
 def _session_payload(session: TriageSession, patient) -> dict:
     """Single source of truth for the triage response shape — every
     endpoint returns this so new fields (spo2, decision workflow, ...)
@@ -22,6 +44,8 @@ def _session_payload(session: TriageSession, patient) -> dict:
         "body_region": session.body_region, "pain_type": session.pain_type,
         "severity": session.severity, "heart_rate": session.heart_rate,
         "spo2": session.spo2, "direction": session.direction, "depth": session.depth,
+        "expansion_behavior": session.expansion_behavior, "triggers": session.triggers,
+        "relievers": session.relievers, "daily_limitations": session.daily_limitations,
         "visit_id": session.visit_id,
         "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
         "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at,
@@ -29,6 +53,7 @@ def _session_payload(session: TriageSession, patient) -> dict:
         "priority": session.priority,
         "actions_taken": session.actions_taken,
         "clinical_notes": session.clinical_notes,
+        "question_answers": session.question_answers,
         "patient_age": patient.age if patient else None,
         "patient_gender": patient.gender if patient else None,
         "patient_weight": patient.weight if patient else None,
@@ -49,7 +74,12 @@ def _session_payload(session: TriageSession, patient) -> dict:
 # are JWT-guarded instead.
 # ==========================================
 @router.post("/", response_model=TriageResponse, status_code=201)
-def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
+def create_triage(
+    request: Request,
+    payload: TriageCreate,
+    db: Session = Depends(get_db),
+):
+    _check_triage_rate_limit(request)
     # If this pain point belongs to a multi-region visit, score it aware of
     # whatever other regions the patient already reported in the same visit
     # (e.g. chest pain scored alongside already-reported left arm pain).
@@ -68,10 +98,15 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
     else:
         existing_patient = db.query(Patient).filter(Patient.id == patient_id).first()
         if not existing_patient:
-            # Reject dangling references: previously an unknown patient_id
-            # still created a session row pointing at nothing (orphaned
-            # record that could never be joined back to a patient).
+            # Reject dangling references rather than creating an orphaned
+            # session row pointing at a nonexistent patient.
             raise HTTPException(status_code=404, detail="Patient not found")
+        submitted_code = request.headers.get("X-Patient-Code")
+        if submitted_code != existing_patient.anonymous_code:
+            raise HTTPException(
+                status_code=403,
+                detail="Patient code does not match the submitted patient",
+            )
         patient_obj = existing_patient
 
     # Weight/height feed the BMI risk factor; scoring needs the patient
@@ -96,9 +131,70 @@ def create_triage(payload: TriageCreate, db: Session = Depends(get_db)):
     return _session_payload(session, patient_obj)
 
 # ==========================================
+# 4b. PAGINATED SESSION HISTORY (Practitioner History Screen)
+# Returns the FULL rich payload (via _session_payload) and pagination 
+# metadata. Must come before dynamic routes like /patient/{code}.
+# ==========================================
+@router.get("/history")
+def get_triage_history(
+    page: int = Query(default=1, ge=1, description="Page number"),
+    limit: int = Query(default=20, ge=1, le=100, description="Items per page"),
+    risk_level: Optional[str] = Query(default=None, description="HIGH, MEDIUM, or LOW"),
+    status: Optional[str] = Query(default=None, pattern="^(open|closed)$"),
+    body_region: Optional[str] = Query(default=None),
+    patient_code: Optional[str] = Query(default=None),
+    db: Session = Depends(get_db),
+    current_doctor: Doctor = Depends(get_current_doctor),
+):
+    offset = (page - 1) * limit
+    
+    # 1. Base query joining Patient to get demographics and anonymous_code
+    base_query = db.query(TriageSession).join(
+        Patient, TriageSession.patient_id == Patient.id, isouter=True
+    )
+    
+    # 2. Apply Filters dynamically
+    if patient_code:
+        base_query = base_query.filter(Patient.anonymous_code.ilike(func.concat('%', patient_code, '%')))
+    if body_region:
+        base_query = base_query.filter(TriageSession.body_region.ilike(func.concat('%', body_region, '%')))
+    if risk_level == "HIGH":
+        base_query = base_query.filter(TriageSession.risk_score >= 0.7)
+    elif risk_level == "MEDIUM":
+        base_query = base_query.filter((TriageSession.risk_score >= 0.4) & (TriageSession.risk_score < 0.7))
+    elif risk_level == "LOW":
+        base_query = base_query.filter(TriageSession.risk_score < 0.4)
+    if status:
+        base_query = base_query.filter(TriageSession.status == status)
+        
+    # 3. Get total count of records matching the filters (for pagination math)
+    total_records = base_query.count()
+    total_pages = (total_records + limit - 1) // limit if total_records > 0 else 0
+    
+    # 4. Execute the query with offset, limit, and ordering (newest first)
+    sessions = base_query.order_by(TriageSession.created_at.desc()).offset(offset).limit(limit).all()
+    
+    # 5. Build the rich payload using your existing helper!
+    items = []
+    for session in sessions:
+        # Fetch the patient object for the payload helper
+        patient = db.query(Patient).filter(Patient.id == session.patient_id).first() if session.patient_id else None
+        items.append(_session_payload(session, patient))
+        
+    # 6. Return the structured JSON response
+    return {
+        "items": items,
+        "pagination": {
+            "total": total_records,
+            "page": page,
+            "limit": limit,
+            "total_pages": total_pages,
+        }
+    }    
+
+# ==========================================
 # 2. LIST ALL TRIAGES (Original Route)
-# Doctor-only: exposes every patient's submissions, so it requires a valid
-# JWT (issue: data endpoints were previously fully open).
+# Doctor-only: exposes every patient's submissions, so it requires a valid JWT.
 # ==========================================
 @router.get("/", response_model=List[TriageResponse])
 def list_triage(
@@ -134,6 +230,81 @@ def get_triage_stats(
     }
 
 # ==========================================
+# 3b. GET PRACTITIONER REPORTS (aggregate breakdowns for the Reports page)
+# Separate from /stats above so nothing that already depends on that
+# endpoint's shape is affected. Also must come before /{session_id}.
+# ==========================================
+@router.get("/reports")
+def get_triage_reports(
+    period: str = Query(default="all", pattern="^(week|month|all)$"),
+    db: Session = Depends(get_db),
+    current_doctor: Doctor = Depends(get_current_doctor),
+):
+    query = db.query(TriageSession)
+    period_start = None
+    if period == "week":
+        period_start = datetime.now(timezone.utc) - timedelta(days=7)
+    elif period == "month":
+        period_start = datetime.now(timezone.utc) - timedelta(days=30)
+    if period_start is not None:
+        query = query.filter(TriageSession.created_at >= period_start)
+
+    session_ids = [row.id for row in query.with_entities(TriageSession.id).all()]
+    total_sessions = len(session_ids)
+
+    def _scoped(q):
+        return q.filter(TriageSession.id.in_(session_ids)) if period_start is not None else q
+
+    high_risk_count = _scoped(
+        db.query(func.count(TriageSession.id)).filter(TriageSession.risk_score >= 0.7)
+    ).scalar() or 0
+    medium_risk_count = _scoped(
+        db.query(func.count(TriageSession.id)).filter(
+            (TriageSession.risk_score >= 0.4) & (TriageSession.risk_score < 0.7)
+        )
+    ).scalar() or 0
+
+    status_rows = (
+        _scoped(db.query(TriageSession.status, func.count(TriageSession.id)))
+        .group_by(TriageSession.status)
+        .all()
+    )
+    # Rows created before the decision workflow existed have status=NULL —
+    # they're "open" in every practical sense (never reviewed/closed).
+    open_count = sum(count for status, count in status_rows if status != "closed")
+    closed_count = sum(count for status, count in status_rows if status == "closed")
+
+    region_rows = (
+        _scoped(db.query(TriageSession.body_region, func.count(TriageSession.id).label("n")))
+        .group_by(TriageSession.body_region)
+        .order_by(func.count(TriageSession.id).desc())
+        .all()
+    )
+    pain_type_rows = (
+        _scoped(db.query(TriageSession.pain_type, func.count(TriageSession.id).label("n")))
+        .group_by(TriageSession.pain_type)
+        .order_by(func.count(TriageSession.id).desc())
+        .all()
+    )
+
+    avg_severity = _scoped(db.query(func.avg(TriageSession.severity))).scalar()
+    avg_risk_score = _scoped(db.query(func.avg(TriageSession.risk_score))).scalar()
+
+    return {
+        "period": period,
+        "total": total_sessions,
+        "high_risk_count": high_risk_count,
+        "medium_risk_count": medium_risk_count,
+        "low_risk_count": total_sessions - high_risk_count - medium_risk_count,
+        "open_count": open_count,
+        "closed_count": closed_count,
+        "by_region": [{"region": region, "count": n} for region, n in region_rows],
+        "by_pain_type": [{"pain_type": pt, "count": n} for pt, n in pain_type_rows],
+        "avg_severity": round(avg_severity, 1) if avg_severity is not None else None,
+        "avg_risk_score": round(avg_risk_score, 2) if avg_risk_score is not None else None,
+    }
+
+# ==========================================
 # 4. GET FILTERED LIST (History / Practitioner Dashboard)
 # Also must come before /{session_id} for the same reason.
 # ==========================================
@@ -157,7 +328,7 @@ def list_triage_sessions(
     ).order_by(TriageSession.created_at.desc())
 
     if patient_code:
-        query = query.filter(Patient.anonymous_code.ilike(f"%{patient_code}%"))
+        query = query.filter(Patient.anonymous_code.ilike(func.concat('%', patient_code, '%')))
 
     if risk_level == "HIGH":
         query = query.filter(TriageSession.risk_score >= 0.7)

@@ -25,6 +25,7 @@ def get_regions_in_visit(db: Session, visit_id: str) -> List[str]:
     pain point being scored can be checked against what's already been
     reported in the same visit (see triage_service._connectivity_contributions)."""
     stmt = select(TriageSession.body_region).where(TriageSession.visit_id == visit_id)
+    return list(db.execute(stmt).scalars().all())
 
 def get_patient_history(db: Session, patient_id: int) -> List[TriageSession]:
     """Every session the patient ever submitted, newest first — powers

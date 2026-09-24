@@ -1,0 +1,97 @@
+{
+  "Big Toe - tip": [
+    242,
+    36,
+    36
+  ],
+  "Big Toe - base": [
+    242,
+    101,
+    36
+  ],
+  "Second Toe - tip": [
+    242,
+    166,
+    36
+  ],
+  "Second Toe - middle": [
+    242,
+    231,
+    36
+  ],
+  "Second Toe - base": [
+    188,
+    242,
+    36
+  ],
+  "Third Toe - tip": [
+    123,
+    242,
+    36
+  ],
+  "Third Toe - middle": [
+    58,
+    242,
+    36
+  ],
+  "Third Toe - base": [
+    36,
+    242,
+    79
+  ],
+  "Fourth Toe - tip": [
+    36,
+    242,
+    144
+  ],
+  "Fourth Toe - middle": [
+    36,
+    242,
+    209
+  ],
+  "Fourth Toe - base": [
+    36,
+    209,
+    242
+  ],
+  "Little Toe - tip": [
+    36,
+    144,
+    242
+  ],
+  "Little Toe - middle": [
+    36,
+    79,
+    242
+  ],
+  "Little Toe - base": [
+    58,
+    36,
+    242
+  ],
+  "First Metatarsal": [
+    123,
+    36,
+    242
+  ],
+  "Second Metatarsal": [
+    188,
+    36,
+    242
+  ],
+  "Third Metatarsal": [
+    242,
+    36,
+    231
+  ],
+  "Fourth Metatarsal": [
+    242,
+    36,
+    166
+  ],
+  "Fifth Metatarsal": [
+    242,
+    36,
+    101
+  ]
+}

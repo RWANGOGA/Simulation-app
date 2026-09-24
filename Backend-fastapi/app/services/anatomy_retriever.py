@@ -1,0 +1,318 @@
+"""
+Anatomy retriever.
+
+Loads the anatomy knowledge base (app/data/anatomy_kb.json) once at import
+time, builds a simple bag-of-words vector for each chunk, and exposes
+`retrieve(region, query, top_k)` for the /anatomy/ask endpoint.
+
+Retrieval uses hybrid search combining:
+- BM25 lexical scoring (traditional IR)
+- TF-IDF cosine similarity (vector retrieval)
+Scores are fused using Reciprocal Rank Fusion (RRF) for robust results.
+"""
+
+from __future__ import annotations
+
+import json
+import math
+import re
+from dataclasses import dataclass
+from functools import lru_cache
+from pathlib import Path
+from typing import Dict, List, Optional, Set, Tuple
+
+
+# ── Data model ────────────────────────────────────────────────────────────
+
+
+@dataclass
+class AnatomyChunk:
+    id: str
+    region: str
+    system: str
+    text: str
+    structures: List[str]
+    common_conditions: List[str]
+    red_flags: List[str]
+    suggested_questions: List[str]
+    # Lower-cased, deduplicated tokens used for cosine similarity. Built once.
+    tokens: List[str]
+
+
+@dataclass
+class RetrievalHit:
+    chunk: AnatomyChunk
+    score: float
+
+
+# ── Knowledge base loading ────────────────────────────────────────────────
+
+
+_KB_PATH = Path(__file__).resolve().parent.parent / "data" / "anatomy_kb.json"
+
+
+# ── Medical Synonym Dictionary for Query Expansion ───────────────────────
+
+MEDICAL_SYNONYMS: Dict[str, List[str]] = {
+    "migraine": ["headache", "cranial", "head", "neurological"],
+    "headache": ["migraine", "cranial", "head"],
+    "head": ["headache", "cranial"],
+    "tummy": ["abdomen", "stomach", "gut", "abdominal"],
+    "belly": ["abdomen", "stomach", "gut", "abdominal"],
+    "stomach": ["abdomen", "tummy", "belly", "abdominal"],
+    "gut": ["abdomen", "stomach"],
+    "breathless": ["dyspnea", "respiratory", "chest", "breath"],
+    "angina": ["cardiac", "chest", "heart", "coronary"],
+    "heart": ["cardiac", "chest", "angina"],
+    "dizzy": ["cranial", "neurological", "vertigo", "lightheaded"],
+    "lightheaded": ["cranial", "neurological", "vertigo", "dizzy"],
+    "knee": ["leg", "knee", "joint"],
+    "leg": ["leg", "knee", "thigh"],
+    "shoulder": ["arm", "shoulder", "joint"],
+    "arm": ["arm", "shoulder"],
+    "backache": ["back", "lumbar", "spine"],
+    "back": ["spine", "lumbar", "backache"],
+}
+
+
+def _tokenize(text: str) -> List[str]:
+    """Lower-cased, alphanumeric-only tokens with medical synonym expansion,
+    deduped, stopwords removed.
+    """
+    if not text:
+        return []
+    raw = re.findall(r"[a-z0-9]+", text.lower())
+    stop = {
+        "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
+        "has", "have", "in", "is", "it", "of", "on", "or", "that", "the",
+        "to", "was", "were", "will", "with", "this", "any", "can", "may",
+        "their", "they", "you", "your", "patient", "patients", "feel", "feeling",
+    }
+    seen: set[str] = set()
+    out: List[str] = []
+    for tok in raw:
+        if tok in stop or len(tok) < 3:
+            continue
+        if tok not in seen:
+            seen.add(tok)
+            out.append(tok)
+        # Expand synonyms
+        if tok in MEDICAL_SYNONYMS:
+            for syn in MEDICAL_SYNONYMS[tok]:
+                if syn not in seen:
+                    seen.add(syn)
+                    out.append(syn)
+    return out
+
+
+def _chunk_to_text(chunk: dict) -> str:
+    """Concatenate fields with heavy weighting on structures, conditions, and red flags."""
+    parts: List[str] = [chunk.get("text", "")]
+    # Double-weight critical medical terms for stronger TF-IDF vectors
+    parts.extend(chunk.get("structures", []) * 2)
+    parts.extend(chunk.get("common_conditions", []) * 2)
+    parts.extend(chunk.get("red_flags", []) * 2)
+    parts.extend(chunk.get("suggested_questions", []))
+    return " ".join(parts)
+
+
+@lru_cache(maxsize=1)
+def load_kb() -> Dict[str, AnatomyChunk]:
+    """Load and cache the knowledge base on first call."""
+    with _KB_PATH.open("r", encoding="utf-8") as f:
+        raw = json.load(f)
+    chunks: Dict[str, AnatomyChunk] = {}
+    for entry in raw.get("regions", []):
+        text = _chunk_to_text(entry)
+        chunk = AnatomyChunk(
+            id=entry["id"],
+            region=entry["region"],
+            system=entry.get("system", ""),
+            text=entry.get("text", ""),
+            structures=entry.get("structures", []),
+            common_conditions=entry.get("common_conditions", []),
+            red_flags=entry.get("red_flags", []),
+            suggested_questions=entry.get("suggested_questions", []),
+            tokens=_tokenize(text),
+        )
+        chunks[chunk.id] = chunk
+    return chunks
+
+
+# ── Vector math ───────────────────────────────────────────────────────────
+
+
+def _term_freq(tokens: List[str]) -> Dict[str, float]:
+    """tf(t, d) = count(t in d), not normalized (cosine handles length)."""
+    tf: Dict[str, float] = {}
+    for t in tokens:
+        tf[t] = tf.get(t, 0.0) + 1.0
+    return tf
+
+
+def _build_idf(chunks: Dict[str, AnatomyChunk]) -> Dict[str, float]:
+    """idf(t) = log(N / (1 + df(t))) — smoothed, deterministic."""
+    n = max(1, len(chunks))
+    df: Dict[str, int] = {}
+    for chunk in chunks.values():
+        for tok in set(chunk.tokens):
+            df[tok] = df.get(tok, 0) + 1
+    return {tok: math.log(n / (1.0 + d)) for tok, d in df.items()}
+
+
+def _vectorize(
+    tokens: List[str], idf: Dict[str, float]
+) -> Dict[str, float]:
+    """tf-idf vector as a sparse dict."""
+    tf = _term_freq(tokens)
+    return {tok: count * idf.get(tok, 0.0) for tok, count in tf.items()}
+
+
+def _cosine(a: Dict[str, float], b: Dict[str, float]) -> float:
+    if not a or not b:
+        return 0.0
+    dot = 0.0
+    for tok, weight in a.items():
+        if tok in b:
+            dot += weight * b[tok]
+    norm_a = math.sqrt(sum(w * w for w in a.values()))
+    norm_b = math.sqrt(sum(w * w for w in b.values()))
+    if norm_a == 0.0 or norm_b == 0.0:
+        return 0.0
+    return dot / (norm_a * norm_b)
+
+
+# ── Retrieval ─────────────────────────────────────────────────────────────
+
+
+@lru_cache(maxsize=1)
+def _index() -> tuple[Dict[str, Dict[str, float]], Dict[str, AnatomyChunk]]:
+    """Builds and caches the tf-idf vectors for every chunk."""
+    chunks = load_kb()
+    idf = _build_idf(chunks)
+    vectors = {cid: _vectorize(c.tokens, idf) for cid, c in chunks.items()}
+    return vectors, chunks
+
+
+def _bm25_score(
+    query_tokens: List[str],
+    chunk: AnatomyChunk,
+    chunk_tokens_map: Dict[str, List[str]],
+    avgdl: float,
+    idf: Dict[str, float],
+) -> float:
+    """BM25 lexical score for a chunk against a query."""
+    k1 = 1.5
+    b = 0.75
+    dl = len(chunk.tokens)
+    score = 0.0
+    for qt in query_tokens:
+        tf = chunk.tokens.count(qt)
+        if tf == 0:
+            continue
+        idf_val = idf.get(qt, 0.0)
+        numerator = tf * (k1 + 1.0)
+        denominator = tf + k1 * (1.0 - b + b * (dl / avgdl))
+        score += idf_val * numerator / denominator
+    return score
+
+
+def _rrf_fuse(
+    ranked_lists: List[List[Tuple[str, float]]],
+    k: int = 60,
+) -> List[Tuple[str, float]]:
+    """Reciprocal Rank Fusion over multiple ranked lists.
+    
+    Each list is a list of (chunk_id, score) tuples ordered by relevance.
+    Returns a fused ranking of (chunk_id, fused_score).
+    """
+    fusion: Dict[str, float] = {}
+    for ranked in ranked_lists:
+        for rank, (cid, _) in enumerate(ranked, start=1):
+            fusion[cid] = fusion.get(cid, 0.0) + 1.0 / (k + rank)
+    return sorted(fusion.items(), key=lambda x: x[1], reverse=True)
+
+
+@lru_cache(maxsize=128)
+def _retrieve_cached_chunk_ids(
+    region_key: str, query_key: str, top_k: int
+) -> Tuple[Tuple[str, float], ...]:
+    vectors, chunks = _index()
+    query_tokens = _tokenize(query_key or "")
+    idf = _build_idf(chunks)
+    q_vec = _vectorize(query_tokens, idf)
+
+    region_norm = region_key.strip().lower()
+
+    # Precompute BM25 statistics
+    chunk_tokens_map = {cid: list(c.tokens) for cid, c in chunks.items()}
+    total_length = sum(len(c.tokens) for c in chunks.values())
+    avgdl = total_length / max(1, len(chunks))
+
+    # BM25 ranked list
+    bm25_ranked: List[Tuple[str, float]] = []
+    for cid, chunk in chunks.items():
+        score = _bm25_score(query_tokens, chunk, chunk_tokens_map, avgdl, idf)
+        if region_norm:
+            chunk_region_norm = chunk.region.lower()
+            if region_norm == chunk_region_norm or region_norm in chunk_region_norm or chunk_region_norm in region_norm:
+                score += 0.5
+        bm25_ranked.append((cid, score))
+    bm25_ranked.sort(key=lambda x: x[1], reverse=True)
+
+    # TF-IDF cosine ranked list
+    tfidf_ranked: List[Tuple[str, float]] = []
+    for cid, vec in vectors.items():
+        score = _cosine(q_vec, vec)
+        if region_norm:
+            chunk_region_norm = chunks[cid].region.lower()
+            if region_norm == chunk_region_norm or region_norm in chunk_region_norm or chunk_region_norm in region_norm:
+                score += 0.5
+        tfidf_ranked.append((cid, score))
+    tfidf_ranked.sort(key=lambda x: x[1], reverse=True)
+
+    # Fuse with RRF
+    fused = _rrf_fuse([bm25_ranked, tfidf_ranked])
+
+    results = []
+    bm25_dict = dict(bm25_ranked)
+    tfidf_dict = dict(tfidf_ranked)
+    for cid, _ in fused[: max(1, top_k)]:
+        score = max(bm25_dict.get(cid, 0.0), tfidf_dict.get(cid, 0.0))
+        results.append((cid, score))
+    return tuple(results)
+
+
+def retrieve(
+    region: Optional[str] = None,
+    query: str = "",
+    top_k: int = 3,
+) -> List[RetrievalHit]:
+    """Return the top-k chunks most relevant to (region, query) using hybrid search.
+
+    Combines BM25 lexical retrieval with TF-IDF cosine similarity using
+    Reciprocal Rank Fusion (RRF) for robust ranking across both methods.
+    Results are cached per (region, query, top_k) tuple.
+    """
+    chunks = load_kb()
+    r_key = (region or "").strip().lower()
+    q_key = (query or "").strip().lower()
+    
+    cached_hits = _retrieve_cached_chunk_ids(r_key, q_key, top_k)
+    return [
+        RetrievalHit(chunk=chunks[cid], score=score)
+        for cid, score in cached_hits
+        if cid in chunks
+    ]
+
+
+def list_regions() -> List[dict]:
+    """Public list of regions for clients that want to render a picker."""
+    return [
+        {
+            "id": c.id,
+            "region": c.region,
+            "system": c.system,
+        }
+        for c in load_kb().values()
+    ]

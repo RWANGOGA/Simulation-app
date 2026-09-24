@@ -2,10 +2,11 @@ import json
 import uuid
 from fastapi.testclient import TestClient
 from app.main import app
+from app.core.database import SessionLocal
+from app.models.patient import Patient
+from tests.conftest import DOCTOR_LOGIN
 
 client = TestClient(app)
-
-DOCTOR_LOGIN = {"username": "doctor@simtack.com", "password": "Doctor123!"}
 
 
 def _doctor_headers() -> dict:
@@ -21,6 +22,10 @@ def _new_patient() -> dict:
 
 
 def _submit(patient_id: int, visit_id: str, region: str = "Head") -> dict:
+    db = SessionLocal()
+    patient = db.get(Patient, patient_id)
+    db.close()
+    assert patient is not None
     return client.post(
         "/api/v1/triage/",
         json={
@@ -30,6 +35,7 @@ def _submit(patient_id: int, visit_id: str, region: str = "Head") -> dict:
             "severity": 5,
             "visit_id": visit_id,
         },
+        headers={"X-Patient-Code": patient.anonymous_code},
     ).json()
 
 
@@ -74,3 +80,20 @@ def test_shap_explanation_now_carries_impact_sign():
     factors = json.loads(session["shap_explanation"])
     assert factors and all("impact" in f for f in factors)
     assert all(f["impact"] in ("+", "-") for f in factors)
+
+
+def test_anonymous_triage_cannot_reuse_another_patient_id():
+    first = _new_patient()
+    second = _new_patient()
+    response = client.post(
+        "/api/v1/triage/",
+        json={
+            "patient_id": first["id"],
+            "body_region": "Chest",
+            "pain_type": "sharp",
+            "severity": 5,
+            "visit_id": uuid.uuid4().hex,
+        },
+        headers={"X-Patient-Code": second["anonymous_code"]},
+    )
+    assert response.status_code == 403

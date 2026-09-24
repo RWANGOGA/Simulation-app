@@ -6,6 +6,13 @@ import 'package:http/testing.dart';
 
 import 'package:simtack/core/network/api_client.dart';
 import 'package:simtack/features/report/ui/clinical_report_screen.dart';
+import 'package:simtack/l10n/app_localizations.dart';
+
+Widget _wrap(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: child,
+    );
 
 Map<String, dynamic> _session({
   required int id,
@@ -39,6 +46,10 @@ class FakeTokenStorage implements TokenStorage {
   @override
   Future<String?> read() async => _token;
   @override
+  Future<void> writeRefreshToken(String value) async {}
+  @override
+  Future<String?> readRefreshToken() async => null;
+  @override
   Future<void> delete() async => _token = null;
 }
 
@@ -58,26 +69,39 @@ void main() {
   });
 
   group('ClinicalReportScreen Widget Tests', () {
-    testWidgets('renders initial loading indicator and watermark', (WidgetTester tester) async {
-      await tester.pumpWidget(const MaterialApp(
-        home: ClinicalReportScreen(patientId: 'TEST-12345'),
-      ));
+    testWidgets('renders initial loading indicator and watermark',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+          _wrap(const ClinicalReportScreen(patientId: 'TEST-12345')));
 
-      expect(find.text('ATOMYBRIDGE CARE'), findsOneWidget);
+      expect(find.text('SIMTACK'), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
     });
   });
 
   group('Visit timeline (T2)', () {
-    testWidgets('practitioner sees the timeline and can switch visits', (tester) async {
+    testWidgets('practitioner sees the timeline and can switch visits',
+        (tester) async {
       // History endpoint: newest visit first (visit-b), older one after.
       ApiClient.httpClient = MockClient((request) async {
         if (request.url.path.endsWith('/history')) {
           return http.Response(
             jsonEncode([
-              _session(id: 3, visitId: 'visit-b', region: 'Chest', createdAt: '2026-08-20T10:00:00'),
-              _session(id: 2, visitId: 'visit-a', region: 'Head', createdAt: '2026-08-01T09:00:00'),
-              _session(id: 1, visitId: 'visit-a', region: 'Left Arm', createdAt: '2026-08-01T09:05:00'),
+              _session(
+                  id: 3,
+                  visitId: 'visit-b',
+                  region: 'Chest',
+                  createdAt: '2026-08-20T10:00:00'),
+              _session(
+                  id: 2,
+                  visitId: 'visit-a',
+                  region: 'Head',
+                  createdAt: '2026-08-01T09:00:00'),
+              _session(
+                  id: 1,
+                  visitId: 'visit-a',
+                  region: 'Left Arm',
+                  createdAt: '2026-08-01T09:05:00'),
             ]),
             200,
           );
@@ -89,9 +113,8 @@ void main() {
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(const MaterialApp(
-        home: ClinicalReportScreen(patientId: 'P-TEST12345678', practitionerMode: true),
-      ));
+      await tester.pumpWidget(_wrap(const ClinicalReportScreen(
+          patientId: 'P-TEST12345678', practitionerMode: true)));
       await tester.pumpAndSettle();
 
       expect(find.text('VISIT TIMELINE'), findsOneWidget);
@@ -114,7 +137,11 @@ void main() {
         if (request.url.path.contains('/triage/patient/')) {
           return http.Response(
             jsonEncode([
-              _session(id: 1, visitId: 'visit-a', region: 'Head', createdAt: '2026-08-01T09:00:00'),
+              _session(
+                  id: 1,
+                  visitId: 'visit-a',
+                  region: 'Head',
+                  createdAt: '2026-08-01T09:00:00'),
             ]),
             200,
           );
@@ -122,9 +149,8 @@ void main() {
         return http.Response('Not found', 404);
       });
 
-      await tester.pumpWidget(const MaterialApp(
-        home: ClinicalReportScreen(patientId: 'P-TEST12345678'),
-      ));
+      await tester.pumpWidget(
+          _wrap(const ClinicalReportScreen(patientId: 'P-TEST12345678')));
       await tester.pumpAndSettle();
 
       expect(find.text('VISIT TIMELINE'), findsNothing);
@@ -133,7 +159,8 @@ void main() {
   });
 
   group('SHAP factor bars (T1)', () {
-    testWidgets('renders proportional bars with signed percentages', (tester) async {
+    testWidgets('renders proportional bars with signed percentages',
+        (tester) async {
       final shap = jsonEncode([
         {'factor': 'Severity 5/10', 'shap': 0.25, 'impact': '+'},
         {'factor': 'Region: Chest', 'shap': 0.15, 'impact': '+'},
@@ -143,8 +170,12 @@ void main() {
         if (request.url.path.contains('/triage/patient/')) {
           return http.Response(
             jsonEncode([
-              _session(id: 1, visitId: 'visit-a', region: 'Chest',
-                  createdAt: '2026-08-01T09:00:00', shap: shap),
+              _session(
+                  id: 1,
+                  visitId: 'visit-a',
+                  region: 'Chest',
+                  createdAt: '2026-08-01T09:00:00',
+                  shap: shap),
             ]),
             200,
           );
@@ -152,9 +183,8 @@ void main() {
         return http.Response('Not found', 404);
       });
 
-      await tester.pumpWidget(const MaterialApp(
-        home: ClinicalReportScreen(patientId: 'P-TEST12345678'),
-      ));
+      await tester.pumpWidget(
+          _wrap(const ClinicalReportScreen(patientId: 'P-TEST12345678')));
       await tester.pumpAndSettle();
 
       expect(find.text('WHY THIS SCORE?'), findsOneWidget);
@@ -166,7 +196,8 @@ void main() {
       expect(find.byType(FractionallySizedBox), findsNWidgets(3));
     });
 
-    testWidgets('legacy explanation without impact key still renders', (tester) async {
+    testWidgets('legacy explanation without impact key still renders',
+        (tester) async {
       final shap = jsonEncode([
         {'factor': 'Severity 8/10', 'shap': 0.4},
       ]);
@@ -174,8 +205,12 @@ void main() {
         if (request.url.path.contains('/triage/patient/')) {
           return http.Response(
             jsonEncode([
-              _session(id: 1, visitId: 'visit-a', region: 'Chest',
-                  createdAt: '2026-08-01T09:00:00', shap: shap),
+              _session(
+                  id: 1,
+                  visitId: 'visit-a',
+                  region: 'Chest',
+                  createdAt: '2026-08-01T09:00:00',
+                  shap: shap),
             ]),
             200,
           );
@@ -183,9 +218,8 @@ void main() {
         return http.Response('Not found', 404);
       });
 
-      await tester.pumpWidget(const MaterialApp(
-        home: ClinicalReportScreen(patientId: 'P-TEST12345678'),
-      ));
+      await tester.pumpWidget(
+          _wrap(const ClinicalReportScreen(patientId: 'P-TEST12345678')));
       await tester.pumpAndSettle();
 
       expect(find.text('+40%'), findsOneWidget);

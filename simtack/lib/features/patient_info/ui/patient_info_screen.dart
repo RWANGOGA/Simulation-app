@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
 import '../../body_map/ui/body_map_screen.dart';
 import '../../../core/theme/app_page_route.dart';
+import '../../../core/widgets/flow_progress_bar.dart';
+import '../../../l10n/app_localizations.dart';
 
 class PatientInfoScreen extends StatefulWidget {
   const PatientInfoScreen({super.key});
@@ -42,10 +45,15 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
     super.dispose();
   }
 
-  String _formatDob(DateTime dob) =>
-      '${dob.year.toString().padLeft(4, '0')}-'
-      '${dob.month.toString().padLeft(2, '0')}-'
-      '${dob.day.toString().padLeft(2, '0')}';
+  int _calculateAge(DateTime dob) {
+    final now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
+      age--;
+    }
+    return age;
+  }
 
   Future<void> _pickDateOfBirth() async {
     final now = DateTime.now();
@@ -54,9 +62,14 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
       initialDate: _dateOfBirth ?? DateTime(now.year - 30),
       firstDate: DateTime(1900),
       lastDate: now,
-      helpText: 'DATE OF BIRTH',
+      helpText: AppLocalizations.of(context)!.dateOfBirthHelpText,
     );
-    if (picked != null) setState(() => _dateOfBirth = picked);
+    if (picked != null) {
+      setState(() {
+        _dateOfBirth = picked;
+        _ageController.text = _calculateAge(picked).toString();
+      });
+    }
   }
 
   InputDecoration _fieldDecoration({
@@ -66,17 +79,18 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
   }) =>
       InputDecoration(
         labelText: label,
-        prefixIcon: icon != null ? Icon(icon, color: const Color(0xFF6D28D9)) : null,
+        prefixIcon:
+            icon != null ? Icon(icon, color: const Color(0xFF6D28D9)) : null,
         helperText: helper,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppPalette.inputFill(context),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderSide: BorderSide(color: AppPalette.border(context)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderSide: BorderSide(color: AppPalette.border(context)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -86,14 +100,19 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
+      backgroundColor: AppPalette.scaffold(context),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
           onPressed: () => Navigator.of(context).pop(),
+        ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(20),
+          child: FlowProgressBar(totalSteps: 6, currentStep: 2),
         ),
       ),
       body: SafeArea(
@@ -104,21 +123,21 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Patient Profile',
+                Text(
+                  t.patientProfileTitle,
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+                    color: AppPalette.textPrimary(context),
                   ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'This helps us build your body map',
-                  style: TextStyle(fontSize: 15, color: Color(0xFF64748B)),
+                Text(
+                  t.patientProfileSubtitle,
+                  style: TextStyle(
+                      fontSize: 15, color: AppPalette.textMuted(context)),
                 ),
                 const SizedBox(height: 24),
-
                 Expanded(
                   child: ListView(
                     children: [
@@ -126,51 +145,51 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                       const SizedBox(height: 20),
                       _buildNumberField(
                         controller: _ageController,
-                        label: 'Age',
-                        suffix: 'years',
+                        label: t.ageLabel,
+                        suffix: t.yearsSuffix,
                         min: 0,
                         max: 120,
                       ),
                       const SizedBox(height: 16),
                       _buildNumberField(
                         controller: _weightController,
-                        label: 'Weight',
-                        suffix: 'kg',
+                        label: t.weightLabel,
+                        suffix: t.kgSuffix,
                         min: 20,
                         max: 300,
                       ),
                       const SizedBox(height: 16),
                       _buildNumberField(
                         controller: _heightController,
-                        label: 'Height',
-                        suffix: 'cm',
+                        label: t.heightLabel,
+                        suffix: t.cmSuffix,
                         min: 50,
                         max: 250,
                       ),
 
                       // ----- Optional personal details -----
                       const SizedBox(height: 28),
-                      const Text(
-                        'CONTACT & IDENTITY (OPTIONAL)',
+                      Text(
+                        t.contactIdentityOptionalTitle,
                         style: TextStyle(
                           fontSize: 12,
                           letterSpacing: 1.5,
                           fontWeight: FontWeight.bold,
-                          color: Color(0xFF64748B),
+                          color: AppPalette.textMuted(context),
                         ),
                       ),
                       const SizedBox(height: 4),
-                      const Text(
-                        'Add these so the practitioner can identify and reach you. '
-                        'Skip them to stay fully anonymous.',
-                        style: TextStyle(fontSize: 13, color: Color(0xFF64748B)),
+                      Text(
+                        t.contactIdentityHint,
+                        style: TextStyle(
+                            fontSize: 13, color: AppPalette.textMuted(context)),
                       ),
                       const SizedBox(height: 12),
                       TextFormField(
                         controller: _nameController,
                         textInputAction: TextInputAction.next,
                         decoration: _fieldDecoration(
-                          label: 'Full Name',
+                          label: t.fullNameLabel,
                           icon: Icons.person_outline,
                         ),
                       ),
@@ -180,11 +199,13 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                         child: AbsorbPointer(
                           child: TextFormField(
                             decoration: _fieldDecoration(
-                              label: 'Date of Birth',
+                              label: t.ageLabel,
                               icon: Icons.cake_outlined,
                             ),
                             controller: TextEditingController(
-                              text: _dateOfBirth != null ? _formatDob(_dateOfBirth!) : '',
+                              text: _dateOfBirth != null
+                                  ? '${_calculateAge(_dateOfBirth!)} ${t.yearsSuffix}'
+                                  : '',
                             ),
                           ),
                         ),
@@ -195,7 +216,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                         keyboardType: TextInputType.phone,
                         textInputAction: TextInputAction.next,
                         decoration: _fieldDecoration(
-                          label: 'Contact Phone',
+                          label: t.contactPhoneLabel,
                           icon: Icons.phone_outlined,
                         ),
                       ),
@@ -205,7 +226,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                         textInputAction: TextInputAction.next,
                         maxLines: 2,
                         decoration: _fieldDecoration(
-                          label: 'Address',
+                          label: t.addressLabel,
                           icon: Icons.home_outlined,
                         ),
                       ),
@@ -214,9 +235,9 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                         controller: _nextOfKinNameController,
                         textInputAction: TextInputAction.next,
                         decoration: _fieldDecoration(
-                          label: 'Next of Kin Name',
+                          label: t.nextOfKinNameLabel,
                           icon: Icons.family_restroom,
-                          helper: 'Useful when reporting for a child or dependent',
+                          helper: t.nextOfKinNameHelper,
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -225,7 +246,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                         keyboardType: TextInputType.phone,
                         textInputAction: TextInputAction.next,
                         decoration: _fieldDecoration(
-                          label: 'Next of Kin Phone',
+                          label: t.nextOfKinPhoneLabel,
                           icon: Icons.contact_phone_outlined,
                         ),
                       ),
@@ -234,14 +255,13 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                         controller: _hospitalController,
                         textInputAction: TextInputAction.done,
                         decoration: _fieldDecoration(
-                          label: 'Hospital / Clinic Name',
+                          label: t.hospitalClinicNameLabel,
                           icon: Icons.local_hospital_outlined,
                         ),
                       ),
                     ],
                   ),
                 ),
-
                 const SizedBox(height: 16),
                 SizedBox(
                   width: double.infinity,
@@ -258,11 +278,12 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                         ? const SizedBox(
                             width: 24,
                             height: 24,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3),
+                            child: CircularProgressIndicator(
+                                color: Colors.white, strokeWidth: 3),
                           )
-                        : const Text(
-                            'Continue',
-                            style: TextStyle(
+                        : Text(
+                            t.continueButton,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w600,
                               color: Colors.white,
@@ -279,16 +300,20 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
   }
 
   Widget _buildGenderSelector() {
+    final t = AppLocalizations.of(context)!;
     return Row(
       children: [
-        Expanded(child: _buildGenderOption('Female')),
+        Expanded(child: _buildGenderOption('Female', t.genderFemale)),
         const SizedBox(width: 12),
-        Expanded(child: _buildGenderOption('Male')),
+        Expanded(child: _buildGenderOption('Male', t.genderMale)),
       ],
     );
   }
 
-  Widget _buildGenderOption(String value) {
+  // `value` is the English literal stored in state and sent to the backend;
+  // `label` is only what's shown on screen, so the locale never affects the
+  // stored gender value.
+  Widget _buildGenderOption(String value, String label) {
     final isSelected = _gender == value;
     return GestureDetector(
       onTap: () => setState(() => _gender = value),
@@ -298,17 +323,19 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
           color: isSelected ? const Color(0xFF6D28D9) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFE2E8F0),
+            color: isSelected
+                ? const Color(0xFF6D28D9)
+                : AppPalette.border(context),
             width: 2,
           ),
         ),
         child: Text(
-          value,
+          label,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : const Color(0xFF1E293B),
+            color: isSelected ? Colors.white : AppPalette.textPrimary(context),
           ),
         ),
       ),
@@ -330,17 +357,19 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         labelText: label,
         suffixText: suffix,
         filled: true,
-        fillColor: Colors.white,
+        fillColor: AppPalette.inputFill(context),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          borderSide: BorderSide(color: AppPalette.border(context)),
         ),
       ),
       validator: (value) {
-        if (value == null || value.isEmpty) return '$label is required';
+        final t = AppLocalizations.of(context)!;
+        if (value == null || value.isEmpty) return t.fieldRequiredError(label);
         final parsed = num.tryParse(value);
-        if (parsed == null) return 'Enter a valid number';
-        if (parsed < min || parsed > max) return '$label must be between $min and $max';
+        if (parsed == null) return t.enterValidNumberError;
+        if (parsed < min || parsed > max)
+          return t.fieldRangeError(label, '$min', '$max');
         return null;
       },
     );
@@ -370,6 +399,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         AppPageRoute(
           builder: (_) => BodyMapScreen(
             patientId: patient.id,
+            patientCode: patient.anonymousCode,
             gender: _gender,
             weightKg: double.parse(_weightController.text),
             heightCm: double.parse(_heightController.text),

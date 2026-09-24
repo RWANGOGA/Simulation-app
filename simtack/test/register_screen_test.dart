@@ -8,6 +8,7 @@ import 'package:simtack/core/network/api_client.dart';
 import 'package:simtack/features/auth/ui/register_screen.dart';
 import 'package:simtack/features/auth/ui/login_screen.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_dashboard_screen.dart';
+import 'package:simtack/l10n/app_localizations.dart';
 
 /// In-memory token storage so tests never touch platform secure storage.
 class FakeTokenStorage implements TokenStorage {
@@ -18,49 +19,59 @@ class FakeTokenStorage implements TokenStorage {
   @override
   Future<String?> read() async => _token;
   @override
+  Future<void> writeRefreshToken(String value) async {}
+  @override
+  Future<String?> readRefreshToken() async => null;
+  @override
   Future<void> delete() async => _token = null;
 }
 
 /// MockClient covering register -> auto-login -> dashboard data flow.
 MockClient _registerFlowClient() => MockClient((request) async {
-  final path = request.url.path;
-  if (path.endsWith('/auth/register')) {
-    return http.Response(
-      jsonEncode({
-        'id': 42,
-        'email': 'newdoc@test.com',
-        'full_name': 'Dr. New',
-        'role': 'Doctor',
-        'license_number': 'LIC-1',
-        'is_active': true,
-      }),
-      201,
-    );
-  }
-  if (path.endsWith('/auth/login')) {
-    return http.Response(
-      jsonEncode({'access_token': 'reg.test.token', 'token_type': 'bearer'}),
-      200,
-    );
-  }
-  if (path.endsWith('/auth/me')) {
-    return http.Response(
-      jsonEncode(
-          {'id': 42, 'email': 'newdoc@test.com', 'full_name': 'Dr. New', 'is_active': true}),
-      200,
-    );
-  }
-  if (path.endsWith('/triage/stats')) {
-    return http.Response(
-      jsonEncode({'total': 0, 'high_risk': 0, 'medium_risk': 0, 'low_risk': 0}),
-      200,
-    );
-  }
-  if (path.endsWith('/triage/list')) {
-    return http.Response(jsonEncode([]), 200);
-  }
-  return http.Response('Not found', 404);
-});
+      final path = request.url.path;
+      if (path.endsWith('/auth/register')) {
+        return http.Response(
+          jsonEncode({
+            'id': 42,
+            'email': 'newdoc@test.com',
+            'full_name': 'Dr. New',
+            'role': 'Doctor',
+            'license_number': 'LIC-1',
+            'is_active': true,
+          }),
+          201,
+        );
+      }
+      if (path.endsWith('/auth/login')) {
+        return http.Response(
+          jsonEncode(
+              {'access_token': 'reg.test.token', 'token_type': 'bearer'}),
+          200,
+        );
+      }
+      if (path.endsWith('/auth/me')) {
+        return http.Response(
+          jsonEncode({
+            'id': 42,
+            'email': 'newdoc@test.com',
+            'full_name': 'Dr. New',
+            'is_active': true
+          }),
+          200,
+        );
+      }
+      if (path.endsWith('/triage/stats')) {
+        return http.Response(
+          jsonEncode(
+              {'total': 0, 'high_risk': 0, 'medium_risk': 0, 'low_risk': 0}),
+          200,
+        );
+      }
+      if (path.endsWith('/triage/list')) {
+        return http.Response(jsonEncode([]), 200);
+      }
+      return http.Response('Not found', 404);
+    });
 
 void main() {
   final defaultClient = ApiClient.httpClient;
@@ -81,8 +92,8 @@ void main() {
 
     expect(find.text('Create Practitioner Account'), findsOneWidget);
     expect(find.text('Join Simtack Care'), findsOneWidget);
-    // name, email, license, DOB (picker), phone, hospital, password, confirm
-    expect(find.byType(TextFormField), findsNWidgets(8));
+    // name, email, license, DOB (picker), phone, hospital, invite code, password, confirm
+    expect(find.byType(TextFormField), findsNWidgets(9));
     expect(find.text('Doctor'), findsWidgets); // dropdown default
     expect(find.text('Create Account'), findsOneWidget);
   });
@@ -98,8 +109,9 @@ void main() {
 
     expect(find.text('Enter your full name.'), findsOneWidget);
     expect(find.text('Email is required.'), findsOneWidget);
-    expect(find.text('Enter your license or registration number.'), findsOneWidget);
-    expect(find.text('At least 8 characters.'), findsOneWidget);
+    expect(find.text('Enter your license or registration number.'),
+        findsOneWidget);
+    expect(find.text('At least 8 characters required.'), findsOneWidget);
     expect(await ApiClient.tokenStorage.read(), isNull);
   });
 
@@ -107,9 +119,9 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: RegisterScreen()));
     await tester.pumpAndSettle();
 
-    // fields: name, email, license, DOB(picker), phone, hospital, password, confirm
-    await tester.enterText(find.byType(TextFormField).at(6), 'Passw0rd1');
-    await tester.enterText(find.byType(TextFormField).at(7), 'Different1');
+    // fields: name, email, license, DOB(picker), phone, hospital, invite code, password, confirm
+    await tester.enterText(find.byType(TextFormField).at(7), 'Passw0rd1');
+    await tester.enterText(find.byType(TextFormField).at(8), 'Different1');
 
     await tester.ensureVisible(find.text('Create Account'));
     await tester.tap(find.text('Create Account'));
@@ -127,18 +139,23 @@ void main() {
 
     ApiClient.httpClient = _registerFlowClient();
 
-    await tester.pumpWidget(const MaterialApp(home: RegisterScreen()));
+    await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: const RegisterScreen(),
+    ));
     await tester.pumpAndSettle();
 
     // Field order: 0 name, 1 email, 2 license, 3 DOB (picker, skipped),
-    // 4 phone, 5 hospital, 6 password, 7 confirm.
+    // 4 phone, 5 hospital, 6 invite code (left blank — open registration),
+    // 7 password, 8 confirm.
     await tester.enterText(find.byType(TextFormField).at(0), 'Dr. New');
     await tester.enterText(find.byType(TextFormField).at(1), 'newdoc@test.com');
     await tester.enterText(find.byType(TextFormField).at(2), 'LIC-1');
     await tester.enterText(find.byType(TextFormField).at(4), '+256700111222');
     await tester.enterText(find.byType(TextFormField).at(5), 'Mulago Hospital');
-    await tester.enterText(find.byType(TextFormField).at(6), 'Passw0rd1');
     await tester.enterText(find.byType(TextFormField).at(7), 'Passw0rd1');
+    await tester.enterText(find.byType(TextFormField).at(8), 'Passw0rd1');
 
     await tester.ensureVisible(find.text('Create Account'));
     await tester.tap(find.text('Create Account'));

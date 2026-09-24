@@ -7,6 +7,7 @@ import 'package:http/testing.dart';
 import 'package:simtack/core/network/api_client.dart';
 import 'package:simtack/features/auth/ui/login_screen.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_dashboard_screen.dart';
+import 'package:simtack/l10n/app_localizations.dart';
 
 /// In-memory token storage so tests never touch platform secure storage.
 class FakeTokenStorage implements TokenStorage {
@@ -17,6 +18,10 @@ class FakeTokenStorage implements TokenStorage {
   @override
   Future<String?> read() async => _token;
   @override
+  Future<void> writeRefreshToken(String value) async {}
+  @override
+  Future<String?> readRefreshToken() async => null;
+  @override
   Future<void> delete() async => _token = null;
 }
 
@@ -24,32 +29,39 @@ class FakeTokenStorage implements TokenStorage {
 /// so that navigating to PractitionerDashboardScreen doesn't crash
 /// on unmocked network calls.
 MockClient _fullFlowClient() => MockClient((request) async {
-  final path = request.url.path;
+      final path = request.url.path;
 
-  if (path.endsWith('/auth/login')) {
-    return http.Response(
-      jsonEncode({'access_token': 'nav.test.token', 'token_type': 'bearer'}),
-      200,
-    );
-  }
-  if (path.endsWith('/auth/me')) {
-    return http.Response(
-      jsonEncode({'id': 1, 'email': 'doc@test.com', 'full_name': 'Dr. Nav', 'is_active': true}),
-      200,
-    );
-  }
-  // Dashboard data endpoints (called by PractitionerDashboardScreen.initState)
-  if (path.endsWith('/triage/stats')) {
-    return http.Response(
-      jsonEncode({'total': 0, 'high_risk': 0, 'medium_risk': 0, 'low_risk': 0}),
-      200,
-    );
-  }
-  if (path.endsWith('/triage/list')) {
-    return http.Response(jsonEncode([]), 200);
-  }
-  return http.Response('Not found', 404);
-});
+      if (path.endsWith('/auth/login')) {
+        return http.Response(
+          jsonEncode(
+              {'access_token': 'nav.test.token', 'token_type': 'bearer'}),
+          200,
+        );
+      }
+      if (path.endsWith('/auth/me')) {
+        return http.Response(
+          jsonEncode({
+            'id': 1,
+            'email': 'doc@test.com',
+            'full_name': 'Dr. Nav',
+            'is_active': true
+          }),
+          200,
+        );
+      }
+      // Dashboard data endpoints (called by PractitionerDashboardScreen.initState)
+      if (path.endsWith('/triage/stats')) {
+        return http.Response(
+          jsonEncode(
+              {'total': 0, 'high_risk': 0, 'medium_risk': 0, 'low_risk': 0}),
+          200,
+        );
+      }
+      if (path.endsWith('/triage/list')) {
+        return http.Response(jsonEncode([]), 200);
+      }
+      return http.Response('Not found', 404);
+    });
 
 void main() {
   final defaultClient = ApiClient.httpClient;
@@ -65,7 +77,8 @@ void main() {
   });
 
   group('LoginScreen rendering', () {
-    testWidgets('renders title, email, password, and Sign In button', (tester) async {
+    testWidgets('renders title, email, password, and Sign In button',
+        (tester) async {
       await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
       await tester.pumpAndSettle();
 
@@ -76,19 +89,22 @@ void main() {
   });
 
   group('LoginScreen validation', () {
-    testWidgets('shows validation error when both fields are empty', (tester) async {
+    testWidgets('shows validation error when both fields are empty',
+        (tester) async {
       await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
       await tester.pumpAndSettle();
 
       await tester.tap(find.text('Sign In'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Please enter both email and password.'), findsOneWidget);
+      expect(
+          find.text('Please enter both email and password.'), findsOneWidget);
       // No network call should have been made
       expect(await ApiClient.tokenStorage.read(), isNull);
     });
 
-    testWidgets('shows validation error when only email is filled', (tester) async {
+    testWidgets('shows validation error when only email is filled',
+        (tester) async {
       await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
       await tester.pumpAndSettle();
 
@@ -96,14 +112,16 @@ void main() {
       await tester.tap(find.text('Sign In'));
       await tester.pumpAndSettle();
 
-      expect(find.text('Please enter both email and password.'), findsOneWidget);
+      expect(
+          find.text('Please enter both email and password.'), findsOneWidget);
     });
   });
 
   group('LoginScreen failed login', () {
     testWidgets('shows backend error message on 401', (tester) async {
       ApiClient.httpClient = MockClient((request) async {
-        return http.Response(jsonEncode({'detail': 'Incorrect email or password'}), 401);
+        return http.Response(
+            jsonEncode({'detail': 'Incorrect email or password'}), 401);
       });
 
       await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
@@ -121,10 +139,15 @@ void main() {
   });
 
   group('LoginScreen navigation', () {
-    testWidgets('successful login navigates to PractitionerDashboardScreen', (tester) async {
+    testWidgets('successful login navigates to PractitionerDashboardScreen',
+        (tester) async {
       ApiClient.httpClient = _fullFlowClient();
 
-      await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const LoginScreen(),
+      ));
       await tester.pumpAndSettle();
 
       await tester.enterText(find.byType(TextField).first, 'doc@test.com');

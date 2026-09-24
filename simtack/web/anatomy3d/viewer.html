@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Anatomy 3D tap validation harness</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; font-family: system-ui, sans-serif; }
+  #canvas-host { position: fixed; inset: 0; }
+  #panel {
+    position: fixed; top: 12px; left: 12px; z-index: 10;
+    background: rgba(255,255,255,0.92); border-radius: 12px; padding: 12px 16px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.12); max-width: 320px; font-size: 14px;
+  }
+  #panel h1 { font-size: 15px; margin: 0 0 8px; }
+  #panel label { display: inline-flex; align-items: center; gap: 6px; margin-right: 12px; }
+  #status { color: #64748b; margin: 8px 0; }
+  #result { border-top: 1px solid #e2e8f0; padding-top: 8px; margin-top: 8px; line-height: 1.4; }
+  .muted { color: #64748b; }
+
+  /* Patient-facing loading state — shown regardless of ?embedded=1 (the
+     debug #panel above is hidden when embedded, but a patient still
+     needs SOME feedback while the ~30MB model streams in; previously
+     that left a blank screen with zero indication anything was
+     happening). Matches the app's purple branding rather than looking
+     like a raw dev status line. */
+  #loading-overlay {
+    position: fixed; inset: 0; z-index: 20;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; background: #f2f3f3;
+    transition: opacity 0.35s ease;
+  }
+  #loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  #loading-spinner {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 3px solid rgba(109, 40, 217, 0.18); border-top-color: #6D28D9;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loading-text { color: #475569; font-size: 14px; font-weight: 600; }
+  #loading-progress { color: #94a3b8; font-size: 12px; }
+</style>
+</head>
+<body>
+  <div id="canvas-host"></div>
+  <div id="loading-overlay">
+    <div id="loading-spinner"></div>
+    <div id="loading-text">Preparing your 3D body…</div>
+    <div id="loading-progress"></div>
+  </div>
+  <div id="panel">
+    <h1>3D anatomy tap validation</h1>
+    <label>Model
+      <select id="gender">
+        <option value="male">Male (BodyParts3D)</option>
+        <option value="female">Female (HRA-derived)</option>
+      </select>
+    </label>
+    <label><input type="checkbox" id="skin-toggle" checked /> Show skin</label>
+    <div id="status">Loading…</div>
+    <div id="result">(no tap yet)</div>
+  </div>
+
+  <script>
+    // A load failure previously left an embedded patient staring at a
+    // spinner that never resolved, with no explanation (the debug #status
+    // line carrying the real error is hidden in embedded mode). This
+    // swaps the loading text to something a patient can actually act on,
+    // regardless of embedded mode.
+    //
+    // This handler fires for ANY window error or unhandled promise
+    // rejection on the page, not only failed network fetches (a bug in
+    // this script, or a Three.js runtime error, would land here too), so
+    // the message must not claim a specific cause it cannot actually
+    // confirm. It previously said "check your connection", which is
+    // wrong and misleading whenever the real cause is unrelated to the
+    // network.
+    function showLoadFailure() {
+      const text = document.getElementById('loading-text');
+      const progress = document.getElementById('loading-progress');
+      const spinner = document.getElementById('loading-spinner');
+      if (text) text.textContent = "Couldn't load the 3D body. Please try again.";
+      if (progress) progress.textContent = '';
+      if (spinner) spinner.style.display = 'none';
+    }
+    window.addEventListener('error', (e) => {
+      const s = document.getElementById('status');
+      if (s) s.textContent = 'JS ERROR: ' + (e.message || e.error);
+      showLoadFailure();
+    });
+    window.addEventListener('unhandledrejection', (e) => {
+      const s = document.getElementById('status');
+      if (s) s.textContent = 'PROMISE REJECTION: ' + (e.reason && e.reason.message ? e.reason.message : e.reason);
+      showLoadFailure();
+    });
+  </script>
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./vendor/three/three.module.js",
+      "three/addons/": "./vendor/three/addons/"
+    }
+  }
+  </script>
+  <script type="module" src="viewer.js"></script>
+</body>
+</html>
