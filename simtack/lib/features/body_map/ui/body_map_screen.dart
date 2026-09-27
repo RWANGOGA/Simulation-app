@@ -869,6 +869,12 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
                                       widget.onAnswersChanged(
                                           point.region, answers);
                                     },
+                                    selectedCondition: point.symptomDescription,
+                                    onConditionSelected: (condition) {
+                                      setState(() {
+                                        point.symptomDescription = condition;
+                                      });
+                                    },
                                   ),
                                 ),
                               ],

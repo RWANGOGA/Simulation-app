@@ -13,6 +13,8 @@ class AnatomyInsightCard extends StatefulWidget {
   final Future<AnatomyInsight>? future;
   final Map<String, String>? initialAnswers;
   final ValueChanged<Map<String, String>>? onAnswersChanged;
+  final String? selectedCondition;
+  final ValueChanged<String>? onConditionSelected;
 
   const AnatomyInsightCard({
     super.key,
@@ -20,6 +22,8 @@ class AnatomyInsightCard extends StatefulWidget {
     required this.future,
     this.initialAnswers,
     this.onAnswersChanged,
+    this.selectedCondition,
+    this.onConditionSelected,
   });
 
   @override
@@ -28,11 +32,13 @@ class AnatomyInsightCard extends StatefulWidget {
 
 class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
   late Map<String, String> _answers;
+  String? _selectedCondition;
 
   @override
   void initState() {
     super.initState();
     _answers = Map.from(widget.initialAnswers ?? {});
+    _selectedCondition = widget.selectedCondition;
   }
 
   void _emitAnswers() {
@@ -146,6 +152,149 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
     );
   }
 
+  Future<void> _selectOrEditCondition(LikelyCondition condition) async {
+    final controller = TextEditingController(text: condition.name);
+    final isAlreadySelected = _selectedCondition == condition.name;
+
+    await showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+          ),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const Icon(Icons.medical_services_outlined, color: Color(0xFF6D28D9)),
+                      const SizedBox(width: 8),
+                      const Expanded(
+                        child: Text(
+                          'Selected Pain Condition',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Color(0xFF0F172A),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Suggested by RAG Knowledge Base for ${widget.region}:',
+                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  ),
+                  const SizedBox(height: 6),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF8FAFC),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(color: const Color(0xFFE2E8F0)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          condition.name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                            color: Color(0xFF0F172A),
+                          ),
+                        ),
+                        if (condition.rationale.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4),
+                            child: Text(
+                              condition.rationale,
+                              style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Customize description for your visit:',
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: controller,
+                    maxLines: 2,
+                    decoration: InputDecoration(
+                      hintText: 'e.g. Sharp pain when bending or lifting...',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Color(0xFF6D28D9), width: 2),
+                      ),
+                      contentPadding: const EdgeInsets.all(12),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        final text = controller.text.trim();
+                        final val = text.isNotEmpty ? text : condition.name;
+                        setState(() => _selectedCondition = val);
+                        widget.onConditionSelected?.call(val);
+                        Navigator.of(sheetContext).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6D28D9),
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      ),
+                      child: Text(
+                        isAlreadySelected ? 'Update Description' : 'Select for Visit',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                      ),
+                    ),
+                  ),
+                  if (isAlreadySelected)
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          setState(() => _selectedCondition = null);
+                          widget.onConditionSelected?.call('');
+                          Navigator.of(sheetContext).pop();
+                        },
+                        child: const Text(
+                          'Remove selection',
+                          style: TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -226,6 +375,8 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                     insight: snap.data!,
                     answers: _answers,
                     onQuestionTap: _answerQuestion,
+                    selectedCondition: _selectedCondition,
+                    onConditionTap: _selectOrEditCondition,
                   );
                 },
               ),
@@ -282,11 +433,15 @@ class _InsightBody extends StatelessWidget {
   final AnatomyInsight insight;
   final Map<String, String> answers;
   final ValueChanged<String> onQuestionTap;
+  final String? selectedCondition;
+  final ValueChanged<LikelyCondition> onConditionTap;
 
   const _InsightBody({
     required this.insight,
     required this.answers,
     required this.onQuestionTap,
+    required this.selectedCondition,
+    required this.onConditionTap,
   });
 
   @override
@@ -322,33 +477,67 @@ class _InsightBody extends StatelessWidget {
           const SizedBox(height: 12),
         ],
         if (insight.likelyConditions.isNotEmpty) ...[
-          const _SectionLabel('Differential Conditions'),
+          const _SectionLabel('Suggested Conditions (Tap to Select or Edit)'),
           const SizedBox(height: 6),
-          ...insight.likelyConditions.take(4).map(
-                (c) => Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.only(top: 6, right: 8),
-                        child: Icon(Icons.circle, size: 5, color: Color(0xFF475569)),
-                      ),
-                      Expanded(
-                        child: RichText(
-                          text: TextSpan(
-                            style: const TextStyle(fontSize: 12, color: Color(0xFF334155), height: 1.35),
-                            children: [
-                              TextSpan(text: c.name, style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF0F172A))),
-                              if (c.rationale.isNotEmpty)
-                                TextSpan(text: ' — ${c.rationale}'),
-                            ],
+          ...insight.likelyConditions.map(
+                (c) {
+                  final isSelected = selectedCondition == c.name;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: InkWell(
+                      onTap: () => onConditionTap(c),
+                      borderRadius: BorderRadius.circular(8),
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: isSelected ? const Color(0xFFF3E8FF) : Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFE2E8F0),
+                            width: isSelected ? 1.5 : 1.0,
                           ),
                         ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2, right: 8),
+                              child: Icon(
+                                isSelected ? Icons.check_circle : Icons.add_circle_outline,
+                                size: 16,
+                                color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFF64748B),
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    c.name,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFF0F172A),
+                                    ),
+                                  ),
+                                  if (c.rationale.isNotEmpty)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: Text(
+                                        c.rationale,
+                                        style: const TextStyle(fontSize: 11, color: Color(0xFF475569), height: 1.3),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            const Icon(Icons.edit_note, size: 18, color: Color(0xFF6D28D9)),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                  );
+                },
               ),
           const SizedBox(height: 12),
         ],

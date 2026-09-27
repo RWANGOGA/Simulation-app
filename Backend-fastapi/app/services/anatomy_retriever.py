@@ -255,9 +255,18 @@ def _retrieve_cached_chunk_ids(
         score = _bm25_score(query_tokens, chunk, chunk_tokens_map, avgdl, idf)
         if region_norm:
             chunk_region_norm = chunk.region.lower()
-            if region_norm == chunk_region_norm or region_norm in chunk_region_norm or chunk_region_norm in region_norm:
-                score += 0.5
-        bm25_ranked.append((cid, score))
+            if region_norm == chunk_region_norm:
+                score += 10.0
+            elif region_norm in chunk_region_norm or chunk_region_norm in region_norm:
+                score += 3.0
+            else:
+                directionals = {"right", "left", "upper", "lower", "pain", "side"}
+                region_parts = {w for w in region_norm.split() if w not in directionals and len(w) > 2}
+                chunk_parts = {w for w in chunk_region_norm.split() if w not in directionals and len(w) > 2}
+                if region_parts and region_parts.intersection(chunk_parts):
+                    score += 2.0
+        if score > 0.0:
+            bm25_ranked.append((cid, score))
     bm25_ranked.sort(key=lambda x: x[1], reverse=True)
 
     # TF-IDF cosine ranked list
@@ -266,12 +275,21 @@ def _retrieve_cached_chunk_ids(
         score = _cosine(q_vec, vec)
         if region_norm:
             chunk_region_norm = chunks[cid].region.lower()
-            if region_norm == chunk_region_norm or region_norm in chunk_region_norm or chunk_region_norm in region_norm:
-                score += 0.5
-        tfidf_ranked.append((cid, score))
+            if region_norm == chunk_region_norm:
+                score += 10.0
+            elif region_norm in chunk_region_norm or chunk_region_norm in region_norm:
+                score += 3.0
+            else:
+                directionals = {"right", "left", "upper", "lower", "pain", "side"}
+                region_parts = {w for w in region_norm.split() if w not in directionals and len(w) > 2}
+                chunk_parts = {w for w in chunk_region_norm.split() if w not in directionals and len(w) > 2}
+                if region_parts and region_parts.intersection(chunk_parts):
+                    score += 2.0
+        if score > 0.0:
+            tfidf_ranked.append((cid, score))
     tfidf_ranked.sort(key=lambda x: x[1], reverse=True)
 
-    # Fuse with RRF
+    # Fuse with RRF over relevant candidates only
     fused = _rrf_fuse([bm25_ranked, tfidf_ranked])
 
     results = []
@@ -279,7 +297,8 @@ def _retrieve_cached_chunk_ids(
     tfidf_dict = dict(tfidf_ranked)
     for cid, _ in fused[: max(1, top_k)]:
         score = max(bm25_dict.get(cid, 0.0), tfidf_dict.get(cid, 0.0))
-        results.append((cid, score))
+        if score > 0.0:
+            results.append((cid, score))
     return tuple(results)
 
 
