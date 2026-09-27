@@ -31,13 +31,15 @@ def _region_weight(body_region: Optional[str]) -> float:
         return 0.40
     if "head" in r or "cranial" in r:
         return 0.35
+    if "neck" in r:
+        return 0.30
     if "abdomen" in r or "stomach" in r:
         return 0.25
     if "back" in r:
         return 0.20
-    if "arm" in r or "shoulder" in r:
+    if any(k in r for k in ["arm", "shoulder", "armpit", "elbow", "wrist", "hand"]):
         return 0.20 if "left" in r else 0.15
-    if "leg" in r or "knee" in r:
+    if any(k in r for k in ["leg", "knee", "thigh", "shin", "calf", "ankle", "foot", "hip", "groin"]):
         return 0.10
     return 0.10
 
