@@ -64,7 +64,8 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                 bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
               ),
               child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                 child: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -82,12 +83,13 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
-                        children: ['Yes', 'No', 'Sometimes', 'Not sure'].map((option) {
+                        children: ['Yes', 'No', 'Sometimes', 'Not sure']
+                            .map((option) {
                           final isSelected = selected.value == option;
                           return ChoiceChip(
                             label: Text(option, style: TextStyle(fontSize: 13)),
                             selected: isSelected,
-                            selectedColor: const Color(0xFF6D28D9),
+                            selectedColor: const Color(0xFF0F766E),
                             backgroundColor: const Color(0xFFF1F5F9),
                             onSelected: (picked) {
                               setSheetState(() {
@@ -105,7 +107,8 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                           hintText: 'Or type your own answer...',
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: BorderSide(color: const Color(0xFFE2E8F0)),
+                            borderSide:
+                                BorderSide(color: const Color(0xFFE2E8F0)),
                           ),
                           contentPadding: const EdgeInsets.all(12),
                         ),
@@ -116,7 +119,8 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                         child: ElevatedButton(
                           onPressed: () {
                             final text = controller.text.trim();
-                            final answer = selected.value ?? (text.isNotEmpty ? text : null);
+                            final answer = selected.value ??
+                                (text.isNotEmpty ? text : null);
                             if (answer != null) {
                               setState(() => _answers[question] = answer);
                               _emitAnswers();
@@ -124,11 +128,13 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                             Navigator.of(sheetContext).pop();
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF6D28D9),
+                            backgroundColor: const Color(0xFF0F766E),
                             foregroundColor: Colors.white,
                           ),
                           child: Text(
-                            _answers[question] != null ? 'Update answer' : 'Save answer',
+                            _answers[question] != null
+                                ? 'Update answer'
+                                : 'Save answer',
                           ),
                         ),
                       ),
@@ -139,7 +145,8 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                             _emitAnswers();
                             Navigator.of(sheetContext).pop();
                           },
-                          child: const Text('Clear answer', style: TextStyle(color: Color(0xFFDC2626))),
+                          child: const Text('Clear answer',
+                              style: TextStyle(color: Color(0xFFDC2626))),
                         ),
                     ],
                   ),
@@ -152,7 +159,7 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
     );
   }
 
-  Future<void> _selectOrEditCondition(LikelyCondition condition) async {
+  Future<void> _selectOrEditCondition(AnatomyCondition condition) async {
     final controller = TextEditingController(text: condition.name);
     final isAlreadySelected = _selectedCondition == condition.name;
 
@@ -177,7 +184,8 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                 children: [
                   Row(
                     children: [
-                      const Icon(Icons.medical_services_outlined, color: Color(0xFF6D28D9)),
+                      const Icon(Icons.medical_services_outlined,
+                          color: Color(0xFF0F766E)),
                       const SizedBox(width: 8),
                       const Expanded(
                         child: Text(
@@ -193,8 +201,9 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    'Suggested by RAG Knowledge Base for ${widget.region}:',
-                    style: const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    'Reference for ${widget.region}:',
+                    style:
+                        const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                   ),
                   const SizedBox(height: 6),
                   Container(
@@ -221,7 +230,8 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                             padding: const EdgeInsets.only(top: 4),
                             child: Text(
                               condition.rationale,
-                              style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
+                              style: const TextStyle(
+                                  fontSize: 12, color: Color(0xFF475569)),
                             ),
                           ),
                       ],
@@ -230,7 +240,10 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                   const SizedBox(height: 16),
                   const Text(
                     'Customize description for your visit:',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Color(0xFF334155)),
+                    style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF334155)),
                   ),
                   const SizedBox(height: 8),
                   TextField(
@@ -244,7 +257,8 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: Color(0xFF6D28D9), width: 2),
+                        borderSide: const BorderSide(
+                            color: Color(0xFF0F766E), width: 2),
                       ),
                       contentPadding: const EdgeInsets.all(12),
                     ),
@@ -262,13 +276,17 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                         Navigator.of(sheetContext).pop();
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6D28D9),
+                        backgroundColor: const Color(0xFF0F766E),
                         foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                       child: Text(
-                        isAlreadySelected ? 'Update Description' : 'Select for Visit',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        isAlreadySelected
+                            ? 'Update Description'
+                            : 'Select for Visit',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 15),
                       ),
                     ),
                   ),
@@ -282,7 +300,9 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                         },
                         child: const Text(
                           'Remove selection',
-                          style: TextStyle(color: Color(0xFFDC2626), fontWeight: FontWeight.w600),
+                          style: TextStyle(
+                              color: Color(0xFFDC2626),
+                              fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
@@ -310,10 +330,12 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
         child: Theme(
           data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
           child: ExpansionTile(
-            tilePadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
+            tilePadding:
+                const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
             childrenPadding: const EdgeInsets.fromLTRB(14, 0, 14, 14),
             initiallyExpanded: false,
-            leading: const Icon(Icons.medical_information_outlined, color: Color(0xFF1E293B)),
+            leading: const Icon(Icons.medical_information_outlined,
+                color: Color(0xFF1E293B)),
             title: Text(
               'Clinical Insight: ${widget.region}',
               style: const TextStyle(
@@ -333,12 +355,14 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                         SizedBox(
                           width: 12,
                           height: 12,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Color(0xFF475569)),
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Color(0xFF475569)),
                         ),
                         SizedBox(width: 8),
                         Text(
                           'Retrieving clinical context...',
-                          style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                          style:
+                              TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                         ),
                       ],
                     ),
@@ -394,11 +418,13 @@ class _SourceBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, textColor, bgColor) = insight.llmUsed
-        ? (insight.cached
-            ? ('Cached Reference', const Color(0xFF0284C7), const Color(0xFFE0F2FE))
-            : ('Clinical Assistant (RAG)', const Color(0xFF0F766E), const Color(0xFFCCFBF1)))
-        : ('Medical KB Reference', const Color(0xFF475569), const Color(0xFFF1F5F9));
+    final (label, textColor, bgColor) = insight.cached
+        ? ('Cached reference', const Color(0xFF0F766E), const Color(0xFFE6F4F1))
+        : (
+            'Clinical reference',
+            const Color(0xFF334155),
+            const Color(0xFFF1F5F9)
+          );
     return Row(
       children: [
         Container(
@@ -410,7 +436,8 @@ class _SourceBadge extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: textColor),
+            style: TextStyle(
+                fontSize: 10, fontWeight: FontWeight.bold, color: textColor),
           ),
         ),
         if (insight.sources.isNotEmpty) ...[
@@ -434,7 +461,7 @@ class _InsightBody extends StatelessWidget {
   final Map<String, String> answers;
   final ValueChanged<String> onQuestionTap;
   final String? selectedCondition;
-  final ValueChanged<LikelyCondition> onConditionTap;
+  final ValueChanged<AnatomyCondition> onConditionTap;
 
   const _InsightBody({
     required this.insight,
@@ -454,7 +481,8 @@ class _InsightBody extends StatelessWidget {
             padding: const EdgeInsets.only(bottom: 12),
             child: Text(
               insight.summary,
-              style: const TextStyle(fontSize: 13, color: Color(0xFF1E293B), height: 1.45),
+              style: const TextStyle(
+                  fontSize: 13, color: Color(0xFF1E293B), height: 1.45),
             ),
           ),
         if (insight.structures.isNotEmpty) ...[
@@ -466,7 +494,11 @@ class _InsightBody extends StatelessWidget {
             children: insight.structures
                 .take(6)
                 .map((s) => Chip(
-                      label: Text(s, style: const TextStyle(fontSize: 11, color: Color(0xFF0F172A), fontWeight: FontWeight.w500)),
+                      label: Text(s,
+                          style: const TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF0F172A),
+                              fontWeight: FontWeight.w500)),
                       backgroundColor: Colors.white,
                       side: const BorderSide(color: Color(0xFFCBD5E1)),
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -480,65 +512,78 @@ class _InsightBody extends StatelessWidget {
           const _SectionLabel('Suggested Conditions (Tap to Select or Edit)'),
           const SizedBox(height: 6),
           ...insight.likelyConditions.map(
-                (c) {
-                  final isSelected = selectedCondition == c.name;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: InkWell(
-                      onTap: () => onConditionTap(c),
+            (c) {
+              final isSelected = selectedCondition == c.name;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: InkWell(
+                  onTap: () => onConditionTap(c),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color:
+                          isSelected ? const Color(0xFFE6F4F1) : Colors.white,
                       borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          color: isSelected ? const Color(0xFFF3E8FF) : Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFFE2E8F0),
-                            width: isSelected ? 1.5 : 1.0,
-                          ),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(top: 2, right: 8),
-                              child: Icon(
-                                isSelected ? Icons.check_circle : Icons.add_circle_outline,
-                                size: 16,
-                                color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFF64748B),
-                              ),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    c.name,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w700,
-                                      color: isSelected ? const Color(0xFF6D28D9) : const Color(0xFF0F172A),
-                                    ),
-                                  ),
-                                  if (c.rationale.isNotEmpty)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 2),
-                                      child: Text(
-                                        c.rationale,
-                                        style: const TextStyle(fontSize: 11, color: Color(0xFF475569), height: 1.3),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            const Icon(Icons.edit_note, size: 18, color: Color(0xFF6D28D9)),
-                          ],
-                        ),
+                      border: Border.all(
+                        color: isSelected
+                            ? const Color(0xFF0F766E)
+                            : const Color(0xFFE2E8F0),
+                        width: isSelected ? 1.5 : 1.0,
                       ),
                     ),
-                  );
-                },
-              ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 2, right: 8),
+                          child: Icon(
+                            isSelected
+                                ? Icons.check_circle
+                                : Icons.add_circle_outline,
+                            size: 16,
+                            color: isSelected
+                                ? const Color(0xFF0F766E)
+                                : const Color(0xFF64748B),
+                          ),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                c.name,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: isSelected
+                                      ? const Color(0xFF0F766E)
+                                      : const Color(0xFF0F172A),
+                                ),
+                              ),
+                              if (c.rationale.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    c.rationale,
+                                    style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF475569),
+                                        height: 1.3),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.edit_note,
+                            size: 18, color: Color(0xFF0F766E)),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
           const SizedBox(height: 12),
         ],
         if (insight.redFlags.isNotEmpty) ...[
@@ -553,7 +598,11 @@ class _InsightBody extends StatelessWidget {
             ),
             child: Text(
               insight.redFlags.join(' • '),
-              style: const TextStyle(fontSize: 12, color: Color(0xFF991B1B), fontWeight: FontWeight.w500, height: 1.4),
+              style: const TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF991B1B),
+                  fontWeight: FontWeight.w500,
+                  height: 1.4),
             ),
           ),
           const SizedBox(height: 12),
@@ -562,70 +611,82 @@ class _InsightBody extends StatelessWidget {
           const _SectionLabel('Patient Assessment Questions'),
           const SizedBox(height: 6),
           ...insight.suggestedQuestions.take(5).map(
-                (q) {
-                  final answer = answers[q];
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: InkWell(
-                      onTap: () => onQuestionTap(q),
+            (q) {
+              final answer = answers[q];
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: InkWell(
+                  onTap: () => onQuestionTap(q),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+                    decoration: BoxDecoration(
+                      color: answer != null
+                          ? const Color(0xFFE8F4F3)
+                          : Colors.white,
                       borderRadius: BorderRadius.circular(8),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                        decoration: BoxDecoration(
-                          color: answer != null
-                              ? const Color(0xFFF0F9FF)
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(
-                            color: answer != null
-                                ? const Color(0xFF0284C7)
-                                : const Color(0xFFCBD5E1),
-                          ),
-                        ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(
-                              answer != null ? Icons.check_circle : Icons.help_outline,
-                              size: 16,
-                              color: answer != null ? const Color(0xFF0284C7) : const Color(0xFF64748B),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    q,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: answer != null ? const Color(0xFF0F172A) : const Color(0xFF334155),
-                                      fontWeight: answer != null ? FontWeight.w600 : FontWeight.normal,
-                                    ),
-                                  ),
-                                  if (answer != null)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 2),
-                                      child: Text(
-                                        'Recorded answer: $answer',
-                                        style: const TextStyle(fontSize: 11, color: Color(0xFF0284C7), fontWeight: FontWeight.w600),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            const Icon(
-                              Icons.chevron_right,
-                              size: 16,
-                              color: Color(0xFF94A3B8),
-                            ),
-                          ],
-                        ),
+                      border: Border.all(
+                        color: answer != null
+                            ? const Color(0xFF0F766E)
+                            : const Color(0xFFCBD5E1),
                       ),
                     ),
-                  );
-                },
-              ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          answer != null
+                              ? Icons.check_circle
+                              : Icons.help_outline,
+                          size: 16,
+                          color: answer != null
+                              ? const Color(0xFF0F766E)
+                              : const Color(0xFF64748B),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                q,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: answer != null
+                                      ? const Color(0xFF0F172A)
+                                      : const Color(0xFF334155),
+                                  fontWeight: answer != null
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                ),
+                              ),
+                              if (answer != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Text(
+                                    'Recorded answer: $answer',
+                                    style: const TextStyle(
+                                        fontSize: 11,
+                                        color: Color(0xFF0F766E),
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right,
+                          size: 16,
+                          color: Color(0xFF94A3B8),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
           const SizedBox(height: 12),
         ],
         if (insight.disclaimer.isNotEmpty)
@@ -641,12 +702,17 @@ class _InsightBody extends StatelessWidget {
               children: [
                 const Padding(
                   padding: EdgeInsets.only(top: 1, right: 8),
-                  child: Icon(Icons.info_outline, size: 14, color: Color(0xFF475569)),
+                  child: Icon(Icons.info_outline,
+                      size: 14, color: Color(0xFF475569)),
                 ),
                 Expanded(
                   child: Text(
                     insight.disclaimer,
-                    style: const TextStyle(fontSize: 11, color: Color(0xFF475569), fontStyle: FontStyle.italic, height: 1.35),
+                    style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF475569),
+                        fontStyle: FontStyle.italic,
+                        height: 1.35),
                   ),
                 ),
               ],
@@ -654,7 +720,8 @@ class _InsightBody extends StatelessWidget {
           ),
         if (insight.citations.isNotEmpty) ...[
           const SizedBox(height: 12),
-          const _SectionLabel('Clinical Sources & Citations', color: Color(0xFF475569)),
+          const _SectionLabel('Clinical Sources & Citations',
+              color: Color(0xFF475569)),
           const SizedBox(height: 6),
           ...insight.citations.map(
             (c) => Padding(
@@ -671,12 +738,17 @@ class _InsightBody extends StatelessWidget {
                   children: [
                     Text(
                       c.text,
-                      style: const TextStyle(fontSize: 11, color: Color(0xFF334155), height: 1.4),
+                      style: const TextStyle(
+                          fontSize: 11, color: Color(0xFF334155), height: 1.4),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '— Reference: ${c.region} (${c.system})',
-                      style: const TextStyle(fontSize: 10, color: Color(0xFF64748B), fontStyle: FontStyle.italic, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                          fontSize: 10,
+                          color: Color(0xFF64748B),
+                          fontStyle: FontStyle.italic,
+                          fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
@@ -692,13 +764,17 @@ class _InsightBody extends StatelessWidget {
 class _SectionLabel extends StatelessWidget {
   final String text;
   final Color color;
-  const _SectionLabel(this.text, {this.color = const Color(0xFF6D28D9)});
+  const _SectionLabel(this.text, {this.color = const Color(0xFF0F766E)});
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: color, letterSpacing: 0.5),
+      style: TextStyle(
+          fontSize: 11,
+          fontWeight: FontWeight.bold,
+          color: color,
+          letterSpacing: 0.5),
     );
   }
 }
@@ -719,7 +795,7 @@ class _ShimmerLines extends StatelessWidget {
             height: 10,
             width: i == lines - 1 ? 180 : double.infinity,
             decoration: BoxDecoration(
-              color: const Color(0xFF6D28D9).withOpacity(0.10),
+              color: const Color(0xFF0F766E).withOpacity(0.10),
               borderRadius: BorderRadius.circular(4),
             ),
           ),
