@@ -613,6 +613,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                         },
                       ),
                     ),
+                  ),
                   const SizedBox(height: 24),
 
                   // Symptom Description / Selected Pain Condition field
@@ -628,10 +629,12 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                   TextFormField(
                     initialValue: point.symptomDescription,
                     decoration: InputDecoration(
-                      hintText: 'e.g. Sharp pain when bending, selected from clinical insights...',
+                      hintText:
+                          'e.g. Sharp pain when bending, selected from clinical insights...',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(14),
-                        borderSide: BorderSide(color: AppPalette.border(context)),
+                        borderSide:
+                            BorderSide(color: AppPalette.border(context)),
                       ),
                       filled: true,
                       fillColor: AppPalette.surface(context),
