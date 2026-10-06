@@ -173,7 +173,7 @@ class TriageReport {
           'relievers': jsonEncode(relievers),
         if (dailyLimitations != null && dailyLimitations!.isNotEmpty)
           'daily_limitations': jsonEncode(dailyLimitations),
-        if (patientId != null) 'patient_id': patientId,
+        if (patientId != null && patientId! > 0) 'patient_id': patientId,
         if (visitId != null) 'visit_id': visitId,
         if (questionAnswers != null && questionAnswers!.isNotEmpty)
           'question_answers': questionAnswers,
