@@ -199,8 +199,8 @@
   "consentSubmitNotice": "Bw'oweereza, okkiriza okugabana amawulire gano n'omusawo akulabirira ku lw'okwekenneenya.",
   "saveDraftButton": "Terekera Oluvannyuma",
   "submitButton": "Weereza",
-  "draftSavedSnackbar": "✅ Ekiwandiiko kiterekeddwa bulungi!",
-  "submitFailedSavedOfflineSnackbar": "⚠️ Tekiyinzikanga kuweerezebwa, kiterekeddwa, kijja kuddamu kugezaako: {error}",
+  "draftSavedSnackbar": "✓ Ekiwandiiko kiterekeddwa bulungi!",
+  "submitFailedSavedOfflineSnackbar": "⚠ Tekiyinzikanga kuweerezebwa, kiterekeddwa, kijja kuddamu kugezaako: {error}",
 
   "reportSubmittedTitle": "Lipoota Eweereddwa!",
   "patientIdLabel": "Ekika ky'Omulwadde",

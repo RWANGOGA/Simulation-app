@@ -678,11 +678,11 @@ class AppLocalizationsLg extends AppLocalizations {
   String get submitButton => 'Weereza';
 
   @override
-  String get draftSavedSnackbar => '✅ Ekiwandiiko kiterekeddwa bulungi!';
+  String get draftSavedSnackbar => '✓ Ekiwandiiko kiterekeddwa bulungi!';
 
   @override
   String submitFailedSavedOfflineSnackbar(String error) {
-    return '⚠️ Tekiyinzikanga kuweerezebwa, kiterekeddwa, kijja kuddamu kugezaako: $error';
+    return '⚠ Tekiyinzikanga kuweerezebwa, kiterekeddwa, kijja kuddamu kugezaako: $error';
   }
 
   @override

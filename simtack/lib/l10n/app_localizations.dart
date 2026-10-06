@@ -1289,13 +1289,13 @@ abstract class AppLocalizations {
   /// Confirmation snackbar after saving a draft.
   ///
   /// In en, this message translates to:
-  /// **'✅ Draft saved offline successfully!'**
+  /// **'✓ Draft saved offline successfully!'**
   String get draftSavedSnackbar;
 
   /// Snackbar shown when submission fails and is queued offline instead.
   ///
   /// In en, this message translates to:
-  /// **'⚠️ Could not submit, saved offline, will retry automatically: {error}'**
+  /// **'⚠ Could not submit, saved offline, will retry automatically: {error}'**
   String submitFailedSavedOfflineSnackbar(String error);
 
   /// Success screen heading.

@@ -35,48 +35,48 @@ class _PainProfileFunctionalImpactScreenState
   static const Color alertRed = Color(0xFFDC3545);
   static const Color alertRedTint = Color(0xFFFDE8E8);
 
-  final List<Map<String, String>> _expansionOptions = [
+  final List<Map<String, dynamic>> _expansionOptions = [
     {
       'id': 'Stays Small',
       'title': 'STAYS SMALL',
       'subtitle': '(Pinpoint Spot)',
-      'icon': '( • )',
+      'icon': Icons.radio_button_unchecked,
     },
     {
       'id': 'Spreading',
       'title': 'SPREADING',
       'subtitle': '(Grows Wider)',
-      'icon': '( . ⭕ . ) --->',
+      'icon': Icons.radio_button_on,
     },
     {
       'id': 'Multiplying',
       'title': 'MULTIPLYING',
       'subtitle': '(New Red Spots)',
-      'icon': '• ⚫ •',
+      'icon': Icons.copy_all,
     },
   ];
 
-  final List<Map<String, String>> _triggerOptions = [
-    {'id': 'Walking / Moving', 'label': 'Walking / Moving', 'emoji': '🚶\u200D♂️'},
-    {'id': 'Deep Coughing', 'label': 'Deep Coughing', 'emoji': '😮\u200D💨'},
-    {'id': 'Sitting Down', 'label': 'Sitting Down', 'emoji': '🪑'},
-    {'id': 'Pressing the Spot', 'label': 'Pressing the Spot', 'emoji': '👉'},
+  final List<Map<String, dynamic>> _triggerOptions = [
+    {'id': 'Walking / Moving', 'label': 'Walking / Moving', 'icon': Icons.directions_walk},
+    {'id': 'Deep Coughing', 'label': 'Deep Coughing', 'icon': Icons.healing},
+    {'id': 'Sitting Down', 'label': 'Sitting Down', 'icon': Icons.chair},
+    {'id': 'Pressing the Spot', 'label': 'Pressing the Spot', 'icon': Icons.touch_app},
   ];
 
-  final List<Map<String, String>> _relieverOptions = [
-    {'id': 'Resting Flat', 'label': 'Resting Flat', 'emoji': '🛌'},
-    {'id': 'Ice / Cold Compact', 'label': 'Ice / Cold Compact', 'emoji': '🧊'},
-    {'id': 'Heating Pad', 'label': 'Heating Pad', 'emoji': '🔥'},
-    {'id': 'Taking Medication', 'label': 'Taking Medication', 'emoji': '💊'},
+  final List<Map<String, dynamic>> _relieverOptions = [
+    {'id': 'Resting Flat', 'label': 'Resting Flat', 'icon': Icons.bedtime},
+    {'id': 'Ice / Cold Compact', 'label': 'Ice / Cold Compact', 'icon': Icons.ac_unit},
+    {'id': 'Heating Pad', 'label': 'Heating Pad', 'icon': Icons.whatshot},
+    {'id': 'Taking Medication', 'label': 'Taking Medication', 'icon': Icons.medication},
   ];
 
-  final List<Map<String, String>> _limitationOptions = [
-    {'id': 'Cannot Sleep', 'label': 'CANNOT SLEEP', 'emoji': '🛌'},
-    {'id': 'Cannot Walk', 'label': 'CANNOT WALK', 'emoji': '🚶\u200D♂️'},
-    {'id': 'Cannot Shower', 'label': 'CANNOT SHOWER', 'emoji': '🚿'},
-    {'id': 'Cannot Eat', 'label': 'CANNOT EAT', 'emoji': '🥣'},
-    {'id': 'Cannot Dress', 'label': 'CANNOT DRESS', 'emoji': '👕'},
-    {'id': 'Cannot Concentrate', 'label': 'CANNOT CONCENTRATE', 'emoji': '🧠'},
+  final List<Map<String, dynamic>> _limitationOptions = [
+    {'id': 'Cannot Sleep', 'label': 'CANNOT SLEEP', 'icon': Icons.bedtime_off},
+    {'id': 'Cannot Walk', 'label': 'CANNOT WALK', 'icon': Icons.directions_walk},
+    {'id': 'Cannot Shower', 'label': 'CANNOT SHOWER', 'icon': Icons.shower},
+    {'id': 'Cannot Eat', 'label': 'CANNOT EAT', 'icon': Icons.restaurant},
+    {'id': 'Cannot Dress', 'label': 'CANNOT DRESS', 'icon': Icons.checkroom},
+    {'id': 'Cannot Concentrate', 'label': 'CANNOT CONCENTRATE', 'icon': Icons.psychology},
   ];
 
   PainPoint get _currentPoint => widget.painPoints.isNotEmpty
@@ -281,14 +281,10 @@ class _PainProfileFunctionalImpactScreenState
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Text(
-                                    opt['icon']!,
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: isSelected ? primaryPurple : const Color(0xFF475569),
-                                    ),
-                                    textAlign: TextAlign.center,
+                                  Icon(
+                                    opt['icon'] as IconData,
+                                    size: 24,
+                                    color: isSelected ? primaryPurple : const Color(0xFF475569),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
@@ -334,18 +330,24 @@ class _PainProfileFunctionalImpactScreenState
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(bottom: 8),
-                              child: Text(
-                                '👎 MAKES IT WORSE (Triggers)',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: alertRed,
-                                ),
-                              ),
-                            ),
+children: [
+                             const Padding(
+                               padding: EdgeInsets.only(bottom: 8),
+                               child: Row(
+                                 children: [
+                                   Icon(Icons.thumb_down, size: 14, color: alertRed),
+                                   SizedBox(width: 4),
+                                   Text(
+                                     'MAKES IT WORSE (Triggers)',
+                                     style: TextStyle(
+                                       fontSize: 12,
+                                       fontWeight: FontWeight.bold,
+                                       color: alertRed,
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                             ),
                             ..._triggerOptions.map((trig) {
                               final isSelected = _currentPoint.triggers.contains(trig['id']);
                               return Padding(
@@ -366,8 +368,8 @@ class _PainProfileFunctionalImpactScreenState
                                     ),
                                     child: Row(
                                       children: [
-                                        Text(trig['emoji']!, style: const TextStyle(fontSize: 16)),
-                                        const SizedBox(width: 6),
+                                        Icon(trig['icon'] as IconData, size: 18, color: isSelected ? alertRed : const Color(0xFF64748B)),
+                                        const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
                                             trig['label']!,
@@ -393,18 +395,24 @@ class _PainProfileFunctionalImpactScreenState
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Padding(
-                              padding: EdgeInsets.only(bottom: 8),
-                              child: Text(
-                                '👍 MAKES IT BETTER (Relievers)',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: primaryPurple,
-                                ),
-                              ),
-                            ),
+children: [
+                             const Padding(
+                               padding: EdgeInsets.only(bottom: 8),
+                               child: Row(
+                                 children: [
+                                   Icon(Icons.thumb_up, size: 14, color: primaryPurple),
+                                   SizedBox(width: 4),
+                                   Text(
+                                     'MAKES IT BETTER (Relievers)',
+                                     style: TextStyle(
+                                       fontSize: 12,
+                                       fontWeight: FontWeight.bold,
+                                       color: primaryPurple,
+                                     ),
+                                   ),
+                                 ],
+                               ),
+                             ),
                             ..._relieverOptions.map((rel) {
                               final isSelected = _currentPoint.relievers.contains(rel['id']);
                               return Padding(
@@ -425,8 +433,8 @@ class _PainProfileFunctionalImpactScreenState
                                     ),
                                     child: Row(
                                       children: [
-                                        Text(rel['emoji']!, style: const TextStyle(fontSize: 16)),
-                                        const SizedBox(width: 6),
+                                        Icon(rel['icon'] as IconData, size: 18, color: isSelected ? Colors.white : primaryPurple),
+                                        const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
                                             rel['label']!,
@@ -491,9 +499,9 @@ class _PainProfileFunctionalImpactScreenState
                                   if (isSelected)
                                     const Padding(
                                       padding: EdgeInsets.only(right: 4),
-                                      child: Text('🚫', style: TextStyle(fontSize: 14)),
+                                      child: Icon(Icons.block, size: 14, color: alertRed),
                                     ),
-                                  Text(item['emoji']!, style: const TextStyle(fontSize: 20)),
+                                  Icon(item['icon'] as IconData, size: 24, color: isSelected ? alertRed : const Color(0xFF475569)),
                                 ],
                               ),
                               const SizedBox(height: 6),
@@ -522,9 +530,10 @@ class _PainProfileFunctionalImpactScreenState
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(color: primaryPurple.withOpacity(0.2)),
                     ),
-                    child: const Row(
+                    child: Row(
                       children: [
-                        Text('💡 ', style: TextStyle(fontSize: 16)),
+                        Icon(Icons.lightbulb_outline, size: 16, color: Color(0xFF4C1D95)),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'Touch Target Optimization: Every action bar and card uses a minimum size of 85dp x 85dp to ensure effortless touch feedback',

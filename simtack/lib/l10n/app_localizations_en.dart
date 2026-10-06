@@ -671,11 +671,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get submitButton => 'Submit';
 
   @override
-  String get draftSavedSnackbar => '✅ Draft saved offline successfully!';
+  String get draftSavedSnackbar => '✓ Draft saved offline successfully!';
 
   @override
   String submitFailedSavedOfflineSnackbar(String error) {
-    return '⚠️ Could not submit, saved offline, will retry automatically: $error';
+    return '⚠ Could not submit, saved offline, will retry automatically: $error';
   }
 
   @override

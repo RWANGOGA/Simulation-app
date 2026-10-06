@@ -513,9 +513,9 @@
   "@saveDraftButton": {"description": "Button that saves an offline draft instead of submitting."},
   "submitButton": "Submit",
   "@submitButton": {"description": "Final submit button on the review screen."},
-  "draftSavedSnackbar": "✅ Draft saved offline successfully!",
+  "draftSavedSnackbar": "✓ Draft saved offline successfully!",
   "@draftSavedSnackbar": {"description": "Confirmation snackbar after saving a draft."},
-  "submitFailedSavedOfflineSnackbar": "⚠️ Could not submit, saved offline, will retry automatically: {error}",
+  "submitFailedSavedOfflineSnackbar": "⚠ Could not submit, saved offline, will retry automatically: {error}",
   "@submitFailedSavedOfflineSnackbar": {
     "description": "Snackbar shown when submission fails and is queued offline instead.",
     "placeholders": {"error": {"type": "String"}}
