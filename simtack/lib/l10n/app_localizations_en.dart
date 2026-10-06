@@ -888,4 +888,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get heightCmLabel => 'Height (cm)';
+
+  @override
+  String factorCountLabel(int count) {
+    return switch (count) {
+      1 => '1 factor',
+      _ => '$count factors',
+    };
+  }
+
+  @override
+  String get legendRaisesRiskLabel => 'Raises Risk';
+
+  @override
+  String get legendLowersRiskLabel => 'Lowers Risk';
+
+  @override
+  String moreFactorsLabel(int count) {
+    return switch (count) {
+      1 => '+1 more',
+      _ => '+$count more',
+    };
+  }
 }

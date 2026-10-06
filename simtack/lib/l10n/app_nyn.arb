@@ -252,5 +252,9 @@
   "ageGenderWeightHeightRequiredError": "Age, gender, weight, and height are required.",
   "hospitalFacilityLabel": "Hospital / Facility",
   "weightKgLabel": "Weight (kg)",
-  "heightCmLabel": "Height (cm)"
+  "heightCmLabel": "Height (cm)",
+  "factorCountLabel": "{count, plural, =1{1 kigambo} other{{count} bigambo}}",
+  "legendRaisesRiskLabel": "Okunyomera Ekibi",
+  "legendLowersRiskLabel": "Okwemererera Ekibi",
+  "moreFactorsLabel": "+{count, plural, =1{1 kindi} other{{count} ebindi}}"
 }

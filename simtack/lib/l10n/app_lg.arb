@@ -266,5 +266,9 @@
   "ageGenderWeightHeightRequiredError": "Emyaka, ekikula, obuzito, n'obugulumivu byetaagisa.",
   "hospitalFacilityLabel": "Eddwaliro",
   "weightKgLabel": "Obuzito (kg)",
-  "heightCmLabel": "Obugulumivu (cm)"
+  "heightCmLabel": "Obugulumivu (cm)",
+  "factorCountLabel": "{count, plural, =1{Ensonga 1} other{Ennyiriri {count}}}",
+  "legendRaisesRiskLabel": "Okukiza Akabi",
+  "legendLowersRiskLabel": "Okunnyonyobola Akabi",
+  "moreFactorsLabel": "+{count, plural, =1{1 erala} other{{count} zirala}}"
 }

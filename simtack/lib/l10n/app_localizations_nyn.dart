@@ -888,4 +888,26 @@ class AppLocalizationsNyn extends AppLocalizations {
 
   @override
   String get heightCmLabel => 'Height (cm)';
+
+  @override
+  String factorCountLabel(int count) {
+    return switch (count) {
+      1 => '1 kigambo',
+      _ => '$count bigambo',
+    };
+  }
+
+  @override
+  String get legendRaisesRiskLabel => 'Okunyomera Ekibi';
+
+  @override
+  String get legendLowersRiskLabel => 'Okwemererera Ekibi';
+
+  @override
+  String moreFactorsLabel(int count) {
+    return switch (count) {
+      1 => '+1 kindi',
+      _ => '+$count ebindi',
+    };
+  }
 }

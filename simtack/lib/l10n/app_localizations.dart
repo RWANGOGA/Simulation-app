@@ -1675,6 +1675,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Height (cm)'**
   String get heightCmLabel;
+
+  /// Count of factors in the SHAP explanation.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 factor} other{{count} factors}}'**
+  String factorCountLabel(int count);
+
+  /// Legend label for positive SHAP contributions.
+  ///
+  /// In en, this message translates to:
+  /// **'Raises Risk'**
+  String get legendRaisesRiskLabel;
+
+  /// Legend label for negative SHAP contributions.
+  ///
+  /// In en, this message translates to:
+  /// **'Lowers Risk'**
+  String get legendLowersRiskLabel;
+
+  /// Label shown when there are more factors than displayed in compact view.
+  ///
+  /// In en, this message translates to:
+  /// **'+{count, plural, =1{1 more} other{{count} more}}'**
+  String moreFactorsLabel(int count);
 }
 
 class _AppLocalizationsDelegate

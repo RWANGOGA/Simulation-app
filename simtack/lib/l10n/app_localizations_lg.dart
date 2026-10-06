@@ -897,4 +897,26 @@ class AppLocalizationsLg extends AppLocalizations {
 
   @override
   String get heightCmLabel => 'Obugulumivu (cm)';
+
+  @override
+  String factorCountLabel(int count) {
+    return switch (count) {
+      1 => 'Ensonga 1',
+      _ => 'Ennyiriri $count',
+    };
+  }
+
+  @override
+  String get legendRaisesRiskLabel => 'Okukiza Akabi';
+
+  @override
+  String get legendLowersRiskLabel => 'Okunnyonyobola Akabi';
+
+  @override
+  String moreFactorsLabel(int count) {
+    return switch (count) {
+      1 => '+1 erala',
+      _ => '+$count zirala',
+    };
+  }
 }

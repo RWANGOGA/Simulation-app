@@ -252,5 +252,9 @@
   "ageGenderWeightHeightRequiredError": "Age, gender, weight, and height are required.",
   "hospitalFacilityLabel": "Hospital / Facility",
   "weightKgLabel": "Weight (kg)",
-  "heightCmLabel": "Height (cm)"
+  "heightCmLabel": "Height (cm)",
+  "factorCountLabel": "{count, plural, =1{1 sababu} other{{count} mababu}}",
+  "legendRaisesRiskLabel": "Inua Hatari",
+  "legendLowersRiskLabel": "Punguza Hatari",
+  "moreFactorsLabel": "+{count, plural, =1{1 zaidi} other{{count} zaidi}}"
 }

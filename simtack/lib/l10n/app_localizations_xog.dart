@@ -888,4 +888,26 @@ class AppLocalizationsXog extends AppLocalizations {
 
   @override
   String get heightCmLabel => 'Height (cm)';
+
+  @override
+  String factorCountLabel(int count) {
+    return switch (count) {
+      1 => '1 kifaananyi',
+      _ => '$count bivaananyi',
+    };
+  }
+
+  @override
+  String get legendRaisesRiskLabel => 'Okuwola Ebiro';
+
+  @override
+  String get legendLowersRiskLabel => 'Okupanga Ebiro';
+
+  @override
+  String moreFactorsLabel(int count) {
+    return switch (count) {
+      1 => '+1 ebidala',
+      _ => '+$count ebidala',
+    };
+  }
 }

@@ -670,5 +670,19 @@
   "weightKgLabel": "Weight (kg)",
   "@weightKgLabel": {"description": "Weight field label on the demographics edit sheet."},
   "heightCmLabel": "Height (cm)",
-  "@heightCmLabel": {"description": "Height field label on the demographics edit sheet."}
+  "@heightCmLabel": {"description": "Height field label on the demographics edit sheet."},
+  "factorCountLabel": "{count, plural, =1{1 factor} other{{count} factors}}",
+  "@factorCountLabel": {
+    "description": "Count of factors in the SHAP explanation.",
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "legendRaisesRiskLabel": "Raises Risk",
+  "@legendRaisesRiskLabel": {"description": "Legend label for positive SHAP contributions."},
+  "legendLowersRiskLabel": "Lowers Risk",
+  "@legendLowersRiskLabel": {"description": "Legend label for negative SHAP contributions."},
+  "moreFactorsLabel": "+{count, plural, =1{1 more} other{{count} more}}",
+  "@moreFactorsLabel": {
+    "description": "Label shown when there are more factors than displayed in compact view.",
+    "placeholders": {"count": {"type": "int"}}
+  }
 }

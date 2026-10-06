@@ -1,10 +1,9 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/models/patient_profile.dart';
 import '../../../l10n/app_localizations.dart';
+import 'shap_explanation_widget.dart';
 
 // ──────────────────────────────────────────────────────────────────────────────
 // Medical Slate Clinical Palette
@@ -872,97 +871,10 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
   }
 
   Widget _buildRiskExplanation(TriageResult report) {
-    final t = AppLocalizations.of(context)!;
-    final raw = report.shapExplanation;
-    if (raw == null || raw.isEmpty) return const SizedBox.shrink();
-
-    List<dynamic>? factors;
-    try {
-      final decoded = jsonDecode(raw);
-      if (decoded is List && decoded.isNotEmpty) factors = decoded;
-    } catch (_) {}
-    if (factors == null) return const SizedBox.shrink();
-
-    final parsed = factors.map((f) {
-      final factor = f is Map<String, dynamic> ? f : <String, dynamic>{};
-      final label = (factor['factor'] ?? t.unknownFactorLabel).toString();
-      final shap = factor['shap'] is num ? (factor['shap'] as num).toDouble() : 0.0;
-      final hasImpactKey = factor.containsKey('impact');
-      final impact = hasImpactKey ? (factor['impact'] == '-' ? '-' : '+') : (shap < 0 ? '-' : '+');
-      return (label: label, shap: shap, impact: impact);
-    }).toList();
-    final maxShap = parsed.fold<double>(0.0, (m, f) => f.shap.abs() > m ? f.shap.abs() : m);
-
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: const Color(0xFFE2E8F0)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              t.whyThisScoreTitle,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF64748B), letterSpacing: 1.5, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            ...parsed.map((f) => _shapBar(f.label, f.shap, f.impact, maxShap)),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _shapBar(String label, double shap, String impact, double maxShap) {
-    final raises = impact == '+';
-    final magnitude = shap.abs();
-    final barColor = !raises
-        ? _kSafeGreen
-        : magnitude >= 0.25
-            ? _kCrimsonRed
-            : magnitude >= 0.10
-                ? _kAmberWarn
-                : const Color(0xFF64748B);
-    final fraction = maxShap > 0 ? (magnitude / maxShap).clamp(0.04, 1.0) : 0.04;
-    final valueLabel = '${raises ? '+' : '-'}${(magnitude * 100).toInt()}%';
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(label, style: const TextStyle(fontSize: 13, color: Color(0xFF1E293B))),
-              ),
-              Text(valueLabel, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: barColor)),
-            ],
-          ),
-          const SizedBox(height: 4),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(4),
-            child: Stack(
-              children: [
-                Container(height: 8, color: const Color(0xFFF1F5F9)),
-                FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: fraction,
-                  child: Container(
-                    height: 8,
-                    decoration: BoxDecoration(color: barColor, borderRadius: BorderRadius.circular(4)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
+    return ShapExplanationWidget(
+      shapExplanation: report.shapExplanation,
+      expandable: true,
+      initiallyExpanded: false,
     );
   }
 
