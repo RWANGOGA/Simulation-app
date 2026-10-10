@@ -72,7 +72,7 @@ class ConnectivityService {
       // Using a short timeout to fail fast when offline
       final client = ApiClient.httpClient;
       final response = await client.get(
-        Uri.parse('${ApiClient.baseUrl}/healthy'),
+        Uri.parse('${ApiClient.baseUrl}/health'),
       ).timeout(const Duration(seconds: 5));
       
       _lastActualOnline = response.statusCode == 200;

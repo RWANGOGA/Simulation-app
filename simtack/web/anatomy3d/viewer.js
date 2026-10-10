@@ -70,10 +70,19 @@ const SYSTEM_COLORS = {
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color('#f2f3f3');
-const camera = new THREE.PerspectiveCamera(34, innerWidth / innerHeight, 0.01, 100);
+
+// Ensure we have valid dimensions (iframe may have 0 size initially)
+function getValidDimensions() {
+  const w = innerWidth || 300;
+  const h = innerHeight || 400;
+  return { width: w, height: h };
+}
+
+const dims = getValidDimensions();
+const camera = new THREE.PerspectiveCamera(34, dims.width / dims.height, 0.01, 100);
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.setSize(innerWidth, innerHeight);
+renderer.setSize(dims.width, dims.height);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 document.getElementById('canvas-host').appendChild(renderer.domElement);
 
@@ -445,11 +454,16 @@ window.addEventListener('message', (event) => {
 });
 
 function resize() {
+  // Ignore zero-size resize events (can happen during iframe layout)
+  if (innerWidth === 0 || innerHeight === 0) return;
   camera.aspect = innerWidth / innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 }
 addEventListener('resize', resize);
+
+// Also trigger resize on next tick to catch initial layout
+setTimeout(resize, 0);
 
 function animate() {
   requestAnimationFrame(animate);
