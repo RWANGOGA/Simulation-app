@@ -73,7 +73,10 @@ class _SuccessScreenState extends State<SuccessScreen> {
       RenderRepaintBoundary boundary =
           _qrKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
       ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-      ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      ByteData? byteData =
+          await image.toByteData(format: ui.ImageByteFormat.png);
+      // `toByteData` can return null in principle, so keep the null-aware
+      // access and let the explicit check below produce the real error.
       Uint8List? imageBytes = byteData?.buffer.asUint8List();
 
       if (imageBytes == null) throw Exception('Could not capture image');
@@ -91,7 +94,10 @@ class _SuccessScreenState extends State<SuccessScreen> {
         } else {
           // Mobile: Use share_plus to save
           await Share.shareXFiles(
-            [XFile.fromData(imageBytes, name: '${widget.patientId}_QR.png', mimeType: 'image/png')],
+            [
+              XFile.fromData(imageBytes,
+                  name: '${widget.patientId}_QR.png', mimeType: 'image/png')
+            ],
             subject: 'Patient QR Code - ${widget.patientId}',
           );
         }
@@ -132,7 +138,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
   // can't invoke the OS-level share tray. Each option deep-links out to
   // the relevant app/service using url_launcher.
   Future<void> _showWebShareSheet(BuildContext context) async {
-    final message = 'Clinical Report for Patient ${widget.patientId}: $_reportUrl';
+    final message =
+        'Clinical Report for Patient ${widget.patientId}: $_reportUrl';
     final t = AppLocalizations.of(context)!;
 
     await showModalBottomSheet(
@@ -149,7 +156,10 @@ class _SuccessScreenState extends State<SuccessScreen> {
               children: [
                 Text(
                   t.shareReportSheetTitle,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppPalette.textPrimary(context)),
                 ),
                 const SizedBox(height: 20),
                 Row(
@@ -188,7 +198,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
                       color: AppPalette.textMuted(context),
                       onTap: () async {
                         await Clipboard.setData(ClipboardData(text: message));
-                        if (sheetContext.mounted) Navigator.of(sheetContext).pop();
+                        if (sheetContext.mounted)
+                          Navigator.of(sheetContext).pop();
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(t.linkCopiedSnackbar)),
@@ -225,7 +236,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
               child: Icon(icon, color: color, size: 26),
             ),
             const SizedBox(height: 6),
-            Text(label, style: const TextStyle(fontSize: 12, color: Color(0xFF475569))),
+            Text(label,
+                style: const TextStyle(fontSize: 12, color: Color(0xFF475569))),
           ],
         ),
       ),
@@ -240,7 +252,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Could not open: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -253,7 +266,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
     final riskScore = worst.riskScore;
     final hasScore = riskScore != null;
     final isHighRisk = hasScore && riskScore >= 0.7;
-    final riskColor = isHighRisk ? const Color(0xFFDC2626) : const Color(0xFF16A34A);
+    final riskColor =
+        isHighRisk ? const Color(0xFFDC2626) : const Color(0xFF16A34A);
     // worst.riskLevel already reads "HIGH RISK"/"MEDIUM RISK"/"LOW RISK" —
     // build the localized level word from the same thresholds directly
     // rather than appending another translated "Risk" onto that string.
@@ -284,14 +298,18 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   color: const Color(0xFF16A34A).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check_circle, color: Color(0xFF16A34A), size: 48),
+                child: const Icon(Icons.check_circle,
+                    color: Color(0xFF16A34A), size: 48),
               ),
 
               const SizedBox(height: 16),
 
               Text(
                 t.reportSubmittedTitle,
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
+                style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: AppPalette.textPrimary(context)),
               ),
 
               const SizedBox(height: 24),
@@ -305,15 +323,29 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(t.patientIdLabel, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
-                        Text(widget.patientId, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+                        Text(t.patientIdLabel,
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: AppPalette.textMuted(context))),
+                        Text(widget.patientId,
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: AppPalette.textPrimary(context))),
                       ],
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Text(t.timestampLabel, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
-                        Text(DateTime.now().toString().substring(0, 16), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF475569))),
+                        Text(t.timestampLabel,
+                            style: TextStyle(
+                                fontSize: 11,
+                                color: AppPalette.textMuted(context))),
+                        Text(DateTime.now().toString().substring(0, 16),
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF475569))),
                       ],
                     ),
                   ],
@@ -331,7 +363,12 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   borderWidth: 2,
                   child: Column(
                     children: [
-                      Text(t.encryptedQrPassportLabel, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF6D28D9), letterSpacing: 1)),
+                      Text(t.encryptedQrPassportLabel,
+                          style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF6D28D9),
+                              letterSpacing: 1)),
                       const SizedBox(height: 12),
                       QrImageView(
                         data: _reportUrl,
@@ -340,8 +377,14 @@ class _SuccessScreenState extends State<SuccessScreen> {
                         backgroundColor: AppPalette.surface(context),
                       ),
                       const SizedBox(height: 12),
-                      Text(t.noInternetRequiredHint, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
-                      Text(t.showQrToHealthWorkerHint, style: TextStyle(fontSize: 11, color: AppPalette.textMuted(context))),
+                      Text(t.noInternetRequiredHint,
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: AppPalette.textMuted(context))),
+                      Text(t.showQrToHealthWorkerHint,
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: AppPalette.textMuted(context))),
                     ],
                   ),
                 ),
@@ -353,12 +396,23 @@ class _SuccessScreenState extends State<SuccessScreen> {
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(color: riskColor.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                decoration: BoxDecoration(
+                    color: riskColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8)),
                 child: Row(
                   children: [
-                    Icon(isHighRisk ? Icons.warning_amber_rounded : Icons.check_circle_outline, color: riskColor, size: 20),
+                    Icon(
+                        isHighRisk
+                            ? Icons.warning_amber_rounded
+                            : Icons.check_circle_outline,
+                        color: riskColor,
+                        size: 20),
                     const SizedBox(width: 8),
-                    Text(t.aiAssessmentLabel(riskLabel), style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: riskColor)),
+                    Text(t.aiAssessmentLabel(riskLabel),
+                        style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: riskColor)),
                   ],
                 ),
               ),
@@ -387,16 +441,25 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   // SAVE BUTTON
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: _isProcessing ? null : () => _captureAndShare(isSave: true),
+                      onPressed: _isProcessing
+                          ? null
+                          : () => _captureAndShare(isSave: true),
                       icon: _isProcessing
-                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2))
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                  color: Colors.white, strokeWidth: 2))
                           : const Icon(Icons.download, size: 20),
-                      label: Text(t.saveButton, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                      label: Text(t.saveButton,
+                          style: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF6D28D9),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
@@ -404,7 +467,9 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   // SHARE BUTTON
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: _isProcessing ? null : () => _captureAndShare(isSave: false),
+                      onPressed: _isProcessing
+                          ? null
+                          : () => _captureAndShare(isSave: false),
                       icon: const Icon(Icons.share, size: 20),
                       label: Text(t.shareButton),
                     ),
@@ -422,7 +487,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   onPressed: () {
                     Navigator.of(context).push(
                       AppPageRoute(
-                        builder: (_) => PatientHistoryScreen(patientId: widget.patientId),
+                        builder: (_) =>
+                            PatientHistoryScreen(patientId: widget.patientId),
                       ),
                     );
                   },
@@ -435,8 +501,13 @@ class _SuccessScreenState extends State<SuccessScreen> {
 
               // --- START NEW TRIAGE ---
               TextButton(
-                onPressed: () => Navigator.of(context).popUntil((route) => route.isFirst),
-                child: Text(t.startNewTriageButton, style: TextStyle(color: AppPalette.textMuted(context), fontSize: 14, fontWeight: FontWeight.w500)),
+                onPressed: () =>
+                    Navigator.of(context).popUntil((route) => route.isFirst),
+                child: Text(t.startNewTriageButton,
+                    style: TextStyle(
+                        color: AppPalette.textMuted(context),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500)),
               ),
             ],
           ),

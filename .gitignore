@@ -27,6 +27,12 @@ simtack/ios/.symlinks/
 # Qoder / IDE tooling cache
 .qoder/
 
+# Local build/analysis output
+.dist/
+
+# Flutter tool logs (crash/test output regrows on every run)
+*.log
+
 # Local 3D model tooling/scratch (not part of the app)
 model-source/
 simtack/assets/anatomy3d/

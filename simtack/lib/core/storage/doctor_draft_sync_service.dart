@@ -1,6 +1,5 @@
 import '../network/api_client.dart';
 import 'doctor_draft_storage.dart';
-import 'doctor_draft.dart';
 
 /// Syncs locally-stored practitioner accounts to the backend when online.
 /// Runs on startup and when connectivity is restored.

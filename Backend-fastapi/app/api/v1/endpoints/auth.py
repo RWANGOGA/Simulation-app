@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, date, timezone
 import re
 import secrets
 from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 import bcrypt
@@ -154,9 +154,49 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
     return {"access_token": access_token, "refresh_token": refresh_token_raw, "token_type": "bearer"}
 
 
+async def _refresh_token_from_body(request: Request) -> Optional[str]:
+    """Reads `refresh_token` from a JSON or urlencoded request body.
+
+    Returns None when the body carries no such field or cannot be parsed —
+    the caller turns that into a 401 rather than a 422, so a client that
+    forgot the token gets the same "invalid or expired" answer as one that
+    sent a bad token.
+    """
+    try:
+        if "application/json" in request.headers.get("content-type", ""):
+            payload = await request.json()
+            if isinstance(payload, dict):
+                value = payload.get("refresh_token")
+                return value if isinstance(value, str) else None
+        form = await request.form()
+        value = form.get("refresh_token")
+        return value if isinstance(value, str) else None
+    except Exception:
+        return None
+
+
 @router.post("/refresh", response_model=Token)
-def refresh_access_token(refresh_token: str, db: Session = Depends(get_db)):
-    stored = db.query(RefreshToken).filter(RefreshToken.token == refresh_token).first()
+async def refresh_access_token(
+    request: Request,
+    refresh_token: Optional[str] = None,
+    db: Session = Depends(get_db),
+):
+    """Exchanges a refresh token for a fresh access token.
+
+    The Flutter client posts the token as a form field (the same urlencoded
+    shape /login uses) while curl and the test-suite pass it as a query
+    parameter, so both are accepted here. Without the body path the mobile
+    app could never actually refresh — its POST carried the token in a body
+    this endpoint never looked at, which made every session die silently.
+    """
+    token = refresh_token or await _refresh_token_from_body(request)
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="A refresh token is required",
+        )
+
+    stored = db.query(RefreshToken).filter(RefreshToken.token == token).first()
     if not stored or not stored.is_valid():
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

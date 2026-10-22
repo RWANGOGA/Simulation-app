@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -71,11 +72,20 @@ void main() {
   group('ClinicalReportScreen Widget Tests', () {
     testWidgets('renders initial loading indicator and watermark',
         (WidgetTester tester) async {
+      // A request that never answers holds the screen in its initial state.
+      ApiClient.httpClient =
+          MockClient((request) => Completer<http.Response>().future);
+
       await tester.pumpWidget(
           _wrap(const ClinicalReportScreen(patientId: 'TEST-12345')));
 
       expect(find.text('SIMTACK'), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      // Every API call now carries a bounded timeout, so that timer has to
+      // fire before the test ends — otherwise the framework reports a timer
+      // that outlived the widget tree.
+      await tester.pump(ApiClient.requestTimeout + const Duration(seconds: 1));
     });
   });
 
@@ -188,6 +198,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('WHY THIS SCORE?'), findsOneWidget);
+
+      // The breakdown starts collapsed on purpose, so the bars only exist
+      // once the practitioner opens it.
+      await tester.tap(find.byType(ExpansionTile));
+      await tester.pumpAndSettle();
+
       expect(find.text('+25%'), findsOneWidget);
       expect(find.text('+15%'), findsOneWidget);
       expect(find.text('+5%'), findsOneWidget);
@@ -220,6 +236,11 @@ void main() {
 
       await tester.pumpWidget(
           _wrap(const ClinicalReportScreen(patientId: 'P-TEST12345678')));
+      await tester.pumpAndSettle();
+
+      // The breakdown starts collapsed on purpose, so the bars only exist
+      // once the practitioner opens it.
+      await tester.tap(find.byType(ExpansionTile));
       await tester.pumpAndSettle();
 
       expect(find.text('+40%'), findsOneWidget);

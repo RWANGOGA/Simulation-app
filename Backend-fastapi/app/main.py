@@ -9,12 +9,35 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.database import engine
 from app import models  # noqa: F401 registers Patient/TriageSession on Base
+from app.models import AuditLog
+
+
+def _ensure_audit_table() -> None:
+    """Create audit_logs if this deployment has not run alembic yet.
+
+    Nothing in the deployment pipeline runs `alembic upgrade head` — the
+    Dockerfile and the CI workflow both just start uvicorn — so a newly
+    added table would never reach the production database. That is fatal
+    for an audit log specifically: record_access swallows insert failures
+    by design, so a missing table means "no trail" with no error anywhere.
+
+    This creates *only* audit_logs, with checkfirst, and touches no other
+    table — so it cannot collide with migrations 0001-0003 and alembic
+    stays the source of truth for every other schema change.
+    """
+    try:
+        AuditLog.__table__.create(bind=engine, checkfirst=True)
+        print("[startup] audit table ready", flush=True)
+    except Exception as exc:  # noqa: BLE001 - never block startup on this
+        print(f"[startup] WARNING: audit table unavailable: {exc}", flush=True)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPIOffline):
     with engine.connect() as connection:
         connection.execute(text("SELECT 1"))
     print("[startup] database connected", flush=True)
+    _ensure_audit_table()
     yield
 
 app = FastAPIOffline(

@@ -76,13 +76,25 @@ class Doctor {
       );
 }
 
-/// Error thrown by auth calls, with FastAPI's error shape parsed out —
+/// Error thrown by every API call, with FastAPI's error shape parsed out —
 /// handles both {"detail": "..."} (401) and {"detail": [...]} (422).
+///
+/// Transport failures are folded into the same type so callers only ever
+/// have to catch one thing. [isNetworkError] marks those, which lets a screen
+/// say "you are offline" instead of echoing a server rejection.
 class ApiException implements Exception {
   final int? statusCode;
   final String message;
 
-  ApiException({required this.message, this.statusCode});
+  /// True when the request never reached the server (no connection, DNS or
+  /// socket failure) or the server did not answer in time.
+  final bool isNetworkError;
+
+  ApiException({
+    required this.message,
+    this.statusCode,
+    this.isNetworkError = false,
+  });
 
   bool get isUnauthorized => statusCode == 401;
 
@@ -347,6 +359,27 @@ class ApiClient {
   static http.Client httpClient = http.Client();
   static TokenStorage tokenStorage = SecureTokenStorage();
 
+  /// Bounded wait for a normal request. The production host is a free tier
+  /// that sleeps when idle; 20s covers a warm server plus a slow mobile link
+  /// without leaving the UI spinning forever. Public so screens and tests can
+  /// reason about the same number instead of guessing.
+  static const Duration requestTimeout = Duration(seconds: 20);
+
+  /// The first contact after the host has been idle can take ~50s to wake
+  /// up, so the two calls a patient is most likely to make first get a
+  /// longer leash.
+  static const Duration _coldStartTimeout = Duration(seconds: 45);
+
+  /// Fired once when a session can no longer be repaired (refresh token
+  /// missing or rejected). main.dart wires this to a redirect back to the
+  /// login screen, so an expired session never leaves the practitioner
+  /// staring at empty screens.
+  static void Function()? onSessionExpired;
+
+  /// De-duplicates concurrent refreshes: if five requests get a 401 at the
+  /// same moment we must not fire five refresh calls.
+  static Future<bool>? _refreshInFlight;
+
   static Future<Map<String, String>> _authHeaders({bool json = true}) async {
     final token = await tokenStorage.read();
     return {
@@ -355,16 +388,178 @@ class ApiClient {
     };
   }
 
+  /// The single choke point for every backend call.
+  ///
+  /// Routing everything through here buys three guarantees that the previous
+  /// hand-rolled calls each had to remember for themselves:
+  ///
+  /// 1. **No request can hang forever** — every call is bounded by [timeout].
+  /// 2. **One exception type** — transport failures, timeouts and non-2xx
+  ///    answers all surface as [ApiException].
+  /// 3. **Expired tokens heal themselves** — a 401 triggers one refresh and
+  ///    one retry; when that fails the session is cleared and
+  ///    [onSessionExpired] sends the app back to the login screen.
+  ///
+  /// Throws [ApiException] and returns the response only when it carries
+  /// [expectedStatus].
+  static Future<http.Response> _send(
+    String method,
+    Uri uri, {
+    Map<String, String>? headers,
+    Object? body,
+    Duration timeout = requestTimeout,
+    bool authenticated = true,
+    bool retryOnUnauthorized = true,
+    int expectedStatus = 200,
+  }) async {
+    http.Response response;
+    try {
+      response = await _dispatch(method, uri, headers, body).timeout(timeout);
+    } on TimeoutException {
+      throw ApiException(
+        message: 'The request timed out after ${timeout.inSeconds} seconds. '
+            'The server may still be waking up — please try again.',
+        isNetworkError: true,
+      );
+    } catch (error) {
+      if (error is ApiException) rethrow;
+      if (_isTransportFailure(error)) {
+        throw ApiException(
+          message: 'Cannot reach the server. Check your internet connection '
+              'and try again.',
+          isNetworkError: true,
+        );
+      }
+      rethrow;
+    }
+
+    if (response.statusCode == 401 && authenticated && retryOnUnauthorized) {
+      if (await _refreshAccessTokenOnce()) {
+        // The access token changed, so the auth header has to be rebuilt —
+        // replaying the stale one would just 401 again.
+        return _send(
+          method,
+          uri,
+          headers: await _withFreshToken(headers),
+          body: body,
+          timeout: timeout,
+          authenticated: authenticated,
+          retryOnUnauthorized: false,
+          expectedStatus: expectedStatus,
+        );
+      }
+      await _clearSession();
+    }
+
+    if (response.statusCode != expectedStatus) {
+      throw ApiException.fromResponse(response.statusCode, response.body);
+    }
+    return response;
+  }
+
+  static Future<http.Response> _dispatch(
+    String method,
+    Uri uri,
+    Map<String, String>? headers,
+    Object? body,
+  ) {
+    switch (method) {
+      case 'GET':
+        return httpClient.get(uri, headers: headers);
+      case 'POST':
+        return httpClient.post(uri, headers: headers, body: body);
+      case 'PATCH':
+        return httpClient.patch(uri, headers: headers, body: body);
+      case 'PUT':
+        return httpClient.put(uri, headers: headers, body: body);
+      case 'DELETE':
+        return httpClient.delete(uri, headers: headers, body: body);
+      default:
+        throw ArgumentError.value(method, 'Unsupported HTTP method');
+    }
+  }
+
+  /// Recognises "the request never made it" without importing dart:io, which
+  /// has no web implementation. Matching on the runtime type keeps this file
+  /// compilable for the web build while still catching SocketException,
+  /// HandshakeException and friends on mobile and desktop.
+  static bool _isTransportFailure(Object error) {
+    if (error is http.ClientException) return true;
+    const transportTypes = {
+      'SocketException',
+      'HandshakeException',
+      'TlsException',
+      'HttpException',
+    };
+    return transportTypes.contains(error.runtimeType.toString());
+  }
+
+  /// Replaces the bearer token in an existing header map after a refresh.
+  static Future<Map<String, String>?> _withFreshToken(
+      Map<String, String>? headers) async {
+    if (headers == null || !headers.containsKey('Authorization')) {
+      return headers;
+    }
+    final token = await tokenStorage.read();
+    final refreshed = Map<String, String>.of(headers);
+    if (token != null) {
+      refreshed['Authorization'] = 'Bearer $token';
+    }
+    return refreshed;
+  }
+
+  /// Refreshes the access token at most once per wave of 401s.
+  /// Returns false when the session cannot be repaired.
+  static Future<bool> _refreshAccessTokenOnce() {
+    final pending = _refreshInFlight;
+    if (pending != null) return pending;
+    final future = _performRefresh().whenComplete(() {
+      _refreshInFlight = null;
+    });
+    _refreshInFlight = future;
+    return future;
+  }
+
+  static Future<bool> _performRefresh() async {
+    final refreshToken = await tokenStorage.readRefreshToken();
+    if (refreshToken == null) return false;
+    try {
+      // Same urlencoded shape /login uses; the backend accepts the token from
+      // the form body or the query string.
+      final response = await httpClient.post(
+        Uri.parse('$baseUrl/auth/refresh'),
+        body: {'refresh_token': refreshToken},
+      ).timeout(requestTimeout);
+      if (response.statusCode != 200) return false;
+      final data = jsonDecode(response.body) as Map<String, dynamic>;
+      final token = data['access_token'] as String?;
+      if (token == null) return false;
+      await tokenStorage.write(token);
+      final rotated = data['refresh_token'] as String?;
+      if (rotated != null) await tokenStorage.writeRefreshToken(rotated);
+      return true;
+    } catch (_) {
+      // Any failure here means the session is not recoverable.
+      return false;
+    }
+  }
+
+  static Future<void> _clearSession() async {
+    await tokenStorage.delete();
+    onSessionExpired?.call();
+  }
+
   static Future<Doctor> login(
       {required String email, required String password}) async {
-    final response = await httpClient.post(
+    // Unauthenticated call: a 401 here means "wrong password", not "expired
+    // session", so it must never trigger the refresh-and-retry path.
+    final response = await _send(
+      'POST',
       Uri.parse('$baseUrl/auth/login'),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {'username': email, 'password': password},
+      authenticated: false,
     );
-    if (response.statusCode != 200) {
-      throw ApiException.fromResponse(response.statusCode, response.body);
-    }
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final token = data['access_token'] as String?;
     if (token == null) {
@@ -379,18 +574,26 @@ class ApiClient {
     return getCurrentDoctor();
   }
 
+  /// Explicit refresh, for callers that want to extend a session proactively
+  /// (for example when the app returns to the foreground).
   static Future<void> refreshAccessToken() async {
     final refreshToken = await tokenStorage.readRefreshToken();
     if (refreshToken == null) {
       throw ApiException(message: 'No refresh token is available.');
     }
-    final response = await httpClient.post(
-      Uri.parse('$baseUrl/auth/refresh'),
-      body: {'refresh_token': refreshToken},
-    );
-    if (response.statusCode != 200) {
+    final http.Response response;
+    try {
+      response = await _send(
+        'POST',
+        Uri.parse('$baseUrl/auth/refresh'),
+        body: {'refresh_token': refreshToken},
+        authenticated: false,
+      );
+    } on ApiException {
+      // A dead refresh token must not linger; otherwise every later request
+      // keeps retrying a session that can never come back.
       await tokenStorage.delete();
-      throw ApiException.fromResponse(response.statusCode, response.body);
+      rethrow;
     }
     final data = jsonDecode(response.body) as Map<String, dynamic>;
     final token = data['access_token'] as String?;
@@ -414,7 +617,8 @@ class ApiClient {
     DateTime? dateOfBirth,
     String? inviteCode,
   }) async {
-    final response = await httpClient.post(
+    final response = await _send(
+      'POST',
       Uri.parse('$baseUrl/auth/register'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
@@ -434,21 +638,19 @@ class ApiClient {
         if (inviteCode != null && inviteCode.trim().isNotEmpty)
           'invite_code': inviteCode.trim(),
       }),
+      authenticated: false,
+      expectedStatus: 201,
     );
-    if (response.statusCode != 201) {
-      throw ApiException.fromResponse(response.statusCode, response.body);
-    }
+    // Registered but not yet signed in — the token is issued by login below.
     return login(email: email, password: password);
   }
 
   static Future<Doctor> getCurrentDoctor() async {
-    final response = await httpClient.get(
+    final response = await _send(
+      'GET',
       Uri.parse('$baseUrl/auth/me'),
       headers: await _authHeaders(),
     );
-    if (response.statusCode != 200) {
-      throw ApiException.fromResponse(response.statusCode, response.body);
-    }
     return Doctor.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
@@ -464,26 +666,18 @@ class ApiClient {
   // failure rather than a timeout. A bounded timeout here turns that into
   // an honest, actionable error instead.
   static Future<PatientResult> createPatient(PatientProfile profile) async {
-    final http.Response response;
-    try {
-      response = await httpClient
-          .post(
-            Uri.parse('$baseUrl/patients/'),
-            headers: {'Content-Type': 'application/json'},
-            body: jsonEncode(profile.toJson()),
-          )
-          .timeout(const Duration(seconds: 45));
-    } on TimeoutException {
-      throw Exception(
-          'The hospital server is taking a while to respond, it may be waking up from being idle. Please try again in a moment.');
-    }
-    if (response.statusCode == 201) {
-      return PatientResult.fromJson(
-        jsonDecode(response.body) as Map<String, dynamic>,
-      );
-    }
-    throw Exception(
-        'Hospital answered ${response.statusCode}: ${response.body}');
+    final response = await _send(
+      'POST',
+      Uri.parse('$baseUrl/patients/'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode(profile.toJson()),
+      timeout: _coldStartTimeout,
+      authenticated: false,
+      expectedStatus: 201,
+    );
+    return PatientResult.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
   }
 
   /// Practitioner-only correction of a patient's demographics — sends only
@@ -492,92 +686,82 @@ class ApiClient {
   /// the rest. JWT-guarded on the backend.
   static Future<void> updatePatientDemographics(
       String anonymousCode, PatientProfile profile) async {
-    final response = await httpClient.patch(
+    await _send(
+      'PATCH',
       Uri.parse('$baseUrl/patients/$anonymousCode'),
       headers: await _authHeaders(),
       body: jsonEncode(profile.toJson()),
     );
-    if (response.statusCode != 200) {
-      throw ApiException.fromResponse(response.statusCode, response.body);
-    }
   }
 
   static Future<TriageResult> sendTriage(TriageReport report) async {
-    debugPrint('🚀 Sending to backend ($baseUrl): ${report.toJson()}');
-    final response = await httpClient.post(
+    // No debugPrint of the payload: it carries the patient's symptoms and
+    // demographics, and debug logs are readable by anyone with the device.
+    final response = await _send(
+      'POST',
       Uri.parse('$baseUrl/triage/'),
       headers: {
         'Content-Type': 'application/json',
         if (report.patientCode != null) 'X-Patient-Code': report.patientCode!,
       },
       body: jsonEncode(report.toJson()),
+      timeout: _coldStartTimeout,
+      authenticated: false,
+      expectedStatus: 201,
     );
-    if (response.statusCode == 201) {
-      return TriageResult.fromJson(
-        jsonDecode(response.body) as Map<String, dynamic>,
-      );
-    }
-    throw Exception(
-        'Hospital answered ${response.statusCode}: ${response.body}');
+    return TriageResult.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
   }
 
   static Future<List<TriageResult>> getLatestVisit(String patientCode) async {
-    // Anonymous lookup — no JWT; routed through httpClient anyway so
-    // tests can inject a mock.
-    final response = await httpClient.get(
+    // Anonymous lookup — no JWT; routed through the shared pipeline anyway
+    // so tests can inject a mock and callers get the same error handling.
+    final response = await _send(
+      'GET',
       Uri.parse('$baseUrl/triage/patient/$patientCode'),
+      authenticated: false,
     );
-    if (response.statusCode == 200) {
-      final list = jsonDecode(response.body) as List;
-      return list
-          .map((e) => TriageResult.fromJson(e as Map<String, dynamic>))
-          .toList();
-    }
-    throw Exception(
-        'Hospital answered ${response.statusCode}: ${response.body}');
+    final list = jsonDecode(response.body) as List;
+    return list
+        .map((e) => TriageResult.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   /// Practitioner-only: every session the patient ever submitted, newest
   /// first. Powers the visit timeline on the clinical report.
   static Future<List<TriageResult>> getPatientHistory(
       String patientCode) async {
-    final response = await httpClient.get(
+    final response = await _send(
+      'GET',
       Uri.parse('$baseUrl/triage/patient/$patientCode/history'),
       headers: await _authHeaders(),
     );
-    if (response.statusCode == 200) {
-      final list = jsonDecode(response.body) as List;
-      return list
-          .map((e) => TriageResult.fromJson(e as Map<String, dynamic>))
-          .toList();
-    }
-    throw Exception(
-        'Hospital answered ${response.statusCode}: ${response.body}');
+    final list = jsonDecode(response.body) as List;
+    return list
+        .map((e) => TriageResult.fromJson(e as Map<String, dynamic>))
+        .toList();
   }
 
   static Future<Map<String, dynamic>> getTriageStats() async {
     // Doctor-only endpoint — must carry the JWT.
-    final response = await httpClient.get(
+    final response = await _send(
+      'GET',
       Uri.parse('$baseUrl/triage/stats'),
       headers: await _authHeaders(),
     );
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
-    }
-    throw Exception('Failed to load stats: ${response.body}');
+    return jsonDecode(response.body) as Map<String, dynamic>;
   }
 
   static Future<Map<String, dynamic>> getTriageReports(
       {String period = 'all'}) async {
     // Doctor-only endpoint — must carry the JWT.
-    final response = await httpClient.get(
+    final response = await _send(
+      'GET',
       Uri.parse('$baseUrl/triage/reports?period=$period'),
       headers: await _authHeaders(),
     );
-    if (response.statusCode == 200) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
-    }
-    throw ApiException.fromResponse(response.statusCode, response.body);
+    return jsonDecode(response.body) as Map<String, dynamic>;
   }
 
   static Future<List<Map<String, dynamic>>> getTriageList({
@@ -595,11 +779,8 @@ class ApiClient {
       if (status != null) 'status': status,
     });
     // Doctor-only endpoint — must carry the JWT.
-    final response = await httpClient.get(uri, headers: await _authHeaders());
-    if (response.statusCode == 200) {
-      return List<Map<String, dynamic>>.from(jsonDecode(response.body));
-    }
-    throw Exception('Failed to load triage list: ${response.body}');
+    final response = await _send('GET', uri, headers: await _authHeaders());
+    return List<Map<String, dynamic>>.from(jsonDecode(response.body));
   }
 
   /// Practitioner review workflow: saves the decision (status, priority,
@@ -612,7 +793,8 @@ class ApiClient {
     List<String>? actionsTaken,
     String? clinicalNotes,
   }) async {
-    final response = await httpClient.patch(
+    final response = await _send(
+      'PATCH',
       Uri.parse('$baseUrl/triage/$sessionId/decision'),
       headers: await _authHeaders(),
       body: jsonEncode({
@@ -622,12 +804,8 @@ class ApiClient {
         if (clinicalNotes != null) 'clinical_notes': clinicalNotes,
       }),
     );
-    if (response.statusCode == 200) {
-      return TriageResult.fromJson(
-          jsonDecode(response.body) as Map<String, dynamic>);
-    }
-    throw Exception(
-        'Hospital answered ${response.statusCode}: ${response.body}');
+    return TriageResult.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>);
   }
 
   static Future<Doctor> updateDoctorProfile({
@@ -653,15 +831,13 @@ class ApiClient {
       body['date_of_birth'] =
           '${dateOfBirth.year.toString().padLeft(4, '0')}-${dateOfBirth.month.toString().padLeft(2, '0')}-${dateOfBirth.day.toString().padLeft(2, '0')}';
 
-    final response = await httpClient.patch(
+    final response = await _send(
+      'PATCH',
       Uri.parse('$baseUrl/auth/me'),
       headers: await _authHeaders(),
       body: jsonEncode(body),
     );
-    if (response.statusCode == 200) {
-      return Doctor.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
-    }
-    throw ApiException.fromResponse(response.statusCode, response.body);
+    return Doctor.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
   // ── Anatomy assistant (Step 7.5) ──────────────────────────────────────
@@ -680,26 +856,22 @@ class ApiClient {
     if (conversationId != null && conversationId.isNotEmpty) {
       body['conversation_id'] = conversationId;
     }
-    final response = await httpClient.post(
+    final response = await _send(
+      'POST',
       Uri.parse('$baseUrl/anatomy/ask'),
       headers: await _authHeaders(),
       body: jsonEncode(body),
     );
-    if (response.statusCode == 200) {
-      return AnatomyInsight.fromJson(
-          jsonDecode(response.body) as Map<String, dynamic>);
-    }
-    throw ApiException.fromResponse(response.statusCode, response.body);
+    return AnatomyInsight.fromJson(
+        jsonDecode(response.body) as Map<String, dynamic>);
   }
 
   static Future<List<AnatomyRegion>> listAnatomyRegions() async {
-    final response = await httpClient.get(
+    final response = await _send(
+      'GET',
       Uri.parse('$baseUrl/anatomy/regions'),
       headers: await _authHeaders(),
     );
-    if (response.statusCode != 200) {
-      throw ApiException.fromResponse(response.statusCode, response.body);
-    }
     final body = jsonDecode(response.body) as Map<String, dynamic>;
     final list = (body['regions'] as List?) ?? const [];
     return list

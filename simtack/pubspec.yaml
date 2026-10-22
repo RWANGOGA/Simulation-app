@@ -28,7 +28,11 @@ dependencies:
   pdf: ^3.11.1
   printing: ^5.13.3
   connectivity_plus: ^6.0.5
-  intl: ^0.20.3
+  # Range, not a pin: the vendored Flutter 3.22.x SDK pins intl 0.19.0
+  # through flutter_localizations, while CI's stable channel pins 0.20.x.
+  # A range resolves correctly on both; a bare ^0.20.x cannot resolve
+  # locally and a bare ^0.19.0 cannot resolve on newer stable.
+  intl: ">=0.19.0 <0.21.0"
 dev_dependencies:
   flutter_test:
     sdk: flutter

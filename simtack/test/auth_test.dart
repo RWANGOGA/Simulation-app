@@ -164,4 +164,122 @@ void main() {
       expect(await ApiClient.isLoggedIn, isFalse);
     });
   });
+
+  // ---------------------------------------------------------------
+  // Expired-session pipeline: 401 -> refresh -> retry once -> login
+  // ---------------------------------------------------------------
+  group('ApiClient expired-session handling', () {
+    tearDown(() => ApiClient.onSessionExpired = null);
+
+    test('refreshes once and retries the request that got a 401', () async {
+      final storage = FakeTokenStorage();
+      await storage.write('stale.token');
+      await storage.writeRefreshToken('good.refresh.token');
+      ApiClient.tokenStorage = storage;
+
+      var meCalls = 0;
+      ApiClient.httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/refresh')) {
+          expect(request.body, contains('refresh_token=good.refresh.token'));
+          return http.Response(
+            jsonEncode({'access_token': 'fresh.token', 'token_type': 'bearer'}),
+            200,
+          );
+        }
+        if (request.url.path.endsWith('/auth/me')) {
+          meCalls++;
+          // Only the token minted by /auth/refresh may succeed.
+          if (request.headers['Authorization'] == 'Bearer fresh.token') {
+            return http.Response(
+              jsonEncode({
+                'id': 1,
+                'email': doctorEmail,
+                'full_name': 'Dr. Jonan',
+                'is_active': true,
+              }),
+              200,
+            );
+          }
+          return http.Response(jsonEncode({'detail': 'Token expired'}), 401);
+        }
+        return http.Response('Not found', 404);
+      });
+
+      final doctor = await ApiClient.getCurrentDoctor();
+
+      expect(doctor.email, doctorEmail);
+      expect(meCalls, 2, reason: 'original attempt + one retry, never a loop');
+      expect(await storage.read(), 'fresh.token');
+    });
+
+    test('clears the session and notifies the app when the refresh fails',
+        () async {
+      final storage = FakeTokenStorage();
+      await storage.write('stale.token');
+      await storage.writeRefreshToken('dead.refresh.token');
+      ApiClient.tokenStorage = storage;
+
+      var expiredCallbacks = 0;
+      ApiClient.onSessionExpired = () => expiredCallbacks++;
+
+      ApiClient.httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/refresh')) {
+          return http.Response(
+              jsonEncode({'detail': 'Invalid or expired refresh token'}), 401);
+        }
+        return http.Response(jsonEncode({'detail': 'Token expired'}), 401);
+      });
+
+      await expectLater(
+        ApiClient.getCurrentDoctor(),
+        throwsA(isA<ApiException>()
+            .having((e) => e.isUnauthorized, 'isUnauthorized', isTrue)),
+      );
+
+      expect(expiredCallbacks, 1, reason: 'app is sent to login exactly once');
+      expect(await storage.read(), isNull);
+      expect(await storage.readRefreshToken(), isNull);
+    });
+
+    test('gives up without a refresh call when no refresh token is stored',
+        () async {
+      final storage = FakeTokenStorage();
+      await storage.write('stale.token');
+      ApiClient.tokenStorage = storage;
+
+      var refreshCalls = 0;
+      ApiClient.httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/refresh')) {
+          refreshCalls++;
+        }
+        return http.Response(jsonEncode({'detail': 'Token expired'}), 401);
+      });
+
+      await expectLater(
+        ApiClient.getCurrentDoctor(),
+        throwsA(isA<ApiException>()),
+      );
+      expect(refreshCalls, 0);
+    });
+
+    test('a 401 on login is a bad password, not an expired session', () async {
+      final storage = FakeTokenStorage();
+      await storage.writeRefreshToken('good.refresh.token');
+      ApiClient.tokenStorage = storage;
+
+      var refreshCalls = 0;
+      ApiClient.httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/refresh')) refreshCalls++;
+        return http.Response(
+            jsonEncode({'detail': 'Incorrect email or password'}), 401);
+      });
+
+      await expectLater(
+        ApiClient.login(email: doctorEmail, password: 'WrongPassword!'),
+        throwsA(isA<ApiException>().having(
+            (e) => e.message, 'message', 'Incorrect email or password')),
+      );
+      expect(refreshCalls, 0, reason: 'never refresh on a failed sign-in');
+    });
+  });
 }

@@ -7,7 +7,7 @@ import json
 from app.core.database import get_db
 from app.crud import crud_triage, crud_patient
 from app.schemas import TriageCreate, TriageResponse, TriageDecisionUpdate, PatientCreate
-from app.services import triage_service
+from app.services import audit, triage_service
 from app.models import Patient, TriageSession, Doctor
 from app.api.v1.endpoints.auth import get_current_doctor
 
@@ -67,6 +67,36 @@ def _session_payload(session: TriageSession, patient) -> dict:
         "patient_hospital_name": patient.hospital_name if patient else None,
     }
 
+# Identity and contact fields that must never leave the server on an
+# unauthenticated request. The anonymous code travels inside a QR image
+# that patients screenshot, print and hand to strangers — so "holds the
+# code" cannot be treated as "consented to see this person's name, phone
+# number and home address".
+_PUBLIC_REDACTED_FIELDS = (
+    "patient_name",
+    "patient_date_of_birth",
+    "patient_phone",
+    "patient_address",
+    "patient_next_of_kin_name",
+    "patient_next_of_kin_phone",
+    "patient_hospital_name",
+)
+
+
+def _public_session_payload(session: TriageSession, patient) -> dict:
+    """Clinical-only view of a session, for the unauthenticated lookup.
+
+    Keeps everything needed to render the report (region, severity, risk
+    score, red flags, decision) plus the non-identifying demographics the
+    report displays, and drops every field that names or locates the
+    person. Practitioners keep the full payload through the JWT-guarded
+    routes (/patient/{code}/history and /{session_id}).
+    """
+    payload = _session_payload(session, patient)
+    for field in _PUBLIC_REDACTED_FIELDS:
+        payload.pop(field, None)
+    return payload
+
 # ==========================================
 # 1. CREATE TRIAGE (Patient submits data)
 # Left unauthenticated on purpose: patients submit anonymously from the
@@ -103,6 +133,19 @@ def create_triage(
             raise HTTPException(status_code=404, detail="Patient not found")
         submitted_code = request.headers.get("X-Patient-Code")
         if submitted_code != existing_patient.anonymous_code:
+            # Someone tried to attach a pain point to a patient record whose
+            # code they do not hold. The write is blocked, but the attempt
+            # itself belongs in the trail.
+            audit.record_access(
+                action=audit.ACTION_CREATE,
+                resource_type=audit.RESOURCE_TRIAGE_SESSION,
+                request=request,
+                actor_type=audit.ACTOR_PATIENT,
+                patient_id=existing_patient.id,
+                patient_code=existing_patient.anonymous_code,
+                outcome=audit.OUTCOME_DENIED,
+                detail="X-Patient-Code did not match the referenced patient",
+            )
             raise HTTPException(
                 status_code=403,
                 detail="Patient code does not match the submitted patient",
@@ -128,6 +171,19 @@ def create_triage(
         shap_explanation=triage_service.explain(contributions)
     )
 
+    audit.record_access(
+        action=audit.ACTION_CREATE,
+        resource_type=audit.RESOURCE_TRIAGE_SESSION,
+        request=request,
+        # No patient_id means the caller had no code to prove — the
+        # submission is genuinely anonymous.
+        actor_type=audit.ACTOR_PATIENT if payload.patient_id is not None else audit.ACTOR_ANONYMOUS,
+        patient_id=patient_id,
+        patient_code=patient_obj.anonymous_code if patient_obj else None,
+        resource_id=session.id,
+        detail="triage submitted",
+    )
+
     return _session_payload(session, patient_obj)
 
 # ==========================================
@@ -137,6 +193,7 @@ def create_triage(
 # ==========================================
 @router.get("/history")
 def get_triage_history(
+    request: Request,
     page: int = Query(default=1, ge=1, description="Page number"),
     limit: int = Query(default=20, ge=1, le=100, description="Items per page"),
     risk_level: Optional[str] = Query(default=None, description="HIGH, MEDIUM, or LOW"),
@@ -180,7 +237,16 @@ def get_triage_history(
         # Fetch the patient object for the payload helper
         patient = db.query(Patient).filter(Patient.id == session.patient_id).first() if session.patient_id else None
         items.append(_session_payload(session, patient))
-        
+
+    audit.record_access(
+        action=audit.ACTION_LIST,
+        resource_type=audit.RESOURCE_TRIAGE_HISTORY,
+        request=request,
+        actor=current_doctor,
+        patient_code=patient_code,
+        detail=f"practitioner history page {page} ({total_records} match(es))",
+    )
+
     # 6. Return the structured JSON response
     return {
         "items": items,
@@ -198,12 +264,22 @@ def get_triage_history(
 # ==========================================
 @router.get("/", response_model=List[TriageResponse])
 def list_triage(
+    request: Request,
     limit: int = 50,
     patient_id: Optional[int] = None,
     db: Session = Depends(get_db),
     current_doctor: Doctor = Depends(get_current_doctor),
 ):
-    return crud_triage.list_triage(db, limit=limit, patient_id=patient_id)
+    sessions = crud_triage.list_triage(db, limit=limit, patient_id=patient_id)
+    audit.record_access(
+        action=audit.ACTION_LIST,
+        resource_type=audit.RESOURCE_TRIAGE_SESSION,
+        request=request,
+        actor=current_doctor,
+        patient_id=patient_id,
+        detail=f"listed {len(sessions)} session(s)",
+    )
+    return sessions
 
 # ==========================================
 # 3. GET DASHBOARD STATS
@@ -213,6 +289,7 @@ def list_triage(
 # ==========================================
 @router.get("/stats")
 def get_triage_stats(
+    request: Request,
     db: Session = Depends(get_db),
     current_doctor: Doctor = Depends(get_current_doctor),
 ):
@@ -221,6 +298,16 @@ def get_triage_stats(
     medium_risk_sessions = db.query(func.count(TriageSession.id)).filter(
         (TriageSession.risk_score >= 0.4) & (TriageSession.risk_score < 0.7)
     ).scalar() or 0
+
+    # Aggregates carry no identifiers, but they are still derived from
+    # patient records — auditors expect the read to be visible.
+    audit.record_access(
+        action=audit.ACTION_AGGREGATE,
+        resource_type=audit.RESOURCE_TRIAGE_STATS,
+        request=request,
+        actor=current_doctor,
+        detail=f"dashboard stats over {total_sessions} session(s)",
+    )
 
     return {
         "total": total_sessions,
@@ -236,6 +323,7 @@ def get_triage_stats(
 # ==========================================
 @router.get("/reports")
 def get_triage_reports(
+    request: Request,
     period: str = Query(default="all", pattern="^(week|month|all)$"),
     db: Session = Depends(get_db),
     current_doctor: Doctor = Depends(get_current_doctor),
@@ -290,6 +378,14 @@ def get_triage_reports(
     avg_severity = _scoped(db.query(func.avg(TriageSession.severity))).scalar()
     avg_risk_score = _scoped(db.query(func.avg(TriageSession.risk_score))).scalar()
 
+    audit.record_access(
+        action=audit.ACTION_AGGREGATE,
+        resource_type=audit.RESOURCE_TRIAGE_REPORTS,
+        request=request,
+        actor=current_doctor,
+        detail=f"reports period={period} over {total_sessions} session(s)",
+    )
+
     return {
         "period": period,
         "total": total_sessions,
@@ -310,6 +406,7 @@ def get_triage_reports(
 # ==========================================
 @router.get("/list")
 def list_triage_sessions(
+    request: Request,
     limit: int = Query(default=50, ge=1, le=200),
     offset: int = Query(default=0, ge=0),
     patient_code: Optional[str] = Query(default=None),
@@ -357,6 +454,15 @@ def list_triage_sessions(
             "status": session.status or "open",
             "created_at": session.created_at.isoformat()
         })
+
+    audit.record_access(
+        action=audit.ACTION_LIST,
+        resource_type=audit.RESOURCE_TRIAGE_SESSION,
+        request=request,
+        actor=current_doctor,
+        patient_code=patient_code,
+        detail=f"filtered list returned {len(result)} row(s)",
+    )
     return result
 
 # ==========================================
@@ -371,18 +477,59 @@ def list_triage_sessions(
 # but keeping it above /{session_id} anyway for readability.
 # Kept unauthenticated on purpose: the 12-char anonymous code IS the
 # patient's credential — they reach this via QR scan with no account.
+# Because of that, the response is REDACTED: clinical data only, no name,
+# no date of birth, no phone, no address, no next of kin. Practitioners
+# read the full record through the JWT-guarded /history route below.
 # ==========================================
 @router.get("/patient/{patient_code}", response_model=List[TriageResponse])
-def get_triage_by_patient_code(patient_code: str, db: Session = Depends(get_db)):
+def get_triage_by_patient_code(
+    patient_code: str,
+    request: Request,
+    db: Session = Depends(get_db),
+):
     patient = crud_patient.get_patient_by_code(db, patient_code)
     if not patient:
+        # A wrong code is indistinguishable from a probe, so record it:
+        # code enumeration is exactly what this trail is for.
+        audit.record_access(
+            action=audit.ACTION_READ,
+            resource_type=audit.RESOURCE_TRIAGE_SESSION,
+            request=request,
+            actor_type=audit.ACTOR_ANONYMOUS,
+            patient_code=patient_code,
+            outcome=audit.OUTCOME_DENIED,
+            detail="anonymous lookup for an unknown patient code",
+        )
         raise HTTPException(status_code=404, detail="Patient ID not found")
 
     sessions = crud_triage.get_latest_visit(db, patient.id)
     if not sessions:
+        audit.record_access(
+            action=audit.ACTION_READ,
+            resource_type=audit.RESOURCE_TRIAGE_SESSION,
+            request=request,
+            actor_type=audit.ACTOR_PATIENT,
+            patient_id=patient.id,
+            patient_code=patient_code,
+            outcome=audit.OUTCOME_DENIED,
+            detail="no clinical report for this patient yet",
+        )
         raise HTTPException(status_code=404, detail="No clinical report found for this patient")
 
-    return [_session_payload(s, patient) for s in sessions]
+    audit.record_access(
+        action=audit.ACTION_READ,
+        resource_type=audit.RESOURCE_TRIAGE_SESSION,
+        request=request,
+        # Holding the anonymous code is the patient's only credential and
+        # the response is redacted to clinical fields, so this is a
+        # patient-scoped read rather than a public one.
+        actor_type=audit.ACTOR_PATIENT,
+        patient_id=patient.id,
+        patient_code=patient_code,
+        detail=f"latest visit read ({len(sessions)} pain point(s))",
+    )
+
+    return [_public_session_payload(s, patient) for s in sessions]
 
 # ==========================================
 # 5b. FULL PATIENT HISTORY (Visit timeline)
@@ -394,14 +541,36 @@ def get_triage_by_patient_code(patient_code: str, db: Session = Depends(get_db))
 @router.get("/patient/{patient_code}/history", response_model=List[TriageResponse])
 def get_patient_history(
     patient_code: str,
+    request: Request,
     db: Session = Depends(get_db),
     current_doctor: Doctor = Depends(get_current_doctor),
 ):
     patient = crud_patient.get_patient_by_code(db, patient_code)
     if not patient:
+        audit.record_access(
+            action=audit.ACTION_READ,
+            resource_type=audit.RESOURCE_TRIAGE_HISTORY,
+            request=request,
+            actor=current_doctor,
+            patient_code=patient_code,
+            outcome=audit.OUTCOME_DENIED,
+            detail="practitioner history lookup for an unknown patient code",
+        )
         raise HTTPException(status_code=404, detail="Patient ID not found")
 
     sessions = crud_triage.get_patient_history(db, patient.id)
+
+    # This is the full, unredacted record — the most sensitive read in the
+    # API, so it is audited with the acting practitioner attached.
+    audit.record_access(
+        action=audit.ACTION_READ,
+        resource_type=audit.RESOURCE_TRIAGE_HISTORY,
+        request=request,
+        actor=current_doctor,
+        patient_id=patient.id,
+        patient_code=patient_code,
+        detail=f"full history read ({len(sessions)} session(s))",
+    )
     return [_session_payload(s, patient) for s in sessions]
 
 # ==========================================
@@ -414,16 +583,37 @@ def get_patient_history(
 @router.get("/{session_id}", response_model=TriageResponse)
 def get_triage(
     session_id: int,
+    request: Request,
     db: Session = Depends(get_db),
     current_doctor: Doctor = Depends(get_current_doctor),
 ):
     session = crud_triage.get_triage(db, session_id)
     if session is None:
+        audit.record_access(
+            action=audit.ACTION_READ,
+            resource_type=audit.RESOURCE_TRIAGE_SESSION,
+            request=request,
+            actor=current_doctor,
+            resource_id=session_id,
+            outcome=audit.OUTCOME_DENIED,
+            detail="unknown session id",
+        )
         raise HTTPException(status_code=404, detail="Triage session not found")
 
     patient = None
     if session.patient_id:
         patient = db.query(Patient).filter(Patient.id == session.patient_id).first()
+
+    audit.record_access(
+        action=audit.ACTION_READ,
+        resource_type=audit.RESOURCE_TRIAGE_SESSION,
+        request=request,
+        actor=current_doctor,
+        patient_id=session.patient_id,
+        patient_code=patient.anonymous_code if patient else None,
+        resource_id=session.id,
+        detail="single session read",
+    )
 
     return _session_payload(session, patient)
 
@@ -437,11 +627,21 @@ def get_triage(
 def update_triage_decision(
     session_id: int,
     payload: TriageDecisionUpdate,
+    request: Request,
     db: Session = Depends(get_db),
     current_doctor: Doctor = Depends(get_current_doctor),
 ):
     session = crud_triage.get_triage(db, session_id)
     if session is None:
+        audit.record_access(
+            action=audit.ACTION_UPDATE,
+            resource_type=audit.RESOURCE_TRIAGE_SESSION,
+            request=request,
+            actor=current_doctor,
+            resource_id=session_id,
+            outcome=audit.OUTCOME_DENIED,
+            detail="decision attempted on an unknown session id",
+        )
         raise HTTPException(status_code=404, detail="Triage session not found")
 
     if payload.status is not None:
@@ -456,4 +656,16 @@ def update_triage_decision(
     db.refresh(session)
 
     patient = db.query(Patient).filter(Patient.id == session.patient_id).first() if session.patient_id else None
+
+    audit.record_access(
+        action=audit.ACTION_UPDATE,
+        resource_type=audit.RESOURCE_TRIAGE_SESSION,
+        request=request,
+        actor=current_doctor,
+        patient_id=session.patient_id,
+        patient_code=patient.anonymous_code if patient else None,
+        resource_id=session.id,
+        # Which fields changed, never their values — notes are PHI.
+        detail="decision updated: " + ", ".join(sorted(payload.model_dump(exclude_none=True))),
+    )
     return _session_payload(session, patient)

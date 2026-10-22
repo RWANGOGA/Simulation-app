@@ -4,9 +4,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/accessibility/accessibility_controller.dart';
 import 'core/locale/locale_controller.dart';
 import 'core/locale/luganda_fallback_delegates.dart';
+import 'core/network/api_client.dart';
 import 'core/network/auth_service.dart';
 
+import 'core/theme/app_page_route.dart';
 import 'core/theme/app_theme.dart';
+import 'features/auth/ui/login_screen.dart';
 import 'features/dashboard/ui/practitioner_dashboard_screen.dart';
 import 'features/onboarding/ui/language_screen.dart';
 import 'features/onboarding/ui/welcome_screen.dart';
@@ -20,7 +23,8 @@ void main() async {
 
   // 2. Restore accessibility preferences (text size, light/dark) before the
   // first frame so the app never flashes in the wrong theme or scale.
-  final AccessibilityController accessibility = await AccessibilityController.load();
+  final AccessibilityController accessibility =
+      await AccessibilityController.load();
 
   // 3. Restore the patient's language & consent choice (blueprint §1) —
   // determines whether LanguageScreen or WelcomeScreen opens first.
@@ -64,6 +68,10 @@ class _AtomyBridgeAppState extends State<AtomyBridgeApp> {
       widget.accessibility ?? AccessibilityController();
   late final LocaleController _locale = widget.locale ?? LocaleController();
 
+  /// Needed so [ApiClient] can drop the practitioner back on the login screen
+  /// from anywhere once a session can no longer be refreshed.
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+
   @override
   void initState() {
     super.initState();
@@ -71,27 +79,41 @@ class _AtomyBridgeAppState extends State<AtomyBridgeApp> {
     // the new setting applies to EVERY screen instantly.
     _accessibility.addListener(_onAccessibilityChanged);
     _locale.addListener(_onAccessibilityChanged);
+    ApiClient.onSessionExpired = _returnToLogin;
   }
 
   @override
   void dispose() {
     _accessibility.removeListener(_onAccessibilityChanged);
     _locale.removeListener(_onAccessibilityChanged);
+    ApiClient.onSessionExpired = null;
     super.dispose();
   }
 
   void _onAccessibilityChanged() => setState(() {});
 
+  /// The access token expired and could not be refreshed: wipe the practitioner
+  /// stack so no stale protected screen stays reachable.
+  void _returnToLogin() {
+    final navigator = _navigatorKey.currentState;
+    if (navigator == null) return;
+    navigator.pushAndRemoveUntil(
+      AppPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     // 1. Read the URL fragment (the part after the '#' symbol, used for deep linking)
     final String fragment = Uri.base.fragment;
-    
+
     // 2. Determine the route from the URL.
     // The #/dashboard deep link only counts when the doctor is ACTUALLY
     // logged in, so typing the URL alone can't bypass authentication.
     String? reportPatientId;
-    bool isDashboardFromUrl = fragment == '/dashboard' && widget.isDoctorLoggedIn;
+    bool isDashboardFromUrl =
+        fragment == '/dashboard' && widget.isDoctorLoggedIn;
 
     if (fragment.startsWith('/report/')) {
       reportPatientId = fragment.replaceFirst('/report/', '');
@@ -115,44 +137,45 @@ class _AtomyBridgeAppState extends State<AtomyBridgeApp> {
       child: A11yScope(
         controller: _accessibility,
         child: MaterialApp(
-        title: 'Simtack',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.lightTheme,
-        darkTheme: AppTheme.darkTheme,
-        themeMode: _accessibility.themeMode,
-        locale: _locale.locale,
-        localizationsDelegates: const [
-          AppLocalizations.delegate,
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-          GlobalCupertinoLocalizations.delegate,
-          // Flutter's own Material/Cupertino localizations don't ship
-          // Luganda, Runyankore, or Lusoga — these fall back to English
-          // for framework-owned chrome text only.
-          LugandaMaterialLocalizationsDelegate(),
-          LugandaCupertinoLocalizationsDelegate(),
-        ],
-        supportedLocales: AppLocalizations.supportedLocales,
-        // Accessibility text size: scales ALL text in the app at once.
-        // This SDK's MaterialApp has no textScaler parameter, so we
-        // override the ambient MediaQuery instead (device font setting
-        // still multiplies in via mediaQuery.textScaler).
-        builder: (context, child) {
-          final mediaQuery = MediaQuery.of(context);
-          return MediaQuery(
-            data: mediaQuery.copyWith(
-              textScaler: TextScaler.linear(
-                mediaQuery.textScaler.scale(_accessibility.fontScale),
+          navigatorKey: _navigatorKey,
+          title: 'Simtack',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: _accessibility.themeMode,
+          locale: _locale.locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+            // Flutter's own Material/Cupertino localizations don't ship
+            // Luganda, Runyankore, or Lusoga — these fall back to English
+            // for framework-owned chrome text only.
+            LugandaMaterialLocalizationsDelegate(),
+            LugandaCupertinoLocalizationsDelegate(),
+          ],
+          supportedLocales: AppLocalizations.supportedLocales,
+          // Accessibility text size: scales ALL text in the app at once.
+          // This SDK's MaterialApp has no textScaler parameter, so we
+          // override the ambient MediaQuery instead (device font setting
+          // still multiplies in via mediaQuery.textScaler).
+          builder: (context, child) {
+            final mediaQuery = MediaQuery.of(context);
+            return MediaQuery(
+              data: mediaQuery.copyWith(
+                textScaler: TextScaler.linear(
+                  mediaQuery.textScaler.scale(_accessibility.fontScale),
+                ),
               ),
-            ),
-            child: child!,
-          );
-        },
-        
-        // 4. The app starts exactly where it is supposed to!
-        home: initialScreen,
+              child: child!,
+            );
+          },
+
+          // 4. The app starts exactly where it is supposed to!
+          home: initialScreen,
+        ),
       ),
-    ),
-  );
+    );
   }
 }

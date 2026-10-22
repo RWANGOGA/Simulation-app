@@ -66,9 +66,11 @@ DOCTOR_LOGIN = {"username": DOCTOR_EMAIL, "password": DOCTOR_PASSWORD}
 
 def _reset_database() -> None:
     with engine.begin() as connection:
+        # audit_logs is truncated explicitly: it has no foreign keys (by
+        # design) so CASCADE from patients/doctors will not reach it.
         connection.execute(
             text(
-                "TRUNCATE TABLE triage_sessions, refresh_tokens, patients, doctors "
+                "TRUNCATE TABLE triage_sessions, refresh_tokens, patients, doctors, audit_logs "
                 "RESTART IDENTITY CASCADE"
             )
         )

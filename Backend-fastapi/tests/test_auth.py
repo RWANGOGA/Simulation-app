@@ -36,6 +36,48 @@ def test_refresh_token_returns_new_access_token():
     assert data["access_token"]
     assert data["token_type"] == "bearer"
 
+
+def test_refresh_token_accepted_from_form_body():
+    """The Flutter client posts the token as a form field, not a query
+    parameter. Both shapes must work or the app can never refresh."""
+    login = client.post("/api/v1/auth/login", data=DOCTOR_LOGIN)
+    assert login.status_code == 200
+    refresh_token = login.json()["refresh_token"]
+
+    response = client.post(
+        "/api/v1/auth/refresh",
+        data={"refresh_token": refresh_token},
+    )
+    assert response.status_code == 200
+    assert response.json()["access_token"]
+
+
+def test_refresh_token_accepted_from_json_body():
+    login = client.post("/api/v1/auth/login", data=DOCTOR_LOGIN)
+    assert login.status_code == 200
+    refresh_token = login.json()["refresh_token"]
+
+    response = client.post(
+        "/api/v1/auth/refresh",
+        json={"refresh_token": refresh_token},
+    )
+    assert response.status_code == 200
+    assert response.json()["access_token"]
+
+
+def test_refresh_without_token_is_401_not_422():
+    response = client.post("/api/v1/auth/refresh")
+    assert response.status_code == 401
+
+
+def test_refresh_with_bogus_token_is_401():
+    response = client.post(
+        "/api/v1/auth/refresh",
+        data={"refresh_token": "not-a-real-token"},
+    )
+    assert response.status_code == 401
+
+
 def test_login_invalid_password():
     response = client.post(
         "/api/v1/auth/login",

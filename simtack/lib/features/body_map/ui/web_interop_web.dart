@@ -1,4 +1,5 @@
 import 'dart:js_interop';
+// Required for `callMethod` on JS interop objects (callMethod, getProperty).
 import 'dart:js_interop_unsafe';
 import 'package:web/web.dart' as web;
 
