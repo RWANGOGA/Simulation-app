@@ -1,17 +1,16 @@
-name: Build APK & Web
+name: CI
 
+# Test first, build second. Nothing here used to run a single assertion: the
+# workflow went straight from checkout to `flutter build`, so a commit with
+# failing tests — or one that does not compile — got a green check and
+# deployed to GitHub Pages. The build and deploy jobs now `needs` the test
+# jobs, which is what makes those checks worth anything.
 on:
   push:
     branches: [main, madrine]
   pull_request:
     branches: [main]
   workflow_dispatch: {}
-
-defaults:
-  run:
-    # Every step below runs with this as the working directory, since the
-    # Flutter project lives in simtack/, not the repo root.
-    working-directory: simtack
 
 # Needed for the deploy-web job to publish to GitHub Pages.
 permissions:
@@ -20,9 +19,98 @@ permissions:
   id-token: write
 
 jobs:
+  test-backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        # The FastAPI project lives in Backend-fastapi/, not the repo root.
+        working-directory: Backend-fastapi
+    # A real PostgreSQL, not SQLite: the app leans on `func.concat`,
+    # timezone-aware timestamps and TRUNCATE ... RESTART IDENTITY, and
+    # tests/conftest.py runs `alembic upgrade head` against a `_test`
+    # database it creates itself. Running on SQLite would test a schema
+    # that never ships.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: atomy
+          POSTGRES_PASSWORD: atomy123
+          POSTGRES_DB: atomybridge
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U atomy -d atomybridge"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      # Matches .env.example so CI and a laptop cannot drift apart.
+      DATABASE_URL: postgresql+psycopg://atomy:atomy123@localhost:5432/atomybridge
+      # Meets the 32-character floor in Settings; CI must never hold a real key.
+      SECRET_KEY: ci-only-secret-key-not-used-anywhere-else
+      ENVIRONMENT: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # Pinned rather than "latest": psycopg[binary]==3.2.1 has no wheel
+          # for the interpreter version used on some dev machines, and a
+          # source build would need libpq headers the runner may not have.
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: Backend-fastapi/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run backend tests
+        # conftest.py applies every migration before the first test, so a
+        # broken revision fails here rather than on someone's deploy.
+        run: python -m pytest -q
+
+  test-flutter:
+    name: Flutter tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: simtack
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        # Only errors fail this step. The project carries a backlog of
+        # warnings and infos (unused imports, prefer_const, ...) that would
+        # make a strict gate red on day one, and a gate that is always red
+        # is a gate nobody reads. Errors — the ones that mean "this does not
+        # build" — are fatal. Remove the two flags once that backlog is
+        # cleared.
+        run: flutter analyze --no-fatal-infos --no-fatal-warnings
+
+      - name: Run widget and unit tests
+        run: flutter test
+
   build-apk:
     name: Build Android APK
+    # Pointless to spend minutes compiling an APK for a commit that fails its
+    # tests, and a red commit must not produce an installable artifact.
+    needs: [test-backend, test-flutter]
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        # Every step below runs with this as the working directory, since the
+        # Flutter project lives in simtack/, not the repo root.
+        working-directory: simtack
     steps:
       - uses: actions/checkout@v4
 
@@ -52,7 +140,11 @@ jobs:
 
   build-web:
     name: Build Web
+    needs: [test-backend, test-flutter]
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: simtack
     steps:
       - uses: actions/checkout@v4
 
