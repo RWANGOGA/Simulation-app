@@ -6,30 +6,67 @@ Exposes:
   POST /anatomy/ask       - retriever + LLM call, returns structured JSON
   POST /anatomy/clear     - clear conversation history
 
-The endpoint is publicly readable (no auth) for now so the patient-side
-body map can call it without holding a practitioner token. If you want to
-lock it down later, wrap the handlers with the same `get_current_doctor`
-dependency used by `/auth/me`.
+**These stay reachable without a token, on purpose.** The body map is part of
+anonymous patient intake: a patient presenting at triage has no account and no
+JWT, so guarding `/ask` the way `/auth/me` is guarded would remove the feature
+from the people it exists for. What is guarded instead:
+
+  * Cost - `/ask` spends real money at the LLM provider, so it is throttled
+    per client IP (see `ANATOMY_RATE_LIMIT` in `app/services/throttle.py`).
+  * Ownership - conversation ids arrive from the client, so the store key is
+    derived by `_conversation_key()`: an HMAC over the caller's scope and the
+    id. One caller can no longer address, clear, or read into another's turns.
+  * Memory - the store expires entries and has a hard ceiling, so a stream of
+    distinct ids cannot grow it without limit.
+
+A caller that *does* hold a practitioner token is scoped to that account,
+which keeps conversations apart on a shared address such as a hospital's NAT.
 """
 
 from __future__ import annotations
 
+import hashlib
+import hmac
 import logging
 import time
-from collections import defaultdict, deque
+from collections import deque
 from functools import lru_cache
 from typing import Any, Dict, List, Optional, Tuple
 
-from fastapi import APIRouter, HTTPException
+import httpx
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+# Aliased: this module defines a `status()` route below, which would otherwise
+# shadow the `fastapi.status` module and turn every code constant into an
+# AttributeError.
+from fastapi import status as http_status
+from fastapi.security import OAuth2PasswordBearer
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
 
-from app.services import anatomy_retriever
-from app.services.llm_client import is_configured, summarize_with_llm
+from app.api.v1.endpoints.auth import get_current_doctor
+from app.core.config import settings
+from app.core.database import get_db
+from app.models import Doctor
+from app.services import anatomy_retriever, throttle
+from app.services.anatomy_retriever import RetrievalHit
+from app.services.llm_client import (
+    GROQ_CHAT_COMPLETIONS_URL,
+    is_configured,
+    summarize_with_llm,
+)
 
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/anatomy", tags=["anatomy"])
+
+SECRET_KEY = settings.SECRET_KEY
+
+# Bounds on client-supplied input. The id is opaque and short; the history is
+# accepted from the caller and has to be capped before it becomes a prompt.
+MAX_CONVERSATION_ID_CHARS = 128
+MAX_HISTORY_TURNS = 12
+MAX_HISTORY_CHARS = 500
 
 
 # ── Conversation Memory ───────────────────────────────────────────────────
@@ -42,40 +79,174 @@ class _ConversationStore:
     Each conversation retains the last N turns for context.
     """
 
-    def __init__(self, max_turns: int = 10, ttl_seconds: int = 3600):
-        self._store: Dict[str, deque] = defaultdict(deque)
+    def __init__(
+        self,
+        max_turns: int = 10,
+        ttl_seconds: int = 3600,
+        max_conversations: int = 512,
+    ):
+        # A plain dict, not a defaultdict: membership used to be created by a
+        # read, so every id a client invented stayed resident for the life of
+        # the process. The ceiling and the expiry below are what bound it now.
+        self._store: Dict[str, deque] = {}
         self._timestamps: Dict[str, float] = {}
         self._max_turns = max_turns
         self._ttl = ttl_seconds
+        self._max_conversations = max_conversations
 
-    def get(self, conversation_id: str) -> List[Dict[str, str]]:
-        self._cleanup(conversation_id)
-        return list(self._store[conversation_id])
+    def __len__(self) -> int:
+        return len(self._store)
 
-    def append(self, conversation_id: str, role: str, content: str) -> None:
-        self._cleanup(conversation_id)
-        self._store[conversation_id].append({"role": role, "content": content})
-        self._timestamps[conversation_id] = time.time()
-        while len(self._store[conversation_id]) > self._max_turns:
-            self._store[conversation_id].popleft()
+    def get(self, key: str) -> List[Dict[str, str]]:
+        self._maintain()
+        entry = self._store.get(key)
+        return list(entry) if entry else []
 
-    def clear(self, conversation_id: str) -> None:
-        self._store.pop(conversation_id, None)
-        self._timestamps.pop(conversation_id, None)
+    def append(self, key: str, role: str, content: str) -> None:
+        self._maintain()
+        turns = self._store.setdefault(key, deque())
+        turns.append({"role": role, "content": content})
+        self._timestamps[key] = time.time()
+        while len(turns) > self._max_turns:
+            turns.popleft()
+        self._evict_overflow()
 
-    def _cleanup(self, conversation_id: str) -> None:
-        if conversation_id in self._timestamps:
-            if time.time() - self._timestamps[conversation_id] > self._ttl:
-                self.clear(conversation_id)
+    def clear(self, key: str) -> None:
+        self._store.pop(key, None)
+        self._timestamps.pop(key, None)
+
+    def _maintain(self) -> None:
+        """Expires the whole store, not only the key being touched.
+
+        `_cleanup` ran for the id in hand alone, so conversations nobody came
+        back to were never collected.
+        """
+        now = time.time()
+        for key in [k for k, seen in self._timestamps.items() if now - seen > self._ttl]:
+            self.clear(key)
+
+    def _evict_overflow(self) -> None:
+        """Hard ceiling on resident conversations; least recently used goes."""
+        while len(self._store) > self._max_conversations and self._timestamps:
+            self.clear(min(self._timestamps, key=self._timestamps.get))
 
 
 _conversation_store = _ConversationStore()
 
 
+# ── Caller identity ───────────────────────────────────────────────────────
+
+_optional_oauth2 = OAuth2PasswordBearer(
+    tokenUrl="/api/v1/auth/login", auto_error=False
+)
+
+
+def _optional_doctor(
+    token: Optional[str] = Depends(_optional_oauth2),
+    db: Session = Depends(get_db),
+) -> Optional[Doctor]:
+    """The caller when they present a valid token, otherwise None.
+
+    Deliberately not `get_current_doctor`: that raises 401 when credentials are
+    absent, and the body map has to work for a patient who has no account. An
+    expired token is treated as anonymous for the same reason - a patient
+    mid-intake should not be stopped by a session that lapsed while they were
+    answering questions.
+    """
+    if not token:
+        return None
+    try:
+        return get_current_doctor(token=token, db=db)
+    except HTTPException:
+        return None
+
+
+def _caller_scope(request: Optional[Request], doctor: Optional[Doctor]) -> str:
+    """The identity a conversation belongs to.
+
+    Signed-in callers are scoped to their account, which matters on a shared
+    address such as a hospital's NAT egress. Everyone else is scoped to a hash
+    of the client IP: enough to keep one patient's turns away from another's,
+    and it degrades to "no history" - never to an error - if a mobile
+    connection changes address mid-conversation.
+    """
+    if doctor is not None:
+        return f"doc:{doctor.id}"
+    host = request.client.host if request is not None and request.client else "unknown"
+    return "ip:" + hashlib.sha256(host.encode("utf-8")).hexdigest()[:16]
+
+
+def _conversation_key(
+    request: Optional[Request], doctor: Optional[Doctor], conversation_id: str
+) -> str:
+    """Store key for one caller's conversation.
+
+    An HMAC over (scope, id) rather than the raw id: the value cannot be
+    reconstructed by someone who saw a conversation id elsewhere, two callers
+    using the same id land on different entries, and nothing a client types
+    becomes a dictionary key.
+    """
+    material = f"{_caller_scope(request, doctor)}\x00{conversation_id}"
+    return hmac.new(
+        SECRET_KEY.encode("utf-8"), material.encode("utf-8"), hashlib.sha256
+    ).hexdigest()[:32]
+
+
+# ── Throttling ────────────────────────────────────────────────────────────
+
+
+def _check_rate_limit(request: Request, db: Session) -> None:
+    """Anonymous callers share one bill, so `/ask` is limited per client IP."""
+    allowed = throttle.allow(
+        db,
+        throttle.bucket_for(request, "anatomy"),
+        limit=throttle.ANATOMY_RATE_LIMIT,
+        window_seconds=throttle.ANATOMY_RATE_WINDOW_SECONDS,
+    )
+    if allowed:
+        return
+    raise HTTPException(
+        status_code=http_status.HTTP_429_TOO_MANY_REQUESTS,
+        detail="Too many anatomy requests. Please wait a moment and try again.",
+        headers={"Retry-After": str(throttle.ANATOMY_RATE_WINDOW_SECONDS)},
+    )
+
+
+def _sanitise_history(
+    history: Optional[List[Dict[str, str]]],
+) -> Optional[List[Dict[str, str]]]:
+    """Bounds client-supplied context before it reaches the prompt.
+
+    `history` comes from the caller, so an unauthenticated request could
+    otherwise stuff thousands of turns into the prompt - a simple way to run up
+    a bill - or hand the model a `system` role it was never entitled to set.
+    """
+    if not history:
+        return None
+    cleaned: List[Dict[str, str]] = []
+    for turn in history[-MAX_HISTORY_TURNS:]:
+        if not isinstance(turn, dict):
+            continue
+        role = str(turn.get("role") or "").strip().lower()
+        content = str(turn.get("content") or "").strip()
+        if role not in ("user", "assistant") or not content:
+            continue
+        cleaned.append({"role": role, "content": content[:MAX_HISTORY_CHARS]})
+    return cleaned or None
+
+
 @router.post("/clear")
-def clear_conversation(conversation_id: str):
-    """Clear conversation history for a given conversation ID."""
-    _conversation_store.clear(conversation_id)
+def clear_conversation(
+    request: Request,
+    conversation_id: str = Query(max_length=MAX_CONVERSATION_ID_CHARS),
+    doctor: Optional[Doctor] = Depends(_optional_doctor),
+):
+    """Clear this caller's conversation history.
+
+    The response echoes the id the caller sent, but what is cleared is the
+    scoped key - asking for someone else's id clears nothing of theirs.
+    """
+    _conversation_store.clear(_conversation_key(request, doctor, conversation_id))
     return {"cleared": conversation_id}
 
 
@@ -95,11 +266,12 @@ class AnatomyAskRequest(BaseModel):
     top_k: int = Field(default=3, ge=1, le=6)
     conversation_id: Optional[str] = Field(
         default=None,
-        description="Optional conversation ID for multi-turn context.",
+        max_length=MAX_CONVERSATION_ID_CHARS,
+        description="Opaque conversation id from the client; scoped per caller server-side.",
     )
     history: Optional[List[Dict[str, str]]] = Field(
         default=None,
-        description="Optional conversation history override.",
+        description="Optional conversation history override (bounded server-side).",
     )
 
 
@@ -337,7 +509,12 @@ def status():
 
 
 @router.post("/ask", response_model=AnatomyAskResponse)
-def ask(req: AnatomyAskRequest):
+def ask(
+    req: AnatomyAskRequest,
+    request: Request,
+    db: Session = Depends(get_db),
+    doctor: Optional[Doctor] = Depends(_optional_doctor),
+):
     region = (req.region or "").strip() or None
     complaint = (req.complaint or "").strip()
 
@@ -347,16 +524,24 @@ def ask(req: AnatomyAskRequest):
             detail="Provide at least a region or a complaint.",
         )
 
+    _check_rate_limit(request, db)
+
+    conversation_key = (
+        _conversation_key(request, doctor, req.conversation_id)
+        if req.conversation_id
+        else None
+    )
+    history_turns = _sanitise_history(req.history)
     cache_key = _make_cache_key(region, complaint, req.top_k)
     
-    if req.conversation_id or req.history:
+    if conversation_key or history_turns:
         info_before = _cached_ask.cache_info()
         result = _run_ask(
             region=region,
             complaint=complaint,
             top_k=req.top_k,
-            conversation_id=req.conversation_id,
-            history=req.history,
+            conversation_id=conversation_key,
+            history=history_turns,
         )
         was_cached = False
     else:

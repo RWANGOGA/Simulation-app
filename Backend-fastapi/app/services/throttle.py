@@ -31,6 +31,12 @@ TRIAGE_RATE_LIMIT = 10
 TRIAGE_RATE_WINDOW_SECONDS = 300
 PATIENT_RATE_LIMIT = 5
 PATIENT_RATE_WINDOW_SECONDS = 300
+# The anatomy assistant is reachable without a token — patients have no
+# account — and every uncached call spends real money at the LLM provider.
+# Generous for someone tapping around a body map, nowhere near what a script
+# needs to run up a bill.
+ANATOMY_RATE_LIMIT = 30
+ANATOMY_RATE_WINDOW_SECONDS = 300
 
 
 def _now() -> datetime:

@@ -75,6 +75,27 @@ out of rotation over it would cause an outage rather than fix one.
 Use `/health/ready` for container and load-balancer probes; `docker-compose.yml`
 already does.
 
+## Anatomy assistant (`/api/v1/anatomy`)
+
+These routes are reachable **without a token**, on purpose: the body map they
+serve is part of anonymous patient intake, and a patient presenting at triage
+has no account. The protection sits elsewhere:
+
+* `POST /ask` is throttled per client IP (`ANATOMY_RATE_LIMIT`, 30 per 5
+  minutes) because every uncached call is billed by the LLM provider.
+* Conversations are scoped server-side. Clients send an opaque
+  `conversation_id`; the store key is an HMAC of the caller's scope (their
+  account when signed in, otherwise their address) and that id. `/clear`
+  therefore cannot touch another caller's history, and neither can a request
+  that reuses their id.
+* The store is bounded — 512 conversations, one hour idle — and a read no
+  longer creates an entry, so inventing ids cannot exhaust memory.
+* Client-supplied `history` is capped at 12 turns of 500 characters and may
+  only use the `user` and `assistant` roles.
+
+A caller holding a valid practitioner token is scoped to that account instead
+of their address, which keeps conversations apart behind a shared hospital NAT.
+
 ## Logs
 
 Every module logs through the standard `logging` module; `configure_logging()`
