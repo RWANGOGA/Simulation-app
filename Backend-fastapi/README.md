@@ -44,7 +44,9 @@ Two things to know before a first deployment:
   promotes the earliest-created one to `admin`. Without that the deployment
   would have no administrator and new registrations could never be approved.
   Review who is in `doctors` before running it against a database you care
-  about.
+  about — anything that was already in the table now has access. Leftover
+  demo/placeholder rows (`newdoc-*`) are the usual surprise; revoke them with
+  the script below.
 * Practitioner accounts created **after** that migration start unapproved and
   cannot sign in until an admin approves them through
   `PATCH /api/v1/auth/doctors/{id}`.
@@ -56,6 +58,31 @@ SEED_DOCTOR_EMAIL=you@hospital.org \
 SEED_DOCTOR_PASSWORD='a-real-password' \
 python -m scripts.seed_doctor
 ```
+
+The seeded account is **approved and an administrator**, matching what
+`POST /auth/register` does for the first account it ever creates. A row that is
+merely present cannot sign in (unapproved is a 403) and a practitioner cannot
+approve the next person, so seeding an unapproved practitioner left a
+deployment nobody could enter. Re-running the script is a no-op; to repair an
+account seeded before the approval gate existed, add `SEED_DOCTOR_PROMOTE=1`
+(it is opt-in because silently promoting a real account is a surprising way to
+grant admin).
+
+### Revoking placeholder accounts
+
+Accounts that a demo/load generator created are approved by `0006` along with
+everyone else, and nobody owns them. The cleanup script reports first and only
+writes with `--apply`:
+
+```bash
+python -m scripts.revoke_placeholder_doctors                       # dry run, lists matches
+python -m scripts.revoke_placeholder_doctors --apply               # deactivate + un-approve
+python -m scripts.revoke_placeholder_doctors --email-pattern 'demo-%' --keep me@hospital.org --apply
+```
+
+It deactivates and un-approves rather than deleting (triage history and the
+audit trail name those rows), and refuses outright if it would leave no
+approved administrator.
 
 ### Is the running instance up to date?
 
