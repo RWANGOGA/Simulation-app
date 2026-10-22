@@ -128,16 +128,16 @@ void main() {
         () async {
       await _cacheSignedIn(
         password: 'Secret123',
-        verifiedAt: DateTime.now().subtract(
-            AuthService.offlineTrustWindow + const Duration(days: 1)),
+        verifiedAt: DateTime.now()
+            .subtract(AuthService.offlineTrustWindow + const Duration(days: 1)),
       );
       ApiClient.httpClient = _offline();
 
       await expectLater(
         AuthService.instance
             .login(email: 'doctor@example.com', password: 'Secret123'),
-        throwsA(isA<ApiException>().having(
-            (e) => e.message, 'message', contains('Sign in once while connected'))),
+        throwsA(isA<ApiException>().having((e) => e.message, 'message',
+            contains('Sign in once while connected'))),
       );
     });
 
@@ -269,8 +269,8 @@ void main() {
     test('a revoked account ends the session and the cached trust', () async {
       await tokens.write('token');
       await _cacheSignedIn(password: 'Secret123');
-      ApiClient.httpClient = MockClient((_) async =>
-          http.Response(jsonEncode({'detail': 'Could not validate credentials'}), 401));
+      ApiClient.httpClient = MockClient((_) async => http.Response(
+          jsonEncode({'detail': 'Could not validate credentials'}), 401));
 
       expect(await AuthService.instance.restoreSession(), isFalse);
 
@@ -280,7 +280,8 @@ void main() {
       // offline until the server confirms an account again.
       expect(stored, isNotNull);
       expect(
-          stored!.isTrustExpired(DateTime.now(), AuthService.offlineTrustWindow),
+          stored!
+              .isTrustExpired(DateTime.now(), AuthService.offlineTrustWindow),
           isTrue);
     });
 
@@ -296,8 +297,8 @@ void main() {
       await tokens.write('token');
       await _cacheSignedIn(
         password: 'Secret123',
-        verifiedAt: DateTime.now().subtract(
-            AuthService.offlineTrustWindow + const Duration(days: 1)),
+        verifiedAt: DateTime.now()
+            .subtract(AuthService.offlineTrustWindow + const Duration(days: 1)),
       );
       ApiClient.httpClient = _offline();
 
@@ -323,7 +324,8 @@ void main() {
       expect(shown.fullName, 'Dr Clinic');
     });
 
-    test('offline, an edited profile is saved on the device with a pending push',
+    test(
+        'offline, an edited profile is saved on the device with a pending push',
         () async {
       await _cacheSignedIn(password: 'Secret123');
       await tokens.write('token');
@@ -345,7 +347,8 @@ void main() {
       });
     });
 
-    test('the pending edit is sent and cleared the next time the server answers',
+    test(
+        'the pending edit is sent and cleared the next time the server answers',
         () async {
       await _cacheSignedIn(password: 'Secret123');
       await tokens.write('token');
@@ -431,7 +434,8 @@ void main() {
       );
 
       expect(draft.trustAnchor, savedAt);
-      expect(draft.isTrustExpired(DateTime.now(), AuthService.offlineTrustWindow),
+      expect(
+          draft.isTrustExpired(DateTime.now(), AuthService.offlineTrustWindow),
           isTrue);
     });
 

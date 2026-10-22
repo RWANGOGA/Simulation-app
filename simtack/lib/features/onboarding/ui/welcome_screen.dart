@@ -46,12 +46,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   void _initConnectivityListener() {
-    _connectivitySubscription = ConnectivityService.instance.onConnectivityChanged.listen((result) {
+    _connectivitySubscription =
+        ConnectivityService.instance.onConnectivityChanged.listen((result) {
       final wasOffline = !ConnectivityService.instance.isOnline;
-      
+
       // Update cached result
       ConnectivityService.instance.updateCachedResult(result);
-      
+
       // If we just came online, trigger sync
       if (wasOffline && ConnectivityService.instance.isOnline) {
         _syncThenLoadDrafts();

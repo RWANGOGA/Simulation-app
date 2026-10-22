@@ -123,7 +123,8 @@ class RiskEngine {
     final rules = _rules;
     final contributions = <RiskContribution>[];
 
-    final severityShare = _round2((input.severity / 10.0) * rules.severityWeight);
+    final severityShare =
+        _round2((input.severity / 10.0) * rules.severityWeight);
     contributions.add(RiskContribution(
       factor: 'Severity ${input.severity}/10',
       shap: severityShare,
@@ -168,7 +169,8 @@ class RiskEngine {
       ));
     }
 
-    final bmiResult = _bmiContribution(input.patientWeight, input.patientHeight);
+    final bmiResult =
+        _bmiContribution(input.patientWeight, input.patientHeight);
     if (bmiResult.contribution != 0) {
       contributions.add(RiskContribution(
         factor: 'BMI ${bmiResult.bmi!.toStringAsFixed(1)} (weight/height)',
@@ -234,8 +236,11 @@ class RiskEngine {
   }
 
   _BmiResult _bmiContribution(double? weightKg, double? heightCm) {
-    if (weightKg == null || weightKg == 0 || heightCm == null ||
-        heightCm == 0 || heightCm < 0) {
+    if (weightKg == null ||
+        weightKg == 0 ||
+        heightCm == null ||
+        heightCm == 0 ||
+        heightCm < 0) {
       return const _BmiResult(0.0, null);
     }
     final ratio = heightCm / 100.0;

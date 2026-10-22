@@ -143,7 +143,8 @@ void main() {
       // A second pain point in the same visit joins the first one's record
       // instead of minting another orphan.
       final sibling = await repo.sendTriage(
-        report(region: 'Left Arm / Shoulder', painType: 'Sharp', visitId: visitId),
+        report(
+            region: 'Left Arm / Shoulder', painType: 'Sharp', visitId: visitId),
       );
       expect(sibling.anonymousCode, result.anonymousCode);
 
@@ -288,13 +289,16 @@ void main() {
       // (0.25 + 1.0 + 0.6) / 3, rounded like Python's round(x, 2).
       expect(payload['avg_risk_score'], 0.62);
 
-      final byRegion = (payload['by_region'] as List).cast<Map<String, dynamic>>();
+      final byRegion =
+          (payload['by_region'] as List).cast<Map<String, dynamic>>();
       expect(byRegion.first['count'], 1);
-      expect(byRegion.map((e) => e['region']), containsAll(<String>[
-        'Headache / Cranial',
-        'Chest / Heart',
-        'Left Leg',
-      ]));
+      expect(
+          byRegion.map((e) => e['region']),
+          containsAll(<String>[
+            'Headache / Cranial',
+            'Chest / Heart',
+            'Left Leg',
+          ]));
       final byPainType =
           (payload['by_pain_type'] as List).cast<Map<String, dynamic>>();
       expect(byPainType.map((e) => e['pain_type']),
@@ -340,8 +344,7 @@ void main() {
       // The server matches the code with ilike '%needle%'.
       expect((await repo.getTriageList(patientCode: code.substring(0, 8))),
           hasLength(3));
-      expect((await repo.getTriageList(patientCode: 'ZZZZZZ')),
-          isEmpty);
+      expect((await repo.getTriageList(patientCode: 'ZZZZZZ')), isEmpty);
     });
 
     test('a decision is recorded and reads back on the report', () async {
@@ -368,8 +371,8 @@ void main() {
     test('a decision on an unknown session is a 404', () async {
       await expectLater(
         repo.updateTriageDecision(-999, status: 'closed'),
-        throwsA(isA<ApiException>()
-            .having((e) => e.statusCode, 'statusCode', 404)),
+        throwsA(
+            isA<ApiException>().having((e) => e.statusCode, 'statusCode', 404)),
       );
     });
 

@@ -90,7 +90,8 @@ void main() {
     ApiClient.httpClient = MockClient((request) async {
       requests.add(request);
       // A create is 201; everything else (a decision) is a plain 200.
-      final code = status?.call(request) ?? (request.method == 'POST' ? 201 : 200);
+      final code =
+          status?.call(request) ?? (request.method == 'POST' ? 201 : 200);
       final payload = body?.call(request) ?? accepted(request);
       return http.Response(payload, code,
           headers: {'content-type': 'application/json'});

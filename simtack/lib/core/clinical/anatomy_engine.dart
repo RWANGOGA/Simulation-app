@@ -320,7 +320,8 @@ class AnatomyEngine {
         .toSet();
     final regionParts = parts(regionKey);
     final chunkParts = parts(chunkRegion);
-    if (regionParts.isNotEmpty && regionParts.intersection(chunkParts).isNotEmpty) {
+    if (regionParts.isNotEmpty &&
+        regionParts.intersection(chunkParts).isNotEmpty) {
       return 2.0;
     }
     return 0.0;
@@ -339,7 +340,8 @@ class AnatomyEngine {
   static String _cite(String text) =>
       text.length > 500 ? '${text.substring(0, 500)}...' : text;
 
-  static double _round4(double value) => (value * 10000).roundToDouble() / 10000;
+  static double _round4(double value) =>
+      (value * 10000).roundToDouble() / 10000;
 }
 
 class _Scored {

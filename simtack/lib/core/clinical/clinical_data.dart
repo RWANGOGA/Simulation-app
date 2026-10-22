@@ -73,7 +73,8 @@ class ClinicalData {
     };
 
     final chunks = <String, AnatomyChunk>{};
-    for (final entry in (kbJson['regions'] as List).whereType<Map<String, dynamic>>()) {
+    for (final entry
+        in (kbJson['regions'] as List).whereType<Map<String, dynamic>>()) {
       final chunk = AnatomyChunk.fromEntry(entry);
       chunks[chunk.id] = chunk;
     }
@@ -354,10 +355,43 @@ class AnatomyTokenizer {
   };
 
   static const Set<String> _stopwords = {
-    'a', 'an', 'and', 'are', 'as', 'at', 'be', 'by', 'for', 'from',
-    'has', 'have', 'in', 'is', 'it', 'of', 'on', 'or', 'that', 'the',
-    'to', 'was', 'were', 'will', 'with', 'this', 'any', 'can', 'may',
-    'their', 'they', 'you', 'your', 'patient', 'patients', 'feel', 'feeling',
+    'a',
+    'an',
+    'and',
+    'are',
+    'as',
+    'at',
+    'be',
+    'by',
+    'for',
+    'from',
+    'has',
+    'have',
+    'in',
+    'is',
+    'it',
+    'of',
+    'on',
+    'or',
+    'that',
+    'the',
+    'to',
+    'was',
+    'were',
+    'will',
+    'with',
+    'this',
+    'any',
+    'can',
+    'may',
+    'their',
+    'they',
+    'you',
+    'your',
+    'patient',
+    'patients',
+    'feel',
+    'feeling',
   };
 
   static final RegExp _wordPattern = RegExp(r'[a-z0-9]+');

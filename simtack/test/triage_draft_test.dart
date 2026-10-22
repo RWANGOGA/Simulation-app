@@ -136,14 +136,15 @@ void main() {
     test('migrates legacy single draft on first load', () async {
       await DraftStorage.clear();
       final prefs = await SharedPreferences.getInstance();
-      
+
       final legacyDraft = TriageDraft(
         painPoints: [PainPoint(region: 'Legacy', x: 0.5, y: 0.5)],
         patientId: 999,
         savedAt: DateTime(2023, 1, 1),
       );
-      
-      await prefs.setString('triage_draft', '{"painPoints":[{"region":"Legacy","x":0.5,"y":0.5,"viewKey":null,"painType":"Sharp","severity":5,"direction":"Towards Back","depth":"Moderate","expansionBehavior":"Stays Small","triggers":[],"relievers":[],"dailyLimitations":[],"tags":[],"questionAnswers":{}}],"patientId":999,"savedAt":"2023-01-01T00:00:00.000"}');
+
+      await prefs.setString('triage_draft',
+          '{"painPoints":[{"region":"Legacy","x":0.5,"y":0.5,"viewKey":null,"painType":"Sharp","severity":5,"direction":"Towards Back","depth":"Moderate","expansionBehavior":"Stays Small","triggers":[],"relievers":[],"dailyLimitations":[],"tags":[],"questionAnswers":{}}],"patientId":999,"savedAt":"2023-01-01T00:00:00.000"}');
 
       final drafts = await DraftStorage.loadAll();
       expect(drafts.length, 1);

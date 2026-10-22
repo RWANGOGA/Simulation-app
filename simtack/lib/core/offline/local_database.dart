@@ -183,8 +183,7 @@ class LocalDatabase {
     return null;
   }
 
-  void insertPatient(Map<String, dynamic> patient) =>
-      patients.add(patient);
+  void insertPatient(Map<String, dynamic> patient) => patients.add(patient);
 
   // ── Sessions ────────────────────────────────────────────────────────────
 
@@ -208,9 +207,7 @@ class LocalDatabase {
 
   List<Map<String, dynamic>> sessionsForPatient(int? patientLocalId) {
     if (patientLocalId == null) return const [];
-    return sessions
-        .where((s) => s['patient_id'] == patientLocalId)
-        .toList();
+    return sessions.where((s) => s['patient_id'] == patientLocalId).toList();
   }
 
   Map<String, dynamic>? sessionByLocalId(int id) {
@@ -277,7 +274,8 @@ class LocalDatabase {
   List<Map<String, dynamic>> get outbox =>
       (_root['outbox'] as List).cast<Map<String, dynamic>>();
 
-  void enqueue(Map<String, dynamic> operation) => (_root['outbox'] as List).add(operation);
+  void enqueue(Map<String, dynamic> operation) =>
+      (_root['outbox'] as List).add(operation);
 
   /// Removes the operations matching [test], returning how many went.
   int removeOutboxWhere(bool Function(Map<String, dynamic> op) test) {

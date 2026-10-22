@@ -160,7 +160,8 @@ class AuthService {
       if (!draft.profile.isActive) {
         throw ApiException(
           statusCode: 403,
-          message: 'This account has been deactivated. Contact an administrator.',
+          message:
+              'This account has been deactivated. Contact an administrator.',
         );
       }
       return draft.profile;
@@ -314,8 +315,8 @@ class AuthService {
         licenseNumber: pending['license_number'] as String?,
         phone: pending['phone'] as String?,
         hospitalName: pending['hospital_name'] as String?,
-        dateOfBirth: DateTime.tryParse(
-            (pending['date_of_birth'] as String?) ?? ''),
+        dateOfBirth:
+            DateTime.tryParse((pending['date_of_birth'] as String?) ?? ''),
       );
       final saved = draft.copyWith(
         profile: doctor,
@@ -342,8 +343,8 @@ class AuthService {
     try {
       final drafts = await DoctorDraftStorage.loadAll();
       for (final draft in drafts) {
-        await DoctorDraftStorage.save(draft
-            .copyWith(lastVerifiedAt: DateTime.fromMillisecondsSinceEpoch(0)));
+        await DoctorDraftStorage.save(draft.copyWith(
+            lastVerifiedAt: DateTime.fromMillisecondsSinceEpoch(0)));
       }
     } catch (_) {
       // Ignored on purpose — see doc comment above.

@@ -382,20 +382,32 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isSubmitting = true);
-    
+
     // Build the patient profile
     final profile = PatientProfile(
       age: int.parse(_ageController.text),
       gender: _gender,
       weight: double.parse(_weightController.text),
       height: double.parse(_heightController.text),
-      fullName: _nameController.text.trim().isEmpty ? null : _nameController.text.trim(),
+      fullName: _nameController.text.trim().isEmpty
+          ? null
+          : _nameController.text.trim(),
       dateOfBirth: _dateOfBirth,
-      phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-      address: _addressController.text.trim().isEmpty ? null : _addressController.text.trim(),
-      nextOfKinName: _nextOfKinNameController.text.trim().isEmpty ? null : _nextOfKinNameController.text.trim(),
-      nextOfKinPhone: _nextOfKinPhoneController.text.trim().isEmpty ? null : _nextOfKinPhoneController.text.trim(),
-      hospitalName: _hospitalController.text.trim().isEmpty ? null : _hospitalController.text.trim(),
+      phone: _phoneController.text.trim().isEmpty
+          ? null
+          : _phoneController.text.trim(),
+      address: _addressController.text.trim().isEmpty
+          ? null
+          : _addressController.text.trim(),
+      nextOfKinName: _nextOfKinNameController.text.trim().isEmpty
+          ? null
+          : _nextOfKinNameController.text.trim(),
+      nextOfKinPhone: _nextOfKinPhoneController.text.trim().isEmpty
+          ? null
+          : _nextOfKinPhoneController.text.trim(),
+      hospitalName: _hospitalController.text.trim().isEmpty
+          ? null
+          : _hospitalController.text.trim(),
     );
 
     // Always save locally first (offline-first)
@@ -431,7 +443,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         ),
       ),
     );
-    
+
     if (mounted) setState(() => _isSubmitting = false);
   }
 }

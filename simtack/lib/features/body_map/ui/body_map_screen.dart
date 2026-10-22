@@ -37,7 +37,8 @@ class BodyMapScreen extends StatefulWidget {
   }) : conversationId = conversationId ?? _generateConversationId();
 
   /// Returns the patient code, generating a temporary one for offline use.
-  String get effectivePatientCode => patientCode ?? 'OFFLINE-${patientId.abs()}';
+  String get effectivePatientCode =>
+      patientCode ?? 'OFFLINE-${patientId.abs()}';
 
   /// Unpredictable conversation id.
   ///
@@ -689,8 +690,7 @@ class _SelectedLocationsPage extends StatefulWidget {
   final void Function(String region) onAddRegion;
 
   @override
-  State<_SelectedLocationsPage> createState() =>
-      _SelectedLocationsPageState();
+  State<_SelectedLocationsPage> createState() => _SelectedLocationsPageState();
 }
 
 class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
@@ -838,8 +838,8 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.fromLTRB(
-                                      12, 10, 4, 0),
+                                  padding:
+                                      const EdgeInsets.fromLTRB(12, 10, 4, 0),
                                   child: Row(
                                     children: [
                                       Container(
@@ -866,14 +866,13 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
                                           style: TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
-                                            color: AppPalette.textPrimary(
-                                                context),
+                                            color:
+                                                AppPalette.textPrimary(context),
                                           ),
                                         ),
                                       ),
                                       IconButton(
-                                        icon: const Icon(Icons.close,
-                                            size: 18),
+                                        icon: const Icon(Icons.close, size: 18),
                                         color: AppPalette.textMuted(context),
                                         tooltip: t.removeTooltip,
                                         onPressed: () {
@@ -889,10 +888,10 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
                                       const EdgeInsets.fromLTRB(4, 0, 4, 4),
                                   child: AnatomyInsightCard(
                                     region: point.region,
-                                    future: widget.anatomyFutureFor(
-                                        point.region),
-                                    initialAnswers: widget
-                                        .initialAnswersFor(point.region),
+                                    future:
+                                        widget.anatomyFutureFor(point.region),
+                                    initialAnswers:
+                                        widget.initialAnswersFor(point.region),
                                     onAnswersChanged: (answers) {
                                       widget.onAnswersChanged(
                                           point.region, answers);
@@ -920,8 +919,8 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
           padding: const EdgeInsets.all(16),
           child: OutlinedButton.icon(
             onPressed: _openRegionPicker,
-            icon: const Icon(Icons.add_circle_outline,
-                color: Color(0xFF6D28D9)),
+            icon:
+                const Icon(Icons.add_circle_outline, color: Color(0xFF6D28D9)),
             label: Text(
               t.addAnotherLocationLabel,
               style: const TextStyle(

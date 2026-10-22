@@ -243,8 +243,8 @@ class SyncService {
     final payload = op['payload'];
     if (payload is! Map) return _Outcome.deferred;
 
-    final patient =
-        await db.read((db) => db.patientByLocalId(session['patient_id'] as int?));
+    final patient = await db
+        .read((db) => db.patientByLocalId(session['patient_id'] as int?));
     final code = patient?['code'] as String?;
     if (code == null) return _Outcome.deferred;
 
@@ -309,9 +309,8 @@ class SyncService {
     return db.read((db) => db.sessionByLocalId(localId));
   }
 
-  Future<void> _remove(LocalDatabase db, Map<String, dynamic> op) =>
-      db.mutate((db) =>
-          db.removeOutboxWhere((queued) => queued['id'] == op['id']));
+  Future<void> _remove(LocalDatabase db, Map<String, dynamic> op) => db.mutate(
+      (db) => db.removeOutboxWhere((queued) => queued['id'] == op['id']));
 
   /// Notes a failed attempt on the queued row itself, so the record is not
   /// silently retried forever with no trace of why it is stuck. [counted] is

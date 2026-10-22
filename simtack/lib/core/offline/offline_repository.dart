@@ -33,8 +33,7 @@ class OfflineRepository {
 
   static OfflineRepository? _instance;
 
-  static OfflineRepository get instance =>
-      _instance ??= OfflineRepository();
+  static OfflineRepository get instance => _instance ??= OfflineRepository();
 
   /// Test hook: forgets the singleton (and its database) between tests.
   static void resetForTest() {
@@ -44,7 +43,8 @@ class OfflineRepository {
 
   final LocalDatabase? _injected;
 
-  Future<LocalDatabase> get _db async => _injected ?? await LocalDatabase.open();
+  Future<LocalDatabase> get _db async =>
+      _injected ?? await LocalDatabase.open();
 
   RiskEngine get _engine => RiskEngine();
 
@@ -218,7 +218,8 @@ class OfflineRepository {
         throw ApiException(statusCode: 404, message: 'Patient ID not found');
       }
       return [
-        for (final session in db.sessionsForPatient(patient['local_id'] as int?))
+        for (final session
+            in db.sessionsForPatient(patient['local_id'] as int?))
           TriageResult.fromJson(_sessionPayload(session, patient)),
       ];
     });

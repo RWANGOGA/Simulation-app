@@ -128,13 +128,14 @@ void main() {
         final input = TriageInput.fromJson(
           recorded['input'] as Map<String, dynamic>,
         );
-        final expected = (recorded['expected'] as Map<String, dynamic>)
-            ['escalation'] as Map<String, dynamic>;
+        final expected = (recorded['expected']
+            as Map<String, dynamic>)['escalation'] as Map<String, dynamic>;
         final actual = engine.escalation(input);
 
         if (actual['level'] != expected['level'] ||
             actual['action'] != expected['action'] ||
-            jsonEncode(actual['triggers']) != jsonEncode(expected['triggers'])) {
+            jsonEncode(actual['triggers']) !=
+                jsonEncode(expected['triggers'])) {
           mismatches.add(
             '${input.bodyRegion} / sev ${input.severity}: '
             '${jsonEncode(actual)} != ${jsonEncode(expected)}',
@@ -216,7 +217,8 @@ void main() {
   group('anatomy retrieval', () {
     test('reproduces every recorded ranking', () {
       final engine = AnatomyEngine.fromData(data);
-      final cases = (golden['anatomy_cases'] as List).cast<Map<String, dynamic>>();
+      final cases =
+          (golden['anatomy_cases'] as List).cast<Map<String, dynamic>>();
 
       for (final recorded in cases) {
         final region = recorded['region'] as String;
@@ -245,7 +247,8 @@ void main() {
 
     test('the region tapped wins over a looser textual match', () {
       final engine = AnatomyEngine.fromData(data);
-      final hits = engine.retrieve(region: 'Chest / Heart', query: 'chest pain');
+      final hits =
+          engine.retrieve(region: 'Chest / Heart', query: 'chest pain');
       expect(hits.first.chunk.region, 'Chest / Heart');
     });
 
@@ -273,8 +276,7 @@ void main() {
       final insight = AnatomyInsight.fromJson(payload);
       expect(insight.llmUsed, isFalse);
       expect(insight.region, 'Chest / Heart');
-      expect(insight.complaint,
-          'crushing chest pain spreading to left arm');
+      expect(insight.complaint, 'crushing chest pain spreading to left arm');
       expect(insight.sources, isNotEmpty);
       expect(insight.sources.first.id, 'chest_heart');
       expect(insight.sources.first.structures, isNotEmpty);
@@ -283,11 +285,16 @@ void main() {
       expect(insight.disclaimer, isNotEmpty);
     });
 
-    test('never returns more than top_k, and more context when asked for it', () {
+    test('never returns more than top_k, and more context when asked for it',
+        () {
       final engine = AnatomyEngine.fromData(data);
       // The server returns fewer than top_k when fewer chunks score at all,
       // so the invariant is a ceiling plus monotonicity, not equality.
-      for (final region in ['Chest / Heart', 'Knee (Left)', 'Headache / Cranial']) {
+      for (final region in [
+        'Chest / Heart',
+        'Knee (Left)',
+        'Headache / Cranial'
+      ]) {
         var previous = 0;
         for (final topK in [1, 3, 6]) {
           final sources =

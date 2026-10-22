@@ -240,10 +240,12 @@ class _PractitionerSessionHistoryScreenState
                                 final escalationLevel = escalation is Map
                                     ? escalation['level']
                                     : null;
-                                final isRedFlag = escalationLevel == 'emergency';
+                                final isRedFlag =
+                                    escalationLevel == 'emergency';
                                 final isUrgent = escalationLevel == 'urgent';
-                                final accent =
-                                    isRedFlag ? const Color(0xFFDC2626) : riskColor;
+                                final accent = isRedFlag
+                                    ? const Color(0xFFDC2626)
+                                    : riskColor;
                                 final date = DateTime.parse(
                                     session['created_at'] as String);
                                 final formattedDate =
@@ -258,8 +260,7 @@ class _PractitionerSessionHistoryScreenState
                                   child: ListTile(
                                     contentPadding: const EdgeInsets.all(16),
                                     leading: CircleAvatar(
-                                      backgroundColor:
-                                          accent.withOpacity(0.1),
+                                      backgroundColor: accent.withOpacity(0.1),
                                       child: Icon(
                                           isRedFlag
                                               ? Icons.emergency

@@ -33,7 +33,8 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
       // Patient-scoped lookup (the anonymous code is the credential).
       // The doctor-facing /triage/list endpoint is JWT-guarded now, and
       // this screen belongs to the patient flow, which has no token.
-      final visits = await OfflineRepository.instance.getLatestVisit(widget.patientId);
+      final visits =
+          await OfflineRepository.instance.getLatestVisit(widget.patientId);
       setState(() {
         _history = visits
             .map((r) => <String, dynamic>{
@@ -56,7 +57,9 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
       });
       if (mounted && !e.toString().contains('404')) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error loading history: $e'), backgroundColor: Colors.red),
+          SnackBar(
+              content: Text('Error loading history: $e'),
+              backgroundColor: Colors.red),
         );
       }
     }
@@ -118,7 +121,8 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                   const CircleAvatar(
                     radius: 28,
                     backgroundColor: Color(0xFFEDE9FE),
-                    child: Icon(Icons.person, size: 30, color: Color(0xFF6D28D9)),
+                    child:
+                        Icon(Icons.person, size: 30, color: Color(0xFF6D28D9)),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -131,7 +135,8 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                   ),
                   Text(
                     doctor?.email ?? error ?? '',
-                    style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context)),
+                    style: TextStyle(
+                        fontSize: 13, color: AppPalette.textMuted(context)),
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
@@ -154,7 +159,8 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                         ),
                       ),
                       icon: const Icon(Icons.logout, size: 18),
-                      label: const Text('Log out', style: TextStyle(fontWeight: FontWeight.w600)),
+                      label: const Text('Log out',
+                          style: TextStyle(fontWeight: FontWeight.w600)),
                     ),
                   ),
                 ],
@@ -168,10 +174,14 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
 
   Color _getRiskColor(String level) {
     switch (level) {
-      case 'HIGH': return const Color(0xFFDC2626);
-      case 'MEDIUM': return const Color(0xFFF59E0B);
-      case 'LOW': return const Color(0xFF16A34A);
-      default: return AppPalette.textMuted(context);
+      case 'HIGH':
+        return const Color(0xFFDC2626);
+      case 'MEDIUM':
+        return const Color(0xFFF59E0B);
+      case 'LOW':
+        return const Color(0xFF16A34A);
+      default:
+        return AppPalette.textMuted(context);
     }
   }
 
@@ -182,16 +192,23 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
       appBar: AppBar(
         backgroundColor: AppPalette.surface(context),
         elevation: 0,
-        title: Text('My Triage History', style: TextStyle(color: AppPalette.textPrimary(context), fontWeight: FontWeight.bold)),
+        title: Text('My Triage History',
+            style: TextStyle(
+                color: AppPalette.textPrimary(context),
+                fontWeight: FontWeight.bold)),
         centerTitle: true,
         actions: [
-          IconButton(icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)), onPressed: _loadHistory),
+          IconButton(
+              icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)),
+              onPressed: _loadHistory),
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _history.isEmpty
-              ? Center(child: Text('No past history found.', style: TextStyle(color: AppPalette.textMuted(context))))
+              ? Center(
+                  child: Text('No past history found.',
+                      style: TextStyle(color: AppPalette.textMuted(context))))
               : ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: _history.length,
@@ -200,41 +217,54 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                     final riskLevel = _getRiskLevel(session['risk_score']);
                     final riskColor = _getRiskColor(riskLevel);
                     final date = DateTime.parse(session['created_at']);
-                    final formattedDate = DateFormat('dd MMM yyyy, HH:mm a').format(date);
+                    final formattedDate =
+                        DateFormat('dd MMM yyyy, HH:mm a').format(date);
 
                     return Card(
                       margin: const EdgeInsets.only(bottom: 12),
                       elevation: 1,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(16),
                         title: Text(
                           session['body_region'] ?? 'Unknown Location',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppPalette.textPrimary(context)),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                              color: AppPalette.textPrimary(context)),
                         ),
                         subtitle: Padding(
                           padding: const EdgeInsets.only(top: 8),
                           child: Text(
                             formattedDate,
-                            style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context)),
+                            style: TextStyle(
+                                fontSize: 13,
+                                color: AppPalette.textMuted(context)),
                           ),
                         ),
                         trailing: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
                             color: riskColor.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: riskColor.withOpacity(0.3)),
+                            border:
+                                Border.all(color: riskColor.withOpacity(0.3)),
                           ),
                           child: Text(
                             riskLevel,
-                            style: TextStyle(fontWeight: FontWeight.bold, color: riskColor, fontSize: 12),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: riskColor,
+                                fontSize: 12),
                           ),
                         ),
                         onTap: () {
                           Navigator.of(context).push(
                             AppPageRoute(
-                              builder: (_) => ClinicalReportScreen(patientId: widget.patientId),
+                              builder: (_) => ClinicalReportScreen(
+                                  patientId: widget.patientId),
                             ),
                           );
                         },
@@ -249,10 +279,13 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
         selectedItemColor: const Color(0xFF6D28D9),
         unselectedItemColor: AppPalette.textMuted(context),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_outlined), label: 'Home'),
-          BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: 'New'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.home_outlined), label: 'Home'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.add_circle_outline), label: 'New'),
           BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
-          BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Profile'),
+          BottomNavigationBarItem(
+              icon: Icon(Icons.person_outline), label: 'Profile'),
         ],
         onTap: (index) {
           if (index == 0) {

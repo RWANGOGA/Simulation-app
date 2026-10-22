@@ -97,8 +97,7 @@ class ClinicalAssetsUnavailableApp extends StatelessWidget {
                   const Text(
                     'Clinical data failed to load',
                     textAlign: TextAlign.center,
-                    style:
-                        TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
                   const Text(
@@ -113,8 +112,8 @@ class ClinicalAssetsUnavailableApp extends StatelessWidget {
                   Text(
                     reason,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontSize: 12, color: Color(0xFF64748B)),
+                    style:
+                        const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
                   ),
                 ],
               ),

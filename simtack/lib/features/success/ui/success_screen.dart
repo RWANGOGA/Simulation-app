@@ -280,7 +280,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
       level: winners.first.level,
       action: winners.first.action,
       // A set: the same red flag reported on two pain points is one line.
-      reasons: {for (final escalation in winners) ...escalation.reasons}.toList(),
+      reasons:
+          {for (final escalation in winners) ...escalation.reasons}.toList(),
     );
   }
 
@@ -312,9 +313,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                 child: Text(
                   isEmergency ? t.emergencyBannerTitle : t.urgentBannerTitle,
                   style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w800,
-                      color: accent),
+                      fontSize: 16, fontWeight: FontWeight.w800, color: accent),
                 ),
               ),
             ],
@@ -332,9 +331,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
             Text(
               t.escalationReasonsLabel,
               style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                  color: accent),
+                  fontSize: 12, fontWeight: FontWeight.w700, color: accent),
             ),
             const SizedBox(height: 4),
             // Clinical findings stay in the server's wording, matching how the

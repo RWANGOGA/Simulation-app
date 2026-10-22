@@ -20,19 +20,23 @@ Widget _wrap(Widget child) => MaterialApp(
       home: child,
     );
 
-class FakeWebViewPlatform extends WebViewPlatform with MockPlatformInterfaceMixin {
+class FakeWebViewPlatform extends WebViewPlatform
+    with MockPlatformInterfaceMixin {
   @override
-  PlatformWebViewController createPlatformWebViewController(PlatformWebViewControllerCreationParams params) {
+  PlatformWebViewController createPlatformWebViewController(
+      PlatformWebViewControllerCreationParams params) {
     return FakeWebViewController(params);
   }
 
   @override
-  PlatformWebViewWidget createPlatformWebViewWidget(PlatformWebViewWidgetCreationParams params) {
+  PlatformWebViewWidget createPlatformWebViewWidget(
+      PlatformWebViewWidgetCreationParams params) {
     return FakeWebViewWidget(params);
   }
 
   @override
-  PlatformNavigationDelegate createPlatformNavigationDelegate(PlatformNavigationDelegateCreationParams params) {
+  PlatformNavigationDelegate createPlatformNavigationDelegate(
+      PlatformNavigationDelegateCreationParams params) {
     return FakeNavigationDelegate(params);
   }
 }
@@ -46,9 +50,11 @@ class FakeWebViewController extends PlatformWebViewController {
   @override
   Future<void> setBackgroundColor(Color color) async {}
   @override
-  Future<void> setPlatformNavigationDelegate(PlatformNavigationDelegate handler) async {}
+  Future<void> setPlatformNavigationDelegate(
+      PlatformNavigationDelegate handler) async {}
   @override
-  Future<void> addJavaScriptChannel(JavaScriptChannelParams javaScriptChannelParams) async {}
+  Future<void> addJavaScriptChannel(
+      JavaScriptChannelParams javaScriptChannelParams) async {}
 }
 
 class FakeWebViewWidget extends PlatformWebViewWidget {
@@ -60,7 +66,8 @@ class FakeWebViewWidget extends PlatformWebViewWidget {
 class FakeNavigationDelegate extends PlatformNavigationDelegate {
   FakeNavigationDelegate(super.params) : super.implementation();
   @override
-  Future<void> setOnNavigationRequest(NavigationRequestCallback onNavigationRequest) async {}
+  Future<void> setOnNavigationRequest(
+      NavigationRequestCallback onNavigationRequest) async {}
   @override
   Future<void> setOnPageStarted(PageEventCallback onPageStarted) async {}
   @override
@@ -68,7 +75,8 @@ class FakeNavigationDelegate extends PlatformNavigationDelegate {
   @override
   Future<void> setOnProgress(ProgressCallback onProgress) async {}
   @override
-  Future<void> setOnWebResourceError(WebResourceErrorCallback onWebResourceError) async {}
+  Future<void> setOnWebResourceError(
+      WebResourceErrorCallback onWebResourceError) async {}
 }
 
 void main() {
@@ -88,7 +96,8 @@ void main() {
     ApiClient.httpClient = defaultClient;
   });
 
-  testWidgets('full wizard flow moves seamlessly without blocking', (WidgetTester tester) async {
+  testWidgets('full wizard flow moves seamlessly without blocking',
+      (WidgetTester tester) async {
     tester.view.physicalSize = const Size(800, 1400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(() => tester.view.resetPhysicalSize());
@@ -110,7 +119,12 @@ void main() {
     });
 
     final points = [
-      PainPoint(region: 'Chest / Heart', x: 0.5, y: 0.4, severity: 8, painType: 'Sharp'),
+      PainPoint(
+          region: 'Chest / Heart',
+          x: 0.5,
+          y: 0.4,
+          severity: 8,
+          painType: 'Sharp'),
     ];
 
     // 1. Render PainDetailsScreen
@@ -129,7 +143,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
 
-    expect(find.text('4 & 5. PAIN PROFILE & FUNCTIONAL IMPACT'), findsOneWidget);
+    expect(
+        find.text('4 & 5. PAIN PROFILE & FUNCTIONAL IMPACT'), findsOneWidget);
     expect(find.text('SECTION A: PAIN EXPANSION BEHAVIOR'), findsOneWidget);
 
     // 3. Select expansion, trigger, reliever, and limitation
@@ -160,7 +175,8 @@ void main() {
     // 5. Tap Submit -> Submits successfully without error
     await tester.tap(find.text('Submit'));
     await tester.pump();
-    await tester.runAsync(() async => await Future.delayed(const Duration(milliseconds: 100)));
+    await tester.runAsync(
+        () async => await Future.delayed(const Duration(milliseconds: 100)));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 500));
 

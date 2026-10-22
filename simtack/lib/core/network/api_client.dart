@@ -230,8 +230,7 @@ class TriageReport {
         visitId: json['visit_id'] as String?,
         questionAnswers: json['question_answers'] is Map
             ? {
-                for (final entry
-                    in (json['question_answers'] as Map).entries)
+                for (final entry in (json['question_answers'] as Map).entries)
                   entry.key.toString(): entry.value.toString(),
               }
             : null,

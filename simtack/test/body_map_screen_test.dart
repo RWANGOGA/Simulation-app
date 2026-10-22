@@ -131,16 +131,18 @@ void main() {
     await goBackFromLocationsScreen(tester);
   }
 
-  testWidgets('shows the empty-state hint and a disabled Continue button with no locations marked',
+  testWidgets(
+      'shows the empty-state hint and a disabled Continue button with no locations marked',
       (tester) async {
     await tester.pumpWidget(buildScreen());
     await tester.pump(const Duration(milliseconds: 400));
 
     expect(find.text('Tap the body to mark pain'), findsOneWidget);
-    final continueButton = tester.widget<ElevatedButton>(find.widgetWithText(
-        ElevatedButton, 'Tap the body to mark pain'));
+    final continueButton = tester.widget<ElevatedButton>(
+        find.widgetWithText(ElevatedButton, 'Tap the body to mark pain'));
     expect(continueButton.onPressed, isNull,
-        reason: 'Continue must stay disabled until at least one location is marked');
+        reason:
+            'Continue must stay disabled until at least one location is marked');
   });
 
   testWidgets(
@@ -159,8 +161,8 @@ void main() {
     expect(find.text('Clinical Insight: Chest / Heart'), findsNothing);
 
     // Continue button should be enabled and reflect the count.
-    final continueButton = tester.widget<ElevatedButton>(find.widgetWithText(
-        ElevatedButton, 'Continue to Pain Details (1)'));
+    final continueButton = tester.widget<ElevatedButton>(
+        find.widgetWithText(ElevatedButton, 'Continue to Pain Details (1)'));
     expect(continueButton.onPressed, isNotNull);
 
     // Opening the locations screen is where the full detail now lives.
@@ -207,7 +209,8 @@ void main() {
         isNotNull);
   });
 
-  testWidgets('locations screen has a back button that returns to the main screen',
+  testWidgets(
+      'locations screen has a back button that returns to the main screen',
       (tester) async {
     await useTallViewport(tester);
     await tester.pumpWidget(buildScreen());
@@ -223,12 +226,13 @@ void main() {
     // inline AI insight text) and Continue button are showing again, and
     // the location marked on the other screen is still there.
     expect(find.text('Clinical Insight: Chest / Heart'), findsNothing);
-    final continueButton = tester.widget<ElevatedButton>(find.widgetWithText(
-        ElevatedButton, 'Continue to Pain Details (1)'));
+    final continueButton = tester.widget<ElevatedButton>(
+        find.widgetWithText(ElevatedButton, 'Continue to Pain Details (1)'));
     expect(continueButton.onPressed, isNotNull);
   });
 
-  testWidgets('3D view placeholder renders without crashing on a non-web test target',
+  testWidgets(
+      '3D view placeholder renders without crashing on a non-web test target',
       (tester) async {
     await tester.pumpWidget(buildScreen());
     await tester.pump(const Duration(milliseconds: 400));

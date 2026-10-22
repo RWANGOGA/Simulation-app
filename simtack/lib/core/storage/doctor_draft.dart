@@ -136,8 +136,7 @@ class DoctorDraft {
       // Absent means the row predates approval being persisted, not that the
       // account was rejected.
       approvalRecorded: rawProfile.containsKey('is_approved'),
-      pendingProfile:
-          (json['pendingProfile'] as Map?)?.cast<String, dynamic>(),
+      pendingProfile: (json['pendingProfile'] as Map?)?.cast<String, dynamic>(),
     );
   }
 

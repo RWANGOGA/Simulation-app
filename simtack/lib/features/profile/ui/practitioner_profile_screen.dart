@@ -11,7 +11,8 @@ class PractitionerProfileScreen extends StatefulWidget {
   const PractitionerProfileScreen({super.key});
 
   @override
-  State<PractitionerProfileScreen> createState() => _PractitionerProfileScreenState();
+  State<PractitionerProfileScreen> createState() =>
+      _PractitionerProfileScreenState();
 }
 
 class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
@@ -79,10 +80,18 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
       // is not lost.
       await AuthService.instance.updateMyProfile(
         fullName: _fullNameController.text.trim(),
-        role: _roleController.text.trim().isEmpty ? null : _roleController.text.trim(),
-        licenseNumber: _licenseNumberController.text.trim().isEmpty ? null : _licenseNumberController.text.trim(),
-        phone: _phoneController.text.trim().isEmpty ? null : _phoneController.text.trim(),
-        hospitalName: _hospitalNameController.text.trim().isEmpty ? null : _hospitalNameController.text.trim(),
+        role: _roleController.text.trim().isEmpty
+            ? null
+            : _roleController.text.trim(),
+        licenseNumber: _licenseNumberController.text.trim().isEmpty
+            ? null
+            : _licenseNumberController.text.trim(),
+        phone: _phoneController.text.trim().isEmpty
+            ? null
+            : _phoneController.text.trim(),
+        hospitalName: _hospitalNameController.text.trim().isEmpty
+            ? null
+            : _hospitalNameController.text.trim(),
         dateOfBirth: _dateOfBirth,
       );
       if (!mounted) return;
@@ -91,13 +100,18 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
         _isSaving = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${AppLocalizations.of(context)!.saveChangesButton} ✓'), backgroundColor: const Color(0xFF16A34A)),
+        SnackBar(
+            content:
+                Text('${AppLocalizations.of(context)!.saveChangesButton} ✓'),
+            backgroundColor: const Color(0xFF16A34A)),
       );
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to save: $e'), backgroundColor: const Color(0xFFDC2626)),
+        SnackBar(
+            content: Text('Failed to save: $e'),
+            backgroundColor: const Color(0xFFDC2626)),
       );
     }
   }
@@ -121,7 +135,8 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
       labelText: label,
       filled: true,
       fillColor: AppPalette.inputFill(context),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
     );
   }
 
@@ -160,21 +175,34 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
             actions: [
               if (_isEditing)
                 TextButton.icon(
-                  onPressed: _isSaving ? null : () {
-                    _formKey.currentState!.reset();
-                    _loadProfile();
-                    setState(() => _isEditing = false);
-                  },
+                  onPressed: _isSaving
+                      ? null
+                      : () {
+                          _formKey.currentState!.reset();
+                          _loadProfile();
+                          setState(() => _isEditing = false);
+                        },
                   icon: const Icon(Icons.close, size: 18),
                   label: const Text('Cancel'),
-                  style: TextButton.styleFrom(foregroundColor: AppPalette.textMuted(context)),
+                  style: TextButton.styleFrom(
+                      foregroundColor: AppPalette.textMuted(context)),
                 ),
               ElevatedButton.icon(
-                onPressed: _isSaving ? null : _isEditing ? _saveProfile : () => setState(() => _isEditing = true),
+                onPressed: _isSaving
+                    ? null
+                    : _isEditing
+                        ? _saveProfile
+                        : () => setState(() => _isEditing = true),
                 icon: _isSaving
-                    ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white))
                     : Icon(_isEditing ? Icons.save : Icons.edit, size: 18),
-                label: Text(_isSaving ? 'Saving...' : (_isEditing ? 'Save Changes' : 'Edit Profile')),
+                label: Text(_isSaving
+                    ? 'Saving...'
+                    : (_isEditing ? 'Save Changes' : 'Edit Profile')),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF6D28D9),
                   foregroundColor: Colors.white,
@@ -184,20 +212,32 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
           ),
           Expanded(
             child: _isLoading
-                ? const Center(child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
+                ? const Center(
+                    child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
                 : _errorMessage != null
                     ? Center(
                         child: Padding(
                           padding: const EdgeInsets.all(24),
                           child: Column(
                             children: [
-                              const Icon(Icons.error_outline, size: 48, color: Color(0xFFDC2626)),
+                              const Icon(Icons.error_outline,
+                                  size: 48, color: Color(0xFFDC2626)),
                               const SizedBox(height: 16),
-                              Text('Error loading profile', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context))),
+                              Text('Error loading profile',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppPalette.textPrimary(context))),
                               const SizedBox(height: 8),
-                              Text(_errorMessage!, textAlign: TextAlign.center, style: TextStyle(color: AppPalette.textMuted(context))),
+                              Text(_errorMessage!,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: AppPalette.textMuted(context))),
                               const SizedBox(height: 16),
-                              ElevatedButton.icon(onPressed: _loadProfile, icon: const Icon(Icons.refresh), label: const Text('Retry')),
+                              ElevatedButton.icon(
+                                  onPressed: _loadProfile,
+                                  icon: const Icon(Icons.refresh),
+                                  label: const Text('Retry')),
                             ],
                           ),
                         ),
@@ -216,22 +256,38 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
                                     Container(
                                       width: 64,
                                       height: 64,
-                                      decoration: const BoxDecoration(color: Color(0xFF6D28D9), shape: BoxShape.circle),
-                                      child: const Icon(Icons.person, color: Colors.white, size: 32),
+                                      decoration: const BoxDecoration(
+                                          color: Color(0xFF6D28D9),
+                                          shape: BoxShape.circle),
+                                      child: const Icon(Icons.person,
+                                          color: Colors.white, size: 32),
                                     ),
                                     const SizedBox(width: 16),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            _fullNameController.text.trim().isEmpty ? 'Practitioner' : _fullNameController.text.trim(),
-                                            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppPalette.textPrimary(context)),
+                                            _fullNameController.text
+                                                    .trim()
+                                                    .isEmpty
+                                                ? 'Practitioner'
+                                                : _fullNameController.text
+                                                    .trim(),
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppPalette.textPrimary(
+                                                    context)),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
                                             'Practitioner Account',
-                                            style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context)),
+                                            style: TextStyle(
+                                                fontSize: 13,
+                                                color: AppPalette.textMuted(
+                                                    context)),
                                           ),
                                         ],
                                       ),
@@ -239,18 +295,51 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 24),
-                                _buildField(context: context, label: 'Full Name', controller: _fullNameController, readOnly: !_isEditing, validator: (v) => (v == null || v.trim().isEmpty) ? 'Full name is required' : null),
-                                _buildField(context: context, label: 'Role / Specialty', controller: _roleController, readOnly: !_isEditing),
-                                _buildField(context: context, label: 'License Number', controller: _licenseNumberController, readOnly: !_isEditing),
-                                _buildField(context: context, label: 'Phone', controller: _phoneController, keyboardType: TextInputType.phone, readOnly: !_isEditing),
-                                _buildField(context: context, label: 'Hospital / Clinic Name', controller: _hospitalNameController, readOnly: !_isEditing),
+                                _buildField(
+                                    context: context,
+                                    label: 'Full Name',
+                                    controller: _fullNameController,
+                                    readOnly: !_isEditing,
+                                    validator: (v) =>
+                                        (v == null || v.trim().isEmpty)
+                                            ? 'Full name is required'
+                                            : null),
+                                _buildField(
+                                    context: context,
+                                    label: 'Role / Specialty',
+                                    controller: _roleController,
+                                    readOnly: !_isEditing),
+                                _buildField(
+                                    context: context,
+                                    label: 'License Number',
+                                    controller: _licenseNumberController,
+                                    readOnly: !_isEditing),
+                                _buildField(
+                                    context: context,
+                                    label: 'Phone',
+                                    controller: _phoneController,
+                                    keyboardType: TextInputType.phone,
+                                    readOnly: !_isEditing),
+                                _buildField(
+                                    context: context,
+                                    label: 'Hospital / Clinic Name',
+                                    controller: _hospitalNameController,
+                                    readOnly: !_isEditing),
                                 InkWell(
                                   onTap: _isEditing ? _pickDate : null,
                                   child: InputDecorator(
-                                    decoration: _inputDecoration(context, 'Date of Birth'),
+                                    decoration: _inputDecoration(
+                                        context, 'Date of Birth'),
                                     child: Text(
-                                      _dateOfBirth == null ? 'Not set' : DateFormat('yyyy-MM-dd').format(_dateOfBirth!),
-                                      style: TextStyle(color: _dateOfBirth == null ? AppPalette.textMuted(context) : AppPalette.textPrimary(context)),
+                                      _dateOfBirth == null
+                                          ? 'Not set'
+                                          : DateFormat('yyyy-MM-dd')
+                                              .format(_dateOfBirth!),
+                                      style: TextStyle(
+                                          color: _dateOfBirth == null
+                                              ? AppPalette.textMuted(context)
+                                              : AppPalette.textPrimary(
+                                                  context)),
                                     ),
                                   ),
                                 ),
