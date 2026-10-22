@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 
@@ -37,8 +38,34 @@ class BodyMapScreen extends StatefulWidget {
   /// Returns the patient code, generating a temporary one for offline use.
   String get effectivePatientCode => patientCode ?? 'OFFLINE-${patientId.abs()}';
 
+  /// Unpredictable conversation id.
+  ///
+  /// This used to be `conv_<millis>_<microseconds % 10000>`, which is a
+  /// timestamp: a few thousand candidates covers an entire shift. The server
+  /// scopes a conversation to the caller, so behind a shared address - a
+  /// hospital's NAT, say - a guessed id still reaches another patient's
+  /// history. 128 bits from a secure source makes that infeasible.
   static String _generateConversationId() {
-    return 'conv_${DateTime.now().millisecondsSinceEpoch}_${(DateTime.now().microsecond % 10000).toString().padLeft(4, '0')}';
+    final random = _secureRandom();
+    final id = StringBuffer('conv_');
+    for (var i = 0; i < 4; i++) {
+      // 32 bits per round, so four rounds is a full 128-bit id.
+      id.write(random.nextInt(1 << 32).toRadixString(16).padLeft(8, '0'));
+    }
+    return id.toString();
+  }
+
+  /// `Random.secure()` throws where a platform has no cryptographic source.
+  /// Falling back to a time-seeded generator is weaker, but this id is a second
+  /// layer behind the server-side scope, and losing the body map outright would
+  /// be worse than a guessable id.
+  static Random _secureRandom() {
+    try {
+      return Random.secure();
+    } on UnsupportedError {
+      debugPrint('No secure random available; conversation ids are guessable.');
+      return Random();
+    }
   }
 
   /// Picks the body model variant matching the patient's gender.
