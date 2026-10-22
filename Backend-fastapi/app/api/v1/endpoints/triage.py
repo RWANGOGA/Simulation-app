@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func, select
 import json
+import logging
 from app.core.database import get_db
 from app.crud import crud_triage, crud_patient
 from app.schemas import TriageCreate, TriageResponse, TriageDecisionUpdate, PatientCreate
@@ -12,6 +13,7 @@ from app.models import Patient, TriageSession, Doctor
 from app.api.v1.endpoints.auth import get_current_doctor
 
 router = APIRouter(prefix="/triage", tags=["triage"])
+logger = logging.getLogger(__name__)
 
 # Public intake limit. Backed by the request_throttle table rather than a
 # module-level dict, so the limit holds across uvicorn workers and survives
@@ -45,6 +47,11 @@ def _session_payload(session: TriageSession, patient) -> dict:
         "relievers": session.relievers, "daily_limitations": session.daily_limitations,
         "visit_id": session.visit_id,
         "risk_score": session.risk_score, "shap_explanation": session.shap_explanation,
+        # Red flags sit beside the score, not inside it: the score is a clamped
+        # sum, so a single dangerous finding can hide in a medium total. Derived
+        # from the stored columns on every read, so every endpoint (create,
+        # history, QR lookup, practitioner view) reports the same verdict.
+        "escalation": triage_service.escalation_for(session),
         "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at,
         "status": session.status or "open",
         "priority": session.priority,
@@ -181,7 +188,22 @@ def create_triage(
         detail="triage submitted",
     )
 
-    return _session_payload(session, patient_obj)
+    response_payload = _session_payload(session, patient_obj)
+
+    # A red flag is not a number for someone to notice later in a list view: it
+    # is logged the moment the patient submits, so an escalated case is visible
+    # to whoever is watching the service even if nobody has the dashboard open.
+    escalation = response_payload["escalation"]
+    if escalation["level"] != triage_service.ESCALATION_ROUTINE:
+        logger.info(
+            "triage %s escalated %s (risk=%.2f, %s)",
+            session.id,
+            escalation["level"],
+            risk,
+            ", ".join(trigger["code"] for trigger in escalation["triggers"]),
+        )
+
+    return response_payload
 
 # ==========================================
 # 4b. PAGINATED SESSION HISTORY (Practitioner History Screen)

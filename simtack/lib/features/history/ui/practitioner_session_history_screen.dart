@@ -232,6 +232,18 @@ class _PractitionerSessionHistoryScreenState
                                 final riskLevel = _getRiskLevel(
                                     session['risk_score'] as double?);
                                 final riskColor = _getRiskColor(riskLevel);
+                                // This list holds raw JSON rather than
+                                // TriageResult, so the red flag is read straight
+                                // off the payload. `is Map` instead of a cast: a
+                                // malformed row must not break the queue.
+                                final escalation = session['escalation'];
+                                final escalationLevel = escalation is Map
+                                    ? escalation['level']
+                                    : null;
+                                final isRedFlag = escalationLevel == 'emergency';
+                                final isUrgent = escalationLevel == 'urgent';
+                                final accent =
+                                    isRedFlag ? const Color(0xFFDC2626) : riskColor;
                                 final date = DateTime.parse(
                                     session['created_at'] as String);
                                 final formattedDate =
@@ -247,9 +259,13 @@ class _PractitionerSessionHistoryScreenState
                                     contentPadding: const EdgeInsets.all(16),
                                     leading: CircleAvatar(
                                       backgroundColor:
-                                          riskColor.withOpacity(0.1),
-                                      child: Icon(Icons.medical_services,
-                                          color: riskColor, size: 24),
+                                          accent.withOpacity(0.1),
+                                      child: Icon(
+                                          isRedFlag
+                                              ? Icons.emergency
+                                              : Icons.medical_services,
+                                          color: accent,
+                                          size: 24),
                                     ),
                                     title: Text(
                                       session['anonymous_code'] ?? 'Unknown ID',
@@ -264,6 +280,28 @@ class _PractitionerSessionHistoryScreenState
                                         const SizedBox(height: 4),
                                         Text(
                                             '${session['body_region']} • ${session['pain_type']}'),
+                                        if (isRedFlag || isUrgent) ...[
+                                          const SizedBox(height: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 8, vertical: 3),
+                                            decoration: BoxDecoration(
+                                              color: accent.withOpacity(0.12),
+                                              borderRadius:
+                                                  BorderRadius.circular(6),
+                                              border: Border.all(color: accent),
+                                            ),
+                                            child: Text(
+                                              isRedFlag
+                                                  ? 'RED FLAG'
+                                                  : 'SEE TODAY',
+                                              style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w800,
+                                                  color: accent),
+                                            ),
+                                          ),
+                                        ],
                                         const SizedBox(height: 4),
                                         Text(formattedDate,
                                             style: TextStyle(

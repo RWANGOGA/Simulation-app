@@ -259,9 +259,104 @@ class _SuccessScreenState extends State<SuccessScreen> {
     }
   }
 
+  /// The escalation the patient must act on: emergency beats urgent beats none.
+  ///
+  /// A visit can hold several pain points, so the most serious verdict wins and
+  /// only that level's findings are listed — the banner must never mix "go to
+  /// an emergency department" with a finding that merely needs a checkup today.
+  TriageEscalation? _topEscalation() {
+    final found = widget.allResults
+        .map((result) => result.escalation)
+        .whereType<TriageEscalation>()
+        .toList();
+    if (found.isEmpty) return null;
+
+    final emergencies = found.where((e) => e.isEmergency).toList();
+    final urgent = found.where((e) => e.isUrgent).toList();
+    final winners = emergencies.isNotEmpty ? emergencies : urgent;
+    if (winners.isEmpty) return null;
+
+    return TriageEscalation(
+      level: winners.first.level,
+      action: winners.first.action,
+      // A set: the same red flag reported on two pain points is one line.
+      reasons: {for (final escalation in winners) ...escalation.reasons}.toList(),
+    );
+  }
+
+  Widget _escalationBanner(AppLocalizations t, TriageEscalation escalation) {
+    final isEmergency = escalation.isEmergency;
+    final accent =
+        isEmergency ? const Color(0xFFDC2626) : const Color(0xFFD97706);
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: accent.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(12),
+        // A border, not just a tint: this has to survive a rushed glance at a
+        // cheap screen in daylight.
+        border: Border.all(color: accent, width: isEmergency ? 2 : 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(isEmergency ? Icons.emergency : Icons.schedule,
+                  color: accent, size: 26),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  isEmergency ? t.emergencyBannerTitle : t.urgentBannerTitle,
+                  style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800,
+                      color: accent),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isEmergency ? t.emergencyBannerBody : t.urgentBannerBody,
+            style: TextStyle(
+                fontSize: 13,
+                height: 1.35,
+                color: AppPalette.textPrimary(context)),
+          ),
+          if (escalation.reasons.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              t.escalationReasonsLabel,
+              style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: accent),
+            ),
+            const SizedBox(height: 4),
+            // Clinical findings stay in the server's wording, matching how the
+            // score factors below are shown.
+            ...escalation.reasons.map((reason) => Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text('- $reason',
+                      style: TextStyle(
+                          fontSize: 12.5,
+                          height: 1.3,
+                          color: AppPalette.textSecondary(context))),
+                )),
+          ],
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+    final escalation = _topEscalation();
     final worst = widget.worstResult;
     final riskScore = worst.riskScore;
     final hasScore = riskScore != null;
@@ -391,6 +486,14 @@ class _SuccessScreenState extends State<SuccessScreen> {
               ),
 
               const SizedBox(height: 24),
+
+              // Red-flag escalation, above the score on purpose: when a finding
+              // needs care now, the instruction is the headline and the
+              // percentage is only context.
+              if (escalation != null) ...[
+                _escalationBanner(t, escalation),
+                const SizedBox(height: 16),
+              ],
 
               // Risk Summary
               Container(

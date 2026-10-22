@@ -20,11 +20,29 @@ class TriageBase(BaseModel):
 class TriageCreate(TriageBase):
     patient_id: Optional[int] = None
 
+class TriageEscalationTrigger(BaseModel):
+    """One red flag that fired. `code` is stable for clients to localise or
+    count; `detail` is the human-readable English form for logs."""
+    code: str
+    detail: str
+
+
+class TriageEscalation(BaseModel):
+    """Red-flag outcome for one pain point, computed from the stored clinical
+    fields on every read (see triage_service.escalation_for). It sits beside
+    `risk_score` rather than replacing it: the score says how concerning the
+    picture is overall, this says whether a single finding needs care now."""
+    level: str = Field(..., description="emergency | urgent | routine")
+    action: str = Field(..., description="seek_emergency_care | seek_urgent_care | routine_review")
+    triggers: List[TriageEscalationTrigger] = Field(default_factory=list)
+
+
 class TriageResponse(TriageBase):
     id: int
     patient_id: Optional[int] = None
     anonymous_code: Optional[str] = None
     risk_score: Optional[float] = None
+    escalation: Optional[TriageEscalation] = None
     shap_explanation: Optional[str] = None
     qr_payload_hash: Optional[str] = None
     created_at: datetime

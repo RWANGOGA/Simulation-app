@@ -441,6 +441,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                         ..._sessions.map((s) {
                           final pos = _positionForRegion(s.bodyRegion);
                           final color = _getRiskColor(s.riskScore);
+                          final redFlag = s.needsEmergencyCare;
                           final left = pos.dx * constraints.maxWidth - 7;
                           final top = pos.dy * constraints.maxHeight - 7;
                           return Positioned(
@@ -449,7 +450,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                             child: IgnorePointer(
                               child: Tooltip(
                                 message:
-                                    '${s.bodyRegion}\n${_riskDisplayLabel(context, _getRiskLabel(s.riskScore))} (${((s.riskScore ?? 0) * 100).toInt()}%)',
+                                    '${s.bodyRegion}\n${_riskDisplayLabel(context, _getRiskLabel(s.riskScore))} (${((s.riskScore ?? 0) * 100).toInt()}%)${redFlag ? '\n${AppLocalizations.of(context)!.redFlagLabel}' : ''}',
                                 child: Container(
                                   key: Key('pain_dot_${s.id}'),
                                   width: 14,
@@ -458,7 +459,10 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                                     color: color,
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                        color: Colors.white, width: 1.5),
+                                        color: redFlag
+                                            ? const Color(0xFFDC2626)
+                                            : Colors.white,
+                                        width: redFlag ? 2.5 : 1.5),
                                     boxShadow: [
                                       BoxShadow(
                                           color: color.withOpacity(0.55),
@@ -589,6 +593,10 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
     final score = session.riskScore ?? 0.0;
     final color = _getRiskColor(score);
     final label = _riskDisplayLabel(context, _getRiskLabel(score));
+    // A red flag outranks the score colour on this row. The score is a clamped
+    // sum, so an escalated session can otherwise sit here looking ordinary.
+    final redFlag = session.needsEmergencyCare;
+    final accent = redFlag ? const Color(0xFFDC2626) : color;
     final date = session.createdAt;
     final dateStr = DateFormat('dd MMM yyyy, HH:mm').format(date);
 
@@ -608,9 +616,10 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 width: 10,
                 height: 10,
                 decoration: BoxDecoration(
-                    color: color,
+                    color: accent,
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 1.5))),
+                    border: Border.all(
+                        color: Colors.white, width: redFlag ? 2.5 : 1.5))),
             const SizedBox(width: 14),
             Expanded(
               child: Column(
@@ -640,6 +649,26 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                               color: AppPalette.textMuted(context)),
                         ),
                       ),
+                      if (redFlag) ...[
+                        const SizedBox(width: 6),
+                        Container(
+                          key: Key('red_flag_$index'),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: accent.withOpacity(0.12),
+                            borderRadius: BorderRadius.circular(4),
+                            border: Border.all(color: accent),
+                          ),
+                          child: Text(
+                            t.redFlagLabel.toUpperCase(),
+                            style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: accent),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                   const SizedBox(height: 4),

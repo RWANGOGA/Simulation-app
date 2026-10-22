@@ -664,6 +664,24 @@ class AppLocalizationsSw extends AppLocalizations {
   String get showQrToHealthWorkerHint => 'Show this QR code to the health worker';
 
   @override
+  String get escalationReasonsLabel => 'Kilichosababisha';
+
+  @override
+  String get emergencyBannerTitle => 'Nenda hospitalini kwa dharura sasa';
+
+  @override
+  String get emergencyBannerBody => 'Jibu moja kati ya majibu yako ni ishara ya hatari ya ugonjwa mkubwa. Usisubiri kupigiwa simu.';
+
+  @override
+  String get urgentBannerTitle => 'Pata huduma leo';
+
+  @override
+  String get urgentBannerBody => 'Majibu yako yanaonyesha unapaswa kuonwa leo badala ya kusubiri ujisikie vizuri.';
+
+  @override
+  String get redFlagLabel => 'Ishara ya hatari';
+
+  @override
   String aiAssessmentLabel(String label) {
     return 'AI Assessment: $label';
   }

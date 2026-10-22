@@ -531,6 +531,30 @@
   "@noInternetRequiredHint": {"description": "Reassurance under the QR code."},
   "showQrToHealthWorkerHint": "Show this QR code to the health worker",
   "@showQrToHealthWorkerHint": {"description": "Instruction under the QR code."},
+  "escalationReasonsLabel": "What triggered this",
+  "@escalationReasonsLabel": {
+    "description": "Heading above the list of red flags in the escalation banner."
+  },
+  "emergencyBannerTitle": "Go to an emergency department now",
+  "@emergencyBannerTitle": {
+    "description": "Banner title when a red flag means the patient needs emergency care."
+  },
+  "emergencyBannerBody": "One of your answers is a red flag for a serious cause. Do not wait for a call back.",
+  "@emergencyBannerBody": {
+    "description": "Banner body explaining what an emergency red flag means."
+  },
+  "urgentBannerTitle": "Be seen today",
+  "@urgentBannerTitle": {
+    "description": "Banner title when the patient should be seen the same day."
+  },
+  "urgentBannerBody": "Your answers suggest you should be seen today rather than waiting to feel better.",
+  "@urgentBannerBody": {
+    "description": "Banner body explaining the same-day advice."
+  },
+  "redFlagLabel": "Red flag",
+  "@redFlagLabel": {
+    "description": "Chip marking a session whose answers triggered a red flag."
+  },
   "aiAssessmentLabel": "AI Assessment: {label}",
   "@aiAssessmentLabel": {
     "description": "Risk summary line on the success screen.",

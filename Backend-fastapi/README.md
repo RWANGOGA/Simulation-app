@@ -96,6 +96,45 @@ has no account. The protection sits elsewhere:
 A caller holding a valid practitioner token is scoped to that account instead
 of their address, which keeps conversations apart behind a shared hospital NAT.
 
+## Red-flag escalation (`/api/v1/triage`)
+
+`risk_score` answers "how concerning is this overall". It is a weighted sum
+clamped at 1.0, so it cannot express "this one finding is an emergency": mild
+yet crushing chest pain scores 0.65 — the *medium* band — while clinically
+needing an ambulance now. Every triage payload therefore also carries an
+`escalation` object, computed by `triage_service.escalation_for`:
+
+```json
+{
+  "level": "emergency",
+  "action": "seek_emergency_care",
+  "triggers": [
+    {"code": "chest_pain_crushing", "detail": "Crushing chest pain"},
+    {"code": "chest_pain_radiating", "detail": "Chest pain that spreads to another area"}
+  ]
+}
+```
+
+* `level` is `emergency`, `urgent` or `routine`; `action` says what the patient
+  should do. `triggers` names every finding that fired, so a clinician can audit
+  the verdict instead of trusting an opaque flag.
+* **The rules never change the score.** They run beside `compute_risk`, and
+  `tests/test_escalation.py` pins both directions: an emergency verdict on a
+  medium score, and an unchanged score after escalation runs.
+* The verdict is derived from the stored clinical columns **on every read**, so
+  history is judged by the current rules, no migration is needed to add or
+  correct one, and every route — create, history, QR lookup, practitioner
+  view — reports the same thing.
+* Escalated submissions are logged at `INFO` on creation
+  (`triage <id> escalated emergency (risk=0.65, chest_pain_crushing)`) so a case
+  is visible even when nobody has the dashboard open.
+
+Current rules — chest pain that is crushing/stabbing, that radiates, or rated
+8+/10; heart rate above 120 or below 50; pain rated 10/10 in a high-concern
+region (chest, head, neck, abdomen). Heart rate 101-120, 10/10 pain elsewhere
+and severe head pain are `urgent` rather than `emergency`. Findings are ranked
+with emergencies first.
+
 ## Logs
 
 Every module logs through the standard `logging` module; `configure_logging()`

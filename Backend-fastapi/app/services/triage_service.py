@@ -144,3 +144,134 @@ def risk_level(risk: float) -> str:
 
 def explain(contributions: List[Dict[str, Any]]) -> str:
     return json.dumps(contributions)
+
+
+# ── Red-flag escalation ───────────────────────────────────────────────────
+#
+# The weighted score above answers "how concerning is this overall". It is a sum
+# that is clamped at 1.0 and mixes unrelated factors, so it cannot express "this
+# one finding is an emergency by itself": crushing chest pain that spreads to
+# the arm at severity 6 can land in the medium band while clinically needing an
+# ambulance now. These rules run *beside* the score, never instead of it - they
+# do not change `compute_risk`, and each trigger names the finding that fired so
+# a clinician can audit the decision.
+
+ESCALATION_EMERGENCY = "emergency"
+ESCALATION_URGENT = "urgent"
+ESCALATION_ROUTINE = "routine"
+
+ACTION_SEEK_EMERGENCY_CARE = "seek_emergency_care"
+ACTION_SEEK_URGENT_CARE = "seek_urgent_care"
+ACTION_ROUTINE_REVIEW = "routine_review"
+
+_ACTION_BY_LEVEL = {
+    ESCALATION_EMERGENCY: ACTION_SEEK_EMERGENCY_CARE,
+    ESCALATION_URGENT: ACTION_SEEK_URGENT_CARE,
+    ESCALATION_ROUTINE: ACTION_ROUTINE_REVIEW,
+}
+
+# Crushing and stabbing describe the pain itself, which is what makes a chest
+# report alarming regardless of how the patient rates it.
+_CONCERNING_CHEST_PAIN_TYPES = ("crushing", "stabbing")
+_HIGH_CONCERN_REGION_KEYWORDS = (
+    "chest", "heart", "head", "cranial", "neck", "abdomen", "stomach",
+)
+
+
+def _is_high_concern_region(region: str) -> bool:
+    return any(word in region for word in _HIGH_CONCERN_REGION_KEYWORDS)
+
+
+def escalation_for(source: Any) -> Dict[str, Any]:
+    """Red-flag screen for one pain point.
+
+    ``source`` is a `TriageSession` row or a `TriageCreate` payload - both carry
+    the same clinical columns, so the rules apply identically on write and on
+    every read. Computing on read is deliberate: a stored row is judged by the
+    current rules rather than by whatever was computed when it was submitted,
+    and no migration is needed to add or correct a rule.
+
+    Returns ``{"level", "action", "triggers"}`` where each trigger is
+    ``{"code", "detail"}``: the code is stable for clients to localise (or
+    count), the detail is English for logs and API consumers.
+    """
+    region = (getattr(source, "body_region", None) or "").strip().lower()
+    pain_type = (getattr(source, "pain_type", None) or "").strip().lower()
+    direction = (getattr(source, "direction", None) or "").strip().lower()
+    severity = getattr(source, "severity", None) or 0
+    heart_rate = getattr(source, "heart_rate", None)
+
+    is_chest = "chest" in region or "heart" in region
+    is_head = "head" in region or "cranial" in region
+
+    # (level, code, detail) - collected first, ranked afterwards.
+    findings: List[Tuple[str, str, str]] = []
+
+    if is_chest:
+        if any(word in pain_type for word in _CONCERNING_CHEST_PAIN_TYPES):
+            findings.append((
+                ESCALATION_EMERGENCY,
+                "chest_pain_crushing",
+                f"{pain_type.title()} chest pain",
+            ))
+        if "radiat" in direction:
+            findings.append((
+                ESCALATION_EMERGENCY,
+                "chest_pain_radiating",
+                "Chest pain that spreads to another area",
+            ))
+        if severity >= 8:
+            findings.append((
+                ESCALATION_EMERGENCY,
+                "chest_pain_severe",
+                f"Chest pain rated {severity}/10",
+            ))
+
+    if heart_rate:
+        rate = float(heart_rate)
+        if rate > 120 or rate < 50:
+            findings.append((
+                ESCALATION_EMERGENCY,
+                "heart_rate_critical",
+                f"Heart rate {rate:g} bpm",
+            ))
+        elif rate > 100:
+            findings.append((
+                ESCALATION_URGENT,
+                "heart_rate_high",
+                f"Heart rate {rate:g} bpm",
+            ))
+
+    if severity >= 10:
+        if _is_high_concern_region(region):
+            findings.append((
+                ESCALATION_EMERGENCY,
+                "pain_maximum_high_concern_region",
+                f"{region or 'Reported region'} rated 10/10",
+            ))
+        else:
+            findings.append((ESCALATION_URGENT, "pain_maximum", "Pain rated 10/10"))
+    elif severity >= 8 and is_head:
+        findings.append((
+            ESCALATION_URGENT,
+            "head_pain_severe",
+            f"Head pain rated {severity}/10",
+        ))
+
+    # Emergencies first, then urgences, each in the order the rules fired.
+    findings.sort(key=lambda finding: 0 if finding[0] == ESCALATION_EMERGENCY else 1)
+
+    level = ESCALATION_ROUTINE
+    if any(finding[0] == ESCALATION_EMERGENCY for finding in findings):
+        level = ESCALATION_EMERGENCY
+    elif findings:
+        level = ESCALATION_URGENT
+
+    return {
+        "level": level,
+        "action": _ACTION_BY_LEVEL[level],
+        "triggers": [
+            {"code": code, "detail": detail} for _, code, detail in findings
+        ],
+    }
+

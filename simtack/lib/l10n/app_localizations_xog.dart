@@ -664,6 +664,24 @@ class AppLocalizationsXog extends AppLocalizations {
   String get showQrToHealthWorkerHint => 'Show this QR code to the health worker';
 
   @override
+  String get escalationReasonsLabel => 'What triggered this';
+
+  @override
+  String get emergencyBannerTitle => 'Go to an emergency department now';
+
+  @override
+  String get emergencyBannerBody => 'One of your answers is a red flag for a serious cause. Do not wait for a call back.';
+
+  @override
+  String get urgentBannerTitle => 'Be seen today';
+
+  @override
+  String get urgentBannerBody => 'Your answers suggest you should be seen today rather than waiting to feel better.';
+
+  @override
+  String get redFlagLabel => 'Red flag';
+
+  @override
   String aiAssessmentLabel(String label) {
     return 'AI Assessment: $label';
   }

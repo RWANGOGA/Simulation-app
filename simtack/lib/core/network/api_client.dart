@@ -209,6 +209,46 @@ class TriageReport {
       };
 }
 
+class TriageEscalation {
+  /// Red-flag verdict from the server (triage_service.escalation_for).
+  ///
+  /// Deliberately separate from [TriageResult.riskScore]: the score is a clamped
+  /// sum, so a single dangerous finding can sit inside a medium total. 'level'
+  /// is the server's verdict, 'action' says what the patient should do, and
+  /// 'reasons' are the findings that fired.
+  final String level;
+  final String action;
+  final List<String> reasons;
+
+  const TriageEscalation({
+    required this.level,
+    this.action = '',
+    this.reasons = const [],
+  });
+
+  bool get isEmergency => level == 'emergency';
+  bool get isUrgent => level == 'urgent';
+
+  /// Returns null rather than throwing: an older server without the field, or a
+  /// malformed payload, must never stop a report from rendering.
+  static TriageEscalation? tryParse(dynamic raw) {
+    if (raw is! Map<String, dynamic>) return null;
+    final level = raw['level'];
+    if (level is! String || level.isEmpty) return null;
+    final triggers = raw['triggers'];
+    return TriageEscalation(
+      level: level,
+      action: raw['action'] is String ? raw['action'] as String : '',
+      reasons: [
+        if (triggers is List)
+          for (final trigger in triggers)
+            if (trigger is Map<String, dynamic> && trigger['detail'] is String)
+              trigger['detail'] as String,
+      ],
+    );
+  }
+}
+
 class TriageResult {
   final int id;
   final int? patientId;
@@ -224,6 +264,8 @@ class TriageResult {
   final List<String> dailyLimitations;
   final String? visitId;
   final double? riskScore;
+  // Red flags, computed server-side from the clinical fields on every read.
+  final TriageEscalation? escalation;
   final String? shapExplanation;
   final String? qrPayloadHash;
   final DateTime createdAt;
@@ -264,6 +306,7 @@ class TriageResult {
     this.dailyLimitations = const [],
     this.visitId,
     this.riskScore,
+    this.escalation,
     this.shapExplanation,
     this.qrPayloadHash,
     required this.createdAt,
@@ -292,6 +335,12 @@ class TriageResult {
     return 'LOW RISK';
   }
 
+  /// True when this pain point carries a red flag that needs care now.
+  bool get needsEmergencyCare => escalation?.isEmergency ?? false;
+
+  /// True when care is needed today, but not necessarily in an emergency unit.
+  bool get needsUrgentCare => escalation?.isUrgent ?? false;
+
   factory TriageResult.fromJson(Map<String, dynamic> json) {
     return TriageResult(
       id: json['id'] as int,
@@ -308,6 +357,7 @@ class TriageResult {
       dailyLimitations: _parseListString(json['daily_limitations']),
       visitId: json['visit_id'] as String?,
       riskScore: (json['risk_score'] as num?)?.toDouble(),
+      escalation: TriageEscalation.tryParse(json['escalation']),
       shapExplanation: json['shap_explanation'] as String?,
       qrPayloadHash: json['qr_payload_hash'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),

@@ -1317,6 +1317,42 @@ abstract class AppLocalizations {
   /// **'Show this QR code to the health worker'**
   String get showQrToHealthWorkerHint;
 
+  /// Heading above the list of red flags in the escalation banner.
+  ///
+  /// In en, this message translates to:
+  /// **'What triggered this'**
+  String get escalationReasonsLabel;
+
+  /// Banner title when a red flag means the patient needs emergency care.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to an emergency department now'**
+  String get emergencyBannerTitle;
+
+  /// Banner body explaining what an emergency red flag means.
+  ///
+  /// In en, this message translates to:
+  /// **'One of your answers is a red flag for a serious cause. Do not wait for a call back.'**
+  String get emergencyBannerBody;
+
+  /// Banner title when the patient should be seen the same day.
+  ///
+  /// In en, this message translates to:
+  /// **'Be seen today'**
+  String get urgentBannerTitle;
+
+  /// Banner body explaining the same-day advice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your answers suggest you should be seen today rather than waiting to feel better.'**
+  String get urgentBannerBody;
+
+  /// Chip marking a session whose answers triggered a red flag.
+  ///
+  /// In en, this message translates to:
+  /// **'Red flag'**
+  String get redFlagLabel;
+
   /// Risk summary line on the success screen.
   ///
   /// In en, this message translates to:
