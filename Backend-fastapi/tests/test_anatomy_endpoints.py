@@ -44,8 +44,28 @@ client = TestClient(app)
 # conversation is scoped to.
 VICTIM_IP = "198.51.100.4"
 ATTACKER_IP = "203.0.113.9"
-victim = TestClient(app, client=(VICTIM_IP, 50000))
-attacker = TestClient(app, client=(ATTACKER_IP, 50000))
+
+
+def _client_from(host: str) -> TestClient:
+    """A test client whose ASGI scope reports `host` as the source address.
+
+    `TestClient(app, client=(host, port))` says the same thing in one line, but
+    that keyword only exists on recent Starlette releases - the one pinned in
+    requirements.txt raises TypeError on it before a single test is collected,
+    while a newer local install accepts it. Rewriting the scope is the ASGI-level
+    equivalent, so this test asserts the same behaviour on both.
+    """
+
+    async def _stamped_scope(scope, receive, send):
+        if scope["type"] == "http":
+            scope = {**scope, "client": (host, 50000)}
+        await app(scope, receive, send)
+
+    return TestClient(_stamped_scope)
+
+
+victim = _client_from(VICTIM_IP)
+attacker = _client_from(ATTACKER_IP)
 
 
 @pytest.fixture
