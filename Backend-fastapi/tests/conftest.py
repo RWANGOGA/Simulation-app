@@ -51,7 +51,6 @@ os.environ["DATABASE_URL"] = TEST_DATABASE_URL
 from alembic import command  # noqa: E402
 from alembic.config import Config  # noqa: E402
 
-from app.api.v1.endpoints import patients, triage  # noqa: E402
 from app.api.v1.endpoints.auth import get_password_hash  # noqa: E402
 from app.core.database import SessionLocal, engine  # noqa: E402
 from app.models import Doctor  # noqa: E402
@@ -66,12 +65,13 @@ DOCTOR_LOGIN = {"username": DOCTOR_EMAIL, "password": DOCTOR_PASSWORD}
 
 def _reset_database() -> None:
     with engine.begin() as connection:
-        # audit_logs is truncated explicitly: it has no foreign keys (by
-        # design) so CASCADE from patients/doctors will not reach it.
+        # audit_logs and request_throttle are truncated explicitly: neither has
+        # foreign keys (deliberately, so an audit row outlives the patient it
+        # names), so CASCADE from patients/doctors will not reach them.
         connection.execute(
             text(
-                "TRUNCATE TABLE triage_sessions, refresh_tokens, patients, doctors, audit_logs "
-                "RESTART IDENTITY CASCADE"
+                "TRUNCATE TABLE triage_sessions, refresh_tokens, patients, doctors, "
+                "audit_logs, request_throttle RESTART IDENTITY CASCADE"
             )
         )
 
@@ -92,12 +92,10 @@ def _reset_database() -> None:
 
 @pytest.fixture(autouse=True)
 def isolated_database():
+    # No in-memory counters to clear any more: every rate limit lives in
+    # request_throttle, which _reset_database() truncates.
     _reset_database()
-    patients._patient_rate_limit.clear()
-    triage._triage_rate_limit.clear()
     yield
-    patients._patient_rate_limit.clear()
-    triage._triage_rate_limit.clear()
 
 
 def doctor_headers(client) -> dict:

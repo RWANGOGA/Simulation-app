@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, patients, triage, auth, anatomy
+from app.api.v1.endpoints import health, patients, triage, auth, anatomy, audit
 
 api_router = APIRouter()
 api_router.include_router(health.router, tags=["health"])
@@ -7,3 +7,4 @@ api_router.include_router(patients.router)
 api_router.include_router(triage.router)
 api_router.include_router(auth.router)
 api_router.include_router(anatomy.router)
+api_router.include_router(audit.router)

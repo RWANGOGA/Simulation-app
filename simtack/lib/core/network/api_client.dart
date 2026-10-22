@@ -602,6 +602,11 @@ class ApiClient {
           message: 'Refresh response was missing an access token.');
     }
     await tokenStorage.write(token);
+    // The backend rotates: the token we just spent is now consumed, so the
+    // replacement has to be stored or the next refresh fails and the
+    // practitioner is signed out mid-session.
+    final rotated = data['refresh_token'] as String?;
+    if (rotated != null) await tokenStorage.writeRefreshToken(rotated);
   }
 
   /// Creates a practitioner account, then logs in with the same

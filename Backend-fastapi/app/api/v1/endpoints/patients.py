@@ -1,39 +1,33 @@
-from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.crud import crud_patient
-from app.schemas import PatientBase, PatientCreate, PatientResponse
+from app.schemas import PatientBase, PatientCreate, PatientResponse, PublicPatientResponse
 from app.models.doctor import Doctor
 from app.api.v1.endpoints.auth import get_current_doctor
-from app.services import audit
+from app.services import audit, throttle
 
 router = APIRouter(prefix="/patients", tags=["patients"])
 
-# IP-based rate limiting for public patient creation
-_patient_rate_limit: dict[str, list[datetime]] = {}
-PATIENT_RATE_LIMIT = 5  # requests per window
-PATIENT_RATE_WINDOW = timedelta(minutes=5)
-
-def _check_patient_rate_limit(request: Request):
-    client_ip = request.client.host if request.client else "unknown"
-    now = datetime.now(timezone.utc)
-    cutoff = now - PATIENT_RATE_WINDOW
-    
-    attempts = [t for t in _patient_rate_limit.get(client_ip, []) if t > cutoff]
-    _patient_rate_limit[client_ip] = attempts
-    
-    if len(attempts) >= PATIENT_RATE_LIMIT:
+# Public intake limit, held in the request_throttle table so it is shared by
+# every worker and survives a restart (see app/services/throttle).
+def _check_patient_rate_limit(request: Request, db: Session) -> None:
+    allowed = throttle.allow(
+        db,
+        throttle.bucket_for(request, "patient"),
+        limit=throttle.PATIENT_RATE_LIMIT,
+        window_seconds=throttle.PATIENT_RATE_WINDOW_SECONDS,
+    )
+    if not allowed:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many requests. Please try again later.",
+            headers={"Retry-After": str(throttle.PATIENT_RATE_WINDOW_SECONDS)},
         )
-    
-    _patient_rate_limit[client_ip].append(now)
 
 @router.post("/", response_model=PatientResponse, status_code=201)
 def create_patient(request: Request, payload: PatientCreate, db: Session = Depends(get_db)):
-    _check_patient_rate_limit(request)
+    _check_patient_rate_limit(request, db)
     patient = crud_patient.create_patient(db, payload)
 
     audit.record_access(
@@ -48,7 +42,12 @@ def create_patient(request: Request, payload: PatientCreate, db: Session = Depen
     )
     return patient
 
-@router.get("/{code}", response_model=PatientResponse)
+# Unauthenticated on purpose: the anonymous code IS the patient's
+# credential, and the intake flow reaches this route with no account.
+# It therefore returns PublicPatientResponse — clinical demographics only,
+# with every identity field absent. Practitioners read the full record
+# through the JWT-guarded triage routes.
+@router.get("/{code}", response_model=PublicPatientResponse)
 def get_patient(code: str, request: Request, db: Session = Depends(get_db)):
     patient = crud_patient.get_patient_by_code(db, code)
     if patient is None:
@@ -67,14 +66,11 @@ def get_patient(code: str, request: Request, db: Session = Depends(get_db)):
         action=audit.ACTION_READ,
         resource_type=audit.RESOURCE_PATIENT,
         request=request,
-        # This route returns the full demographic record including name,
-        # phone and address to anyone holding the code — see the note on
-        # the route below.
         actor_type=audit.ACTOR_PATIENT,
         patient_id=patient.id,
         patient_code=patient.anonymous_code,
         resource_id=patient.id,
-        detail="patient record read by code",
+        detail="patient record read by code (clinical fields only)",
     )
     return patient
 

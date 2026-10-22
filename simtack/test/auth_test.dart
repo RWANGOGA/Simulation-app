@@ -281,5 +281,69 @@ void main() {
       );
       expect(refreshCalls, 0, reason: 'never refresh on a failed sign-in');
     });
+
+    test('an automatic refresh persists the rotated refresh token', () async {
+      // The backend spends the refresh token it is given and hands back a
+      // replacement. Losing the replacement would break the next refresh.
+      final storage = FakeTokenStorage();
+      await storage.write('stale.token');
+      await storage.writeRefreshToken('spent.refresh.token');
+      ApiClient.tokenStorage = storage;
+
+      ApiClient.httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/refresh')) {
+          return http.Response(
+            jsonEncode({
+              'access_token': 'fresh.token',
+              'refresh_token': 'rotated.refresh.token',
+              'token_type': 'bearer',
+            }),
+            200,
+          );
+        }
+        if (request.headers['Authorization'] == 'Bearer fresh.token') {
+          return http.Response(
+            jsonEncode({
+              'id': 1,
+              'email': doctorEmail,
+              'full_name': 'Dr. Jonan',
+              'is_active': true,
+            }),
+            200,
+          );
+        }
+        return http.Response(jsonEncode({'detail': 'Token expired'}), 401);
+      });
+
+      await ApiClient.getCurrentDoctor();
+
+      expect(await storage.read(), 'fresh.token');
+      expect(await storage.readRefreshToken(), 'rotated.refresh.token',
+          reason: 'the spent token must be replaced, not kept');
+    });
+
+    test('an explicit refresh also persists the rotated refresh token',
+        () async {
+      final storage = FakeTokenStorage();
+      await storage.writeRefreshToken('spent.refresh.token');
+      ApiClient.tokenStorage = storage;
+
+      ApiClient.httpClient = MockClient((request) async {
+        expect(request.body, contains('refresh_token=spent.refresh.token'));
+        return http.Response(
+          jsonEncode({
+            'access_token': 'fresh.token',
+            'refresh_token': 'rotated.refresh.token',
+            'token_type': 'bearer',
+          }),
+          200,
+        );
+      });
+
+      await ApiClient.refreshAccessToken();
+
+      expect(await storage.read(), 'fresh.token');
+      expect(await storage.readRefreshToken(), 'rotated.refresh.token');
+    });
   });
 }

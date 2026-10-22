@@ -7,32 +7,29 @@ import json
 from app.core.database import get_db
 from app.crud import crud_triage, crud_patient
 from app.schemas import TriageCreate, TriageResponse, TriageDecisionUpdate, PatientCreate
-from app.services import audit, triage_service
+from app.services import audit, throttle, triage_service
 from app.models import Patient, TriageSession, Doctor
 from app.api.v1.endpoints.auth import get_current_doctor
 
 router = APIRouter(prefix="/triage", tags=["triage"])
 
-# IP-based rate limiting for public endpoints
-_triage_rate_limit: dict[str, list[datetime]] = {}
-TRIAGE_RATE_LIMIT = 10  # requests per window
-TRIAGE_RATE_WINDOW = timedelta(minutes=5)
-
-def _check_triage_rate_limit(request: Request):
-    client_ip = request.client.host if request.client else "unknown"
-    now = datetime.now(timezone.utc)
-    cutoff = now - TRIAGE_RATE_WINDOW
-    
-    attempts = [t for t in _triage_rate_limit.get(client_ip, []) if t > cutoff]
-    _triage_rate_limit[client_ip] = attempts
-    
-    if len(attempts) >= TRIAGE_RATE_LIMIT:
+# Public intake limit. Backed by the request_throttle table rather than a
+# module-level dict, so the limit holds across uvicorn workers and survives
+# a deploy — a per-process counter let a restart hand an attacker a clean
+# slate and multiplied the real limit by the worker count.
+def _check_triage_rate_limit(request: Request, db: Session) -> None:
+    allowed = throttle.allow(
+        db,
+        throttle.bucket_for(request, "triage"),
+        limit=throttle.TRIAGE_RATE_LIMIT,
+        window_seconds=throttle.TRIAGE_RATE_WINDOW_SECONDS,
+    )
+    if not allowed:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
             detail="Too many requests. Please try again later.",
+            headers={"Retry-After": str(throttle.TRIAGE_RATE_WINDOW_SECONDS)},
         )
-    
-    _triage_rate_limit[client_ip].append(now)
 
 def _session_payload(session: TriageSession, patient) -> dict:
     """Single source of truth for the triage response shape — every
@@ -109,7 +106,7 @@ def create_triage(
     payload: TriageCreate,
     db: Session = Depends(get_db),
 ):
-    _check_triage_rate_limit(request)
+    _check_triage_rate_limit(request, db)
     # If this pain point belongs to a multi-region visit, score it aware of
     # whatever other regions the patient already reported in the same visit
     # (e.g. chest pain scored alongside already-reported left arm pain).

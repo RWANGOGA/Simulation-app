@@ -9,27 +9,33 @@ from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.database import engine
 from app import models  # noqa: F401 registers Patient/TriageSession on Base
-from app.models import AuditLog
+from app.models import AuditLog, RequestThrottle
 
 
-def _ensure_audit_table() -> None:
-    """Create audit_logs if this deployment has not run alembic yet.
+# Tables added after migration 0003. Each is created here with checkfirst so a
+# deployment that never runs `alembic upgrade head` still works — neither the
+# Dockerfile nor the CI workflow runs it.
+#
+# Both failures are silent in the worst way, which is why this exists rather
+# than a blanket `create_all`:
+#   * audit_logs — record_access swallows insert errors by design, so a missing
+#     table means "no trail" with nothing in the logs to say so.
+#   * request_throttle — the rate limiters treat a broken table as "no rows",
+#     so the public intake routes would quietly lose their limit.
+#
+# Alembic stays the source of truth for everything else; this only ever adds
+# these two tables and never alters an existing one.
+_RUNTIME_TABLES = (AuditLog, RequestThrottle)
 
-    Nothing in the deployment pipeline runs `alembic upgrade head` — the
-    Dockerfile and the CI workflow both just start uvicorn — so a newly
-    added table would never reach the production database. That is fatal
-    for an audit log specifically: record_access swallows insert failures
-    by design, so a missing table means "no trail" with no error anywhere.
 
-    This creates *only* audit_logs, with checkfirst, and touches no other
-    table — so it cannot collide with migrations 0001-0003 and alembic
-    stays the source of truth for every other schema change.
-    """
-    try:
-        AuditLog.__table__.create(bind=engine, checkfirst=True)
-        print("[startup] audit table ready", flush=True)
-    except Exception as exc:  # noqa: BLE001 - never block startup on this
-        print(f"[startup] WARNING: audit table unavailable: {exc}", flush=True)
+def _ensure_runtime_tables() -> None:
+    for model in _RUNTIME_TABLES:
+        name = model.__tablename__
+        try:
+            model.__table__.create(bind=engine, checkfirst=True)
+            print(f"[startup] table ready: {name}", flush=True)
+        except Exception as exc:  # noqa: BLE001 - never block startup on this
+            print(f"[startup] WARNING: table {name} unavailable: {exc}", flush=True)
 
 
 @asynccontextmanager
@@ -37,7 +43,7 @@ async def lifespan(app: FastAPIOffline):
     with engine.connect() as connection:
         connection.execute(text("SELECT 1"))
     print("[startup] database connected", flush=True)
-    _ensure_audit_table()
+    _ensure_runtime_tables()
     yield
 
 app = FastAPIOffline(

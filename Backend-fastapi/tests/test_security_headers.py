@@ -1,6 +1,5 @@
 from fastapi.testclient import TestClient
 from app.main import app
-from app.api.v1.endpoints.auth import _failed_login_attempts
 
 client = TestClient(app)
 
@@ -26,7 +25,8 @@ def test_flutter_web_dynamic_localhost_origin_is_allowed():
     assert response.headers["access-control-allow-origin"] == "http://localhost:60938"
 
 def test_login_rate_limiting():
-    _failed_login_attempts.clear()
+    # The lockout lives in request_throttle and the autouse isolated_database
+    # fixture truncates that table, so this starts from a clean slate.
     target_email = "ratelimit-test@simtack.com"
 
     # Make 5 failed attempts (the limit)
@@ -44,5 +44,3 @@ def test_login_rate_limiting():
     )
     assert blocked_resp.status_code == 429
     assert "Too many failed login attempts" in blocked_resp.json()["detail"]
-
-    _failed_login_attempts.clear()

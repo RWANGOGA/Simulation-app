@@ -299,3 +299,88 @@ def test_update_users_me_rejects_blank_full_name():
     assert response.status_code == 400
     assert response.json()["detail"] == "Full name is required"
 
+
+# ---------------------------------------------------------------------------
+# Refresh-token rotation
+# ---------------------------------------------------------------------------
+
+def _login_tokens() -> dict:
+    response = client.post("/api/v1/auth/login", data=DOCTOR_LOGIN)
+    assert response.status_code == 200
+    return response.json()
+
+
+def _refresh(token: str):
+    return client.post("/api/v1/auth/refresh", data={"refresh_token": token})
+
+
+def test_refresh_rotates_the_refresh_token():
+    original = _login_tokens()["refresh_token"]
+
+    response = _refresh(original)
+    assert response.status_code == 200
+    rotated = response.json()["refresh_token"]
+
+    assert rotated
+    assert rotated != original, "the presented token must not be handed back"
+
+    db = SessionLocal()
+    try:
+        old_row = db.query(RefreshToken).filter(RefreshToken.token == original).first()
+        new_row = db.query(RefreshToken).filter(RefreshToken.token == rotated).first()
+    finally:
+        db.close()
+    # The old row keeps the moment it was consumed, not a bare "true".
+    assert old_row.revoked != "false"
+    assert old_row.revoked != "true"
+    assert new_row.revoked == "false"
+
+
+def test_refresh_within_the_grace_window_allows_a_retry():
+    """A response lost to a network drop must not sign the clinician out:
+    retrying with the same token inside the window still works."""
+    original = _login_tokens()["refresh_token"]
+
+    first = _refresh(original)
+    second = _refresh(original)
+
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert second.json()["access_token"]
+
+
+def test_replaying_a_consumed_token_ends_the_whole_session(monkeypatch):
+    from app.api.v1.endpoints import auth as auth_module
+
+    # Collapse the grace window so a replay is unambiguous.
+    monkeypatch.setattr(auth_module, "REFRESH_ROTATION_GRACE_SECONDS", 0)
+
+    original = _login_tokens()["refresh_token"]
+    rotated = _refresh(original).json()["refresh_token"]
+
+    replay = _refresh(original)
+    assert replay.status_code == 401
+    assert "security" in replay.json()["detail"].lower()
+
+    # The legitimate successor is killed too: we cannot tell which holder
+    # was the real client, so neither keeps the session.
+    assert _refresh(rotated).status_code == 401
+
+
+def test_logout_revokes_the_refresh_token(monkeypatch):
+    from app.api.v1.endpoints import auth as auth_module
+
+    monkeypatch.setattr(auth_module, "REFRESH_ROTATION_GRACE_SECONDS", 0)
+    token = _login_tokens()["refresh_token"]
+
+    assert client.post("/api/v1/auth/logout", data={"refresh_token": token}).status_code == 204
+    assert _refresh(token).status_code == 401
+
+
+def test_logout_is_idempotent_and_forgiving():
+    assert client.post("/api/v1/auth/logout").status_code == 204
+    assert client.post(
+        "/api/v1/auth/logout", data={"refresh_token": "never-existed"}
+    ).status_code == 204
+
+

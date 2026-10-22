@@ -24,6 +24,28 @@ FULL_DEMOGRAPHICS = {
     "hospital_name": "Mulago National Referral Hospital",
 }
 
+# Everything that must never leave the server unauthenticated.
+IDENTITY_FIELDS = (
+    "full_name",
+    "date_of_birth",
+    "phone",
+    "address",
+    "next_of_kin_name",
+    "next_of_kin_phone",
+    "hospital_name",
+    "notes",
+)
+
+IDENTITY_VALUES = (
+    FULL_DEMOGRAPHICS["full_name"],
+    FULL_DEMOGRAPHICS["date_of_birth"],
+    FULL_DEMOGRAPHICS["phone"],
+    FULL_DEMOGRAPHICS["address"],
+    FULL_DEMOGRAPHICS["next_of_kin_name"],
+    FULL_DEMOGRAPHICS["next_of_kin_phone"],
+    FULL_DEMOGRAPHICS["hospital_name"],
+)
+
 
 def test_create_patient_stores_demographics():
     response = client.post("/api/v1/patients/", json=FULL_DEMOGRAPHICS)
@@ -36,13 +58,32 @@ def test_create_patient_stores_demographics():
     assert data["hospital_name"] == "Mulago National Referral Hospital"
 
 
-def test_get_patient_by_code_returns_demographics():
+def test_get_patient_by_code_returns_clinical_fields_only():
+    """The lookup is unauthenticated — the code is the credential and it
+    gets screenshotted, printed and shown to strangers, so it must not
+    publish who the person is."""
     created = client.post("/api/v1/patients/", json=FULL_DEMOGRAPHICS).json()
     fetched = client.get(f"/api/v1/patients/{created['anonymous_code']}")
     assert fetched.status_code == 200
     data = fetched.json()
-    assert data["full_name"] == "Amara Nansubuga"
-    assert data["address"] == "Plot 12, Kampala Road"
+
+    for field in IDENTITY_FIELDS:
+        assert field not in data, f"{field} was published on the unauthenticated route"
+
+    # The record itself still has to come back for the intake flow.
+    assert data["anonymous_code"] == created["anonymous_code"]
+    assert data["age"] == 8
+    assert data["gender"] == "Female"
+    assert data["weight"] == 28.0
+
+
+def test_get_patient_by_code_never_contains_identity_values():
+    """Guards against a future refactor that republishes the same data
+    under a different key name."""
+    created = client.post("/api/v1/patients/", json=FULL_DEMOGRAPHICS).json()
+    body = client.get(f"/api/v1/patients/{created['anonymous_code']}").text
+    for value in IDENTITY_VALUES:
+        assert value not in body, f"identity value {value!r} leaked"
 
 
 def test_patient_demographics_optional_for_anonymous_walkins():

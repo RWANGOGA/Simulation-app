@@ -3,6 +3,14 @@ from .triage import TriageSession  # (or whatever your triage model file is name
 from .doctor import Doctor         # <-- ADD THIS LINE
 from .refresh_token import RefreshToken
 from .audit_log import AuditLog
+from .request_throttle import RequestThrottle
 
 # This ensures all models are loaded when the app starts
-__all__ = ["Patient", "TriageSession", "Doctor", "RefreshToken", "AuditLog"]
+__all__ = [
+    "Patient",
+    "TriageSession",
+    "Doctor",
+    "RefreshToken",
+    "AuditLog",
+    "RequestThrottle",
+]

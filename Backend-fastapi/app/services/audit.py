@@ -49,6 +49,7 @@ RESOURCE_TRIAGE_HISTORY = "triage_history"
 RESOURCE_PATIENT = "patient"
 RESOURCE_TRIAGE_STATS = "triage_stats"
 RESOURCE_TRIAGE_REPORTS = "triage_reports"
+RESOURCE_AUDIT_LOG = "audit_log"
 
 
 def client_ip(request: Optional[Request]) -> Optional[str]:
