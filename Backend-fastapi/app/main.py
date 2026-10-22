@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from fastapi.responses import JSONResponse
 from fastapi_offline import FastAPIOffline
@@ -6,10 +7,18 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from sqlalchemy import text
 from app.api.v1.endpoints import auth
 from app.api.v1.router import api_router
-from app.core.config import settings
+from app.core.config import settings, warn_on_insecure_defaults
 from app.core.database import engine
+from app.core.logging import configure_logging
+from app.core.observability import RequestContextMiddleware
 from app import models  # noqa: F401 registers Patient/TriageSession on Base
 from app.models import AuditLog, RequestThrottle
+
+# Before anything else logs. Every module calls logging.getLogger(__name__), but
+# until this ran there was no handler on the root logger, so INFO lines were
+# discarded and the only output was a few print() calls below.
+configure_logging(level=settings.LOG_LEVEL, format=settings.LOG_FORMAT)
+logger = logging.getLogger(__name__)
 
 
 # Tables added after migration 0003. Each is created here with checkfirst so a
@@ -33,18 +42,25 @@ def _ensure_runtime_tables() -> None:
         name = model.__tablename__
         try:
             model.__table__.create(bind=engine, checkfirst=True)
-            print(f"[startup] table ready: {name}", flush=True)
+            logger.info("table_ready", extra={"table": name})
         except Exception as exc:  # noqa: BLE001 - never block startup on this
-            print(f"[startup] WARNING: table {name} unavailable: {exc}", flush=True)
+            logger.warning(
+                "table_unavailable", extra={"table": name, "error": str(exc)}
+            )
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPIOffline):
+    warn_on_insecure_defaults()
     with engine.connect() as connection:
         connection.execute(text("SELECT 1"))
-    print("[startup] database connected", flush=True)
+    logger.info(
+        "startup",
+        extra={"version": settings.VERSION, "environment": settings.ENVIRONMENT},
+    )
     _ensure_runtime_tables()
     yield
+    logger.info("shutdown")
 
 app = FastAPIOffline(
     title=settings.PROJECT_NAME,
@@ -98,6 +114,12 @@ async def limit_request_size(request, call_next):
     if content_length and int(content_length) > 10 * 1024 * 1024:  # 10MB limit
         return JSONResponse(status_code=413, content={"detail": "Request too large"})
     return await call_next(request)
+
+# Registered last on purpose: Starlette inserts each new middleware at the front
+# of the stack, so this becomes the outermost one. That matters — a 413 from the
+# size limiter above still has to carry X-Request-ID, and the id has to exist
+# before any other middleware logs.
+app.add_middleware(RequestContextMiddleware)
 
 app.include_router(auth.router, prefix="/api/v1")
 app.include_router(api_router, prefix=settings.API_V1_STR)

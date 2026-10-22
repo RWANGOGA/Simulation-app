@@ -13,6 +13,10 @@ else:
         max_overflow=10,
         pool_timeout=30,
         pool_pre_ping=True,
+        # Without this a dead or black-holed database makes every request wait
+        # for the OS TCP timeout (over a minute) instead of failing in seconds.
+        # It also bounds the readiness probe, which runs on a timer.
+        connect_args={"connect_timeout": 5},
     )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False , bind=engine)
 Base = declarative_base()

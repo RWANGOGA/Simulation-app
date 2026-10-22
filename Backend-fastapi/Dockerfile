@@ -74,5 +74,10 @@ COPY docker-entrypoint.py /app/docker-entrypoint.py
 # CMD uses the JSON-array form so the shell never gets to interpret any
 # of the tokens (e.g. `*` in --forwarded-allow-ips). If you change this
 # line, keep it JSON-array only.
+#
+# --no-access-log: uvicorn logs the raw request URL, which for this API is a
+# patient identifier (`/api/v1/triage/patient/P-770043`). The application
+# writes its own access line with the parameters templated out instead; keeping
+# both would put the identifier straight back into the container logs.
 ENTRYPOINT ["python", "/app/docker-entrypoint.py"]
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "0.0.0.0/0"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "0.0.0.0/0", "--no-access-log"]
