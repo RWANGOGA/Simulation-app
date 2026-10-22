@@ -8,9 +8,10 @@ is that window.
 Two rules shape it:
 
 * **The trail is itself sensitive.** It reveals which clinician is treating
-  which patient, so every read here is JWT-guarded and is *itself* recorded
-  in the trail (``record_access`` on an audit read appends one row; it does
-  not recurse, because writing a row never triggers another read).
+  which patient — clinical information in its own right — so every read here
+  is JWT-guarded, restricted to administrators, and is *itself* recorded in
+  the trail (``record_access`` on an audit read appends one row; it does not
+  recurse, because writing a row never triggers another read).
 * **Metadata only.** Nothing here returns clinical content, because the
   table it reads never stores any.
 """
@@ -20,8 +21,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.orm import Session
 
-from app.api.v1.endpoints.auth import get_current_doctor
-from app.core.config import settings
+from app.api.v1.endpoints.auth import require_admin
 from app.core.database import get_db
 from app.models import AuditLog, Doctor
 from app.services import audit
@@ -61,26 +61,16 @@ def _aware(value: Optional[datetime]) -> Optional[datetime]:
     return value
 
 
-def _configured_readers() -> set:
-    return {e.strip().lower() for e in settings.AUDIT_READER_EMAILS.split(",") if e.strip()}
+def get_audit_reader(current_admin: Doctor = Depends(require_admin)) -> Doctor:
+    """Gate the trail to administrators.
 
-
-def get_audit_reader(current_doctor: Doctor = Depends(get_current_doctor)) -> Doctor:
-    """Gate the trail behind a named auditor list, when one is configured.
-
-    Leaving ``AUDIT_READER_EMAILS`` empty keeps the trail readable by any
-    signed-in practitioner — the right default for a small clinic where the
-    only users are the clinicians who generated the trail. Set it in a
-    larger deployment so one clinician cannot browse a colleague's access
-    history (which would leak who is treating whom).
+    This used to be a configured email allowlist (``AUDIT_READER_EMAILS``),
+    which existed only because there was no role to check. Now that roles are
+    real, an allowlist is a second, weaker mechanism to keep in sync: an
+    auditor had to be named in two places and removed from two. The role is
+    the single source of truth.
     """
-    allowed = _configured_readers()
-    if allowed and (current_doctor.email or "").lower() not in allowed:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="This account is not allowed to read the audit trail",
-        )
-    return current_doctor
+    return current_admin
 
 
 def _record_read(

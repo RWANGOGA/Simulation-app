@@ -2,8 +2,8 @@ from datetime import datetime, timedelta, date, timezone
 import logging
 import re
 import secrets
-from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 import bcrypt
@@ -12,9 +12,9 @@ from pydantic import BaseModel
 
 from app.core.config import settings
 from app.core.database import get_db
-from app.models.doctor import Doctor
+from app.models.doctor import ACCESS_ADMIN, ACCESS_LEVELS, ACCESS_PRACTITIONER, Doctor
 from app.models.refresh_token import RefreshToken
-from app.schemas.doctor import DoctorResponse, DoctorUpdate
+from app.schemas.doctor import DoctorAdminUpdate, DoctorResponse, DoctorUpdate
 from app.services import throttle
 
 logger = logging.getLogger(__name__)
@@ -97,9 +97,26 @@ def get_current_doctor(token: str = Depends(oauth2_scheme), db: Session = Depend
         raise credentials_exception
         
     doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
-    if doctor is None or not doctor.is_active:
+    if doctor is None or not doctor.is_active or not doctor.is_approved:
         raise credentials_exception
     return doctor
+
+
+def require_admin(
+    current_doctor: Doctor = Depends(get_current_doctor),
+) -> Doctor:
+    """Dependency for the endpoints only an administrator may call.
+
+    403 rather than 404 on purpose: a signed-in practitioner already knows
+    these routes exist, so hiding them would only make client-side error
+    reporting worse without hiding anything.
+    """
+    if not current_doctor.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Administrator access is required for this action.",
+        )
+    return current_doctor
 
 # Failed-login lockout. Held in the request_throttle table, not a module-level
 # dict: a process-local counter reset on every deploy and was blind to sibling
@@ -147,6 +164,21 @@ def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db:
         )
     
     _clear_failed_attempts(email, db)
+
+    # Checked only *after* the password verifies, so an attacker cannot use
+    # this endpoint to learn which addresses are registered-but-unapproved.
+    # A correct password plus a pending account gets a distinct 403, because
+    # "an administrator has not approved you yet" is actionable and
+    # "incorrect email or password" is not.
+    if not doctor.is_approved:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                "This account is awaiting administrator approval. "
+                "You will be able to sign in once it has been reviewed."
+            ),
+        )
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": str(doctor.id)}, expires_delta=access_token_expires
@@ -297,7 +329,7 @@ async def refresh_access_token(
         )
 
     doctor = db.query(Doctor).filter(Doctor.id == stored.doctor_id).first()
-    if doctor is None or not doctor.is_active:
+    if doctor is None or not doctor.is_active or not doctor.is_approved:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
@@ -349,11 +381,22 @@ async def logout(
 @router.post("/register", response_model=DoctorResponse, status_code=status.HTTP_201_CREATED)
 def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
     """
-    Creates a practitioner account. Previously there was no way to create
-    a doctor at all (no endpoint, no seed script), so login could never
-    succeed on a fresh database.
-    NOTE: registration is open by design for this deployment — gate it
-    (invite code / admin-only) before any production use.
+    Creates a practitioner account.
+
+    Three things gate the result, in increasing order of importance:
+
+    1. ``INVITE_CODE``, when set, keeps the endpoint from being a public
+       signup form.
+    2. The password policy below.
+    3. **Approval.** An invite code proves someone sent you a string; it does
+       not make you a clinician. A new account is created unapproved and
+       cannot obtain a token until an admin approves it, so a leaked invite
+       code is no longer the same thing as read access to patient records.
+
+    The first account on a fresh database is the exception: it is created
+    approved and as an admin, because otherwise there would be nobody able to
+    approve anybody. That is the standard bootstrap, and it is safe here — a
+    fresh database holds no patient data to protect yet.
     """
     if settings.INVITE_CODE and payload.invite_code != settings.INVITE_CODE:
         raise HTTPException(
@@ -412,6 +455,10 @@ def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
                 status_code=status.HTTP_409_CONFLICT,
                 detail="A practitioner with this phone number already exists. Please use a different phone number.",
             )
+    # Whoever sets the deployment up must be able to approve the next person.
+    # Counted before the insert, so it is true only for the very first row.
+    is_first_account = db.query(Doctor).count() == 0
+
     doctor = Doctor(
         email=email,
         hashed_password=get_password_hash(password),
@@ -422,6 +469,8 @@ def register_doctor(payload: DoctorCreate, db: Session = Depends(get_db)):
         hospital_name=(payload.hospital_name or "").strip() or None,
         date_of_birth=payload.date_of_birth,
         is_active=True,
+        is_approved=is_first_account,
+        access_level=ACCESS_ADMIN if is_first_account else ACCESS_PRACTITIONER,
     )
     db.add(doctor)
     db.commit()
@@ -463,3 +512,84 @@ def update_users_me(payload: DoctorUpdate, current_doctor: Doctor = Depends(get_
     db.commit()
     db.refresh(current_doctor)
     return current_doctor
+
+
+# ==========================================
+# ACCOUNT ADMINISTRATION (admin only)
+# Signing up is not the same as being trusted with patient records: every new
+# account lands here for review. These two routes are the whole approval
+# workflow — list what is pending, then flip the switch.
+# ==========================================
+@router.get("/doctors", response_model=List[DoctorResponse])
+def list_doctor_accounts(
+    pending_only: bool = Query(
+        default=False, description="Only accounts still awaiting approval"
+    ),
+    db: Session = Depends(get_db),
+    current_admin: Doctor = Depends(require_admin),
+):
+    query = db.query(Doctor)
+    if pending_only:
+        query = query.filter(Doctor.is_approved.is_(False))
+    return query.order_by(Doctor.created_at.asc()).all()
+
+
+@router.patch("/doctors/{doctor_id}", response_model=DoctorResponse)
+def update_doctor_account(
+    doctor_id: int,
+    payload: DoctorAdminUpdate,
+    db: Session = Depends(get_db),
+    current_admin: Doctor = Depends(require_admin),
+):
+    """Approves, promotes or deactivates another account.
+
+    Self-service is deliberately blocked for the two changes that would lock
+    the deployment out: an admin cannot demote or deactivate themselves. If
+    they are the only admin, doing so leaves nobody able to approve accounts
+    and the fix is a manual SQL statement — a mistake worth refusing.
+    """
+    if payload.is_approved is None and payload.is_active is None and payload.access_level is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Provide at least one of is_approved, is_active or access_level.",
+        )
+    if payload.access_level is not None and payload.access_level not in ACCESS_LEVELS:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"access_level must be one of: {', '.join(ACCESS_LEVELS)}",
+        )
+
+    doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
+    if doctor is None:
+        raise HTTPException(status_code=404, detail="Practitioner not found")
+
+    if doctor.id == current_admin.id:
+        if payload.access_level is not None and payload.access_level != ACCESS_ADMIN:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="You cannot remove your own administrator access.",
+            )
+        if payload.is_active is False:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="You cannot deactivate your own account.",
+            )
+
+    if payload.is_approved is not None:
+        doctor.is_approved = payload.is_approved
+    if payload.is_active is not None:
+        doctor.is_active = payload.is_active
+    if payload.access_level is not None:
+        doctor.access_level = payload.access_level
+
+    db.commit()
+    db.refresh(doctor)
+    logger.info(
+        "admin %s updated account %s (approved=%s active=%s access=%s)",
+        current_admin.email,
+        doctor.email,
+        doctor.is_approved,
+        doctor.is_active,
+        doctor.access_level,
+    )
+    return doctor

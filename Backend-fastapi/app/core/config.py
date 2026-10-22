@@ -16,10 +16,9 @@ class Settings(BaseSettings):
     MAX_LOGIN_ATTEMPTS: int = 5
     LOGIN_LOCKOUT_SECONDS: int = 300
     INVITE_CODE: str = Field(default="", validation_alias="INVITE_CODE")
-    # Comma-separated emails allowed to read the patient-data audit trail.
-    # Empty means "any signed-in practitioner" (fine for a small clinic);
-    # set it so one clinician cannot browse a colleague's access history.
-    AUDIT_READER_EMAILS: str = Field(default="", validation_alias="AUDIT_READER_EMAILS")
+    # Access to the patient-data audit trail is governed by Doctor.access_level
+    # (admin only). It used to be a comma-separated email allowlist, which
+    # existed only because there was no role to check.
     GROQ_API_KEY: str = Field(default="", validation_alias="GROQ_API_KEY")
     GROQ_MODEL: str = "openai/gpt-oss-20b"
     GROQ_BASE_URL: str = "https://api.groq.com/openai/v1"

@@ -6,18 +6,17 @@ the per-patient view a right-of-access request needs, and the fact that
 reading the trail is itself an audited act.
 
 They also pin the gate: the trail reveals who is treating whom, so it is
-JWT-only and can be narrowed to a named auditor list.
+JWT-only and restricted to administrators.
 """
 
 import uuid
 
 from fastapi.testclient import TestClient
 
-from app.core.config import settings
 from app.core.database import SessionLocal
 from app.main import app
 from app.models.audit_log import AuditLog
-from tests.conftest import DOCTOR_LOGIN
+from tests.conftest import DOCTOR_LOGIN, practitioner_headers
 
 client = TestClient(app)
 
@@ -209,18 +208,15 @@ def test_per_patient_trail_requires_jwt():
     assert client.get("/api/v1/audit/patients/P-ANY").status_code == 401
 
 
-def test_auditor_allowlist_keeps_other_practitioners_out(monkeypatch):
-    monkeypatch.setattr(settings, "AUDIT_READER_EMAILS", "auditor@elsewhere.example")
-
-    response = client.get(AUDIT_URL, headers=_doctor_headers())
+def test_practitioner_cannot_read_the_audit_trail():
+    """The trail says who treated whom — clinical information in its own
+    right, so being signed in is not enough to read it."""
+    response = client.get(AUDIT_URL, headers=practitioner_headers(client))
     assert response.status_code == 403
+    assert "Administrator" in response.json()["detail"]
 
 
-def test_auditor_allowlist_admits_the_named_reader(monkeypatch):
-    from tests.conftest import DOCTOR_EMAIL
-
-    monkeypatch.setattr(settings, "AUDIT_READER_EMAILS", f"someone@x.example, {DOCTOR_EMAIL}")
-
+def test_admin_can_read_the_audit_trail():
     assert client.get(AUDIT_URL, headers=_doctor_headers()).status_code == 200
 
 

@@ -53,6 +53,17 @@ class Doctor {
   final String? phone;
   final String? hospitalName;
 
+  /// False until an administrator approves a freshly registered account.
+  /// A pending account cannot sign in, so the register screen has to be able
+  /// to tell the two outcomes apart instead of showing the 403 as a failure.
+  /// Defaults to false: a server that did not say "approved" must never be
+  /// interpreted as approval.
+  final bool isApproved;
+
+  /// 'practitioner' or 'admin'. Display only — every privileged action is
+  /// re-checked on the server, so a tampered client gains nothing.
+  final String accessLevel;
+
   const Doctor({
     required this.id,
     required this.email,
@@ -62,7 +73,11 @@ class Doctor {
     this.licenseNumber,
     this.phone,
     this.hospitalName,
+    this.isApproved = false,
+    this.accessLevel = 'practitioner',
   });
+
+  bool get isAdmin => accessLevel == 'admin';
 
   factory Doctor.fromJson(Map<String, dynamic> json) => Doctor(
         id: json['id'] as int,
@@ -73,6 +88,8 @@ class Doctor {
         licenseNumber: json['license_number'] as String?,
         phone: json['phone'] as String?,
         hospitalName: json['hospital_name'] as String?,
+        isApproved: json['is_approved'] as bool? ?? false,
+        accessLevel: (json['access_level'] as String?) ?? 'practitioner',
       );
 }
 
@@ -647,6 +664,16 @@ class ApiClient {
       expectedStatus: 201,
     );
     // Registered but not yet signed in — the token is issued by login below.
+    //
+    // Unless the account is pending approval. Signing up no longer grants
+    // access, and /auth/login answers 403 for an unapproved account, so
+    // calling it here would turn a success into an error on screen and invite
+    // the user to retry into a 409 "already exists". Returning the pending
+    // account lets the caller say what actually happened.
+    final registered = Doctor.fromJson(
+      jsonDecode(response.body) as Map<String, dynamic>,
+    );
+    if (!registered.isApproved) return registered;
     return login(email: email, password: password);
   }
 

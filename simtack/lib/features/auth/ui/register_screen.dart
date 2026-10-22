@@ -9,8 +9,11 @@ import '../../dashboard/ui/practitioner_dashboard_screen.dart';
 /// Required fields (mirrored by backend validation):
 /// - Full name, professional email, password (exactly 8 chars, letter + number)
 /// - Role/title (dropdown) and license number (self-declared)
-/// On success the account is created and the user is logged in
-/// automatically, landing directly on the practitioner dashboard.
+///
+/// On success the account exists but is inert: an administrator has to approve
+/// it before clinical records can be read. Only the very first account on an
+/// empty deployment is approved on creation, and only that one lands straight
+/// on the practitioner dashboard.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -107,6 +110,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
         inviteCode: _inviteCodeController.text.trim(),
       );
       if (!mounted) return;
+
+      // A new account is inert until an administrator approves it. Sending
+      // the user to the dashboard here would land them on a screen where
+      // every request 401s, so send them back to sign-in with the reason.
+      if (!doctor.isApproved) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Account created. An administrator must approve it before you '
+              'can sign in.',
+            ),
+            backgroundColor: const Color(0xFF6D28D9),
+            duration: const Duration(seconds: 6),
+          ),
+        );
+        Navigator.of(context).pop();
+        return;
+      }
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Account created. Welcome, ${doctor.fullName}!'),

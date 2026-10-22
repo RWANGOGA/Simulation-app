@@ -124,11 +124,16 @@ def test_register_success_with_professional_fields():
     assert data["role"] == "Doctor"
     assert data["license_number"] == "LIC-2026-001"
     assert "hashed_password" not in data
-    # The fresh account can immediately log in.
+    # Signing up creates the account but grants no access: an administrator
+    # has to approve it first, because a valid email address is not evidence
+    # that the person should be reading patient records.
+    assert data["is_approved"] is False
+    assert data["access_level"] == "practitioner"
     login = client.post(
         "/api/v1/auth/login", data={"username": email, "password": "Secure123!xY"}
     )
-    assert login.status_code == 200
+    assert login.status_code == 403
+    assert "awaiting administrator approval" in login.json()["detail"].lower()
 
 
 def test_register_duplicate_email_conflict():
@@ -235,6 +240,8 @@ def test_inactive_doctor_cannot_login_or_use_existing_token():
         hashed_password=get_password_hash("Secure123!xY"),
         full_name="Inactive Doctor",
         is_active=True,
+        # Approved, so the only thing this test varies is is_active.
+        is_approved=True,
     )
     db.add(doctor)
     db.commit()

@@ -54,6 +54,7 @@ from alembic.config import Config  # noqa: E402
 from app.api.v1.endpoints.auth import get_password_hash  # noqa: E402
 from app.core.database import SessionLocal, engine  # noqa: E402
 from app.models import Doctor  # noqa: E402
+from app.models.doctor import ACCESS_ADMIN, ACCESS_PRACTITIONER  # noqa: E402
 
 
 command.upgrade(Config("alembic.ini"), "head")
@@ -61,6 +62,16 @@ command.upgrade(Config("alembic.ini"), "head")
 DOCTOR_EMAIL = os.getenv("SEED_DOCTOR_EMAIL", "doctor@simtack.com")
 DOCTOR_PASSWORD = os.getenv("SEED_DOCTOR_PASSWORD", "Doctor123!")
 DOCTOR_LOGIN = {"username": DOCTOR_EMAIL, "password": DOCTOR_PASSWORD}
+
+# A second, ordinary account. Exists so tests can prove the difference between
+# "signed in" and "allowed": every negative authorisation test needs a caller
+# who is a real practitioner but not an administrator.
+PRACTITIONER_EMAIL = "practitioner@simtack.com"
+PRACTITIONER_PASSWORD = "Practitioner123!"
+PRACTITIONER_LOGIN = {
+    "username": PRACTITIONER_EMAIL,
+    "password": PRACTITIONER_PASSWORD,
+}
 
 
 def _reset_database() -> None:
@@ -77,12 +88,45 @@ def _reset_database() -> None:
 
     db = SessionLocal()
     try:
+        # Seeded as an approved admin: it is the account every other test
+        # signs in as, and it has to be able to approve people.
         db.add(
             Doctor(
                 email=DOCTOR_EMAIL,
                 hashed_password=get_password_hash(DOCTOR_PASSWORD),
                 full_name="Test Doctor",
                 is_active=True,
+                is_approved=True,
+                access_level=ACCESS_ADMIN,
+            )
+        )
+        db.commit()
+    finally:
+        db.close()
+
+
+def seed_practitioner() -> None:
+    """Creates the approved non-admin account if it is not there yet.
+
+    Not part of ``_reset_database`` on purpose: most tests do not need it, and
+    creating it up front would make it the "second" account in any test that
+    registers someone — which is the thing the bootstrap logic keys off.
+    """
+    db = SessionLocal()
+    try:
+        existing = (
+            db.query(Doctor).filter(Doctor.email == PRACTITIONER_EMAIL).first()
+        )
+        if existing:
+            return
+        db.add(
+            Doctor(
+                email=PRACTITIONER_EMAIL,
+                hashed_password=get_password_hash(PRACTITIONER_PASSWORD),
+                full_name="Test Practitioner",
+                is_active=True,
+                is_approved=True,
+                access_level=ACCESS_PRACTITIONER,
             )
         )
         db.commit()
@@ -99,6 +143,15 @@ def isolated_database():
 
 
 def doctor_headers(client) -> dict:
-    """JWT auth headers for the seeded test practitioner."""
+    """JWT auth headers for the seeded administrator."""
     token = client.post("/api/v1/auth/login", data=DOCTOR_LOGIN).json()["access_token"]
+    return {"Authorization": f"Bearer {token}"}
+
+
+def practitioner_headers(client) -> dict:
+    """JWT auth headers for an approved, non-admin practitioner."""
+    seed_practitioner()
+    token = client.post("/api/v1/auth/login", data=PRACTITIONER_LOGIN).json()[
+        "access_token"
+    ]
     return {"Authorization": f"Bearer {token}"}
