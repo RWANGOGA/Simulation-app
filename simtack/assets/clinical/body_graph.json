@@ -1,0 +1,650 @@
+{
+  "Abdomen (Lower Left)": [
+    {
+      "concern": "moderate",
+      "note": "Lower abdominal pain together with lower back pain can point to a kidney issue or diverticulitis.",
+      "region": "Back Pain (Lower)"
+    },
+    {
+      "concern": "moderate",
+      "note": "Lower left abdominal pain referring to the left groin can indicate renal calculus or diverticular involvement.",
+      "region": "Hips / Groin"
+    }
+  ],
+  "Abdomen (Lower Right)": [
+    {
+      "concern": "high",
+      "note": "Pain that started near the upper/mid abdomen and moved here follows the classic early-appendicitis pattern.",
+      "region": "Abdomen (Upper)"
+    },
+    {
+      "concern": "low",
+      "note": "Lower right abdominal pain with right leg discomfort can indicate irritation near the appendix.",
+      "region": "Right Leg / Knee"
+    },
+    {
+      "concern": "low",
+      "note": "Lower right abdominal pain radiating down anterior right thigh suggests psoas or retroperitoneal irritation.",
+      "region": "Right Thigh"
+    },
+    {
+      "concern": "moderate",
+      "note": "Lower right abdominal pain extending into the right groin or hip can indicate appendicitis or iliopsoas inflammation.",
+      "region": "Hips / Groin"
+    }
+  ],
+  "Abdomen (Upper)": [
+    {
+      "concern": "moderate",
+      "note": "Upper abdominal pain referring to the right shoulder is a classic gallbladder sign.",
+      "region": "Right Arm / Shoulder"
+    },
+    {
+      "concern": "moderate",
+      "note": "Upper abdominal pain referring up to the right shoulder is a classic sign of gallbladder or phrenic nerve irritation.",
+      "region": "Right Shoulder"
+    },
+    {
+      "concern": "moderate",
+      "note": "Upper abdominal pain can sometimes actually be heart-related, not digestive.",
+      "region": "Chest / Heart"
+    },
+    {
+      "concern": "moderate",
+      "note": "Upper abdominal pain radiating straight through to the back can indicate the pancreas.",
+      "region": "Back Pain (Upper)"
+    },
+    {
+      "concern": "high",
+      "note": "Pain that started here and is moving to the lower right abdomen follows the classic early-appendicitis pattern.",
+      "region": "Abdomen (Lower Right)"
+    }
+  ],
+  "Back Pain (Lower)": [
+    {
+      "concern": "low",
+      "note": "Lower back pain radiating down the right leg is the classic pattern of sciatica.",
+      "region": "Right Leg / Knee"
+    },
+    {
+      "concern": "low",
+      "note": "Lower back pain radiating down the left leg is the classic pattern of sciatica.",
+      "region": "Left Leg / Knee"
+    },
+    {
+      "concern": "low",
+      "note": "Lower back pain radiating down past the knee to the right calf indicates lower lumbar nerve root irritation.",
+      "region": "Right Shin / Calf"
+    },
+    {
+      "concern": "low",
+      "note": "Lower back pain radiating down past the knee to the left calf indicates lower lumbar nerve root irritation.",
+      "region": "Left Shin / Calf"
+    },
+    {
+      "concern": "moderate",
+      "note": "Lower back pain together with lower abdominal pain can point to a kidney issue.",
+      "region": "Abdomen (Lower Left)"
+    },
+    {
+      "concern": "moderate",
+      "note": "Lower back pain radiating into hips or groin is common in lumbar radiculopathy and sacroiliac joint strain.",
+      "region": "Hips / Groin"
+    },
+    {
+      "concern": "low",
+      "note": "Lower back pain with bilateral thigh ache indicates upper lumbar spine involvement.",
+      "region": "Thighs"
+    }
+  ],
+  "Back Pain (Upper)": [
+    {
+      "concern": "high",
+      "note": "Upper back pain together with chest pain can indicate a cardiac or aortic problem.",
+      "region": "Chest / Heart"
+    },
+    {
+      "concern": "low",
+      "note": "Upper back/neck pain together with headache is common with tension-type headaches.",
+      "region": "Headache / Cranial"
+    },
+    {
+      "concern": "low",
+      "note": "Upper back pain extending up into the neck is frequent in cervical spine strains.",
+      "region": "Neck"
+    },
+    {
+      "concern": "moderate",
+      "note": "Upper back pain corresponding to upper abdominal symptoms can point to pancreatic inflammation.",
+      "region": "Abdomen (Upper)"
+    }
+  ],
+  "Chest / Heart": [
+    {
+      "concern": "high",
+      "note": "Chest pain spreading to the left arm is a classic warning sign of a heart problem.",
+      "region": "Left Arm / Shoulder"
+    },
+    {
+      "concern": "high",
+      "note": "Chest pain radiating to the left shoulder is a classic warning sign of cardiac ischemia.",
+      "region": "Left Shoulder"
+    },
+    {
+      "concern": "high",
+      "note": "Chest pain with tingling or discomfort extending into the left hand can indicate severe cardiac radiation.",
+      "region": "Left Hand"
+    },
+    {
+      "concern": "high",
+      "note": "Chest pain radiating upward to the neck or jaw is a key warning sign of a cardiac event.",
+      "region": "Neck"
+    },
+    {
+      "concern": "high",
+      "note": "Chest pain radiating to the upper back can indicate a cardiac or aortic problem.",
+      "region": "Back Pain (Upper)"
+    },
+    {
+      "concern": "moderate",
+      "note": "Upper abdominal pain can sometimes actually be heart-related, not digestive.",
+      "region": "Abdomen (Upper)"
+    },
+    {
+      "concern": "moderate",
+      "note": "Chest pain radiating toward the left axilla can indicate wall or cardiac involvement.",
+      "region": "Left Armpit"
+    }
+  ],
+  "Headache / Cranial": [
+    {
+      "concern": "low",
+      "note": "Headache together with upper back/neck pain is common with tension-type headaches.",
+      "region": "Back Pain (Upper)"
+    },
+    {
+      "concern": "moderate",
+      "note": "Severe headache accompanied by neck stiffness is a warning sign of meningeal irritation.",
+      "region": "Neck"
+    }
+  ],
+  "Hips / Groin": [
+    {
+      "concern": "moderate",
+      "note": "Groin and hip pain together with lower back pain commonly indicates lumbar radiculopathy, sacroiliac dysfunction, or renal colic.",
+      "region": "Back Pain (Lower)"
+    },
+    {
+      "concern": "moderate",
+      "note": "Groin pain with lower left abdominal pain can indicate kidney stone passage or diverticular inflammation.",
+      "region": "Abdomen (Lower Left)"
+    },
+    {
+      "concern": "moderate",
+      "note": "Groin pain with lower right abdominal pain can indicate appendicitis or psoas irritation.",
+      "region": "Abdomen (Lower Right)"
+    },
+    {
+      "concern": "low",
+      "note": "Groin pain radiating down anterior right thigh suggests hip pathology or obturator nerve irritation.",
+      "region": "Right Thigh"
+    },
+    {
+      "concern": "low",
+      "note": "Groin pain radiating down anterior left thigh suggests hip joint pathology or femoral nerve irritation.",
+      "region": "Left Thigh"
+    },
+    {
+      "concern": "low",
+      "note": "Groin pain extending into the thighs is characteristic of hip osteoarthrosis or pelvic girdle strain.",
+      "region": "Thighs"
+    }
+  ],
+  "Left Ankle": [
+    {
+      "concern": "low",
+      "note": "Ankle pain extending up into the left shin or calf.",
+      "region": "Left Shin / Calf"
+    },
+    {
+      "concern": "low",
+      "note": "Ankle pain spreading to the left foot.",
+      "region": "Left Foot"
+    }
+  ],
+  "Left Arm / Shoulder": [
+    {
+      "concern": "high",
+      "note": "Left arm pain together with chest pain is a classic warning sign of a heart problem.",
+      "region": "Chest / Heart"
+    },
+    {
+      "concern": "moderate",
+      "note": "Left arm/shoulder pain with neck symptoms suggests cervical radiculopathy or cardiac radiation.",
+      "region": "Neck"
+    },
+    {
+      "concern": "low",
+      "note": "Direct overlap with left shoulder girdle.",
+      "region": "Left Shoulder"
+    },
+    {
+      "concern": "low",
+      "note": "Left arm pain extending down to the elbow.",
+      "region": "Left Elbow"
+    }
+  ],
+  "Left Armpit": [
+    {
+      "concern": "moderate",
+      "note": "Left axillary pain accompanying chest discomfort can be a radiating sign of cardiac distress.",
+      "region": "Chest / Heart"
+    },
+    {
+      "concern": "low",
+      "note": "Left armpit discomfort with shoulder symptoms suggests rotator cuff or chest wall strain.",
+      "region": "Left Shoulder"
+    },
+    {
+      "concern": "low",
+      "note": "Discomfort extending down the medial left arm from axilla to elbow.",
+      "region": "Left Elbow"
+    }
+  ],
+  "Left Elbow": [
+    {
+      "concern": "low",
+      "note": "Elbow pain extending up the arm to the shoulder.",
+      "region": "Left Arm / Shoulder"
+    },
+    {
+      "concern": "low",
+      "note": "Inner elbow pain radiating up to the axilla along ulnar nerve track.",
+      "region": "Left Armpit"
+    },
+    {
+      "concern": "low",
+      "note": "Left elbow pain radiating down forearm to the wrist is typical of epicondylitis.",
+      "region": "Left Wrist"
+    }
+  ],
+  "Left Foot": [
+    {
+      "concern": "low",
+      "note": "Foot pain spreading up to the left ankle joint.",
+      "region": "Left Ankle"
+    }
+  ],
+  "Left Hand": [
+    {
+      "concern": "high",
+      "note": "Numbness or pain spreading into the left hand alongside chest pain can indicate severe cardiac radiation.",
+      "region": "Chest / Heart"
+    },
+    {
+      "concern": "low",
+      "note": "Hand pain associated with wrist discomfort indicates carpal tunnel syndrome.",
+      "region": "Left Wrist"
+    }
+  ],
+  "Left Knee": [
+    {
+      "concern": "low",
+      "note": "Knee pain extending up the thigh.",
+      "region": "Left Thigh"
+    },
+    {
+      "concern": "low",
+      "note": "Direct alignment with left knee region.",
+      "region": "Left Leg / Knee"
+    },
+    {
+      "concern": "low",
+      "note": "Knee discomfort radiating down into the calf.",
+      "region": "Left Shin / Calf"
+    },
+    {
+      "concern": "low",
+      "note": "Knee pain associated with general thigh muscle fatigue.",
+      "region": "Thighs"
+    }
+  ],
+  "Left Leg / Knee": [
+    {
+      "concern": "low",
+      "note": "Left leg pain radiating from the lower back is the classic pattern of sciatica.",
+      "region": "Back Pain (Lower)"
+    },
+    {
+      "concern": "low",
+      "note": "Left leg pain extending below the knee into the calf.",
+      "region": "Left Shin / Calf"
+    },
+    {
+      "concern": "low",
+      "note": "Direct overlap with left knee joint.",
+      "region": "Left Knee"
+    }
+  ],
+  "Left Shin / Calf": [
+    {
+      "concern": "low",
+      "note": "Calf/shin pain extending up to the left knee joint.",
+      "region": "Left Knee"
+    },
+    {
+      "concern": "low",
+      "note": "Direct alignment with left lower leg.",
+      "region": "Left Leg / Knee"
+    },
+    {
+      "concern": "low",
+      "note": "Calf pain radiating down into the ankle or Achilles tendon.",
+      "region": "Left Ankle"
+    },
+    {
+      "concern": "low",
+      "note": "Calf pain radiating from the lower back is characteristic of S1 nerve root sciatica.",
+      "region": "Back Pain (Lower)"
+    }
+  ],
+  "Left Shoulder": [
+    {
+      "concern": "high",
+      "note": "Left shoulder pain combined with chest discomfort is a critical warning sign of cardiac ischemia.",
+      "region": "Chest / Heart"
+    },
+    {
+      "concern": "moderate",
+      "note": "Left shoulder pain with neck pain can indicate cervical nerve compression or cardiac radiation.",
+      "region": "Neck"
+    },
+    {
+      "concern": "low",
+      "note": "Direct alignment with left upper extremity.",
+      "region": "Left Arm / Shoulder"
+    },
+    {
+      "concern": "low",
+      "note": "Left shoulder pain extending to the axilla can indicate muscular strain or referred wall pain.",
+      "region": "Left Armpit"
+    }
+  ],
+  "Left Thigh": [
+    {
+      "concern": "low",
+      "note": "Anterior left thigh pain with groin discomfort suggests hip joint pathology.",
+      "region": "Hips / Groin"
+    },
+    {
+      "concern": "low",
+      "note": "Thigh pain extending down to the left knee.",
+      "region": "Left Knee"
+    }
+  ],
+  "Left Wrist": [
+    {
+      "concern": "low",
+      "note": "Wrist pain radiating up the forearm to the elbow.",
+      "region": "Left Elbow"
+    },
+    {
+      "concern": "low",
+      "note": "Wrist pain extending into the fingers is characteristic of carpal tunnel syndrome.",
+      "region": "Left Hand"
+    }
+  ],
+  "Neck": [
+    {
+      "concern": "moderate",
+      "note": "Neck pain accompanied by severe headache can indicate meningeal irritation or tension headache.",
+      "region": "Headache / Cranial"
+    },
+    {
+      "concern": "low",
+      "note": "Neck pain radiating into the upper back is common with cervical spine strains or spondylosis.",
+      "region": "Back Pain (Upper)"
+    },
+    {
+      "concern": "high",
+      "note": "Neck pain occurring alongside chest discomfort can be a warning sign of cardiac ischemia.",
+      "region": "Chest / Heart"
+    },
+    {
+      "concern": "moderate",
+      "note": "Neck pain radiating down the left shoulder can indicate cervical nerve compression or referred cardiac pain.",
+      "region": "Left Shoulder"
+    },
+    {
+      "concern": "moderate",
+      "note": "Neck pain radiating to left shoulder and arm can indicate cervical radiculopathy or cardiac distress.",
+      "region": "Left Arm / Shoulder"
+    },
+    {
+      "concern": "low",
+      "note": "Neck pain radiating to right shoulder suggests cervical spine strain or nerve root irritation.",
+      "region": "Right Shoulder"
+    },
+    {
+      "concern": "low",
+      "note": "Neck pain radiating down right arm suggests cervical nerve root compression.",
+      "region": "Right Arm / Shoulder"
+    }
+  ],
+  "Right Ankle": [
+    {
+      "concern": "low",
+      "note": "Ankle pain extending up into the right shin or calf.",
+      "region": "Right Shin / Calf"
+    },
+    {
+      "concern": "low",
+      "note": "Ankle pain spreading to the right foot.",
+      "region": "Right Foot"
+    }
+  ],
+  "Right Arm / Shoulder": [
+    {
+      "concern": "moderate",
+      "note": "Right shoulder pain together with upper abdominal pain is a classic gallbladder sign.",
+      "region": "Abdomen (Upper)"
+    },
+    {
+      "concern": "low",
+      "note": "Right arm and shoulder discomfort with neck pain suggests cervical nerve root compression.",
+      "region": "Neck"
+    },
+    {
+      "concern": "low",
+      "note": "Direct overlap with right shoulder girdle.",
+      "region": "Right Shoulder"
+    },
+    {
+      "concern": "low",
+      "note": "Discomfort extending down the right arm to the elbow indicates tendonitis or brachial chain pain.",
+      "region": "Right Elbow"
+    }
+  ],
+  "Right Armpit": [
+    {
+      "concern": "low",
+      "note": "Right axillary discomfort with shoulder pain suggests rotator cuff strain or axillary lymphadenitis.",
+      "region": "Right Shoulder"
+    },
+    {
+      "concern": "low",
+      "note": "Discomfort extending down the medial right arm from axilla to elbow.",
+      "region": "Right Elbow"
+    }
+  ],
+  "Right Elbow": [
+    {
+      "concern": "low",
+      "note": "Elbow pain extending up the arm to the shoulder.",
+      "region": "Right Arm / Shoulder"
+    },
+    {
+      "concern": "low",
+      "note": "Inner elbow pain radiating up to the axilla along ulnar nerve track.",
+      "region": "Right Armpit"
+    },
+    {
+      "concern": "low",
+      "note": "Right elbow pain radiating down the forearm to the wrist is typical of epicondylitis.",
+      "region": "Right Wrist"
+    }
+  ],
+  "Right Foot": [
+    {
+      "concern": "low",
+      "note": "Foot pain spreading up to the right ankle joint.",
+      "region": "Right Ankle"
+    }
+  ],
+  "Right Hand": [
+    {
+      "concern": "low",
+      "note": "Hand pain associated with wrist discomfort indicates carpal tunnel or flexor tendinitis.",
+      "region": "Right Wrist"
+    }
+  ],
+  "Right Knee": [
+    {
+      "concern": "low",
+      "note": "Knee pain extending up the thigh.",
+      "region": "Right Thigh"
+    },
+    {
+      "concern": "low",
+      "note": "Direct alignment with right knee region.",
+      "region": "Right Leg / Knee"
+    },
+    {
+      "concern": "low",
+      "note": "Knee discomfort radiating down into the calf.",
+      "region": "Right Shin / Calf"
+    },
+    {
+      "concern": "low",
+      "note": "Knee pain associated with general thigh muscle fatigue.",
+      "region": "Thighs"
+    }
+  ],
+  "Right Leg / Knee": [
+    {
+      "concern": "low",
+      "note": "Right leg pain radiating from the lower back is the classic pattern of sciatica.",
+      "region": "Back Pain (Lower)"
+    },
+    {
+      "concern": "low",
+      "note": "Right leg discomfort with lower right abdominal pain can indicate irritation near the appendix.",
+      "region": "Abdomen (Lower Right)"
+    },
+    {
+      "concern": "low",
+      "note": "Right leg pain extending below the knee into the calf.",
+      "region": "Right Shin / Calf"
+    },
+    {
+      "concern": "low",
+      "note": "Direct overlap with right knee joint.",
+      "region": "Right Knee"
+    }
+  ],
+  "Right Shin / Calf": [
+    {
+      "concern": "low",
+      "note": "Calf/shin pain extending up to the right knee joint.",
+      "region": "Right Knee"
+    },
+    {
+      "concern": "low",
+      "note": "Direct alignment with right lower leg.",
+      "region": "Right Leg / Knee"
+    },
+    {
+      "concern": "low",
+      "note": "Calf pain radiating down into the ankle or Achilles tendon.",
+      "region": "Right Ankle"
+    },
+    {
+      "concern": "low",
+      "note": "Calf pain radiating from the lower back is characteristic of S1 nerve root sciatica.",
+      "region": "Back Pain (Lower)"
+    }
+  ],
+  "Right Shoulder": [
+    {
+      "concern": "moderate",
+      "note": "Right shoulder pain with upper abdominal symptoms is a classic referred pain pattern for gallbladder disease.",
+      "region": "Abdomen (Upper)"
+    },
+    {
+      "concern": "low",
+      "note": "Right shoulder pain with neck stiffness suggests cervical spine strain or nerve compression.",
+      "region": "Neck"
+    },
+    {
+      "concern": "low",
+      "note": "Direct alignment with right upper extremity.",
+      "region": "Right Arm / Shoulder"
+    },
+    {
+      "concern": "low",
+      "note": "Right shoulder pain spreading into the right armpit indicates rotator cuff or axillary lymph node tension.",
+      "region": "Right Armpit"
+    }
+  ],
+  "Right Thigh": [
+    {
+      "concern": "low",
+      "note": "Anterior thigh pain with groin discomfort suggests hip joint involvement or femoral neuropathy.",
+      "region": "Hips / Groin"
+    },
+    {
+      "concern": "low",
+      "note": "Right thigh discomfort with lower right abdominal pain suggests retroperitoneal or psoas irritation.",
+      "region": "Abdomen (Lower Right)"
+    },
+    {
+      "concern": "low",
+      "note": "Thigh pain extending down to the right knee.",
+      "region": "Right Knee"
+    }
+  ],
+  "Right Wrist": [
+    {
+      "concern": "low",
+      "note": "Wrist pain radiating up the forearm to the elbow.",
+      "region": "Right Elbow"
+    },
+    {
+      "concern": "low",
+      "note": "Wrist pain extending into the fingers is characteristic of carpal tunnel syndrome.",
+      "region": "Right Hand"
+    }
+  ],
+  "Thighs": [
+    {
+      "concern": "low",
+      "note": "Thigh discomfort associated with lower back pain suggests upper lumbar radiculopathy.",
+      "region": "Back Pain (Lower)"
+    },
+    {
+      "concern": "low",
+      "note": "Thigh pain with hip or groin discomfort often originates from hip joint pathology.",
+      "region": "Hips / Groin"
+    },
+    {
+      "concern": "low",
+      "note": "Thigh pain extending to the knee is common with quadriceps strain or patellofemoral tracking.",
+      "region": "Right Knee"
+    },
+    {
+      "concern": "low",
+      "note": "Thigh pain extending to the knee is common with quadriceps strain or patellofemoral tracking.",
+      "region": "Left Knee"
+    }
+  ]
+}

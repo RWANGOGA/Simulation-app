@@ -28,7 +28,27 @@ def _check_patient_rate_limit(request: Request, db: Session) -> None:
 @router.post("/", response_model=PatientResponse, status_code=201)
 def create_patient(request: Request, payload: PatientCreate, db: Session = Depends(get_db)):
     _check_patient_rate_limit(request, db)
-    patient = crud_patient.create_patient(db, payload)
+
+    try:
+        patient = crud_patient.create_patient(db, payload)
+    except crud_patient.PatientCodeTaken:
+        # Only reachable when the payload carried a code the client minted
+        # offline. Answered without any patient fields on purpose: the code
+        # travels inside a printed QR image, so holding one must not become a
+        # way to read the name and next of kin that /patients/{code} withholds.
+        audit.record_access(
+            action=audit.ACTION_CREATE,
+            resource_type=audit.RESOURCE_PATIENT,
+            request=request,
+            actor_type=audit.ACTOR_ANONYMOUS,
+            patient_code=payload.anonymous_code,
+            outcome=audit.OUTCOME_DENIED,
+            detail="create attempted with a patient code that already exists",
+        )
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="A patient with this code already exists.",
+        )
 
     audit.record_access(
         action=audit.ACTION_CREATE,

@@ -100,7 +100,9 @@ The app resolves its API base URL at runtime:
 
 ## API Integration
 
-The Flutter app integrates with the following backend endpoints:
+The backend is an **optional sync target**, not a dependency: no screen calls it.
+Every read and write the app performs is answered locally (see below), and
+`SyncService` is the only thing that talks to the API, when one is reachable:
 
 - **Auth**: `/auth/login`, `/auth/register`, `/auth/me`, `/auth/refresh`, `/auth/logout`
 - **Patients**: `/patients/` (create), `/patients/{code}` (read), `/patients/{code}` (update)
@@ -108,6 +110,57 @@ The Flutter app integrates with the following backend endpoints:
 - **Anatomy AI**: `/anatomy/regions`, `/anatomy/ask`, `/anatomy/clear`
 
 See the [root README](../README.md) for full API documentation.
+
+## Running with no backend at all
+
+The app is local-first. Started with no server — no network, no laptop, nothing —
+both halves work end to end:
+
+| Patient | Practitioner |
+| --- | --- |
+| Capture a profile or stay anonymous, get a scannable code | Register an account on the device and sign in |
+| Record every pain point, scored on the device | Search patients, read the visit timeline |
+| Read the report, risk band, red flags and escalation banner | Read the SHAP breakdown, file a decision |
+| Ask the anatomy assistant | Edit their own profile |
+
+To try it, run the app with the backend stopped:
+
+```bash
+cd simtack
+flutter run            # nothing else needed
+```
+
+**Where the data lives.** `LocalDatabase` keeps every patient, every triage
+session and the sync outbox in one JSON document in `shared_preferences`, and
+writes it atomically: a crash mid-write leaves the previous document intact
+rather than half a visit. Device-created rows are numbered *downwards* from -1,
+so a negative id can never be mistaken for a server id and "has this reached the
+server?" has an honest answer.
+
+**The numbers are the backend's numbers.** Scoring, escalation and anatomy
+retrieval are ports of the Python service, not approximations. `test/fixtures/`
+holds 433 risk vectors and 30 anatomy vectors recorded from the backend, and
+`test/clinical_parity_test.dart` replays them; `tool/` regenerates the bundled
+`assets/clinical/*.json` from the Python source. If the two disagree, the build
+fails — a report scored offline is the same report.
+
+**Nothing is lost waiting for a connection.** Every write also lands in the
+outbox, drained in creation order (patient → report → decision). Transport
+failures stop the pass without spending an attempt; a server rejection is
+recorded and skipped; after `SyncService.maxAttempts` a record is left alone but
+**never deleted**. Patient codes are minted on the device and accepted by the
+server through `anonymous_code`, so a retried create is idempotent — a duplicate
+gets a 409 that leaks no patient fields and is treated as "already there".
+
+**Drafts are intents, not a queue.** "Save for later" keeps a draft the patient
+can resume. Drafts are no longer uploaded and deleted at launch; a leftover one
+is committed to the device under the same local id, so resuming works and a
+successful submit leaves nothing behind to resubmit as a duplicate.
+
+**Known limits.** One device is the unit of truth: there is no multi-device
+merge, and a record edited on two devices resolves last-write-wins on the server.
+The bundled clinical assets are loaded before the first frame; if they cannot be
+read the app refuses to score rather than guessing.
 
 ## Offline sign-in and account revocation
 
@@ -132,6 +185,26 @@ Passwords are stored as PBKDF2-HMAC-SHA256 (20 000 iterations, one random
 16-byte salt per account) and compared in constant time. A cache written by an
 older build still verifies through the legacy path and is silently rehashed on
 the next successful offline sign-in.
+
+### Accounts that only ever exist on the device
+
+When registration is submitted and no server can be reached, the account is
+created *on the device* instead of being refused — a clinic with no backend has
+no administrator to ask, and refusing would make the app unusable there. Such an
+account is approved on the device (`isApproved: true`, `isSynced: false`), which
+means `DoctorDraft.isDeviceAccount` is true for it and:
+
+- the approval gate and the 7-day trust window **do not apply** — both exist to
+  bound what a *copy of a server account* may do, and there is no copy here;
+- it can never be uploaded later, because only a password hash is kept, so it can
+  never be confused with an account the server knows about.
+
+Everything else about it is a normal practitioner session, including the profile
+screen: an edit is written to the device first and the fields still owed to the
+server are held in `DoctorDraft.pendingProfile` until it answers. While that
+marker is set, a `/auth/me` response refreshes only the trust fields — otherwise
+an edit made with no signal would be silently reverted the moment the device
+reconnected.
 
 ## Localization
 

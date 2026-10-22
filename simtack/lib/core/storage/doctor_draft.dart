@@ -43,6 +43,14 @@ class DoctorDraft {
   /// opinion" as the old behaviour rather than inventing a rejection.
   final bool approvalRecorded;
 
+  /// Profile fields edited on this device that the server has not accepted yet.
+  ///
+  /// Non-null means the copy here is *newer* than the server's, so the next
+  /// `/auth/me` must refresh only the trust fields and leave the profile alone —
+  /// otherwise an edit made in a clinic with no signal would be silently
+  /// reverted the moment the device reconnected.
+  final Map<String, dynamic>? pendingProfile;
+
   const DoctorDraft({
     required this.localId,
     this.doctorId,
@@ -52,6 +60,7 @@ class DoctorDraft {
     this.isSynced = false,
     this.lastVerifiedAt,
     this.approvalRecorded = true,
+    this.pendingProfile,
   });
 
   /// Create a new offline-only draft (negative localId)
@@ -109,6 +118,7 @@ class DoctorDraft {
         'isSynced': isSynced,
         if (lastVerifiedAt != null)
           'lastVerifiedAt': lastVerifiedAt!.toIso8601String(),
+        if (pendingProfile != null) 'pendingProfile': pendingProfile,
       };
 
   factory DoctorDraft.fromJson(Map<String, dynamic> json) {
@@ -126,12 +136,25 @@ class DoctorDraft {
       // Absent means the row predates approval being persisted, not that the
       // account was rejected.
       approvalRecorded: rawProfile.containsKey('is_approved'),
+      pendingProfile:
+          (json['pendingProfile'] as Map?)?.cast<String, dynamic>(),
     );
   }
 
   /// The moment this device's copy was last backed by the server. Anything
   /// older than the trust window must be re-confirmed online.
   DateTime get trustAnchor => lastVerifiedAt ?? savedAt;
+
+  /// True for an account this device created because no server could be
+  /// reached. It has never existed anywhere else and never will: only a hash of
+  /// the password is kept, so a server copy could not be signed in to.
+  ///
+  /// That makes the device the authority for it, which is why
+  /// [AuthService._cachedDoctor] skips the approval gate and the trust window
+  /// for these — both exist to bound what a *copy of a server account* is
+  /// allowed to do, and there is no copy here. It also means such an account can
+  /// never be mistaken for one the server knows about.
+  bool get isDeviceAccount => !isSynced;
 
   bool isTrustExpired(DateTime now, Duration window) =>
       now.difference(trustAnchor) > window;
@@ -146,6 +169,8 @@ class DoctorDraft {
     bool? isSynced,
     DateTime? lastVerifiedAt,
     bool? approvalRecorded,
+    Map<String, dynamic>? pendingProfile,
+    bool clearPendingProfile = false,
   }) {
     return DoctorDraft(
       localId: localId ?? this.localId,
@@ -156,6 +181,10 @@ class DoctorDraft {
       isSynced: isSynced ?? this.isSynced,
       lastVerifiedAt: lastVerifiedAt ?? this.lastVerifiedAt,
       approvalRecorded: approvalRecorded ?? this.approvalRecorded,
+      // `null` here has to mean "unchanged" like every other field, so clearing
+      // needs its own flag.
+      pendingProfile:
+          clearPendingProfile ? null : (pendingProfile ?? this.pendingProfile),
     );
   }
 

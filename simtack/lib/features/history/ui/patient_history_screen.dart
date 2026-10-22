@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_palette.dart';
 import 'package:intl/intl.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/offline/offline_repository.dart';
 import '../../../core/network/auth_service.dart';
 import '../../auth/ui/login_screen.dart';
 import '../../report/ui/clinical_report_screen.dart';
@@ -32,7 +33,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
       // Patient-scoped lookup (the anonymous code is the credential).
       // The doctor-facing /triage/list endpoint is JWT-guarded now, and
       // this screen belongs to the patient flow, which has no token.
-      final visits = await ApiClient.getLatestVisit(widget.patientId);
+      final visits = await OfflineRepository.instance.getLatestVisit(widget.patientId);
       setState(() {
         _history = visits
             .map((r) => <String, dynamic>{
@@ -84,7 +85,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
 
         Future<void> fetch() async {
           try {
-            doctor = await ApiClient.getCurrentDoctor();
+            doctor = await AuthService.instance.getCurrentDoctor();
           } catch (e) {
             error = 'Could not load account details.';
           }

@@ -20,9 +20,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simtack/core/network/api_client.dart';
 import 'package:simtack/features/body_map/ui/body_map_screen.dart';
 import 'package:simtack/l10n/app_localizations.dart';
+
+import 'support/clinical_assets.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -33,7 +36,11 @@ Widget _wrap(Widget child) => MaterialApp(
 void main() {
   final defaultClient = ApiClient.httpClient;
 
-  setUp(() {
+  setUp(() async {
+    // The anatomy answer comes from the bundled knowledge base now, so the
+    // clinical assets have to be in memory the way they are in main().
+    SharedPreferences.setMockInitialValues({});
+    await loadClinicalDataForTest();
     // Every /anatomy/ask call gets a minimal but valid canned response, so
     // AnatomyInsightCard's FutureBuilder resolves instead of hanging —
     // mirrors the same MockClient pattern triage_flow_integration_test.dart

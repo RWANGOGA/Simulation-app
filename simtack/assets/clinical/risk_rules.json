@@ -1,0 +1,130 @@
+{
+  "bands": {
+    "high": 0.7,
+    "medium": 0.4
+  },
+  "bmi": {
+    "bump": 0.05,
+    "obese_at": 30.0,
+    "underweight_below": 18.5
+  },
+  "concern_bumps": {
+    "high": 0.25,
+    "low": 0.05,
+    "moderate": 0.12
+  },
+  "default_pain_type_weight": 0.05,
+  "default_region_weight": 0.1,
+  "escalation": {
+    "action_by_level": {
+      "emergency": "seek_emergency_care",
+      "routine": "routine_review",
+      "urgent": "seek_urgent_care"
+    },
+    "concerning_chest_pain_types": [
+      "crushing",
+      "stabbing"
+    ],
+    "emergency": "emergency",
+    "high_concern_region_keywords": [
+      "chest",
+      "heart",
+      "head",
+      "cranial",
+      "neck",
+      "abdomen",
+      "stomach"
+    ],
+    "routine": "routine",
+    "urgent": "urgent"
+  },
+  "heart_rate": {
+    "critical_above": 120.0,
+    "critical_below": 50.0,
+    "critical_bump": 0.15,
+    "high_above": 100.0,
+    "high_bump": 0.1
+  },
+  "pain_type_weights": {
+    "burning": 0.1,
+    "cramping": 0.09,
+    "crushing": 0.2,
+    "dull": 0.05,
+    "numb": 0.08,
+    "sharp": 0.12,
+    "stabbing": 0.15,
+    "throbbing": 0.08
+  },
+  "region_rules": [
+    {
+      "keywords": [
+        "chest",
+        "heart"
+      ],
+      "weight": 0.4
+    },
+    {
+      "keywords": [
+        "head",
+        "cranial"
+      ],
+      "weight": 0.35
+    },
+    {
+      "keywords": [
+        "neck"
+      ],
+      "weight": 0.3
+    },
+    {
+      "keywords": [
+        "abdomen",
+        "stomach"
+      ],
+      "weight": 0.25
+    },
+    {
+      "keywords": [
+        "back"
+      ],
+      "weight": 0.2
+    },
+    {
+      "keywords": [
+        "arm",
+        "shoulder",
+        "armpit",
+        "elbow",
+        "wrist",
+        "hand"
+      ],
+      "left_weight": 0.2,
+      "weight": 0.15
+    },
+    {
+      "keywords": [
+        "leg",
+        "knee",
+        "thigh",
+        "shin",
+        "calf",
+        "ankle",
+        "foot",
+        "hip",
+        "groin"
+      ],
+      "weight": 0.1
+    }
+  ],
+  "severity": {
+    "max": 10,
+    "weight": 0.5
+  },
+  "spo2": {
+    "low_below": 92.0,
+    "low_bump": 0.15,
+    "moderate_below": 95.0,
+    "moderate_bump": 0.1
+  },
+  "version": 1
+}

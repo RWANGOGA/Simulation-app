@@ -305,6 +305,83 @@ void main() {
     });
   });
 
+  group('practitioner profile', () {
+    test('offline, the signed-in practitioner is still readable', () async {
+      // No token and no server: this is a device that has never been online.
+      ApiClient.httpClient = _offline();
+      final doctor = await AuthService.instance.register(
+        email: 'clinic@example.com',
+        password: 'Secret123',
+        fullName: 'Dr Clinic',
+      );
+
+      final shown = await AuthService.instance.getCurrentDoctor();
+
+      // The profile screen renders this; an error here leaves the
+      // practitioner unable to see who they are signed in as.
+      expect(shown.email, doctor.email);
+      expect(shown.fullName, 'Dr Clinic');
+    });
+
+    test('offline, an edited profile is saved on the device with a pending push',
+        () async {
+      await _cacheSignedIn(password: 'Secret123');
+      await tokens.write('token');
+      ApiClient.httpClient = _offline();
+
+      final saved = await AuthService.instance.updateMyProfile(
+        fullName: 'Dr Renamed',
+        hospitalName: 'Mulago',
+      );
+
+      expect(saved.fullName, 'Dr Renamed');
+      final draft = await DoctorDraftStorage.findByEmail('doctor@example.com');
+      expect(draft!.profile.fullName, 'Dr Renamed');
+      expect(draft.profile.hospitalName, 'Mulago');
+      // Still owed to the server, so a later `/auth/me` must not revert it.
+      expect(draft.pendingProfile, {
+        'full_name': 'Dr Renamed',
+        'hospital_name': 'Mulago',
+      });
+    });
+
+    test('the pending edit is sent and cleared the next time the server answers',
+        () async {
+      await _cacheSignedIn(password: 'Secret123');
+      await tokens.write('token');
+      ApiClient.httpClient = _offline();
+      await AuthService.instance
+          .updateMyProfile(fullName: 'Dr Renamed', hospitalName: 'Mulago');
+
+      var patched = <String, dynamic>{};
+      // The server that accepted the edit answers /auth/me with it, which is
+      // what keeps the flush and the read in step.
+      var serverProfile = _doctorJson();
+      ApiClient.httpClient = MockClient((request) async {
+        final path = request.url.path;
+        if (request.method == 'PATCH' && path.endsWith('/auth/me')) {
+          patched = jsonDecode(request.body) as Map<String, dynamic>;
+          serverProfile = {...serverProfile, ...patched};
+          return http.Response(jsonEncode(serverProfile), 200);
+        }
+        if (path.endsWith('/auth/me')) {
+          return http.Response(jsonEncode(serverProfile), 200);
+        }
+        return http.Response('Not found', 404);
+      });
+
+      final doctor = await AuthService.instance.getCurrentDoctor();
+
+      // The edit wins over the server's stale name, and is not left queued.
+      expect(patched['full_name'], 'Dr Renamed');
+      expect(patched['hospital_name'], 'Mulago');
+      expect(doctor.fullName, 'Dr Renamed');
+      final draft = await DoctorDraftStorage.findByEmail('doctor@example.com');
+      expect(draft!.pendingProfile, isNull);
+      expect(draft.profile.fullName, 'Dr Renamed');
+    });
+  });
+
   group('password hashing', () {
     test('the same salt reproduces the stored value', () {
       final first = DoctorDraft.hash('Secret123', salt: 'fixed-salt');

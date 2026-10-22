@@ -3,7 +3,6 @@ import 'package:intl/intl.dart';
 
 import '../../../../core/theme/app_palette.dart';
 import '../../../../core/theme/app_header_bar.dart';
-import '../../../../core/network/api_client.dart';
 import '../../../../core/network/auth_service.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../dashboard/ui/practitioner_scaffold.dart';
@@ -75,7 +74,10 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _isSaving = true);
     try {
-      await ApiClient.updateDoctorProfile(
+      // Written to this device by AuthService and forwarded to the server
+      // afterwards, so editing a profile in a clinic with no signal works and
+      // is not lost.
+      await AuthService.instance.updateMyProfile(
         fullName: _fullNameController.text.trim(),
         role: _roleController.text.trim().isEmpty ? null : _roleController.text.trim(),
         licenseNumber: _licenseNumberController.text.trim().isEmpty ? null : _licenseNumberController.text.trim(),

@@ -8,6 +8,7 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/network/api_client.dart';
+import '../../../core/offline/offline_repository.dart';
 import '../../../core/theme/app_card.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_palette.dart';
@@ -148,7 +149,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
       _error = null;
     });
     try {
-      final results = await ApiClient.getLatestVisit(code);
+      final results = await OfflineRepository.instance.getLatestVisit(code);
       if (!mounted) return;
       setState(() {
         _sessions = results;

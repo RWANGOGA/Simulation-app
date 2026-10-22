@@ -13,6 +13,7 @@ import 'pain_point.dart';
 import 'web_interop.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/offline/offline_repository.dart';
 import '../../../core/widgets/anatomy_insight_card.dart';
 import '../../../core/widgets/flow_progress_bar.dart';
 import '../../../l10n/app_localizations.dart';
@@ -273,7 +274,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
   /// whole screen. Multiple regions load in parallel.
   void _requestAnatomyInsight(String region, {String complaint = ''}) {
     if (_anatomyFutures.containsKey(region)) return;
-    final future = ApiClient.askAnatomy(
+    final future = OfflineRepository.instance.askAnatomy(
       region: region,
       complaint: complaint,
       topK: 3,

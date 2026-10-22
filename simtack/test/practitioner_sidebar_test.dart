@@ -1,27 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
-import 'package:simtack/core/network/api_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:simtack/core/offline/local_database.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_sidebar.dart';
 import 'package:simtack/features/dashboard/ui/reports_screen.dart';
 import 'package:simtack/l10n/app_localizations.dart';
-
-/// In-memory token storage so tests never touch platform secure storage.
-class FakeTokenStorage implements TokenStorage {
-  String? _token;
-
-  @override
-  Future<void> write(String value) async => _token = value;
-  @override
-  Future<String?> read() async => _token;
-  @override
-  Future<void> writeRefreshToken(String value) async {}
-  @override
-  Future<String?> readRefreshToken() async => null;
-  @override
-  Future<void> delete() async => _token = null;
-}
 
 Widget _wrap(Widget child) => MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -37,6 +20,15 @@ Widget _wrap(Widget child) => MaterialApp(
     );
 
 void main() {
+  setUp(() {
+    // The footer reads the doctor profile and the Reports screen totals the
+    // device's own records, so both go through shared_preferences. Without a
+    // mocked store those reads wait on a platform channel no widget test
+    // answers, and every pumpAndSettle after them times out.
+    SharedPreferences.setMockInitialValues({});
+    LocalDatabase.resetForTest();
+  });
+
   testWidgets('PractitionerSidebar renders correctly with dashboard route',
       (tester) async {
     await tester.pumpWidget(
@@ -100,20 +92,6 @@ void main() {
       (tester) async {
     // The item used to show an "under construction" snackbar; it now routes
     // to the real ReportsScreen, so this asserts the navigation itself.
-    final defaultClient = ApiClient.httpClient;
-    final defaultStorage = ApiClient.tokenStorage;
-    ApiClient.tokenStorage = FakeTokenStorage();
-    ApiClient.httpClient = MockClient((request) async {
-      if (request.url.path.endsWith('/triage/reports')) {
-        return http.Response('{}', 200);
-      }
-      return http.Response('Not found', 404);
-    });
-    addTearDown(() {
-      ApiClient.httpClient = defaultClient;
-      ApiClient.tokenStorage = defaultStorage;
-    });
-
     await tester.pumpWidget(
       _wrap(const PractitionerSidebar(currentRoute: '/dashboard')),
     );

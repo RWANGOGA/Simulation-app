@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/network/auth_service.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../dashboard/ui/practitioner_dashboard_screen.dart';
 
@@ -10,10 +11,14 @@ import '../../dashboard/ui/practitioner_dashboard_screen.dart';
 /// - Full name, professional email, password (exactly 8 chars, letter + number)
 /// - Role/title (dropdown) and license number (self-declared)
 ///
-/// On success the account exists but is inert: an administrator has to approve
-/// it before clinical records can be read. Only the very first account on an
-/// empty deployment is approved on creation, and only that one lands straight
-/// on the practitioner dashboard.
+/// On success against a server the account exists but is inert: an administrator
+/// has to approve it before clinical records can be read. Only the very first
+/// account on an empty deployment is approved on creation, and only that one
+/// lands straight on the practitioner dashboard.
+///
+/// With no server reachable the account is created on this device instead and
+/// opens straight away — see [AuthService.register]. That is the only way the
+/// practitioner side works in a clinic that has no backend at all.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -98,7 +103,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     setState(() => _isLoading = true);
     try {
-      final doctor = await ApiClient.register(
+      // Through the service, not the API client, so a device with no connection
+      // can still create an account (see AuthService.register).
+      final doctor = await AuthService.instance.register(
         email: _emailController.text.trim(),
         password: _passwordController.text,
         fullName: _nameController.text.trim(),
@@ -110,6 +117,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
         inviteCode: _inviteCodeController.text.trim(),
       );
       if (!mounted) return;
+
+      // A negative id means the device created the account because no server
+      // answered. It is fully usable here, and it is not a server account, so
+      // say so rather than letting someone believe it exists elsewhere.
+      if (doctor.id < 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Account created on this device. Everything works offline; '
+              'register again while connected to also create a server account.',
+            ),
+            backgroundColor: Color(0xFF6D28D9),
+            duration: Duration(seconds: 6),
+          ),
+        );
+        Navigator.of(context).pushReplacement(
+          AppPageRoute(builder: (_) => const PractitionerDashboardScreen()),
+        );
+        return;
+      }
 
       // A new account is inert until an administrator approves it. Sending
       // the user to the dashboard here would land them on a screen where

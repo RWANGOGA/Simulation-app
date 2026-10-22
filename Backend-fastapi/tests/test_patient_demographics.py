@@ -175,3 +175,54 @@ def test_update_patient_unknown_code_404():
         headers=_doctor_headers(),
     )
     assert response.status_code == 404
+
+
+def test_create_patient_honours_a_client_minted_code():
+    """The offline app creates the patient on the device and mints the code
+    there, because the QR is printed before a server is ever reachable. The
+    upload has to land on that same code or the card in the patient's hand
+    points at nothing."""
+    code = f"P-{uuid.uuid4().hex[:12].upper()}"
+    response = client.post(
+        "/api/v1/patients/", json={**FULL_DEMOGRAPHICS, "anonymous_code": code}
+    )
+    assert response.status_code == 201
+    assert response.json()["anonymous_code"] == code
+
+    # The code now resolves like any other, and the record is real.
+    fetched = client.get(f"/api/v1/patients/{code}")
+    assert fetched.status_code == 200
+    assert fetched.json()["age"] == 8
+
+
+def test_create_patient_is_idempotent_on_the_same_code():
+    """A device that lost the response retries the same upload. It must not
+    create a second patient for the same person."""
+    code = f"P-{uuid.uuid4().hex[:12].upper()}"
+    payload = {**FULL_DEMOGRAPHICS, "anonymous_code": code}
+
+    assert client.post("/api/v1/patients/", json=payload).status_code == 201
+    retry = client.post("/api/v1/patients/", json=payload)
+
+    assert retry.status_code == 409
+    # Nothing about the patient already holding the code may come back: the
+    # code is printed on a QR and shown to strangers, and this route is
+    # unauthenticated, so it must not become a way to read a name or a phone.
+    assert "Amara Nansubuga" not in retry.text
+    assert "+256700123456" not in retry.text
+
+
+def test_create_patient_rejects_a_malformed_client_code():
+    response = client.post(
+        "/api/v1/patients/", json={**FULL_DEMOGRAPHICS, "anonymous_code": "nope"}
+    )
+    assert response.status_code == 422
+
+
+def test_server_still_mints_codes_when_none_is_supplied():
+    first = client.post("/api/v1/patients/", json=FULL_DEMOGRAPHICS).json()
+    second = client.post("/api/v1/patients/", json=FULL_DEMOGRAPHICS).json()
+
+    assert first["anonymous_code"].startswith("P-")
+    assert len(first["anonymous_code"]) == 14
+    assert first["anonymous_code"] != second["anonymous_code"]

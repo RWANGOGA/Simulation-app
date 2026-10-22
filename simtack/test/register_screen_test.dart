@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:simtack/core/network/api_client.dart';
+import 'package:simtack/core/offline/local_database.dart';
 import 'package:simtack/features/auth/ui/register_screen.dart';
 import 'package:simtack/features/auth/ui/login_screen.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_dashboard_screen.dart';
@@ -70,16 +72,8 @@ MockClient _registerFlowClient({bool approved = true}) =>
           200,
         );
       }
-      if (path.endsWith('/triage/stats')) {
-        return http.Response(
-          jsonEncode(
-              {'total': 0, 'high_risk': 0, 'medium_risk': 0, 'low_risk': 0}),
-          200,
-        );
-      }
-      if (path.endsWith('/triage/list')) {
-        return http.Response(jsonEncode([]), 200);
-      }
+      // The dashboard's figures come from the local store now, so nothing else
+      // has to be answered here.
       return http.Response('Not found', 404);
     });
 
@@ -89,6 +83,11 @@ void main() {
 
   setUp(() {
     ApiClient.tokenStorage = FakeTokenStorage();
+    // Registration and the dashboard behind it both read the device's own
+    // records. Without a mocked store those reads wait on a platform channel
+    // no widget test answers, and pumpAndSettle never settles.
+    SharedPreferences.setMockInitialValues({});
+    LocalDatabase.resetForTest();
   });
 
   tearDown(() {

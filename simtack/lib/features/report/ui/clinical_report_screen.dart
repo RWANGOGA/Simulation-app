@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/offline/offline_repository.dart';
 import '../../../core/models/patient_profile.dart';
 import '../../../l10n/app_localizations.dart';
 import 'shap_explanation_widget.dart';
@@ -67,8 +68,8 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
       // Practitioners get the FULL history (visit timeline); patients keep
       // the unauthenticated latest-visit route.
       final results = widget.practitionerMode
-          ? await ApiClient.getPatientHistory(widget.patientId)
-          : await ApiClient.getLatestVisit(widget.patientId);
+          ? await OfflineRepository.instance.getPatientHistory(widget.patientId)
+          : await OfflineRepository.instance.getLatestVisit(widget.patientId);
       setState(() {
         _reports = results;
         _visits = _groupIntoVisits(results);
@@ -81,8 +82,14 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
         }
       });
     } catch (e) {
+      // These reads are answered by the device, so a 404 means no record with
+      // that code exists *here* — not that a server was unreachable. The empty
+      // state's own copy already says so; only a real store failure keeps a
+      // message of its own.
+      final notFound = e is ApiException && e.statusCode == 404;
+      if (!mounted) return;
       setState(() {
-        _error = 'Connection error: $e';
+        if (!notFound) _error = '$e';
         _isLoading = false;
       });
     }
@@ -898,7 +905,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     setState(() => _savingDecision = true);
     try {
       for (final report in _currentVisit) {
-        await ApiClient.updateTriageDecision(
+        await OfflineRepository.instance.updateTriageDecision(
           report.id,
           status: _decisionStatus,
           priority: _suggestedPriority(worst.riskScore),
@@ -1231,7 +1238,7 @@ class _EditDemographicsSheetState extends State<_EditDemographicsSheet> {
       _error = null;
     });
     try {
-      await ApiClient.updatePatientDemographics(
+      await OfflineRepository.instance.updatePatientDemographics(
         widget.anonymousCode,
         PatientProfile(
           age: age,

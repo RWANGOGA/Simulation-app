@@ -12,6 +12,8 @@ import 'package:simtack/features/success/ui/success_screen.dart';
 import 'package:simtack/l10n/app_localizations.dart';
 import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
 
+import 'support/clinical_assets.dart';
+
 Widget _wrap(Widget child) => MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -74,9 +76,12 @@ void main() {
   WebViewPlatform.instance = FakeWebViewPlatform();
   late http.Client defaultClient;
 
-  setUp(() {
+  setUp(() async {
     SharedPreferences.setMockInitialValues({});
     defaultClient = ApiClient.httpClient;
+    // Scoring and the anatomy answer both come from the bundled clinical
+    // assets now, loaded in main() before the first frame.
+    await loadClinicalDataForTest();
   });
 
   tearDown(() {

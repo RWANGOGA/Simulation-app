@@ -7,11 +7,10 @@ import '../../../core/theme/app_palette.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
 import 'package:intl/intl.dart';
 import '../../../core/storage/draft_storage.dart';
-import '../../../core/storage/draft_sync_service.dart';
 import '../../../core/storage/patient_draft_sync_service.dart';
-import '../../../core/storage/doctor_draft_sync_service.dart';
 import '../../../core/storage/triage_draft.dart';
 import '../../../core/network/connectivity_service.dart';
+import '../../../core/offline/sync_service.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../patient_info/ui/patient_info_screen.dart';
 import '../../review/ui/review_screen.dart';
@@ -60,12 +59,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     });
   }
 
-// Auto-sync runs at startup and whenever connectivity is restored.
+  /// Runs at startup and whenever connectivity is restored: finishes recording
+  /// any profile that was saved before the device could store it, then pushes
+  /// whatever this device has recorded to the server if it can be reached.
+  ///
+  /// Saved drafts are deliberately NOT submitted here. Submitting a report now
+  /// writes to this device and cannot fail for want of a connection, so a draft
+  /// is the patient's own note-to-self — "I will finish this later" — and the
+  /// banner below lists them for exactly that reason. Uploading and deleting
+  /// them at launch would destroy the work the banner offers to resume.
   Future<void> _syncThenLoadDrafts() async {
-    final triageSynced = await DraftSyncService.syncAll();
-    final patientSynced = await PatientDraftSyncService.syncAll();
-    final doctorSynced = await DoctorDraftSyncService.syncAll();
-    final totalSynced = triageSynced + patientSynced + doctorSynced;
+    final profilesCommitted = await PatientDraftSyncService.syncAll();
+    final sync = await SyncService.instance.syncNow();
+    final totalSynced = profilesCommitted + sync.uploaded;
 
     await _loadDrafts();
 

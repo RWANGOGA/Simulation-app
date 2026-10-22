@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/offline/offline_repository.dart';
 import '../../../core/storage/draft_storage.dart';
 import '../../../core/storage/triage_draft.dart';
 import '../../success/ui/success_screen.dart';
@@ -52,7 +53,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
     setState(() => _isSubmitting = true);
 
     // Declared outside the try so the catch block below can tell how many
-    // pain points already made it to the backend before a failure — only
+    // pain points already made it into the record before a failure — only
     // the remainder should ever be saved/retried, or a retry would
     // resubmit points that already succeeded as duplicates.
     final results = <TriageResult>[];
@@ -60,15 +61,18 @@ class _ReviewScreenState extends State<ReviewScreen> {
     try {
       final visitId = _generateVisitId();
 
-      // One TriageReport per pain point (the backend's TriageSession model
-      // is per-region), all sharing visitId and patientId so they're
-      // recognized as one visit. Each point is scored aware of whatever
-      // other regions were already submitted earlier in this same loop
-      // (see triage_service.compute_risk's sibling_regions), so collecting
-      // every result — not just the last one — is what lets the patient
-      // see the full picture, including any connectivity findings.
+      // One report per pain point (the record is per-region), all sharing
+      // visitId and patientId so they're recognized as one visit. Each point
+      // is scored aware of whatever other regions were already recorded
+      // earlier in this same loop (see RiskEngine.compute's siblingRegions),
+      // so collecting every result — not just the last one — is what lets the
+      // patient see the full picture, including any connectivity findings.
+      //
+      // This writes to the device, not to a server: submitting works with no
+      // signal, and the outbox carries the same reports to a server whenever
+      // one becomes reachable.
       for (final point in widget.painPoints) {
-        results.add(await ApiClient.sendTriage(TriageReport(
+        results.add(await OfflineRepository.instance.sendTriage(TriageReport(
           bodyRegion: point.region,
           painType: point.painType,
           severity: point.severity,
@@ -105,11 +109,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
       );
     } catch (e) {
       if (!mounted) return;
-      // Save automatically on failure (most commonly no connection) —
-      // DraftSyncService retries this the next time the app opens.
+      // Save automatically on failure — the draft is retried the next time the
+      // app opens, so a patient who reached this screen never loses the answers
+      // they already gave.
       try {
         // Only the pain points NOT already in `results` — everything up
-        // to `results.length` already made it to the backend.
+        // to `results.length` is already recorded.
         final remaining = widget.painPoints.skip(results.length).toList();
         if (remaining.isNotEmpty) {
           await DraftStorage.save(TriageDraft(

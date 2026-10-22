@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
-import '../../../core/network/api_client.dart';
 import '../../../core/models/patient_profile.dart';
+import '../../../core/offline/offline_repository.dart';
 import '../../../core/storage/patient_draft_storage.dart';
 import '../../../core/storage/patient_draft.dart';
-import '../../../core/network/connectivity_service.dart';
 import '../../body_map/ui/body_map_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/widgets/flow_progress_bar.dart';
@@ -403,30 +402,22 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
     final localDraft = PatientDraft.createOffline(profile);
     await PatientDraftStorage.save(localDraft);
 
-    // Use local IDs for navigation (negative = offline)
-    int patientId = localDraft.localId;
-    String? patientCode;
+    // Recorded on this device. This used to be gated on a connectivity check
+    // and then re-attempted against the server, which meant an offline patient
+    // walked into the body map with no patient code at all — no record to
+    // attach a report to and no QR for the practitioner. The device now owns
+    // the record and the code, and both are true whether or not a server is
+    // reachable.
+    final result = await OfflineRepository.instance.createPatient(profile);
+    final patientId = result.id;
+    final patientCode = result.anonymousCode;
 
-    // If online, try to sync to backend
-    final isOnline = await ConnectivityService.instance.checkOnline();
-    if (isOnline) {
-      try {
-        final result = await ApiClient.createPatient(profile);
-        patientId = result.id;
-        patientCode = result.anonymousCode;
-        
-        // Update local draft with server response
-        final syncedDraft = localDraft.copyWith(
-          patientId: result.id,
-          patientCode: result.anonymousCode,
-          isSynced: true,
-        );
-        await PatientDraftStorage.save(syncedDraft);
-      } catch (_) {
-        // Sync failed, keep local draft for later sync
-        // patientCode remains null, will be generated on review submission
-      }
-    }
+    // Keep the draft in step with the record so the flow can resume from it.
+    await PatientDraftStorage.save(localDraft.copyWith(
+      patientId: result.id,
+      patientCode: result.anonymousCode,
+      isSynced: true,
+    ));
 
     if (!mounted) return;
     Navigator.of(context).push(

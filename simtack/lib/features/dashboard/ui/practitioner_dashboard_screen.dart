@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
-import '../../../core/network/api_client.dart';
+import '../../../core/offline/offline_repository.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
 import '../../../core/theme/app_page_route.dart';
@@ -55,9 +55,9 @@ class _PractitionerDashboardScreenState
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     try {
-      final stats = await ApiClient.getTriageStats();
-      final recent = await ApiClient.getTriageList(limit: 5, offset: 0);
-      final sessions = await ApiClient.getTriageList(
+      final stats = await OfflineRepository.instance.getTriageStats();
+      final recent = await OfflineRepository.instance.getTriageList(limit: 5, offset: 0);
+      final sessions = await OfflineRepository.instance.getTriageList(
         limit: _limit,
         offset: 0,
         patientCode: _searchQuery.isEmpty ? null : _searchQuery,
@@ -88,7 +88,7 @@ class _PractitionerDashboardScreenState
     if (_isLoadingMore || !_hasMore) return;
     setState(() => _isLoadingMore = true);
     try {
-      final moreSessions = await ApiClient.getTriageList(
+      final moreSessions = await OfflineRepository.instance.getTriageList(
         limit: _limit,
         offset: _offset,
         patientCode: _searchQuery.isEmpty ? null : _searchQuery,
@@ -115,7 +115,7 @@ class _PractitionerDashboardScreenState
 
   Future<void> _refreshStats() async {
     try {
-      final stats = await ApiClient.getTriageStats();
+      final stats = await OfflineRepository.instance.getTriageStats();
       if (mounted) setState(() => _stats = stats);
     } catch (e) {
       // Silent fail for stats refresh
@@ -937,7 +937,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
   Future<void> _loadSessions() async {
     setState(() => _isLoading = true);
     try {
-      final sessions = await ApiClient.getTriageList(
+      final sessions = await OfflineRepository.instance.getTriageList(
         limit: _limit,
         offset: 0,
         riskLevel: _selectedRisk,
@@ -965,7 +965,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
     if (_isLoadingMore || !_hasMore) return;
     setState(() => _isLoadingMore = true);
     try {
-      final more = await ApiClient.getTriageList(
+      final more = await OfflineRepository.instance.getTriageList(
         limit: _limit,
         offset: _offset,
         riskLevel: _selectedRisk,

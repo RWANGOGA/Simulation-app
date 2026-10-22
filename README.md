@@ -38,20 +38,25 @@ In low-resource clinical settings, patients often cannot describe their symptoms
 
 The system is a decoupled full-stack architecture built for performance, security, and scalability:
 
-- **The Face & Hands — Flutter App** (Android / iOS / Web): an intuitive 2D interactive interface for patients. Edge-computing tasks such as PPG (photoplethysmography) heart-rate extraction run **on the device**.
-- **The Brain & Memory — FastAPI Server** (Python): processes clinical data, calculates triage risk scores with explainable-AI logic, powers a hybrid RAG anatomy assistant, and persists records in PostgreSQL.
+- **The Face & Hands — Flutter App** (Android / iOS / Web): an intuitive 2D interactive interface for patients. It is **local-first**: case capture, triage scoring, the visit report and the anatomy assistant all run on the device, so the app is fully usable with no server at all.
+- **The Brain & Memory — FastAPI Server** (Python): the same clinical scoring and hybrid RAG anatomy logic, plus multi-device record keeping. When it is reachable, the device syncs to it; when it is not, nothing stops working.
 
 ```text
 ┌──────────────────────────────┐        ┌──────────────────────────────┐        ┌─────────────┐
-│   Flutter App (Patient)      │        │   FastAPI Server (Backend)   │        │ PostgreSQL  │
+│   Flutter App (Patient/Dr)   │        │   FastAPI Server (optional)  │        │ PostgreSQL  │
 │                              │        │                              │        │  (Neon /    │
-│  • 2D Body Atlas (tap view)  │──JSON──▶  • Risk Engine + SHAP       │──SQL──▶│  Docker)    │
-│  • PPG Camera Vitals         │  HTTP  │  • JWT Auth (bcrypt)         │        └─────────────┘
-│  • QR Passport (no PII)      │        │  • Hybrid RAG Retriever      │
-│  • Offline draft saving      │        │  • LLM-powered anatomy AI    │
-│  • Conversation memory       │        │  • Self-healing schema       │
+│  • 2D Body Atlas (tap view)  │──sync─▶│  • Risk Engine + SHAP       │──SQL──▶│  Docker)    │
+│  • Device-side risk scoring  │  HTTP  │  • JWT Auth (bcrypt)         │        └─────────────┘
+│  • Bundled anatomy KB        │  when  │  • Hybrid RAG Retriever      │
+│  • QR Passport (no PII)      │  online│  • LLM-powered anatomy AI    │
+│  • Local store + outbox      │        │  • Self-healing schema       │
 └──────────────────────────────┘        └──────────────────────────────┘
 ```
+
+Records, drafts and every report live on the device first. An outbox uploads them
+when the backend can be reached, so a clinic with no connection loses nothing.
+See [simtack/README.md](simtack/README.md#running-with-no-backend-at-all) for what
+works offline and how the two copies are reconciled.
 
 ## How the System Works
 
@@ -94,20 +99,22 @@ Request ──▶ Pydantic schema validation ──▶ JWT auth (where required)
 | Area | Feature |
 |---|---|
 | Patient | 2D interactive body atlas with precise region detection |
-| Patient | Camera-based PPG heart-rate capture |
+| Patient | Works with no backend, no network and no account server |
+| Patient | Triage scoring, red flags and escalation computed on the device |
 | Patient | Offline-first drafts with resume |
 | Patient | PII-free QR passport linking to the visit |
 | Patient | Accessibility: text-size control (Small → Extra large) + dark / light / system theme |
 | Patient | Multi-language support: English, Luganda, Swahili, Runyankore |
 | AI | Explainable risk scoring with SHAP-style factor bars |
 | AI | Hybrid RAG anatomy assistant with BM25 + TF-IDF search |
-| AI | LLM-powered insights with citations and conversation memory |
+| AI | Bundled anatomy knowledge base answers on the device; the LLM adds depth when online |
 | AI | Interactive suggested questions with answer persistence |
 | Practitioner | QR scan intake + manual code entry |
 | Practitioner | Dashboard, clinical report, visit timeline, decision recording |
-| Practitioner | Self-registration with professional fields |
+| Practitioner | Self-registration with professional fields, including a device-only account |
 | Data | Patient demographics, pain profiles, triggers, relievers, daily limitations |
 | Data | Question answers stored per region and displayed in clinical reports |
+| Data | Outbox sync with idempotent patient codes, bounded retries, nothing deleted |
 
 ## Tech Stack
 

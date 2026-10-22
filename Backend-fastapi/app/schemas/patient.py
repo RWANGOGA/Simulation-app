@@ -19,7 +19,17 @@ class PatientBase(BaseModel):
     notes: Optional[str] = None
 
 class PatientCreate(PatientBase):
-    pass
+    # Set only by a client that minted the code itself, which happens when the
+    # whole intake ran on the device with no network. Supplying it makes create
+    # idempotent: a retry after a lost response reuses the same row instead of
+    # creating a second patient, and the code printed on the patient's card
+    # stays the code this server knows. Left absent by every online caller, so
+    # the server keeps minting codes exactly as before.
+    anonymous_code: Optional[str] = Field(
+        None,
+        pattern=r"^P-[A-Z0-9]{12}$",
+        description="Code minted offline by the client; acts as an idempotency key.",
+    )
 
 class PatientResponse(PatientBase):
     id: int

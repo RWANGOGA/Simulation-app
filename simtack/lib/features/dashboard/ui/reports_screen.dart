@@ -6,7 +6,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-import '../../../core/network/api_client.dart';
+import '../../../core/offline/offline_repository.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
 import '../../../l10n/app_localizations.dart';
@@ -51,7 +51,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
       _error = null;
     });
     try {
-      final reports = await ApiClient.getTriageReports(period: _period);
+      final reports = await OfflineRepository.instance.getTriageReports(period: _period);
       if (mounted) setState(() => _reports = reports);
     } catch (e) {
       if (mounted) setState(() => _error = '$e');

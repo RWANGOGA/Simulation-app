@@ -2,7 +2,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simtack/core/storage/triage_draft.dart';
 import 'package:simtack/core/storage/draft_storage.dart';
-import 'package:simtack/core/storage/draft_sync_service.dart';
 import 'package:simtack/features/body_map/ui/pain_point.dart';
 
 void main() {

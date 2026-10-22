@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_header_bar.dart';
-import '../../../core/network/api_client.dart';
+import '../../../core/offline/offline_repository.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import '../../dashboard/ui/practitioner_scaffold.dart';
 
@@ -46,7 +46,7 @@ class _PractitionerSessionHistoryScreenState
     }
 
     try {
-      final result = await ApiClient.getTriageList(
+      final result = await OfflineRepository.instance.getTriageList(
         limit: _limit,
         offset: reset ? 0 : _offset,
         riskLevel: _selectedRisk,

@@ -1,13 +1,11 @@
-import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:http/http.dart' as http;
-import 'package:http/testing.dart';
 
-import 'package:simtack/core/network/api_client.dart';
 import 'package:simtack/features/report/ui/clinical_report_screen.dart';
 import 'package:simtack/l10n/app_localizations.dart';
+
+import 'support/offline_fixtures.dart';
 
 Widget _wrap(Widget child) => MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -15,116 +13,59 @@ Widget _wrap(Widget child) => MaterialApp(
       home: child,
     );
 
-Map<String, dynamic> _session({
-  required int id,
-  required String visitId,
-  required String region,
-  required String createdAt,
-  double riskScore = 0.5,
-  String? shap,
-}) =>
-    {
-      'id': id,
-      'patient_id': 7,
-      'anonymous_code': 'P-TEST12345678',
-      'body_region': region,
-      'pain_type': 'throbbing',
-      'severity': 5,
-      'visit_id': visitId,
-      'risk_score': riskScore,
-      'shap_explanation': shap,
-      'status': 'open',
-      'created_at': createdAt,
-      'patient_age': 40,
-    };
-
-/// In-memory token storage so tests never touch platform secure storage.
-class FakeTokenStorage implements TokenStorage {
-  String? _token;
-
-  @override
-  Future<void> write(String value) async => _token = value;
-  @override
-  Future<String?> read() async => _token;
-  @override
-  Future<void> writeRefreshToken(String value) async {}
-  @override
-  Future<String?> readRefreshToken() async => null;
-  @override
-  Future<void> delete() async => _token = null;
-}
-
 void main() {
-  final defaultClient = ApiClient.httpClient;
-  final defaultStorage = ApiClient.tokenStorage;
-
-  setUp(() {
-    // Practitioner-mode fetches carry a JWT header — never let tests hit
-    // the platform secure storage.
-    ApiClient.tokenStorage = FakeTokenStorage();
-  });
-
-  tearDown(() {
-    ApiClient.httpClient = defaultClient;
-    ApiClient.tokenStorage = defaultStorage;
-  });
+  // Every test here reads the device's own records, so there is no HTTP client
+  // and no token storage to arrange — only a store to fill.
+  setUp(setUpOfflineWorld);
 
   group('ClinicalReportScreen Widget Tests', () {
-    testWidgets('renders initial loading indicator and watermark',
+    testWidgets('an unknown patient code shows the error, not a blank report',
         (WidgetTester tester) async {
-      // A request that never answers holds the screen in its initial state.
-      ApiClient.httpClient =
-          MockClient((request) => Completer<http.Response>().future);
-
       await tester.pumpWidget(
-          _wrap(const ClinicalReportScreen(patientId: 'TEST-12345')));
+          _wrap(const ClinicalReportScreen(patientId: 'P-NOSUCHCODE1')));
 
+      await tester.pumpAndSettle();
+
+      // The watermark is behind every state of this screen — it is a clinical
+      // document and must never be mistaken for a blank page.
       expect(find.text('SIMTACK'), findsOneWidget);
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-      // Every API call now carries a bounded timeout, so that timer has to
-      // fire before the test ends — otherwise the framework reports a timer
-      // that outlived the widget tree.
-      await tester.pump(ApiClient.requestTimeout + const Duration(seconds: 1));
+      expect(find.text('Report not found'), findsOneWidget);
+      expect(find.text('Retry'), findsOneWidget);
     });
   });
 
   group('Visit timeline (T2)', () {
     testWidgets('practitioner sees the timeline and can switch visits',
         (tester) async {
-      // History endpoint: newest visit first (visit-b), older one after.
-      ApiClient.httpClient = MockClient((request) async {
-        if (request.url.path.endsWith('/history')) {
-          return http.Response(
-            jsonEncode([
-              _session(
-                  id: 3,
-                  visitId: 'visit-b',
-                  region: 'Chest',
-                  createdAt: '2026-08-20T10:00:00'),
-              _session(
-                  id: 2,
-                  visitId: 'visit-a',
-                  region: 'Head',
-                  createdAt: '2026-08-01T09:00:00'),
-              _session(
-                  id: 1,
-                  visitId: 'visit-a',
-                  region: 'Left Arm',
-                  createdAt: '2026-08-01T09:05:00'),
-            ]),
-            200,
-          );
-        }
-        return http.Response('Not found', 404);
-      });
+      final patient = await seedPatient();
+      // Two visits: an older one with two pain points, then a newer one.
+      // Written oldest-first so the ordering under test comes from the store,
+      // not from the order of insertion.
+      await fileReport(
+        patientCode: patient.code,
+        region: 'Head',
+        visitId: 'visit-a',
+        createdAt: '2026-08-01T09:00:00',
+      );
+      await fileReport(
+        patientCode: patient.code,
+        region: 'Left Arm',
+        visitId: 'visit-a',
+        createdAt: '2026-08-01T09:05:00',
+      );
+      await fileReport(
+        patientCode: patient.code,
+        region: 'Chest',
+        visitId: 'visit-b',
+        createdAt: '2026-08-20T10:00:00',
+      );
 
       tester.view.physicalSize = const Size(1200, 2400);
       tester.view.devicePixelRatio = 1.0;
       addTearDown(tester.view.reset);
 
-      await tester.pumpWidget(_wrap(const ClinicalReportScreen(
-          patientId: 'P-TEST12345678', practitionerMode: true)));
+      await tester.pumpWidget(_wrap(ClinicalReportScreen(
+          patientId: patient.code, practitionerMode: true)));
       await tester.pumpAndSettle();
 
       expect(find.text('VISIT TIMELINE'), findsOneWidget);
@@ -143,24 +84,16 @@ void main() {
     });
 
     testWidgets('patients never see the timeline', (tester) async {
-      ApiClient.httpClient = MockClient((request) async {
-        if (request.url.path.contains('/triage/patient/')) {
-          return http.Response(
-            jsonEncode([
-              _session(
-                  id: 1,
-                  visitId: 'visit-a',
-                  region: 'Head',
-                  createdAt: '2026-08-01T09:00:00'),
-            ]),
-            200,
-          );
-        }
-        return http.Response('Not found', 404);
-      });
+      final patient = await seedPatient();
+      await fileReport(
+        patientCode: patient.code,
+        region: 'Head',
+        visitId: 'visit-a',
+        createdAt: '2026-08-01T09:00:00',
+      );
 
-      await tester.pumpWidget(
-          _wrap(const ClinicalReportScreen(patientId: 'P-TEST12345678')));
+      await tester
+          .pumpWidget(_wrap(ClinicalReportScreen(patientId: patient.code)));
       await tester.pumpAndSettle();
 
       expect(find.text('VISIT TIMELINE'), findsNothing);
@@ -171,30 +104,30 @@ void main() {
   group('SHAP factor bars (T1)', () {
     testWidgets('renders proportional bars with signed percentages',
         (tester) async {
+      // The device's own explanation is replaced here because this test is
+      // about the bars: their width and their signed percentage labels.
       final shap = jsonEncode([
         {'factor': 'Severity 5/10', 'shap': 0.25, 'impact': '+'},
         {'factor': 'Region: Chest', 'shap': 0.15, 'impact': '+'},
         {'factor': 'Pain type: throbbing', 'shap': 0.05, 'impact': '+'},
       ]);
-      ApiClient.httpClient = MockClient((request) async {
-        if (request.url.path.contains('/triage/patient/')) {
-          return http.Response(
-            jsonEncode([
-              _session(
-                  id: 1,
-                  visitId: 'visit-a',
-                  region: 'Chest',
-                  createdAt: '2026-08-01T09:00:00',
-                  shap: shap),
-            ]),
-            200,
-          );
-        }
-        return http.Response('Not found', 404);
-      });
+      final patient = await seedPatient();
+      await fileReport(
+        patientCode: patient.code,
+        region: 'Chest',
+        visitId: 'visit-a',
+        createdAt: '2026-08-01T09:00:00',
+        shapExplanation: shap,
+      );
 
-      await tester.pumpWidget(
-          _wrap(const ClinicalReportScreen(patientId: 'P-TEST12345678')));
+      // A populated patient card pushes the breakdown below the fold at the
+      // default 800x600 viewport, and a tap on it would miss.
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester
+          .pumpWidget(_wrap(ClinicalReportScreen(patientId: patient.code)));
       await tester.pumpAndSettle();
 
       expect(find.text('WHY THIS SCORE?'), findsOneWidget);
@@ -217,25 +150,21 @@ void main() {
       final shap = jsonEncode([
         {'factor': 'Severity 8/10', 'shap': 0.4},
       ]);
-      ApiClient.httpClient = MockClient((request) async {
-        if (request.url.path.contains('/triage/patient/')) {
-          return http.Response(
-            jsonEncode([
-              _session(
-                  id: 1,
-                  visitId: 'visit-a',
-                  region: 'Chest',
-                  createdAt: '2026-08-01T09:00:00',
-                  shap: shap),
-            ]),
-            200,
-          );
-        }
-        return http.Response('Not found', 404);
-      });
+      final patient = await seedPatient();
+      await fileReport(
+        patientCode: patient.code,
+        region: 'Chest',
+        visitId: 'visit-a',
+        createdAt: '2026-08-01T09:00:00',
+        shapExplanation: shap,
+      );
 
-      await tester.pumpWidget(
-          _wrap(const ClinicalReportScreen(patientId: 'P-TEST12345678')));
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester
+          .pumpWidget(_wrap(ClinicalReportScreen(patientId: patient.code)));
       await tester.pumpAndSettle();
 
       // The breakdown starts collapsed on purpose, so the bars only exist

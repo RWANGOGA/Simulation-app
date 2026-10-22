@@ -207,6 +207,67 @@ class TriageReport {
         if (questionAnswers != null && questionAnswers!.isNotEmpty)
           'question_answers': questionAnswers,
       };
+
+  /// Reverses [toJson] for a report that was scored and stored on the device
+  /// and is now being uploaded.
+  ///
+  /// The list fields have to be read two ways because [toJson] writes them as
+  /// JSON strings and a payload that round-tripped through the local store can
+  /// arrive as real lists. Accepting both means a queued report is never
+  /// uploaded with its triggers silently dropped.
+  factory TriageReport.fromJson(Map<String, dynamic> json) => TriageReport(
+        bodyRegion: (json['body_region'] as String?) ?? '',
+        painType: (json['pain_type'] as String?) ?? '',
+        severity: (json['severity'] as num?)?.toInt() ?? 0,
+        direction: json['direction'] as String?,
+        depth: json['depth'] as String?,
+        expansionBehavior: json['expansion_behavior'] as String?,
+        triggers: _stringList(json['triggers']),
+        relievers: _stringList(json['relievers']),
+        dailyLimitations: _stringList(json['daily_limitations']),
+        patientId: (json['patient_id'] as num?)?.toInt(),
+        patientCode: json['patient_code'] as String?,
+        visitId: json['visit_id'] as String?,
+        questionAnswers: json['question_answers'] is Map
+            ? {
+                for (final entry
+                    in (json['question_answers'] as Map).entries)
+                  entry.key.toString(): entry.value.toString(),
+              }
+            : null,
+      );
+
+  /// A queued report carries no server ids — they did not exist when it was
+  /// written — so the upload supplies them here.
+  TriageReport withPatient({int? patientId, String? patientCode}) =>
+      TriageReport(
+        bodyRegion: bodyRegion,
+        painType: painType,
+        severity: severity,
+        direction: direction,
+        depth: depth,
+        expansionBehavior: expansionBehavior,
+        triggers: triggers,
+        relievers: relievers,
+        dailyLimitations: dailyLimitations,
+        patientId: patientId ?? this.patientId,
+        patientCode: patientCode ?? this.patientCode,
+        visitId: visitId,
+        questionAnswers: questionAnswers,
+      );
+
+  static List<String>? _stringList(dynamic raw) {
+    if (raw is List) return raw.map((e) => e.toString()).toList();
+    if (raw is String && raw.isNotEmpty) {
+      try {
+        final decoded = jsonDecode(raw);
+        if (decoded is List) return decoded.map((e) => e.toString()).toList();
+      } catch (_) {
+        // Not JSON — fall through and treat the row as having no list.
+      }
+    }
+    return null;
+  }
 }
 
 class TriageEscalation {
@@ -394,8 +455,12 @@ class TriageResult {
     return const [];
   }
 
-  // actions_taken travels as a JSON array string ("[\"a\", \"b\"]").
+  // actions_taken travels as a JSON array string ("[\"a\", \"b\"]") from the
+  // server, which stores it in a text column. A list is accepted too so a
+  // locally assembled payload cannot silently lose a practitioner's ticked
+  // actions — this is the record of what was actually done for the patient.
   static List<String> _parseActionsTaken(dynamic raw) {
+    if (raw is List) return raw.map((e) => e.toString()).toList();
     if (raw is String && raw.isNotEmpty) {
       try {
         final decoded = jsonDecode(raw);
@@ -747,12 +812,23 @@ class ApiClient {
   // response at all, which browsers then report as a misleading CORS
   // failure rather than a timeout. A bounded timeout here turns that into
   // an honest, actionable error instead.
-  static Future<PatientResult> createPatient(PatientProfile profile) async {
+  static Future<PatientResult> createPatient(
+    PatientProfile profile, {
+    String? anonymousCode,
+  }) async {
+    final body = profile.toJson();
+    // A device that recorded the patient while offline minted this code itself
+    // and already printed it on the patient's card, so it is sent back here:
+    // the server then answers on the same code, and a retried upload is a no-op
+    // (409) instead of a second record for the same person.
+    if (anonymousCode != null && anonymousCode.isNotEmpty) {
+      body['anonymous_code'] = anonymousCode;
+    }
     final response = await _send(
       'POST',
       Uri.parse('$baseUrl/patients/'),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode(profile.toJson()),
+      body: jsonEncode(body),
       timeout: _coldStartTimeout,
       authenticated: false,
       expectedStatus: 201,

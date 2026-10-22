@@ -78,20 +78,28 @@ class AuthService {
       unawaited(_cacheDoctor(doctor, password));
       return doctor;
     } on ApiException catch (error) {
-      // Registration is only safe to fake locally while the network is the
-      // thing that failed; a rejection from the server must be shown as-is.
+      // Registration is only safe to do on the device while the network is the
+      // thing that failed; a rejection from the server (email already taken,
+      // invite code wrong, password too weak) is an answer about the account and
+      // must be shown as-is.
       if (!error.isNetworkError) rethrow;
     }
 
-    // Offline mode: create local draft
-    // Note: We use a placeholder ID; real ID assigned on sync.
+    // No server was reachable, so this account exists on this device only.
     //
-    // This account is local-only by nature: only a hash of the password is kept,
-    // so no later step can register it on the server under the practitioner's
-    // real password (see DoctorDraftSyncService). Nothing in the UI registers
-    // offline — the registration screen calls the API and reports the failure —
-    // so this is not reachable today, but the draft it writes must never be
-    // mistaken for an account that exists server-side.
+    // Refusing here would leave a clinic with no backend unable to use the app
+    // at all, which is exactly what the offline mode exists to prevent. So the
+    // device becomes the authority for its own account. Approval is not
+    // something a device can grant, but there is no administrator to ask and no
+    // server-side record for the gate to protect — the gate exists so a stranger
+    // cannot read a *server's* patient records.
+    //
+    // The row is stamped as a device account (isSynced stays false), which is
+    // what keeps it from ever being treated as a server account: it can sign in
+    // here, and it can never pretend to a server session. It also cannot be
+    // uploaded later, because only a hash of the password is kept (see
+    // DoctorDraft.hash) and a server copy could never be signed in to. A
+    // practitioner who wants a server account registers once while connected.
     final doctor = Doctor(
       id: -DateTime.now().millisecondsSinceEpoch,
       email: email,
@@ -101,6 +109,7 @@ class AuthService {
       licenseNumber: licenseNumber,
       phone: phone,
       hospitalName: hospitalName,
+      isApproved: true,
     );
 
     final draft = DoctorDraft.createOffline(
@@ -142,6 +151,21 @@ class AuthService {
     final draft = await _findDraft(email);
     if (draft == null || !draft.verifyPassword(password)) return null;
 
+    // An account created on this device never had a server to confirm it, so
+    // neither the approval gate nor the trust window applies. The window exists
+    // to bound how long a *copy* of a server account stays trusted; there is no
+    // copy here, and expiring it would lock a practitioner out of a clinic that
+    // has no backend after their first week.
+    if (draft.isDeviceAccount) {
+      if (!draft.profile.isActive) {
+        throw ApiException(
+          statusCode: 403,
+          message: 'This account has been deactivated. Contact an administrator.',
+        );
+      }
+      return draft.profile;
+    }
+
     // The cache records what the server last said about this account. A
     // registration still awaiting approval caches `isApproved: false`, and
     // honouring it offline would walk straight around the approval gate the
@@ -180,35 +204,53 @@ class AuthService {
   /// the cached credential stayed usable offline forever. Now a rejection from
   /// the server ends the session on the device too.
   Future<bool> restoreSession() async {
-    if (!await ApiClient.isLoggedIn) return false;
-
-    try {
-      final doctor = await ApiClient.getCurrentDoctor();
-      await _refreshCachedProfile(doctor);
-      return true;
-    } on ApiException catch (error) {
-      final status = error.statusCode;
-      // 401 is what /auth/me returns for a token whose account was deactivated
-      // or unapproved, and 403 for an account that lost its access: either way
-      // the session is over on this device.
-      if (status == 401 || status == 403) {
-        await ApiClient.logout();
-        await _revokeCachedTrust();
-        return false;
-      }
-      if (!error.isNetworkError) {
-        // A 5xx is the server's problem, not the account's — keep the session
-        // and let the next call decide.
+    if (await ApiClient.isLoggedIn) {
+      try {
+        final doctor = await ApiClient.getCurrentDoctor();
+        await _refreshCachedProfile(doctor);
         return true;
-      }
+      } on ApiException catch (error) {
+        final status = error.statusCode;
+        // 401 is what /auth/me returns for a token whose account was deactivated
+        // or unapproved, and 403 for an account that lost its access: either way
+        // the session is over on this device.
+        if (status == 401 || status == 403) {
+          await ApiClient.logout();
+          await _revokeCachedTrust();
+          return false;
+        }
+        if (!error.isNetworkError) {
+          // A 5xx is the server's problem, not the account's — keep the session
+          // and let the next call decide.
+          return true;
+        }
 
-      // Offline launch: fall back to the same window offline sign-in uses, so a
-      // device that has not reached the server in a week asks for a sign-in
-      // instead of silently trusting a stale copy.
-      final draft = await _findDraft(null);
-      if (draft == null) return true;
-      return !draft.isTrustExpired(DateTime.now(), offlineTrustWindow);
+        // Offline launch: fall back to the same window offline sign-in uses, so a
+        // device that has not reached the server in a week asks for a sign-in
+        // instead of silently trusting a stale copy.
+        final draft = await _findDraft(null);
+        if (draft == null) return true;
+        return !draft.isTrustExpired(DateTime.now(), offlineTrustWindow);
+      }
     }
+
+    // No server session. An account created on this device still has to open
+    // its dashboard: asking the server about it would make the app unusable on
+    // a device that has never had a connection, which is the point of it.
+    return await _deviceAccount() != null;
+  }
+
+  /// The signed-in-by-default account on a device with no server: an active
+  /// device account, newest first.
+  Future<DoctorDraft?> _deviceAccount() async {
+    try {
+      for (final draft in await DoctorDraftStorage.loadAll()) {
+        if (draft.isDeviceAccount && draft.profile.isActive) return draft;
+      }
+    } catch (_) {
+      // Ignored on purpose — a broken cache is treated as "no account".
+    }
+    return null;
   }
 
   Future<DoctorDraft?> _findDraft(String? email) async {
@@ -242,13 +284,52 @@ class AuthService {
       final draft = await DoctorDraftStorage.findByEmail(doctor.email);
       if (draft == null) return;
       await DoctorDraftStorage.save(draft.copyWith(
-        profile: doctor,
+        // A profile edit still waiting for the server is newer than this
+        // answer, so only the trust fields are refreshed here. Overwriting the
+        // profile would revert an edit made where there was no signal.
+        profile: draft.pendingProfile == null ? doctor : draft.profile,
         doctorId: doctor.id,
         isSynced: true,
         lastVerifiedAt: DateTime.now(),
       ));
     } catch (_) {
       // Ignored on purpose — a cache write must not fail a session.
+    }
+  }
+
+  /// Sends a profile edit that was made while the server was unreachable.
+  ///
+  /// Returns the draft to use: the updated one when the server accepted the
+  /// edit (which also clears the marker), the original when it is still out of
+  /// reach. Nothing is thrown, because an unreachable server is not an error
+  /// here — the edit is safe on the device either way.
+  Future<DoctorDraft> _flushPendingProfile(DoctorDraft draft) async {
+    final pending = draft.pendingProfile;
+    if (pending == null || draft.isDeviceAccount) return draft;
+
+    try {
+      final doctor = await ApiClient.updateDoctorProfile(
+        fullName: pending['full_name'] as String?,
+        role: pending['role'] as String?,
+        licenseNumber: pending['license_number'] as String?,
+        phone: pending['phone'] as String?,
+        hospitalName: pending['hospital_name'] as String?,
+        dateOfBirth: DateTime.tryParse(
+            (pending['date_of_birth'] as String?) ?? ''),
+      );
+      final saved = draft.copyWith(
+        profile: doctor,
+        doctorId: doctor.id,
+        isSynced: true,
+        lastVerifiedAt: DateTime.now(),
+        clearPendingProfile: true,
+      );
+      await DoctorDraftStorage.save(saved);
+      return saved;
+    } catch (_) {
+      // Still unreachable: the edit stays on the device and is tried again the
+      // next time the server answers.
+      return draft;
     }
   }
 
@@ -269,7 +350,114 @@ class AuthService {
     }
   }
 
-  Future<Doctor> getCurrentDoctor() => ApiClient.getCurrentDoctor();
+  /// Who is signed in, preferring the server's copy and falling back to the
+  /// device's own.
+  ///
+  /// This used to be a plain `/auth/me` call. Screens render the practitioner's
+  /// name, role and hospital from it, so on a device with no connection that
+  /// made the profile screen show an error instead of the person using it — the
+  /// one thing an offline-first app cannot do.
+  Future<Doctor> getCurrentDoctor() async {
+    if (await ApiClient.isLoggedIn) {
+      // An edit made offline is sent before the read, otherwise `/auth/me`
+      // would answer with the copy this device has already moved past.
+      final cached = await _findDraft(null);
+      if (cached != null && cached.pendingProfile != null) {
+        await _flushPendingProfile(cached);
+      }
+      try {
+        final doctor = await ApiClient.getCurrentDoctor();
+        await _refreshCachedProfile(doctor);
+        return doctor;
+      } on ApiException catch (error) {
+        if (!error.isNetworkError) rethrow;
+      }
+    }
+
+    final draft = await _findDraft(null) ?? await _deviceAccount();
+    if (draft == null) {
+      throw ApiException(
+        statusCode: 401,
+        isNetworkError: true,
+        message: 'Sign in to continue.',
+      );
+    }
+    return draft.profile;
+  }
+
+  /// Saves the signed-in practitioner's own profile.
+  ///
+  /// The device is written first and unconditionally: a clinic with no
+  /// connection is the normal case, and refusing the edit (or losing it) because
+  /// the server was out of reach is exactly what this app must not do. The
+  /// fields still owed to the server ride on the cached account
+  /// ([DoctorDraft.pendingProfile]) and are sent the next time it answers.
+  Future<Doctor> updateMyProfile({
+    String? fullName,
+    String? role,
+    String? licenseNumber,
+    String? phone,
+    String? hospitalName,
+    DateTime? dateOfBirth,
+  }) async {
+    final draft = await _findDraft(null) ?? await _deviceAccount();
+    if (draft == null) {
+      throw ApiException(
+        statusCode: 401,
+        isNetworkError: true,
+        message: 'Sign in to continue.',
+      );
+    }
+
+    // A null field means "left alone", which is how the API treats it too.
+    String? trimmed(String? value) {
+      final text = value?.trim();
+      return (text == null || text.isEmpty) ? null : text;
+    }
+
+    final current = draft.profile;
+    final edited = Doctor(
+      id: current.id,
+      email: current.email,
+      fullName: trimmed(fullName) ?? current.fullName,
+      isActive: current.isActive,
+      role: trimmed(role) ?? current.role,
+      licenseNumber: trimmed(licenseNumber) ?? current.licenseNumber,
+      phone: trimmed(phone) ?? current.phone,
+      hospitalName: trimmed(hospitalName) ?? current.hospitalName,
+      isApproved: current.isApproved,
+      accessLevel: current.accessLevel,
+    );
+
+    final pending = <String, dynamic>{
+      // An edit replaces the whole set: anything already waiting and left out
+      // of this form is what the practitioner just cleared.
+      if (trimmed(fullName) != null) 'full_name': trimmed(fullName),
+      if (trimmed(role) != null) 'role': trimmed(role),
+      if (trimmed(licenseNumber) != null)
+        'license_number': trimmed(licenseNumber),
+      if (trimmed(phone) != null) 'phone': trimmed(phone),
+      if (trimmed(hospitalName) != null) 'hospital_name': trimmed(hospitalName),
+      if (dateOfBirth != null)
+        'date_of_birth': '${dateOfBirth.year.toString().padLeft(4, '0')}-'
+            '${dateOfBirth.month.toString().padLeft(2, '0')}-'
+            '${dateOfBirth.day.toString().padLeft(2, '0')}',
+    };
+
+    final localCopy = draft.copyWith(
+      profile: edited,
+      savedAt: DateTime.now(),
+      pendingProfile: pending,
+    );
+    await DoctorDraftStorage.save(localCopy);
+
+    // An account that exists only on this device has no server to tell.
+    if (draft.isDeviceAccount) return edited;
+    if (!await ApiClient.isLoggedIn) return edited;
+
+    final flushed = await _flushPendingProfile(localCopy);
+    return flushed.profile;
+  }
 
   Future<bool> get isLoggedIn => ApiClient.isLoggedIn;
 
