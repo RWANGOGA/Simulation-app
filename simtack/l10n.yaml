@@ -1,3 +1,9 @@
 arb-dir: lib/l10n
 template-arb-file: app_en.arb
 output-localization-file: app_localizations.dart
+
+# Without this, gen-l10n writes into .dart_tool/flutter_gen/gen_l10n/ under the
+# synthetic `flutter_gen` package, while every screen imports
+# lib/l10n/app_localizations.dart. The committed classes were therefore frozen
+# snapshots and editing an ARB changed nothing in the running app.
+synthetic-package: false

@@ -1,8 +1,6 @@
-// ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-import 'app_localizations.dart';
 
-// ignore_for_file: type=lint
+import 'app_localizations.dart';
 
 /// The translations for Swahili (`sw`).
 class AppLocalizationsSw extends AppLocalizations {
@@ -12,8 +10,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get chooseLanguageTitle => 'Choose Your Language';
 
   @override
-  String get chooseLanguageSubtitle =>
-      'Select the language you\'re most comfortable with';
+  String get chooseLanguageSubtitle => 'Select the language you\'re most comfortable with';
 
   @override
   String get languageEnglish => 'English';
@@ -34,8 +31,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get languageSignLanguage => 'Sign Language';
 
   @override
-  String get consentText =>
-      'I understand this app will process my health information on this device to help assess my condition. My data stays on this device unless I choose to share it.';
+  String get consentText => 'I understand this app will process my health information on this device to help assess my condition. My data stays on this device unless I choose to share it.';
 
   @override
   String get consentRequiredError => 'Please accept to continue';
@@ -56,36 +52,34 @@ class AppLocalizationsSw extends AppLocalizations {
   String get welcomeSubtitle => 'Let\'s get started';
 
   @override
-  String get welcomeHeadlinePrefix => 'Point to where it hurts. ';
+  String get welcomeHeadlinePrefix => 'Onyesha mahali inapoumiza. ';
 
   @override
-  String get welcomeHeadlineHighlight => 'Understand your risk in minutes.';
+  String get welcomeHeadlineHighlight => 'Elewa hatari yako kwa dakika chache.';
 
   @override
-  String get welcomeDescription =>
-      'AtomyBridge Care turns where it hurts into a clear, explainable risk picture for you and your care team, using an interactive 3D body map and AI assisted insights, even without an internet connection.';
+  String get welcomeDescription => 'AtomyBridge Care hubadilisha mahali inapoumiza kuwa picha ya hatari iliyo wazi na inayoelezeka kwako na kwa timu yako ya huduma, kwa kutumia ramani ya mwili ya 3D na maarifa yanayosaidiwa na AI, hata bila kuwa na mtandao.';
 
   @override
   String get welcomeStatRegionsValue => '14+';
 
   @override
-  String get welcomeStatRegionsLabel => 'Mapped pain regions';
+  String get welcomeStatRegionsLabel => 'Maeneo ya maumivu yaliyowekwa kwenye ramani';
 
   @override
-  String get welcomeStatOfflineValue => 'Offline';
+  String get welcomeStatOfflineValue => 'Bila mtandao';
 
   @override
-  String get welcomeStatOfflineLabel => 'Works with no signal';
+  String get welcomeStatOfflineLabel => 'Inafanya kazi bila mtandao';
 
   @override
-  String get welcomeStatSpeedValue => 'Under 2 min';
+  String get welcomeStatSpeedValue => 'Chini ya dakika 2';
 
   @override
-  String get welcomeStatSpeedLabel => 'To a risk summary';
+  String get welcomeStatSpeedLabel => 'Hadi muhtasari wa hatari';
 
   @override
-  String get privacyCaption =>
-      'Your data stays on this device.\nYou are in control.';
+  String get privacyCaption => 'Your data stays on this device.\nYou are in control.';
 
   @override
   String get savedDraftsTitle => 'Saved drafts';
@@ -185,8 +179,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get dashboardTitle => 'Dashboard Overview';
 
   @override
-  String get dashboardSubtitle =>
-      'Monitor active triage sessions and patient risk levels.';
+  String get dashboardSubtitle => 'Monitor active triage sessions and patient risk levels.';
 
   @override
   String get statTotalLabel => 'Total';
@@ -249,8 +242,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get patientOverviewTitle => 'Patient Overview';
 
   @override
-  String get patientOverviewSubtitle =>
-      'Review patient history, body map, and triage data.';
+  String get patientOverviewSubtitle => 'Review patient history, body map, and triage data.';
 
   @override
   String get patientCodeHint => 'Enter patient code e.g. P-770043';
@@ -288,8 +280,7 @@ class AppLocalizationsSw extends AppLocalizations {
   }
 
   @override
-  String get enterCodeForHistoryHint =>
-      'Enter a patient code above to view visit history';
+  String get enterCodeForHistoryHint => 'Enter a patient code above to view visit history';
 
   @override
   String noVisitsFoundHint(String code) {
@@ -305,8 +296,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get reportsTitle => 'Reports';
 
   @override
-  String get reportsSubtitle =>
-      'Aggregate breakdown across every triage session on record.';
+  String get reportsSubtitle => 'Aggregate breakdown across every triage session on record.';
 
   @override
   String get downloadPdfTooltip => 'Download PDF report';
@@ -390,8 +380,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get contactIdentityOptionalTitle => 'CONTACT & IDENTITY (OPTIONAL)';
 
   @override
-  String get contactIdentityHint =>
-      'Add these so the practitioner can identify and reach you. Skip them to stay fully anonymous.';
+  String get contactIdentityHint => 'Add these so the practitioner can identify and reach you. Skip them to stay fully anonymous.';
 
   @override
   String get fullNameLabel => 'Full Name';
@@ -412,8 +401,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get nextOfKinNameLabel => 'Next of Kin Name';
 
   @override
-  String get nextOfKinNameHelper =>
-      'Useful when reporting for a child or dependent';
+  String get nextOfKinNameHelper => 'Useful when reporting for a child or dependent';
 
   @override
   String get nextOfKinPhoneLabel => 'Next of Kin Phone';
@@ -487,8 +475,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get painLocationsSheetTitle => 'Pain Locations';
 
   @override
-  String get noLocationsMarkedHint =>
-      'No locations marked yet. Tap anywhere on the body to add one.';
+  String get noLocationsMarkedHint => 'No locations marked yet. Tap anywhere on the body to add one.';
 
   @override
   String get removeTooltip => 'Remove';
@@ -503,24 +490,19 @@ class AppLocalizationsSw extends AppLocalizations {
   String get bodyMapHelpTitle => 'How to use Body Map';
 
   @override
-  String get bodyMapHelpBullet1 =>
-      '• 3D Body (OpenHuman model): Rotate & inspect in 360°.';
+  String get bodyMapHelpBullet1 => '• 3D Body (OpenHuman model): Rotate & inspect in 360°.';
 
   @override
-  String get bodyMapHelpBullet2 =>
-      '• Tap on body parts to mark pain locations. Tap as many as you need.';
+  String get bodyMapHelpBullet2 => '• Tap on body parts to mark pain locations. Tap as many as you need.';
 
   @override
-  String get bodyMapHelpBullet3 =>
-      '• Tap the same spot again to remove that marker.';
+  String get bodyMapHelpBullet3 => '• Tap the same spot again to remove that marker.';
 
   @override
-  String get bodyMapHelpBullet4 =>
-      '• Use camera tools on the left overlay to zoom in/out or reset.';
+  String get bodyMapHelpBullet4 => '• Use camera tools on the left overlay to zoom in/out or reset.';
 
   @override
-  String get bodyMapHelpBullet5 =>
-      '• Toggle Front, Back, Left, or Right views with bottom tabs.';
+  String get bodyMapHelpBullet5 => '• Toggle Front, Back, Left, or Right views with bottom tabs.';
 
   @override
   String get gotItButton => 'Got it';
@@ -558,24 +540,19 @@ class AppLocalizationsSw extends AppLocalizations {
   String get painDetailsHelpTitle => 'Pain Details Guide';
 
   @override
-  String get painDetailsHelpBullet1 =>
-      '• If you marked more than one location, you\'ll fill in details for each one in turn.';
+  String get painDetailsHelpBullet1 => '• If you marked more than one location, you\'ll fill in details for each one in turn.';
 
   @override
-  String get painDetailsHelpBullet2 =>
-      '• Use the Direction dropdown to specify where the pain moves (e.g. Towards Back).';
+  String get painDetailsHelpBullet2 => '• Use the Direction dropdown to specify where the pain moves (e.g. Towards Back).';
 
   @override
-  String get painDetailsHelpBullet3 =>
-      '• Use the Depth dropdown to specify how deep the pain feels (Deep, Moderate, Superficial).';
+  String get painDetailsHelpBullet3 => '• Use the Depth dropdown to specify how deep the pain feels (Deep, Moderate, Superficial).';
 
   @override
-  String get painDetailsHelpBullet4 =>
-      '• Tap pain type chips (Sharp, Dull, Burning, Cramping).';
+  String get painDetailsHelpBullet4 => '• Tap pain type chips (Sharp, Dull, Burning, Cramping).';
 
   @override
-  String get painDetailsHelpBullet5 =>
-      '• Slide to set pain intensity scale from 1 to 10. Each location can be different.';
+  String get painDetailsHelpBullet5 => '• Slide to set pain intensity scale from 1 to 10. Each location can be different.';
 
   @override
   String get vitalsCaptureTitle => '4. Vitals Capture';
@@ -587,12 +564,10 @@ class AppLocalizationsSw extends AppLocalizations {
   String get tapStartMeasurementStatus => 'Tap \"Start Measurement\"';
 
   @override
-  String get measuringKeepFingerSteadyStatus =>
-      'Measuring... Keep finger steady';
+  String get measuringKeepFingerSteadyStatus => 'Measuring... Keep finger steady';
 
   @override
-  String get cameraPermissionNeededStatus =>
-      'Camera permission is needed to measure your heart rate. Please allow camera access and try again.';
+  String get cameraPermissionNeededStatus => 'Camera permission is needed to measure your heart rate. Please allow camera access and try again.';
 
   @override
   String get measurementCompleteStatus => 'Measurement complete!';
@@ -601,8 +576,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get cameraReadyLabel => 'Camera Ready';
 
   @override
-  String get placeFingerHint =>
-      'Place your finger gently over the back camera and flash';
+  String get placeFingerHint => 'Place your finger gently over the back camera and flash';
 
   @override
   String get nextReviewSubmitButton => 'Next: Review & Submit';
@@ -661,8 +635,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get spo2EstLabel => 'SpO2 (est.)';
 
   @override
-  String get consentSubmitNotice =>
-      'By submitting, you consent to sharing this clinical data with the attending physician for triage purposes.';
+  String get consentSubmitNotice => 'By submitting, you consent to sharing this clinical data with the attending physician for triage purposes.';
 
   @override
   String get saveDraftButton => 'Save Draft';
@@ -688,8 +661,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get noInternetRequiredHint => 'No internet required to view';
 
   @override
-  String get showQrToHealthWorkerHint =>
-      'Show this QR code to the health worker';
+  String get showQrToHealthWorkerHint => 'Show this QR code to the health worker';
 
   @override
   String aiAssessmentLabel(String label) {
@@ -753,6 +725,30 @@ class AppLocalizationsSw extends AppLocalizations {
   String get riskAssessmentHighestLabel => 'RISK ASSESSMENT (HIGHEST)';
 
   @override
+  String get primaryPainCharacteristicsText => 'PRIMARY PAIN CHARACTERISTICS';
+
+  @override
+  String get painExpansionBehaviorSectionText => 'SECTION A: PAIN EXPANSION BEHAVIOR';
+
+  @override
+  String get aggravatingAlleviatingFactorsText => 'SECTION B: AGGRAVATING & ALLEVIATING FACTORS';
+
+  @override
+  String get triggersWorseLabel => 'Triggers (Makes it Worse)';
+
+  @override
+  String get relieversBetterLabel => 'Relievers (Makes it Better)';
+
+  @override
+  String get dailyLifeImpactSectionText => 'SECTION C: DAILY LIFE IMPACT';
+
+  @override
+  String get assessmentSectionText => 'ASSESSMENT';
+
+  @override
+  String get intakeQuestionnaireSectionText => 'INTAKE QUESTIONNAIRE';
+
+  @override
   String drivenByLabel(String region) {
     return 'Driven by: $region';
   }
@@ -773,32 +769,6 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String get reportedAtLabel => 'Reported At';
-
-  @override
-  String get primaryPainCharacteristicsText => 'PRIMARY PAIN CHARACTERISTICS';
-
-  @override
-  String get painExpansionBehaviorSectionText =>
-      'SECTION A: PAIN EXPANSION BEHAVIOR';
-
-  @override
-  String get aggravatingAlleviatingFactorsText =>
-      'SECTION B: AGGRAVATING & ALLEVIATING FACTORS';
-
-  @override
-  String get triggersWorseLabel => 'Triggers (Makes it Worse)';
-
-  @override
-  String get relieversBetterLabel => 'Relievers (Makes it Better)';
-
-  @override
-  String get dailyLifeImpactSectionText => 'SECTION C: DAILY LIFE IMPACT';
-
-  @override
-  String get assessmentSectionText => 'ASSESSMENT';
-
-  @override
-  String get intakeQuestionnaireSectionText => 'INTAKE QUESTIONNAIRE';
 
   @override
   String get patientProfileSectionTitle => 'PATIENT PROFILE';
@@ -877,8 +847,7 @@ class AppLocalizationsSw extends AppLocalizations {
   String get saveChangesButton => 'Save Changes';
 
   @override
-  String get ageGenderWeightHeightRequiredError =>
-      'Age, gender, weight, and height are required.';
+  String get ageGenderWeightHeightRequiredError => 'Age, gender, weight, and height are required.';
 
   @override
   String get hospitalFacilityLabel => 'Hospital / Facility';
@@ -891,10 +860,13 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String factorCountLabel(int count) {
-    return switch (count) {
-      1 => '1 sababu',
-      _ => '$count mababu',
-    };
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count mababu',
+      one: '1 sababu',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -905,9 +877,12 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String moreFactorsLabel(int count) {
-    return switch (count) {
-      1 => '+1 zaidi',
-      _ => '+$count zaidi',
-    };
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zaidi',
+      one: '1 zaidi',
+    );
+    return '+$_temp0';
   }
 }

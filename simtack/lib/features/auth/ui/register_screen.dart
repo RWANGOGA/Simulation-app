@@ -116,13 +116,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // every request 401s, so send them back to sign-in with the reason.
       if (!doctor.isApproved) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text(
+          const SnackBar(
+            content: Text(
               'Account created. An administrator must approve it before you '
               'can sign in.',
             ),
-            backgroundColor: const Color(0xFF6D28D9),
-            duration: const Duration(seconds: 6),
+            backgroundColor: Color(0xFF6D28D9),
+            duration: Duration(seconds: 6),
           ),
         );
         Navigator.of(context).pop();

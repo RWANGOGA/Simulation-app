@@ -149,10 +149,10 @@ void main() {
 
     ApiClient.httpClient = _registerFlowClient();
 
-    await tester.pumpWidget(MaterialApp(
+    await tester.pumpWidget(const MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      home: const RegisterScreen(),
+      home: RegisterScreen(),
     ));
     await tester.pumpAndSettle();
 

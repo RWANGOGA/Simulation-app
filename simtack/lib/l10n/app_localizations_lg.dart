@@ -1,8 +1,6 @@
-// ignore: unused_import
 import 'package:intl/intl.dart' as intl;
-import 'app_localizations.dart';
 
-// ignore_for_file: type=lint
+import 'app_localizations.dart';
 
 /// The translations for Ganda Luganda (`lg`).
 class AppLocalizationsLg extends AppLocalizations {
@@ -33,12 +31,10 @@ class AppLocalizationsLg extends AppLocalizations {
   String get languageSignLanguage => 'Olulimi lw\'Emikono';
 
   @override
-  String get consentText =>
-      'Ntegeera nti app eno ejja kukozesa amawulire gange ag\'obulamu ku kaweefube kano okunnyamba okwekenneenya embeera yange. Amawulire gange gasigala ku kaweefube kano okuggyako nga nsazeewo okugabana nago.';
+  String get consentText => 'Ntegeera nti app eno ejja kukozesa amawulire gange ag\'obulamu ku kaweefube kano okunnyamba okwekenneenya embeera yange. Amawulire gange gasigala ku kaweefube kano okuggyako nga nsazeewo okugabana nago.';
 
   @override
-  String get consentRequiredError =>
-      'Tukusaba okukkiriza okusobola okweyongerayo';
+  String get consentRequiredError => 'Tukusaba okukkiriza okusobola okweyongerayo';
 
   @override
   String get continueButton => 'Weyongereyo';
@@ -62,8 +58,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get welcomeHeadlineHighlight => 'Understand your risk in minutes.';
 
   @override
-  String get welcomeDescription =>
-      'AtomyBridge Care turns where it hurts into a clear, explainable risk picture for you and your care team, using an interactive 3D body map and AI assisted insights, even without an internet connection.';
+  String get welcomeDescription => 'AtomyBridge Care turns where it hurts into a clear, explainable risk picture for you and your care team, using an interactive 3D body map and AI assisted insights, even without an internet connection.';
 
   @override
   String get welcomeStatRegionsValue => '14+';
@@ -84,8 +79,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get welcomeStatSpeedLabel => 'To a risk summary';
 
   @override
-  String get privacyCaption =>
-      'Amawulire go gasigala ku kaweefube kano.\nOli mu buyinza.';
+  String get privacyCaption => 'Amawulire go gasigala ku kaweefube kano.\nOli mu buyinza.';
 
   @override
   String get savedDraftsTitle => 'Ebiwandiiko ebiterekeddwa';
@@ -185,22 +179,19 @@ class AppLocalizationsLg extends AppLocalizations {
   String get dashboardTitle => 'Endagiriro y\'Omulimu';
 
   @override
-  String get dashboardSubtitle =>
-      'Lambula emirimu egikyagenda mu maaso n\'obungi bw\'akabi eri abalwadde.';
+  String get dashboardSubtitle => 'Lambula emirimu egikyagenda mu maaso n\'obungi bw\'akabi eri abalwadde.';
 
   @override
   String get statTotalLabel => 'Omuwendo Gwonna';
 
   @override
-  String get actionPatientLookupSubtitle =>
-      'Noonya abalwadde era olabe ebyafaayo byabwe';
+  String get actionPatientLookupSubtitle => 'Noonya abalwadde era olabe ebyafaayo byabwe';
 
   @override
   String get actionNewTriageTitle => 'Okwekenneenya Okuggya';
 
   @override
-  String get actionNewTriageSubtitle =>
-      'Tandika omulundi omuggya ogw\'okwekenneenya omulwadde';
+  String get actionNewTriageSubtitle => 'Tandika omulundi omuggya ogw\'okwekenneenya omulwadde';
 
   @override
   String get recentActivityTitle => 'Ebibaddewo Enseka Nga';
@@ -218,8 +209,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get scanPatientQrTooltip => 'Kuba QR y\'Omulwadde';
 
   @override
-  String get noTriageSessionsFoundMessage =>
-      'Tewali mirundi gya kwekenneenya gizuuliddwa.';
+  String get noTriageSessionsFoundMessage => 'Tewali mirundi gya kwekenneenya gizuuliddwa.';
 
   @override
   String get loadMoreButton => 'Weongereeko Ebirala';
@@ -252,8 +242,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get patientOverviewTitle => 'Ebikwata ku Mulwadde';
 
   @override
-  String get patientOverviewSubtitle =>
-      'Lambula ebyafaayo by\'omulwadde, ekifaananyi ky\'omubiri, n\'ebikwata ku kwekenneenya.';
+  String get patientOverviewSubtitle => 'Lambula ebyafaayo by\'omulwadde, ekifaananyi ky\'omubiri, n\'ebikwata ku kwekenneenya.';
 
   @override
   String get patientCodeHint => 'Wandiika ekika ky\'omulwadde gamba, P-770043';
@@ -268,15 +257,13 @@ class AppLocalizationsLg extends AppLocalizations {
   String get encryptedQrPassportLabel => 'Paasipoota ya QR Ekusike';
 
   @override
-  String get openFullClinicalReportButton =>
-      'Sumulula Lipoota Yonna ey\'Ebyobusawo';
+  String get openFullClinicalReportButton => 'Sumulula Lipoota Yonna ey\'Ebyobusawo';
 
   @override
   String get bodyMapTitle => 'Ekifaananyi ky\'Omubiri mu 3D';
 
   @override
-  String get bodyMapEmptyHint =>
-      'Wandiika ekika ky\'omulwadde okulaba w\'obulumi buli';
+  String get bodyMapEmptyHint => 'Wandiika ekika ky\'omulwadde okulaba w\'obulumi buli';
 
   @override
   String get visitHistoryTitle => 'Ebyafaayo by\'Okukyala';
@@ -293,8 +280,7 @@ class AppLocalizationsLg extends AppLocalizations {
   }
 
   @override
-  String get enterCodeForHistoryHint =>
-      'Wandiika ekika ky\'omulwadde waggulu okulaba ebyafaayo by\'okukyala';
+  String get enterCodeForHistoryHint => 'Wandiika ekika ky\'omulwadde waggulu okulaba ebyafaayo by\'okukyala';
 
   @override
   String noVisitsFoundHint(String code) {
@@ -310,8 +296,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get reportsTitle => 'Lipoota';
 
   @override
-  String get reportsSubtitle =>
-      'Okugabanyaamu kw\'emirundi gyonna egy\'okwekenneenya egyawandiikibwa.';
+  String get reportsSubtitle => 'Okugabanyaamu kw\'emirundi gyonna egy\'okwekenneenya egyawandiikibwa.';
 
   @override
   String get downloadPdfTooltip => 'Ssibbawo Lipoota ya PDF';
@@ -326,8 +311,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get periodAllTime => 'Ebbanga Lyonna';
 
   @override
-  String get noSessionsInPeriodMessage =>
-      'Tewali mirundi gya kwekenneenya mu kiseera kino.';
+  String get noSessionsInPeriodMessage => 'Tewali mirundi gya kwekenneenya mu kiseera kino.';
 
   @override
   String get statTotalSessionsLabel => 'Omuwendo gw\'Emirundi';
@@ -342,8 +326,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get sessionStatusTitle => 'Embeera y\'Omulundi';
 
   @override
-  String get mostReportedRegionsTitle =>
-      'Ebitundu by\'Omubiri Ebisinga Okuwandiikibwa';
+  String get mostReportedRegionsTitle => 'Ebitundu by\'Omubiri Ebisinga Okuwandiikibwa';
 
   @override
   String get painTypeBreakdownTitle => 'Okugabanyaamu kw\'Ebika by\'Obulumi';
@@ -373,8 +356,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get patientProfileTitle => 'Bbaluwa y\'Omulwadde';
 
   @override
-  String get patientProfileSubtitle =>
-      'Kino kitusobozesa okuzimba ekifaananyi ky\'omubiri gwo';
+  String get patientProfileSubtitle => 'Kino kitusobozesa okuzimba ekifaananyi ky\'omubiri gwo';
 
   @override
   String get ageLabel => 'Emyaka';
@@ -398,8 +380,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get contactIdentityOptionalTitle => 'OBUYITA N\'ENNONYO (SI BWETAAVU)';
 
   @override
-  String get contactIdentityHint =>
-      'Wandiika bino omusawo asobole okukumanya n\'okukutuukako. Bisobola okulekebwa okusigala nga toomanyiddwa.';
+  String get contactIdentityHint => 'Wandiika bino omusawo asobole okukumanya n\'okukutuukako. Bisobola okulekebwa okusigala nga toomanyiddwa.';
 
   @override
   String get fullNameLabel => 'Erinnya Ery\'Amazima';
@@ -420,8 +401,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get nextOfKinNameLabel => 'Erinnya ly\'Omuntu Okumpi';
 
   @override
-  String get nextOfKinNameHelper =>
-      'Kigasa nga owandiika ku lw\'omwana oba omuntu gw\'olabirira';
+  String get nextOfKinNameHelper => 'Kigasa nga owandiika ku lw\'omwana oba omuntu gw\'olabirira';
 
   @override
   String get nextOfKinPhoneLabel => 'Ennamba y\'Omuntu Okumpi';
@@ -443,8 +423,7 @@ class AppLocalizationsLg extends AppLocalizations {
   }
 
   @override
-  String get bodyMapSelectPainTitle =>
-      'Ekifaananyi ky\'Omubiri - Londa Obulumi';
+  String get bodyMapSelectPainTitle => 'Ekifaananyi ky\'Omubiri - Londa Obulumi';
 
   @override
   String get resetViewTooltip => 'Ddamu Otandike';
@@ -496,8 +475,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get painLocationsSheetTitle => 'Ebifo eby\'Obulumi';
 
   @override
-  String get noLocationsMarkedHint =>
-      'Tewali kifo kirondeddwa. Kuba wonna ku mubiri okwongerako.';
+  String get noLocationsMarkedHint => 'Tewali kifo kirondeddwa. Kuba wonna ku mubiri okwongerako.';
 
   @override
   String get removeTooltip => 'Ggyawo';
@@ -512,23 +490,19 @@ class AppLocalizationsLg extends AppLocalizations {
   String get bodyMapHelpTitle => 'Engeri y\'okukozesa Ekifaananyi ky\'Omubiri';
 
   @override
-  String get bodyMapHelpBullet1 =>
-      '• Omubiri mu 3D: Kyuusa era okenneenye mu 360°.';
+  String get bodyMapHelpBullet1 => '• Omubiri mu 3D: Kyuusa era okenneenye mu 360°.';
 
   @override
-  String get bodyMapHelpBullet2 =>
-      '• Kuba ku bitundu by\'omubiri okulaga ebifo by\'obulumi. Kuba nga bwe weetaaga.';
+  String get bodyMapHelpBullet2 => '• Kuba ku bitundu by\'omubiri okulaga ebifo by\'obulumi. Kuba nga bwe weetaaga.';
 
   @override
   String get bodyMapHelpBullet3 => '• Kuba ku kifo kye kimu ate okukiggyawo.';
 
   @override
-  String get bodyMapHelpBullet4 =>
-      '• Kozesa ebyuma ku ludda olwa kkono okusembeza, okuggwayo, oba okuddamu okutandika.';
+  String get bodyMapHelpBullet4 => '• Kozesa ebyuma ku ludda olwa kkono okusembeza, okuggwayo, oba okuddamu okutandika.';
 
   @override
-  String get bodyMapHelpBullet5 =>
-      '• Kyusakyusa wakati wa Ebbali, Emabega, Ekkono, oba Eddyo.';
+  String get bodyMapHelpBullet5 => '• Kyusakyusa wakati wa Ebbali, Emabega, Ekkono, oba Eddyo.';
 
   @override
   String get gotItButton => 'Ntegedde';
@@ -566,24 +540,19 @@ class AppLocalizationsLg extends AppLocalizations {
   String get painDetailsHelpTitle => 'Obulagirizi ku Bikwata ku Bulumi';
 
   @override
-  String get painDetailsHelpBullet1 =>
-      '• Bwe waba weerondeddewo ebifo bisukka ekimu, ojja kujjuza ebikwata ku buli kimu ku lwakyo.';
+  String get painDetailsHelpBullet1 => '• Bwe waba weerondeddewo ebifo bisukka ekimu, ojja kujjuza ebikwata ku buli kimu ku lwakyo.';
 
   @override
-  String get painDetailsHelpBullet2 =>
-      '• Kozesa Kkubo okulaga w\'obulumi bugenda (gamba, Emabega).';
+  String get painDetailsHelpBullet2 => '• Kozesa Kkubo okulaga w\'obulumi bugenda (gamba, Emabega).';
 
   @override
-  String get painDetailsHelpBullet3 =>
-      '• Kozesa Obuwanvu okulaga obulumi gye buli (Wangi, Bulijjo, Waggulu).';
+  String get painDetailsHelpBullet3 => '• Kozesa Obuwanvu okulaga obulumi gye buli (Wangi, Bulijjo, Waggulu).';
 
   @override
-  String get painDetailsHelpBullet4 =>
-      '• Kuba ku bika by\'obulumi (Obwogi, Obukakali, Okwokya, Okukwata).';
+  String get painDetailsHelpBullet4 => '• Kuba ku bika by\'obulumi (Obwogi, Obukakali, Okwokya, Okukwata).';
 
   @override
-  String get painDetailsHelpBullet5 =>
-      '• Seeza okuteekawo amaanyi g\'obulumi okuva ku 1 okutuuka ku 10. Buli kifo kiyinza okwawukana.';
+  String get painDetailsHelpBullet5 => '• Seeza okuteekawo amaanyi g\'obulumi okuva ku 1 okutuuka ku 10. Buli kifo kiyinza okwawukana.';
 
   @override
   String get vitalsCaptureTitle => '4. Okupima Obulamu';
@@ -598,8 +567,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get measuringKeepFingerSteadyStatus => 'Nkyapima... Nyweza olunwe';
 
   @override
-  String get cameraPermissionNeededStatus =>
-      'Olukusa lw\'ekkamera lwetaagisa okupima omutima gwo. Kkiriza ekkamera oddemu ogezeeko.';
+  String get cameraPermissionNeededStatus => 'Olukusa lw\'ekkamera lwetaagisa okupima omutima gwo. Kkiriza ekkamera oddemu ogezeeko.';
 
   @override
   String get measurementCompleteStatus => 'Okupima kuwedde!';
@@ -608,8 +576,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get cameraReadyLabel => 'Ekkamera Etegefu';
 
   @override
-  String get placeFingerHint =>
-      'Teeka olunwe lwo mpola ku kkamera y\'emabega n\'ettaala';
+  String get placeFingerHint => 'Teeka olunwe lwo mpola ku kkamera y\'emabega n\'ettaala';
 
   @override
   String get nextReviewSubmitButton => 'Ekiddako: Kebera & Weereza';
@@ -668,8 +635,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get spo2EstLabel => 'SpO2 (okulambika)';
 
   @override
-  String get consentSubmitNotice =>
-      'Bw\'oweereza, okkiriza okugabana amawulire gano n\'omusawo akulabirira ku lw\'okwekenneenya.';
+  String get consentSubmitNotice => 'Bw\'oweereza, okkiriza okugabana amawulire gano n\'omusawo akulabirira ku lw\'okwekenneenya.';
 
   @override
   String get saveDraftButton => 'Terekera Oluvannyuma';
@@ -695,8 +661,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get noInternetRequiredHint => 'Tewetaagisa yintaneeti okulaba';
 
   @override
-  String get showQrToHealthWorkerHint =>
-      'Laga QR eno eri omukozi w\'ebyobulamu';
+  String get showQrToHealthWorkerHint => 'Laga QR eno eri omukozi w\'ebyobulamu';
 
   @override
   String aiAssessmentLabel(String label) {
@@ -754,11 +719,34 @@ class AppLocalizationsLg extends AppLocalizations {
   String get clinicalTriageReportTitle => 'Lipoota y\'Okwekenneenya';
 
   @override
-  String get officialDocumentSubtitle =>
-      'Simtack Care • Ekiwandiiko Ekikakasibwa';
+  String get officialDocumentSubtitle => 'Simtack Care • Ekiwandiiko Ekikakasibwa';
 
   @override
   String get riskAssessmentHighestLabel => 'Okwekenneenya Akabi (Akingi)';
+
+  @override
+  String get primaryPainCharacteristicsText => 'PRIMARY PAIN CHARACTERISTICS';
+
+  @override
+  String get painExpansionBehaviorSectionText => 'SECTION A: PAIN EXPANSION BEHAVIOR';
+
+  @override
+  String get aggravatingAlleviatingFactorsText => 'SECTION B: AGGRAVATING & ALLEVIATING FACTORS';
+
+  @override
+  String get triggersWorseLabel => 'Triggers (Makes it Worse)';
+
+  @override
+  String get relieversBetterLabel => 'Relievers (Makes it Better)';
+
+  @override
+  String get dailyLifeImpactSectionText => 'SECTION C: DAILY LIFE IMPACT';
+
+  @override
+  String get assessmentSectionText => 'ASSESSMENT';
+
+  @override
+  String get intakeQuestionnaireSectionText => 'INTAKE QUESTIONNAIRE';
 
   @override
   String drivenByLabel(String region) {
@@ -783,37 +771,10 @@ class AppLocalizationsLg extends AppLocalizations {
   String get reportedAtLabel => 'Kyawandiikibwa';
 
   @override
-  String get primaryPainCharacteristicsText => 'PRIMARY PAIN CHARACTERISTICS';
-
-  @override
-  String get painExpansionBehaviorSectionText =>
-      'SECTION A: PAIN EXPANSION BEHAVIOR';
-
-  @override
-  String get aggravatingAlleviatingFactorsText =>
-      'SECTION B: AGGRAVATING & ALLEVIATING FACTORS';
-
-  @override
-  String get triggersWorseLabel => 'Triggers (Makes it Worse)';
-
-  @override
-  String get relieversBetterLabel => 'Relievers (Makes it Better)';
-
-  @override
-  String get dailyLifeImpactSectionText => 'SECTION C: DAILY LIFE IMPACT';
-
-  @override
-  String get assessmentSectionText => 'ASSESSMENT';
-
-  @override
-  String get intakeQuestionnaireSectionText => 'INTAKE QUESTIONNAIRE';
-
-  @override
   String get patientProfileSectionTitle => 'BBALUWA Y\'OMULWADDE';
 
   @override
-  String get noDemographicsOnFileMessage =>
-      'Tewali mawulire ga bulwadde gawandiikiddwa.';
+  String get noDemographicsOnFileMessage => 'Tewali mawulire ga bulwadde gawandiikiddwa.';
 
   @override
   String get nameLabel => 'Erinnya';
@@ -886,8 +847,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get saveChangesButton => 'Terekera Enkyukakyuka';
 
   @override
-  String get ageGenderWeightHeightRequiredError =>
-      'Emyaka, ekikula, obuzito, n\'obugulumivu byetaagisa.';
+  String get ageGenderWeightHeightRequiredError => 'Emyaka, ekikula, obuzito, n\'obugulumivu byetaagisa.';
 
   @override
   String get hospitalFacilityLabel => 'Eddwaliro';
@@ -900,10 +860,13 @@ class AppLocalizationsLg extends AppLocalizations {
 
   @override
   String factorCountLabel(int count) {
-    return switch (count) {
-      1 => 'Ensonga 1',
-      _ => 'Ennyiriri $count',
-    };
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ennyiriri $count',
+      one: 'Ensonga 1',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -914,9 +877,12 @@ class AppLocalizationsLg extends AppLocalizations {
 
   @override
   String moreFactorsLabel(int count) {
-    return switch (count) {
-      1 => '+1 erala',
-      _ => '+$count zirala',
-    };
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count zirala',
+      one: '1 erala',
+    );
+    return '+$_temp0';
   }
 }

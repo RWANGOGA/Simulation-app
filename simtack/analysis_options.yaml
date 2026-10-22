@@ -16,6 +16,10 @@ analyzer:
     - windows/**
     - macos/**
     - linux/**
+    # Emitted by `flutter gen-l10n` from the ARB files. It is regenerated on
+    # every build and its style is the generator's business, not ours —
+    # linting it buried the 77 hand-written issues under another 80.
+    - lib/l10n/app_localizations*.dart
 include: package:flutter_lints/flutter.yaml
 
 linter:
