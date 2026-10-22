@@ -1,64 +1,22 @@
-import '../network/api_client.dart';
-import 'doctor_draft_storage.dart';
-
-/// Syncs locally-stored practitioner accounts to the backend when online.
-/// Runs on startup and when connectivity is restored.
+/// Completion point for practitioner accounts that were created offline.
+///
+/// This used to POST `/auth/register` with `password: 'synced_offline'`, because
+/// the plaintext was never kept — only a PBKDF2 hash of it. That is the worst of
+/// both worlds: the server got an account nobody could sign in to (the real
+/// password is unrecoverable, so the practitioner is locked out online for
+/// good), and everybody else got one protected by a password that is written
+/// down in this repository. Approval-gating new accounts limited the damage but
+/// did not remove the credential.
+///
+/// So the device no longer invents accounts. Doing this properly needs the
+/// plaintext retained from the moment of registration (secure storage, not
+/// shared preferences) until the account reaches the server, or it needs the
+/// practitioner to register again while connected. Neither is implemented, and
+/// nothing in the UI creates an offline practitioner account today — the
+/// registration screen calls the API directly and reports the connection error
+/// — so there is nothing to sync yet.
 class DoctorDraftSyncService {
-  /// Returns how many doctor drafts were successfully synced.
-  static Future<int> syncAll() async {
-    final drafts = await DoctorDraftStorage.loadAll();
-    int synced = 0;
-
-    for (final draft in drafts) {
-      // Skip if already synced
-      if (draft.isSynced) continue;
-
-      try {
-        // Try to register the account on the server
-        final doctor = await ApiClient.register(
-          email: draft.profile.email,
-          password: 'synced_offline', // Placeholder - actual password not stored
-          fullName: draft.profile.fullName,
-          role: draft.profile.role,
-          licenseNumber: draft.profile.licenseNumber,
-          phone: draft.profile.phone,
-          hospitalName: draft.profile.hospitalName,
-        );
-
-        // Update draft with server response
-        final syncedDraft = draft.copyWith(
-          doctorId: doctor.id,
-          isSynced: true,
-        );
-
-        await DoctorDraftStorage.save(syncedDraft);
-        synced++;
-      } catch (e) {
-        // If email already exists, try to login instead
-        if (e.toString().toLowerCase().contains('email') ||
-            e.toString().toLowerCase().contains('exists') ||
-            e.toString().toLowerCase().contains('duplicate')) {
-          try {
-            // Try login to verify credentials
-            final doctor = await ApiClient.login(
-              email: draft.profile.email,
-              password: '', // We don't have the actual password
-            );
-            // If login succeeds, mark as synced
-            final syncedDraft = draft.copyWith(
-              doctorId: doctor.id,
-              isSynced: true,
-            );
-            await DoctorDraftStorage.save(syncedDraft);
-            synced++;
-          } catch (_) {
-            // Can't verify, leave for next sync
-          }
-        }
-        // Other errors - leave for next sync attempt
-      }
-    }
-
-    return synced;
-  }
+  /// Returns how many doctor drafts were successfully synced. Always 0 until a
+  /// correct implementation exists; kept so callers do not need to change.
+  static Future<int> syncAll() async => 0;
 }

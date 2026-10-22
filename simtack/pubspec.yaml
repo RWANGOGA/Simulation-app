@@ -23,6 +23,10 @@ dependencies:
   url_launcher: ^6.2.5
   shared_preferences: ^2.3.3
   flutter_secure_storage: ^10.3.1
+  # Direct because offline sign-in hashes the cached password itself. Was
+  # already in the graph transitively; declaring it keeps the import honest and
+  # stops a dependency bump from silently removing it.
+  crypto: ^3.0.3
   web: ^1.1.0
   fl_chart: ^0.69.0
   pdf: ^3.11.1

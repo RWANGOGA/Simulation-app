@@ -30,8 +30,15 @@ void main() async {
   // determines whether LanguageScreen or WelcomeScreen opens first.
   final LocaleController locale = await LocaleController.load();
 
-  // 4. Check if the doctor is already logged in before the app even draws the first pixel
-  final bool isDoctorLoggedIn = await AuthService.instance.isLoggedIn;
+  // 4. Decide what to open with before the first pixel. A token on disk is no
+  // longer enough: the session is confirmed against the server whenever it can
+  // be reached, so a deactivated account no longer opens a dashboard whose
+  // every request fails. The wait is bounded — a slow or sleeping backend must
+  // not hold up the first frame, and any later API call still surfaces the
+  // revocation through ApiClient.onSessionExpired.
+  final bool isDoctorLoggedIn = await AuthService.instance
+      .restoreSession()
+      .timeout(const Duration(seconds: 5), onTimeout: () => true);
 
   // 5. Pass this state to the root widget
   runApp(AtomyBridgeApp(

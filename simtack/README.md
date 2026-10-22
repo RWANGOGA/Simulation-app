@@ -109,6 +109,30 @@ The Flutter app integrates with the following backend endpoints:
 
 See the [root README](../README.md) for full API documentation.
 
+## Offline sign-in and account revocation
+
+Practitioners can sign in with no connectivity, so the app keeps a local copy
+of their account. That copy is a **trust window, not a permanent credential**:
+
+- A successful sign-in, registration, or `/auth/me` stamps `lastVerifiedAt` —
+  the last moment the *server* confirmed the account.
+- Offline sign-in works for `AuthService.offlineTrustWindow` (7 days) from that
+  stamp. After that the app asks the practitioner to sign in once while
+  connected instead of letting a stale cache represent a live account.
+- A cached account that is still pending approval, or was deactivated, is
+  refused offline with a 403 — the server's last known decision stands even
+  with no network.
+- At launch `main()` calls `AuthService.restoreSession()`, which re-checks
+  `/auth/me`. A 401/403 means the account really is gone: the token is cleared
+  and every cached row's trust anchor is revoked. The wait is bounded to five
+  seconds so a sleeping backend cannot hold up the first frame; a network
+  failure is not treated as a revocation.
+
+Passwords are stored as PBKDF2-HMAC-SHA256 (20 000 iterations, one random
+16-byte salt per account) and compared in constant time. A cache written by an
+older build still verifies through the legacy path and is silently rehashed on
+the next successful offline sign-in.
+
 ## Localization
 
 The app supports multiple languages:

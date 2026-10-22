@@ -5,11 +5,18 @@ import 'package:simtack/core/network/api_client.dart';
 
 void main() {
   group('DoctorDraft', () {
-    test('hash produces consistent output for same input', () {
-      const password = 'TestPass123';
-      final hash1 = DoctorDraft.hash(password);
-      final hash2 = DoctorDraft.hash(password);
+    test('hash reproduces the same value when the salt is supplied', () {
+      // Salts are random per account, so the same password must NOT hash to the
+      // same string twice. Reproducibility is what verification needs instead.
+      final hash1 = DoctorDraft.hash('TestPass123', salt: 'fixed-salt');
+      final hash2 = DoctorDraft.hash('TestPass123', salt: 'fixed-salt');
       expect(hash1, hash2);
+    });
+
+    test('hash salts every account separately', () {
+      final hash1 = DoctorDraft.hash('TestPass123');
+      final hash2 = DoctorDraft.hash('TestPass123');
+      expect(hash1, isNot(hash2));
     });
 
     test('hash produces different output for different input', () {
