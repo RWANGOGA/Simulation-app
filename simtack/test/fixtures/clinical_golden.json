@@ -4,15 +4,15 @@
       "expected": [
         {
           "id": "chest_heart",
-          "score": 18.644710660135917
+          "score": 1.0
         },
         {
           "id": "left_arm_shoulder",
-          "score": 5.951232954393489
+          "score": 0.5097116786643882
         },
         {
           "id": "left_shoulder",
-          "score": 5.0310533395889
+          "score": 0.5016210170982868
         }
       ],
       "query": "crushing chest pain spreading to left arm",
@@ -23,23 +23,23 @@
       "expected": [
         {
           "id": "chest_heart",
-          "score": 18.644710660135917
+          "score": 1.0
         },
         {
           "id": "left_arm_shoulder",
-          "score": 5.951232954393489
+          "score": 0.5097116786643882
         },
         {
           "id": "left_shoulder",
-          "score": 5.0310533395889
+          "score": 0.5016210170982868
         },
         {
           "id": "right_arm_shoulder",
-          "score": 4.222599373174517
+          "score": 0.4937831887061261
         },
         {
           "id": "right_shoulder",
-          "score": 3.8747990701245993
+          "score": 0.4861865242644934
         }
       ],
       "query": "crushing chest pain spreading to left arm",
@@ -50,15 +50,15 @@
       "expected": [
         {
           "id": "chest_heart",
-          "score": 11.764473801922401
+          "score": 0.9719172486624887
         },
         {
           "id": "right_arm_shoulder",
-          "score": 1.9010379154174497
+          "score": 0.5180676078228208
         },
         {
           "id": "left_arm_shoulder",
-          "score": 1.837819766465594
+          "score": 0.5097116786643882
         }
       ],
       "query": "chest pain",
@@ -69,23 +69,23 @@
       "expected": [
         {
           "id": "chest_heart",
-          "score": 11.764473801922401
+          "score": 0.9719172486624887
         },
         {
           "id": "right_arm_shoulder",
-          "score": 1.9010379154174497
+          "score": 0.5180676078228208
         },
         {
           "id": "left_arm_shoulder",
-          "score": 1.837819766465594
+          "score": 0.5097116786643882
         },
         {
           "id": "back_upper",
-          "score": 1.7786708775551292
+          "score": 0.5016210170982868
         },
         {
           "id": "left_shoulder",
-          "score": 1.5536560817726432
+          "score": 0.48998485648530976
         }
       ],
       "query": "chest pain",
@@ -96,15 +96,15 @@
       "expected": [
         {
           "id": "right_arm_shoulder",
-          "score": 1.9010379154174497
+          "score": 0.5180676078228208
         },
         {
           "id": "left_arm_shoulder",
-          "score": 1.837819766465594
+          "score": 0.5097116786643882
         },
         {
           "id": "back_upper",
-          "score": 1.7786708775551292
+          "score": 0.5016210170982868
         }
       ],
       "query": "chest pain",
@@ -115,23 +115,23 @@
       "expected": [
         {
           "id": "right_arm_shoulder",
-          "score": 1.9010379154174497
+          "score": 0.5180676078228208
         },
         {
           "id": "left_arm_shoulder",
-          "score": 1.837819766465594
+          "score": 0.5097116786643882
         },
         {
           "id": "back_upper",
-          "score": 1.7786708775551292
+          "score": 0.5016210170982868
         },
         {
           "id": "chest_heart",
-          "score": 1.7644738019224018
+          "score": 0.48998485648530976
         },
         {
           "id": "left_shoulder",
-          "score": 1.5536560817726432
+          "score": 0.48998485648530976
         }
       ],
       "query": "chest pain",
@@ -142,15 +142,15 @@
       "expected": [
         {
           "id": "headache_cranial",
-          "score": 18.904124868164622
+          "score": 1.0
         },
         {
           "id": "hips_groin",
-          "score": 6.778288910167365
+          "score": 0.5097116786643882
         },
         {
           "id": "right_shoulder",
-          "score": 5.715287979674978
+          "score": 0.5016210170982868
         }
       ],
       "query": "severe headache with light sensitivity",
@@ -161,23 +161,23 @@
       "expected": [
         {
           "id": "headache_cranial",
-          "score": 18.904124868164622
+          "score": 1.0
         },
         {
           "id": "hips_groin",
-          "score": 6.778288910167365
+          "score": 0.5097116786643882
         },
         {
           "id": "right_shoulder",
-          "score": 5.715287979674978
+          "score": 0.5016210170982868
         },
         {
           "id": "left_shoulder",
-          "score": 5.238417336122135
+          "score": 0.4937831887061261
         },
         {
           "id": "right_arm_shoulder",
-          "score": 0.48519559076205354
+          "score": 0.4788200617756374
         }
       ],
       "query": "severe headache with light sensitivity",
@@ -188,15 +188,15 @@
       "expected": [
         {
           "id": "abdomen_upper",
-          "score": 23.329002596673213
+          "score": 1.0
         },
         {
           "id": "abdomen_lower_right",
-          "score": 6.07599498085361
+          "score": 0.5571148647801764
         },
         {
           "id": "abdomen_lower_left",
-          "score": 3.9864514769418005
+          "score": 0.5335897103802816
         }
       ],
       "query": "burning stomach pain after eating",
@@ -207,23 +207,23 @@
       "expected": [
         {
           "id": "abdomen_upper",
-          "score": 23.329002596673213
+          "score": 1.0
         },
         {
           "id": "abdomen_lower_right",
-          "score": 6.07599498085361
+          "score": 0.5571148647801764
         },
         {
           "id": "abdomen_lower_left",
-          "score": 3.9864514769418005
-        },
-        {
-          "id": "back_upper",
-          "score": 2.210168614765641
+          "score": 0.5335897103802816
         },
         {
           "id": "right_arm_shoulder",
-          "score": 2.1579743260783064
+          "score": 0.49770210290220646
+        },
+        {
+          "id": "left_leg_knee",
+          "score": 0.49770210290220646
         }
       ],
       "query": "burning stomach pain after eating",
@@ -234,15 +234,15 @@
       "expected": [
         {
           "id": "back_lower",
-          "score": 16.153151917105305
+          "score": 0.9761982623971919
         },
         {
           "id": "back_upper",
-          "score": 8.153151917105303
+          "score": 0.6601376864296176
         },
         {
-          "id": "right_thigh",
-          "score": 5.73766140883736
+          "id": "right_ankle",
+          "score": 0.5016210170982868
         }
       ],
       "query": "backache after lifting",
@@ -253,372 +253,360 @@
       "expected": [
         {
           "id": "back_lower",
-          "score": 16.153151917105305
+          "score": 0.9761982623971919
         },
         {
           "id": "back_upper",
-          "score": 8.153151917105303
+          "score": 0.6601376864296176
+        },
+        {
+          "id": "right_ankle",
+          "score": 0.5016210170982868
         },
         {
           "id": "right_thigh",
-          "score": 5.73766140883736
-        },
-        {
-          "id": "right_ankle",
-          "score": 5.825069588017619
-        },
-        {
-          "id": "chest_heart",
-          "score": 5.865559440198412
-        }
-      ],
-      "query": "backache after lifting",
-      "region": "Back Pain (Lower)",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "left_arm_shoulder",
-          "score": 12.840152257220433
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 4.937849088933268
-        },
-        {
-          "id": "right_elbow",
-          "score": 4.8872497425035215
-        }
-      ],
-      "query": "shoulder pain when lifting the arm",
-      "region": "Left Arm / Shoulder",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "left_arm_shoulder",
-          "score": 12.840152257220433
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 4.937849088933268
-        },
-        {
-          "id": "right_elbow",
-          "score": 4.8872497425035215
-        },
-        {
-          "id": "right_shoulder",
-          "score": 4.435238524274058
-        },
-        {
-          "id": "left_elbow",
-          "score": 4.8872497425035215
-        }
-      ],
-      "query": "shoulder pain when lifting the arm",
-      "region": "Left Arm / Shoulder",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "right_leg_knee",
-          "score": 4.822666778333714
-        },
-        {
-          "id": "left_leg_knee",
-          "score": 3.723210601052073
-        },
-        {
-          "id": "thighs",
-          "score": 1.9010379154174497
-        }
-      ],
-      "query": "calf pain when walking",
-      "region": "Right Leg",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "right_leg_knee",
-          "score": 4.822666778333714
-        },
-        {
-          "id": "left_leg_knee",
-          "score": 3.723210601052073
-        },
-        {
-          "id": "thighs",
-          "score": 1.9010379154174497
-        },
-        {
-          "id": "right_shin_calf",
-          "score": 1.6340467218469725
-        },
-        {
-          "id": "abdomen_upper",
-          "score": 1.8077616222854462
-        }
-      ],
-      "query": "calf pain when walking",
-      "region": "Right Leg",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "neck",
-          "score": 14.147897296185366
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 4.254908220444089
-        },
-        {
-          "id": "left_arm_shoulder",
-          "score": 4.113413187927895
-        }
-      ],
-      "query": "stiff neck with arm tingling",
-      "region": "Neck",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "neck",
-          "score": 14.147897296185366
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 4.254908220444089
-        },
-        {
-          "id": "left_arm_shoulder",
-          "score": 4.113413187927895
-        },
-        {
-          "id": "right_elbow",
-          "score": 3.4069000076567715
-        },
-        {
-          "id": "left_elbow",
-          "score": 3.4069000076567715
-        }
-      ],
-      "query": "stiff neck with arm tingling",
-      "region": "Neck",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "abdomen_upper",
-          "score": 10.112503924516782
-        },
-        {
-          "id": "abdomen_lower_right",
-          "score": 4.106718562787739
-        },
-        {
-          "id": "left_leg_knee",
-          "score": 2.162145562202576
-        }
-      ],
-      "query": "tummy ache",
-      "region": "",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "abdomen_upper",
-          "score": 10.112503924516782
-        },
-        {
-          "id": "abdomen_lower_right",
-          "score": 4.106718562787739
-        },
-        {
-          "id": "left_leg_knee",
-          "score": 2.162145562202576
-        },
-        {
-          "id": "abdomen_lower_left",
-          "score": 2.0202119594952666
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 1.9333467626870218
-        }
-      ],
-      "query": "tummy ache",
-      "region": "",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "right_arm_shoulder",
-          "score": 3.8666935253740435
-        },
-        {
-          "id": "left_arm_shoulder",
-          "score": 3.738108395505871
-        },
-        {
-          "id": "back_upper",
-          "score": 3.617800102899861
-        }
-      ],
-      "query": "breathless",
-      "region": "",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "right_arm_shoulder",
-          "score": 3.8666935253740435
-        },
-        {
-          "id": "left_arm_shoulder",
-          "score": 3.738108395505871
-        },
-        {
-          "id": "back_upper",
-          "score": 3.617800102899861
-        },
-        {
-          "id": "chest_heart",
-          "score": 3.5889233824604068
-        },
-        {
-          "id": "left_shoulder",
-          "score": 3.1601220908469325
-        }
-      ],
-      "query": "breathless",
-      "region": "",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "headache_cranial",
-          "score": 5.16516293407453
-        },
-        {
-          "id": "hips_groin",
-          "score": 4.628397550084446
-        },
-        {
-          "id": "back_lower",
-          "score": 2.501507962591216
-        }
-      ],
-      "query": "groin pain on one side",
-      "region": "Pelvis / Groin",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "headache_cranial",
-          "score": 5.16516293407453
-        },
-        {
-          "id": "hips_groin",
-          "score": 4.628397550084446
-        },
-        {
-          "id": "back_lower",
-          "score": 2.501507962591216
-        },
-        {
-          "id": "left_leg_knee",
-          "score": 2.4235090899326592
-        },
-        {
-          "id": "right_leg_knee",
-          "score": 1.8373436999219046e-05
-        }
-      ],
-      "query": "groin pain on one side",
-      "region": "Pelvis / Groin",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "right_leg_knee",
-          "score": 2.0
-        },
-        {
-          "id": "left_leg_knee",
-          "score": 2.0
-        },
-        {
-          "id": "right_knee",
-          "score": 2.0
-        }
-      ],
-      "query": "",
-      "region": "Knee (Left)",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "right_leg_knee",
-          "score": 2.0
-        },
-        {
-          "id": "left_leg_knee",
-          "score": 2.0
-        },
-        {
-          "id": "right_knee",
-          "score": 2.0
-        },
-        {
-          "id": "left_knee",
-          "score": 2.0
-        }
-      ],
-      "query": "",
-      "region": "Knee (Left)",
-      "top_k": 5
-    },
-    {
-      "expected": [],
-      "query": "",
-      "region": "",
-      "top_k": 3
-    },
-    {
-      "expected": [],
-      "query": "",
-      "region": "",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "right_ankle",
-          "score": 4.872431572545384
+          "score": 0.4984438347992292
         },
         {
           "id": "left_ankle",
-          "score": 4.872431572545384
+          "score": 0.4937831887061261
+        }
+      ],
+      "query": "backache after lifting",
+      "region": "Back Pain (Lower)",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "left_arm_shoulder",
+          "score": 0.9875987400585166
         },
         {
-          "id": "right_foot",
-          "score": 2.4945190209395234
+          "id": "left_shoulder",
+          "score": 0.5373880426010978
+        },
+        {
+          "id": "left_elbow",
+          "score": 0.5180676078228208
+        }
+      ],
+      "query": "shoulder pain when lifting the arm",
+      "region": "Left Arm / Shoulder",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "left_arm_shoulder",
+          "score": 0.9875987400585166
+        },
+        {
+          "id": "left_shoulder",
+          "score": 0.5373880426010978
+        },
+        {
+          "id": "left_elbow",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "abdomen_upper",
+          "score": 0.5017474336852571
+        },
+        {
+          "id": "neck",
+          "score": 0.4939037706813901
+        }
+      ],
+      "query": "shoulder pain when lifting the arm",
+      "region": "Left Arm / Shoulder",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "right_leg_knee",
+          "score": 0.5612928293593927
+        },
+        {
+          "id": "thighs",
+          "score": 0.5138896432436045
+        },
+        {
+          "id": "right_shin_calf",
+          "score": 0.5016210170982868
+        }
+      ],
+      "query": "calf pain when walking",
+      "region": "Right Leg",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "right_leg_knee",
+          "score": 0.5612928293593927
+        },
+        {
+          "id": "thighs",
+          "score": 0.5138896432436045
+        },
+        {
+          "id": "right_shin_calf",
+          "score": 0.5016210170982868
+        },
+        {
+          "id": "right_arm_shoulder",
+          "score": 0.4937831887061261
+        },
+        {
+          "id": "hips_groin",
+          "score": 0.4861865242644934
+        }
+      ],
+      "query": "calf pain when walking",
+      "region": "Right Leg",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "neck",
+          "score": 0.9875987400585166
+        },
+        {
+          "id": "right_arm_shoulder",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "left_arm_shoulder",
+          "score": 0.5056663478813375
+        }
+      ],
+      "query": "stiff neck with arm tingling",
+      "region": "Neck",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "neck",
+          "score": 0.9875987400585166
+        },
+        {
+          "id": "right_arm_shoulder",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "left_arm_shoulder",
+          "score": 0.5056663478813375
+        },
+        {
+          "id": "right_elbow",
+          "score": 0.4937831887061261
+        },
+        {
+          "id": "left_elbow",
+          "score": 0.4861865242644934
+        }
+      ],
+      "query": "stiff neck with arm tingling",
+      "region": "Neck",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "abdomen_upper",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "abdomen_lower_right",
+          "score": 0.5097116786643882
+        },
+        {
+          "id": "left_leg_knee",
+          "score": 0.5016210170982868
+        }
+      ],
+      "query": "tummy ache",
+      "region": "",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "abdomen_upper",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "abdomen_lower_right",
+          "score": 0.5097116786643882
+        },
+        {
+          "id": "left_leg_knee",
+          "score": 0.5016210170982868
+        },
+        {
+          "id": "abdomen_lower_left",
+          "score": 0.48998485648530976
+        },
+        {
+          "id": "right_arm_shoulder",
+          "score": 0.48998485648530976
+        }
+      ],
+      "query": "tummy ache",
+      "region": "",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "right_arm_shoulder",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "left_arm_shoulder",
+          "score": 0.5097116786643882
+        },
+        {
+          "id": "back_upper",
+          "score": 0.5016210170982868
+        }
+      ],
+      "query": "breathless",
+      "region": "",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "right_arm_shoulder",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "left_arm_shoulder",
+          "score": 0.5097116786643882
+        },
+        {
+          "id": "back_upper",
+          "score": 0.5016210170982868
+        },
+        {
+          "id": "chest_heart",
+          "score": 0.48998485648530976
+        },
+        {
+          "id": "left_shoulder",
+          "score": 0.48998485648530976
+        }
+      ],
+      "query": "breathless",
+      "region": "",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "hips_groin",
+          "score": 0.5571148647801764
+        },
+        {
+          "id": "headache_cranial",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "back_lower",
+          "score": 0.49770210290220646
+        }
+      ],
+      "query": "groin pain on one side",
+      "region": "Pelvis / Groin",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "hips_groin",
+          "score": 0.5571148647801764
+        },
+        {
+          "id": "headache_cranial",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "back_lower",
+          "score": 0.49770210290220646
+        },
+        {
+          "id": "left_leg_knee",
+          "score": 0.49770210290220646
+        },
+        {
+          "id": "thighs",
+          "score": 0.47524677773253565
+        }
+      ],
+      "query": "groin pain on one side",
+      "region": "Pelvis / Groin",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "left_knee",
+          "score": 0.48193239217717904
+        },
+        {
+          "id": "left_leg_knee",
+          "score": 0.04740318611578811
+        }
+      ],
+      "query": "",
+      "region": "Knee (Left)",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "left_knee",
+          "score": 0.48193239217717904
+        },
+        {
+          "id": "left_leg_knee",
+          "score": 0.04740318611578811
+        }
+      ],
+      "query": "",
+      "region": "Knee (Left)",
+      "top_k": 5
+    },
+    {
+      "expected": [],
+      "query": "",
+      "region": "",
+      "top_k": 3
+    },
+    {
+      "expected": [],
+      "query": "",
+      "region": "",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "right_ankle",
+          "score": 0.565470793938609
+        },
+        {
+          "id": "left_ankle",
+          "score": 0.5571148647801764
+        },
+        {
+          "id": "thighs",
+          "score": 0.49770210290220646
         }
       ],
       "query": "sprained ankle swelling",
@@ -629,23 +617,23 @@
       "expected": [
         {
           "id": "right_ankle",
-          "score": 4.872431572545384
+          "score": 0.565470793938609
         },
         {
           "id": "left_ankle",
-          "score": 4.872431572545384
-        },
-        {
-          "id": "right_foot",
-          "score": 2.4945190209395234
-        },
-        {
-          "id": "left_foot",
-          "score": 2.4945190209395234
+          "score": 0.5571148647801764
         },
         {
           "id": "thighs",
-          "score": 0.5370457388687295
+          "score": 0.49770210290220646
+        },
+        {
+          "id": "right_foot",
+          "score": 0.49622465014520806
+        },
+        {
+          "id": "right_leg_knee",
+          "score": 0.4939037706813901
         }
       ],
       "query": "sprained ankle swelling",

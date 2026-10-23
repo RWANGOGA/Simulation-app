@@ -28,11 +28,20 @@ class AnatomyRegionOption {
 
 /// Offline port of `app/services/anatomy_retriever.py`.
 ///
-/// The server ranks with BM25 plus a TF-IDF cosine, fuses the two with
-/// Reciprocal Rank Fusion, and adds a region bonus so the body map's own
-/// region wins ties. All of that is reproduced here over the bundled copy of
-/// the same knowledge base, so the assistant keeps answering with no network
-/// and returns the same chunks in the same order.
+/// Retrieval answers two separate questions, and the port keeps them separate in
+/// the same way the server does:
+///
+/// 1. *Which chunks are eligible at all.* The body part the patient tapped, and
+///    which side of the body it is on, are facts. A chunk describing the opposite
+///    limb is never context for this complaint - the two sides carry different
+///    content here, so a leak is a different diagnosis, not a duplicate.
+/// 2. *How strongly each eligible chunk matches the words.* BM25 plus a TF-IDF
+///    cosine, fused with Reciprocal Rank Fusion, with a bounded prior for the
+///    tapped region and its family.
+///
+/// All of that is reproduced here over the bundled copy of the same knowledge
+/// base, so the assistant keeps answering with no network and returns the same
+/// chunks in the same order, at the same scores.
 ///
 /// The one thing it deliberately does not do is call an LLM. `_run_ask` already
 /// has a knowledge-base-only path for when no API key is configured; the app
@@ -43,12 +52,10 @@ class AnatomyEngine {
     required Map<String, AnatomyChunk> chunks,
     required Map<String, Map<String, double>> vectors,
     required Map<String, double> idf,
-    required Map<String, int> order,
     required double avgdl,
   })  : _chunks = chunks,
         _vectors = vectors,
         _idf = idf,
-        _order = order,
         _avgdl = avgdl;
 
   final Map<String, AnatomyChunk> _chunks;
@@ -56,10 +63,6 @@ class AnatomyEngine {
   /// tf-idf vector per chunk id, in knowledge-base order.
   final Map<String, Map<String, double>> _vectors;
   final Map<String, double> _idf;
-
-  /// Chunk position in the knowledge base. Fusion ties have to break the same
-  /// way the server's insertion-ordered dict breaks them.
-  final Map<String, int> _order;
   final double _avgdl;
 
   static AnatomyEngine? _instance;
@@ -90,9 +93,6 @@ class AnatomyEngine {
       chunks: chunks,
       vectors: vectors,
       idf: idf,
-      order: {
-        for (final (index, id) in chunks.keys.indexed) id: index,
-      },
       avgdl: totalLength / math.max(1, chunks.length),
     );
   }
@@ -111,47 +111,54 @@ class AnatomyEngine {
 
   /// Port of `retrieve(region, query, top_k)`.
   ///
-  /// Results keep the fusion order, not the order of the reported score: the
-  /// fused rank is the ranking, and the score is only the better of the two
-  /// underlying ones, exactly as the server reports it.
+  /// Results are ordered by the score reported, which is the point: the number
+  /// goes to the client as `sources[].score` and is printed into the prompt as
+  /// `score=`, so it must never say the third chunk is more relevant than the
+  /// first. It is an absolute confidence in [0, 1] - about 0.48 for the monograph
+  /// of a region that was tapped with nothing said about it, approaching 1.0 when
+  /// the words match the tapped region too.
   List<AnatomyHit> retrieve({
     String? region,
     String query = '',
     int topK = 3,
   }) {
-    final regionKey = (region ?? '').trim().toLowerCase();
     final queryTokens = AnatomyTokenizer.tokenize(query.trim().toLowerCase());
     final queryVector = _vectorize(queryTokens, _idf);
+    final hasWords = queryTokens.isNotEmpty;
+    final regionKey = _regionKey(region ?? '');
 
     final bm25 = <_Scored>[];
     final tfidf = <_Scored>[];
+    final eligible = <_Eligible>[];
     var order = 0;
     for (final entry in _chunks.entries) {
-      final chunk = entry.value;
-      final chunkRegion = chunk.region.toLowerCase();
-
-      var lexical = _bm25Score(queryTokens, chunk);
-      if (regionKey.isNotEmpty) {
-        lexical += _regionBoost(regionKey, chunkRegion);
+      final chunkRegion = _chunkRegionKeys[entry.key]!;
+      if (!_sideCompatible(regionKey, chunkRegion)) {
+        order++;
+        continue;
       }
-      if (lexical > 0.0) {
-        bm25.add(_Scored(entry.key, lexical, order));
+      final tier = _regionTier(regionKey, chunkRegion);
+      // The region that was tapped and its family qualify on the tap alone. A
+      // complaint with no words behind it gets nothing else at all: padding a
+      // bare ankle tap with the cardiac monograph would be an invented relevance.
+      if (tier > _regionFamilyTier && !hasWords) {
+        order++;
+        continue;
       }
-
-      var cosine = _cosine(queryVector, _vectors[entry.key]!);
-      if (regionKey.isNotEmpty) {
-        cosine += _regionBoost(regionKey, chunkRegion);
+      final lexical = _bm25Score(queryTokens, entry.value);
+      if (lexical > 0.0) bm25.add(_Scored(entry.key, lexical, order));
+      final cosine = _cosine(queryVector, _vectors[entry.key]!);
+      if (cosine > 0.0) tfidf.add(_Scored(entry.key, cosine, order));
+      if (tier <= _regionFamilyTier || lexical > 0.0 || cosine > 0.0) {
+        eligible.add(_Eligible(entry.key, tier, order));
       }
-      if (cosine > 0.0) {
-        tfidf.add(_Scored(entry.key, cosine, order));
-      }
-
       order++;
     }
     _sortDescending(bm25);
     _sortDescending(tfidf);
 
-    // Reciprocal Rank Fusion over the two rankings.
+    // Reciprocal Rank Fusion over the two rankings, then the region prior added
+    // on top in the same rank units it was calibrated against.
     const k = 60;
     final fusion = <String, double>{};
     for (final ranked in [bm25, tfidf]) {
@@ -160,26 +167,24 @@ class AnatomyEngine {
         fusion[ranked[i].id] = (fusion[ranked[i].id] ?? 0.0) + 1.0 / (k + rank);
       }
     }
-    final fused = <_Scored>[
-      for (final entry in fusion.entries)
-        _Scored(entry.key, entry.value, _order[entry.key] ?? 0),
+
+    final ranked = <_Scored>[
+      for (final candidate in eligible)
+        _Scored(
+          candidate.id,
+          (fusion[candidate.id] ?? 0.0) + _tierPrior[candidate.tier]!,
+          candidate.order,
+        ),
     ];
-    _sortDescending(fused);
+    _sortDescending(ranked);
 
-    final bm25ById = {for (final hit in bm25) hit.id: hit.score};
-    final tfidfById = {for (final hit in tfidf) hit.id: hit.score};
-
-    final hits = <AnatomyHit>[];
-    for (final entry in fused.take(math.max(1, topK))) {
-      final score = math.max(
-        bm25ById[entry.id] ?? 0.0,
-        tfidfById[entry.id] ?? 0.0,
-      );
-      if (score > 0.0) {
-        hits.add(AnatomyHit(chunk: _chunks[entry.id]!, score: score));
-      }
-    }
-    return hits;
+    return [
+      for (final entry in ranked.take(math.max(1, topK)))
+        AnatomyHit(
+          chunk: _chunks[entry.id]!,
+          score: math.min(1.0, entry.score / _maxFused),
+        ),
+    ];
   }
 
   /// Port of `_run_ask`'s no-LLM branch, returning the exact JSON shape
@@ -248,9 +253,13 @@ class AnatomyEngine {
         documentFrequency[token] = (documentFrequency[token] ?? 0) + 1;
       }
     }
+    // Port of the non-negative idf form. `log(n / (1 + df))` is negative for any
+    // term in two or more chunks, and "pain" is in all 34 of these, so every
+    // chunk containing the most common symptom word in the knowledge base was
+    // scored *below* one that did not.
     return {
       for (final entry in documentFrequency.entries)
-        entry.key: math.log(n / (1.0 + entry.value)),
+        entry.key: math.log(1.0 + (n - entry.value + 0.5) / (entry.value + 0.5)),
     };
   }
 
@@ -306,25 +315,87 @@ class AnatomyEngine {
     return score;
   }
 
-  /// The bonus that makes the region the patient actually tapped win.
-  static double _regionBoost(String regionKey, String chunkRegion) {
-    if (regionKey == chunkRegion) return 10.0;
-    if (chunkRegion.contains(regionKey) || regionKey.contains(chunkRegion)) {
-      return 3.0;
+  // ── Region structure, ported one-for-one ────────────────────────────────
+  //
+  // The body map sends free-text labels ("Left Arm / Shoulder", "Knee (Left)",
+  // "Thighs"), and everything the retriever needs from one is which side it is on
+  // and which body parts it names. Comparing the labels as strings is what let
+  // "thigh" fail against "thighs" and the mirror-image chunk survive.
+
+  static const List<String> _sideWords = ['left', 'right'];
+
+  /// Words that locate a region without naming a body part. Counting them as
+  /// parts would make every quadrant of the abdomen "the same region"; ignoring
+  /// them entirely would make upper and lower back the same region.
+  static const Set<String> _nonPartWords = {
+    'left', 'right', 'upper', 'lower', 'pain', 'side', 'anterior', 'posterior',
+  };
+
+  /// The prior on rank for each tier, in the same Reciprocal Rank units as the
+  /// evidence it is added to: a chunk first in both rankings earns about 0.033 and
+  /// one that matched a single incidental word about 0.016, so 0.0305 puts the
+  /// tapped region ahead of incidental matches without putting it ahead of a
+  /// chunk the complaint's own words led both rankings.
+  static const Map<int, double> _tierPrior = {
+    0: 0.0305,
+    1: 0.0100,
+    2: 0.0030,
+    3: 0.0,
+  };
+
+  static const int _regionFamilyTier = 2;
+
+  static const double _maxFused = 2.0 / 61.0 + 0.0305;
+
+  /// Parsed region key per chunk, so the parse happens once per knowledge base
+  /// rather than once per query.
+  late final Map<String, _RegionKey> _chunkRegionKeys = {
+    for (final entry in _chunks.entries) entry.key: _regionKey(entry.value.region),
+  };
+
+  /// Port of `_region_key`.
+  static _RegionKey _regionKey(String region) {
+    final cleaned =
+        region.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9 ]'), ' ');
+    final words =
+        cleaned.split(RegExp(r'\s+')).where((word) => word.length > 2).toList();
+    String? side;
+    for (final word in words) {
+      if (_sideWords.contains(word)) {
+        side = word;
+        break;
+      }
     }
-    const directionals = {'right', 'left', 'upper', 'lower', 'pain', 'side'};
-    Set<String> parts(String value) => value
-        .split(' ')
-        .where((word) => word.isNotEmpty)
-        .where((word) => !directionals.contains(word) && word.length > 2)
-        .toSet();
-    final regionParts = parts(regionKey);
-    final chunkParts = parts(chunkRegion);
-    if (regionParts.isNotEmpty &&
-        regionParts.intersection(chunkParts).isNotEmpty) {
-      return 2.0;
+    return _RegionKey(
+      side,
+      words.where((word) => !_nonPartWords.contains(word)).toSet(),
+      words.where(_nonPartWords.contains).toSet(),
+    );
+  }
+
+  /// Port of `_side_compatible`: false only when both sides are known and differ.
+  /// A complaint naming no side keeps both limbs in play, because nothing has
+  /// ruled either out.
+  static bool _sideCompatible(_RegionKey query, _RegionKey chunk) {
+    final a = query.side;
+    final b = chunk.side;
+    if (a == null || b == null) return true;
+    return a == b;
+  }
+
+  /// Port of `_region_tier`.
+  static int _regionTier(_RegionKey query, _RegionKey chunk) {
+    if (query.parts.isEmpty) return 3;
+    final sameParts = query.parts.length == chunk.parts.length &&
+        query.parts.containsAll(chunk.parts);
+    final sameSide = query.side == chunk.side;
+    if (sameParts && sameSide) {
+      final sameLocators = query.locators.length == chunk.locators.length &&
+          query.locators.containsAll(chunk.locators);
+      return sameLocators ? 0 : 1;
     }
-    return 0.0;
+    if (query.parts.intersection(chunk.parts).isNotEmpty) return 2;
+    return 3;
   }
 
   /// Python's `sorted(..., reverse=True)` is stable, so ties keep the order the
@@ -350,4 +421,22 @@ class _Scored {
   final String id;
   final double score;
   final int order;
+}
+
+/// A chunk that passed the eligibility filter, before any evidence was scored.
+class _Eligible {
+  const _Eligible(this.id, this.tier, this.order);
+
+  final String id;
+  final int tier;
+  final int order;
+}
+
+/// Port of the frozen `RegionKey` dataclass.
+class _RegionKey {
+  const _RegionKey(this.side, this.parts, this.locators);
+
+  final String? side;
+  final Set<String> parts;
+  final Set<String> locators;
 }

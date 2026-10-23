@@ -399,6 +399,15 @@
       "must_not_include": ["abdomen_lower_left"]
     },
     {
+      "id": "text-side-contradicts-tap",
+      "group": "laterality_and_precision",
+      "region": "Right Arm / Shoulder",
+      "query": "pain in my left arm and jaw",
+      "_note": "The patient tapped the right arm but described the left, with the jaw. The narrative is the more specific statement and this combination is a cardiac referral pattern, so the left-arm monograph has to be reachable - a filter that only reads the tap makes it unreachable. Written to be failing: it is the boundary of the structured-filter approach, not an oversight in it.",
+      "top1_acceptable": ["left_arm_shoulder", "chest_heart"],
+      "should_include": ["left_arm_shoulder"]
+    },
+    {
       "id": "scope-paediatric-feeding",
       "group": "out_of_scope",
       "region": null,
@@ -439,6 +448,38 @@
       "region": null,
       "query": "is this mole cancerous or does it need a biopsy",
       "expect_no_match": true
+    },
+    {
+      "id": "unanchored-chest-pain",
+      "group": "unanchored_query",
+      "_note": "No region tapped, so nothing but the words decide. The complaint names the chest and the knowledge base has a chest monograph, so it must lead.",
+      "region": null,
+      "query": "chest pain",
+      "top1_acceptable": ["chest_heart"],
+      "should_include": ["chest_heart"]
+    },
+    {
+      "id": "unanchored-knee-after-fall",
+      "group": "unanchored_query",
+      "region": null,
+      "query": "knee swelling after a fall",
+      "top1_acceptable": ["right_knee", "left_knee", "right_leg_knee", "left_leg_knee"],
+      "should_include": [["right_knee", "left_knee"], ["right_leg_knee", "left_leg_knee"]]
+    },
+    {
+      "id": "unanchored-heel-pain",
+      "group": "unanchored_query",
+      "region": null,
+      "query": "pain in my heel when I stand up",
+      "top1_acceptable": ["right_foot", "left_foot", "right_shin_calf", "left_shin_calf"]
+    },
+    {
+      "id": "unanchored-sore-throat",
+      "group": "unanchored_query",
+      "region": null,
+      "query": "sore throat and difficulty swallowing",
+      "top1_acceptable": ["neck"],
+      "should_include": ["neck"]
     }
   ]
 }

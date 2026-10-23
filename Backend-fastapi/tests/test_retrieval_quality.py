@@ -33,14 +33,47 @@ from scripts.eval_retrieval import DEFAULT_K, DEFAULT_WINDOW, evaluate, load_cas
 # ---------------------------------------------------------------------------
 # Measured on 34-chunk anatomy_kb.json, k=3, window=6. Set from
 # `python -m scripts.eval_retrieval`. Raise these when a change earns it.
+#
+# Day one (region as a +10/+3/+2 score bonus): pass 0.534, top1 0.865, mrr
+# 0.891, recall@3 0.758, recall@6 0.857, nDCG@3 0.802, 14 safety violations.
+# After making the tapped region a filter and a rank prior, and fixing the two
+# scoring defects that were inverting BM25 here (negative idf for terms in >1
+# chunk, function words surviving the stop list): pass 0.759, top1 0.865, mrr
+# 0.891, recall@3 0.793, recall@6 0.848, nDCG@3 0.828, 1 safety violation.
+#
+# `recall_at_window` is the one number that went down, and it is the one floor
+# set below its day-one value. The old retriever always returned a full 6-chunk
+# window, padding it with whichever unrelated monographs drew the largest region
+# bonus; those extra chunks coincidentally covered a few expected chunk ids. Now
+# a bare tap returns 1-2 chunks that are genuinely about the part tapped. Window
+# recall measured that padding as coverage, and it should not be recovered by
+# putting the padding back: raising this floor again requires covering more (see
+# the stemming and referral debts below), not serving more.
+#
+# Measured again after adding `text-side-contradicts-tap`, a case written to fail
+# (59 cases): pass 0.746, top1 0.849, mrr 0.880, recall@3 0.788, recall@6 0.841,
+# nDCG@3 0.818, referral 0.789. Every average moved down because the denominator
+# grew by an obligation that was previously unmeasured, not because retrieval got
+# worse - the floors below are set against that number so the next regression of a
+# *single* case is still caught.
+#
+# That claim is checkable, not rhetorical. Re-measuring today's retriever on the
+# original 58 cases alone gives pass 0.759, top1 0.865, mrr 0.891, recall@3 0.793,
+# nDCG@3 0.828, 1 violation: top-1 and MRR hold their day-one values exactly while
+# recall@k, nDCG and pass rate rise and safety violations fall fourteen to one.
+# The four `unanchored_query` cases below then dragged the averages down again for
+# the same denominator reason, and this time it is a defect that was found, not one
+# that was fixed: with no region tapped, ranking is decided almost entirely by
+# document length, because the region label is not part of the indexed text.
 # ---------------------------------------------------------------------------
 FLOORS = {
-    "top1_accuracy": 0.86,
-    "mrr": 0.88,
+    "pass_rate": 0.71,
+    "top1_accuracy": 0.80,
+    "mrr": 0.84,
     "recall_at_k": 0.75,
-    "recall_at_window": 0.85,
-    "ndcg_at_k": 0.79,
-    "referral_coverage": 0.83,
+    "recall_at_window": 0.83,
+    "ndcg_at_k": 0.78,
+    "referral_coverage": 0.81,
 }
 
 # Cases that must NEVER be allowed to fail: the complaints whose whole purpose is
@@ -60,60 +93,59 @@ CLINICAL_INVARIANTS = [
 # Clinically wrong content served inside the window the model is asked to trust,
 # and what it was served for. Adding to this list is a build failure; so is an
 # entry that stops being true without being deleted from it.
+#
+# There were fourteen of these. The rest were one bug: laterality and body region
+# were expressed as points added to a score, so the mirror-image chunk survived
+# into the window - and for the upper limb the two sides carry different
+# referred-pain content, left cardiac and right gallbladder. A score has no way to
+# say "not this one"; a filter does. Thirteen of the fourteen went away when the
+# region stopped being a magnitude.
 KNOWN_SAFETY_DEBT = {
-    # Laterality is a scoring nudge rather than a filter, so the mirror-image
-    # chunk survives into the top 3 - and for the upper limb the two sides carry
-    # different referred-pain content (left: cardiac, right: gallbladder).
-    "bare-right-shoulder": ["left_arm_shoulder"],
-    "bare-left-arm-shoulder": ["right_arm_shoulder"],
-    "bare-right-thigh": ["left_thigh"],
-    "bare-left-knee": ["right_leg_knee"],
-    "bare-right-shin-calf": ["left_shin_calf"],
-    "bare-left-ankle": ["right_ankle"],
-    "bare-right-foot": ["left_foot"],
-    "refer-right-shoulder-gallbladder": ["left_arm_shoulder"],
-    "refer-left-arm-cardiac": ["right_arm_shoulder"],
-    "right-shoulder-no-cardiac-left-arm": ["left_arm_shoulder"],
-    "left-knee-both-knees": ["right_knee", "right_leg_knee"],
-    "abdomen-right-not-left": ["abdomen_lower_left"],
-    # No stemming: "toes" never matches the foot chunk's "toe", so the word
-    # "sharp" decides and the cardiac monograph wins a complaint about toes.
+    # Not a region bug, and P0-9 owns it. There is no stemming, so "toes" never
+    # matches the foot chunk's "toe"; "sharp" is then the only word with any
+    # overlap at all, and the cardiac monograph happens to contain it.
     "toes-not-cardiac": ["chest_heart"],
 }
 
 # Every case that fails today, with the reason. Same ratchet semantics.
+#
+# What remains splits into three causes, and none of them is about the body map:
+#
+#   * vocabulary. No stemming and no clinical synonym coverage for the words
+#     patients and clinicians actually use: "toes"/"toe", "thighs"/"thigh",
+#     "dyspnea", "hematochezia", "odynophagia". P0-9.
+#   * the region label is not indexed. When no region is tapped, the words alone
+#     decide, and a monograph cannot match on what it is called - so "chest pain"
+#     is settled by document length. P0-9.
+#   * no abstain path. The knowledge base describes no ear, paediatric,
+#     mental-health, wound-care or dosing content, so the only correct answer is
+#     "not covered". Four of the six such cases still get an answer, because some
+#     word overlapped by accident - which is the opposite of a safety property.
+#     P0-6.
 KNOWN_RANKING_DEBT = {
-    "bare-right-shoulder": "contralateral shoulder/arm content in the window",
-    "bare-left-arm-shoulder": "contralateral shoulder/arm content in the window",
-    "bare-right-thigh": "contralateral thigh served; the `thighs` chunk carrying the DVT red flags is unreachable from a thigh tap",
-    "bare-left-knee": "contralateral leg/knee content in the window",
-    "bare-right-shin-calf": "contralateral shin/calf content in the window",
-    "bare-left-ankle": "contralateral ankle content in the window",
-    "bare-right-foot": "contralateral foot content in the window",
+    "bare-right-thigh": "no stemming: a thigh tap cannot reach the `thighs` chunk carrying the DVT red flags",
     "lay-crushing-chest-to-arm": "a textbook infarction presentation ranks a frozen-shoulder monograph first",
-    "lay-fatty-food-upper-abdomen": "biliary referral to the right shoulder is never retrieved",
+    "lay-fatty-food-upper-abdomen": "biliary referral to the right shoulder is unreachable: the link lives in the abdomen chunk's prose and no word in the complaint names the shoulder, so only a referral graph can follow it",
     "jargon-dyspnea-exertion": "no lexical match for medical jargon: retrieval returns nothing at all",
     "jargon-pleuritic": "arm chunks outrank the chest for pleuritic pain",
     "jargon-hematochezia-llq": "left lower quadrant bleeding retrieved the right side first",
     "jargon-hepatic-colic": "no lexical match for medical jargon: retrieval returns nothing at all",
     "jargon-odynophagia": "no lexical match for medical jargon: retrieval returns nothing at all",
-    "refer-right-shoulder-gallbladder": "contralateral cardiac content displaces the gallbladder link",
-    "refer-left-arm-cardiac": "the chest chunk is absent from the window for radiating arm pain",
     "refer-renal-to-left-leg": "renal referral to the back is missed; a cranial chunk is served",
+    "text-side-contradicts-tap": "laterality is read from the tapped region only, so a patient who taps the right arm and describes the left cannot reach the left-arm monograph - which for the upper limb is the cardiac one. Needs the side in the free text reconciled with the side of the tap.",
+    # With nothing tapped there is no region prior, and the four candidates for
+    # "chest pain" each contain the word exactly once, so BM25's length
+    # normalisation hands the win to the shortest monograph that mentions it. The
+    # region label is metadata and is not indexed at all: a monograph about the
+    # chest does not get to match the word "chest" from what it is called.
+    "unanchored-chest-pain": "the chest monograph is outranked by arm and back chunks that mention the chest in passing; the region label is not part of the indexed text",
+    "unanchored-knee-after-fall": "a hip/groin monograph leads for a knee complaint, same cause",
+    "unanchored-heel-pain": "thigh and arm monographs lead for a heel complaint, same cause",
     "toes-not-cardiac": "wrong top-1 for a foot complaint",
-    "right-shoulder-no-cardiac-left-arm": "contralateral cardiac content in the window",
-    "left-knee-both-knees": "contralateral knee content in the window",
-    "abdomen-right-not-left": "contralateral abdominal chunk in the window",
-    # The knowledge base describes no ear, paediatric, mental-health, wound-care
-    # or dosing content, so the only correct answer is "not covered". Today the
-    # retriever always produces context, and the prompt tells the model to use
-    # only that context - so it manufactures an answer.
-    "scope-paediatric-feeding": "no abstain path",
     "scope-wound-closure": "no abstain path",
     "scope-mental-health": "no abstain path",
     "scope-dosing": "no abstain path",
     "scope-ear": "no abstain path",
-    "scope-skin-lesion": "no abstain path",
 }
 
 
@@ -247,14 +279,109 @@ def test_medical_jargon_is_not_silently_dropped(report):
 
 
 def test_out_of_scope_complaints_are_recorded_as_unanswered(report):
-    """Nothing in this knowledge base covers these, and the retriever has no
-    abstain path yet. Asserting the count is 0 keeps the gap visible instead of
-    letting it read as a retrieval success."""
+    """Nothing in this knowledge base covers these, so the only correct answer is
+    "this is not covered". Both bounds of the assertion are load-bearing.
+
+    Not 1.0: there is still no scope check. Four of the six still get an answer,
+    because some word happened to overlap some monograph, and `_run_ask` then
+    hands that to a model whose system prompt says to use only the provided
+    context - so it manufactures an answer. P0-6 is what moves this to 1.0, at
+    which point delete these cases from KNOWN_RANKING_DEBT and assert exactly 1.0.
+
+    Not 0.0 either, and this is worth stating plainly because it is a *new* kind
+    of behaviour rather than a designed one: two of the six now retrieve nothing.
+    They do so incidentally - no word matched any chunk and no region was tapped -
+    which is the same mechanism that leaves three jargon cases with no context at
+    all (see the test above). Abstaining because your vocabulary failed is not
+    abstaining because the subject is out of scope; the day those two are
+    separated, this number should go up and the jargon count should go to zero.
+    """
     scope = [r for r in report.results if r.case.expect_no_match]
     assert scope, "the fixture lost its out-of-scope cases"
-    assert all(r.abstained is False for r in scope), (
-        f"out-of-scope handling changed: {[r.case.id for r in scope if r.abstained]} "
-        "now abstain. If the abstain path has been built, delete these cases from "
-        "KNOWN_RANKING_DEBT and assert abstention_accuracy == 1.0 instead."
+    abstained = [r.case.id for r in scope if r.abstained]
+    answered = [r.case.id for r in scope if not r.abstained]
+    assert abstained, (
+        "every out-of-scope complaint now receives context, including the ones "
+        "whose words match nothing anywhere in the knowledge base"
     )
-    assert report.abstention_accuracy == 0.0
+    assert answered, (
+        f"all {len(scope)} out-of-scope cases abstain. If an explicit scope check "
+        "was built, assert abstention_accuracy == 1.0 and remove "
+        f"{sorted(abstained)} from KNOWN_RANKING_DEBT."
+    )
+
+
+# ── invariants of the region filter itself ────────────────────────────────
+#
+# The metrics above would drift into satisfying this by luck. These two tests
+# state it directly, because both are properties of the design rather than
+# wishes about a particular complaint.
+
+TEXT_PROBES = [
+    "",
+    "pain",
+    "swelling numbness red hot tender",
+    "worst headache of my life vomiting stiff neck",
+    "can't breathe when walking upstairs",
+    "pain after eating fatty food radiating to my back",
+    "crushing pressure going down my arm",
+]
+
+
+def test_no_contralateral_chunk_is_ever_served():
+    """Once the patient has indicated a side, the other side's monograph is not
+    context - at any rank, for any wording, at full window size.
+
+    This is the property the +10/+3/+2 region bonus could not express: a score can
+    rank the mirror image lower, but only a filter can refuse it. It matters more
+    here than in a generic document store because the knowledge base gives the two
+    sides different content - `left_arm_shoulder` is labelled cardiovascular and
+    `right_arm_shoulder` musculoskeletal - so a leak is not redundancy, it is a
+    different diagnosis.
+
+    Taps are derived from the knowledge base's own labels, so renaming or adding a
+    sided region extends the sweep automatically rather than silently narrowing it.
+    """
+    from app.services import anatomy_retriever as ar
+
+    side_of = {cid: ar._chunk_region_key(cid).side for cid in ar.load_kb()}
+    sided_taps = sorted({c.region for c in ar.load_kb().values() if side_of[c.id]})
+    assert len(sided_taps) >= 12, (
+        f"only {len(sided_taps)} sided regions found; the sweep has stopped "
+        "covering the body map"
+    )
+    leaks = []
+    for tap in sided_taps:
+        want = ar._region_key(tap).side
+        for text in TEXT_PROBES:
+            for hit in ar.retrieve(tap, text, DEFAULT_WINDOW):
+                other = side_of[hit.chunk.id]
+                if other and other != want:
+                    leaks.append((tap, text, hit.chunk.id, other))
+    assert not leaks, (
+        f"contralateral content served for a sided region: {leaks}. The two sides "
+        "of the body carry different clinical meaning in this knowledge base."
+    )
+
+
+def test_reported_score_never_contradicts_its_own_ranking(report):
+    """`sources[].score` is returned to the client and printed into the prompt as
+    `score=`, so a number that rises as relevance falls is actively misleading to
+    the model: it would be told that the third chunk is more relevant than the
+    first. Results are ordered by this score, so it must be monotone by
+    construction - not correlated with the ranking, which was the old bug, where
+    ordering came from rank fusion and the number from max(bm25, tfidf) plus the
+    leaked region bonus.
+    """
+    from app.services import anatomy_retriever as ar
+
+    broken, out_of_range = [], []
+    for row in report.results:
+        hits = ar.retrieve(row.case.region, row.case.query, DEFAULT_WINDOW)
+        scores = [h.score for h in hits]
+        if any(scores[i] < scores[i + 1] for i in range(len(scores) - 1)):
+            broken.append(row.case.id)
+        if any(not 0.0 <= s <= 1.0 for s in scores):
+            out_of_range.append(row.case.id)
+    assert not broken, f"score increases down the ranking for {broken}"
+    assert not out_of_range, f"score outside [0, 1] for {out_of_range}"

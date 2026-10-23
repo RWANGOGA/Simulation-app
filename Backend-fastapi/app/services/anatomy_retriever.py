@@ -2,13 +2,23 @@
 Anatomy retriever.
 
 Loads the anatomy knowledge base (app/data/anatomy_kb.json) once at import
-time, builds a simple bag-of-words vector for each chunk, and exposes
+time, builds a bag-of-words vector for each chunk, and exposes
 `retrieve(region, query, top_k)` for the /anatomy/ask endpoint.
 
-Retrieval uses hybrid search combining:
-- BM25 lexical scoring (traditional IR)
-- TF-IDF cosine similarity (vector retrieval)
-Scores are fused using Reciprocal Rank Fusion (RRF) for robust results.
+Retrieval has two stages, and they answer different questions:
+
+1. *Which chunks are eligible at all.* The body part the patient tapped, and
+   which side of the body it is on, are facts - not hints. A chunk describing
+   the opposite limb is never shown as context for this complaint.
+2. *How strongly each eligible chunk matches the words used.* BM25 lexical
+   scoring and TF-IDF cosine similarity, fused with Reciprocal Rank Fusion.
+
+Keeping those apart matters because the left and right sides of the body carry
+different clinical meaning in this knowledge base: `left_arm_shoulder` is
+labelled cardiovascular and warns about referred cardiac pain, while
+`right_arm_shoulder` is musculoskeletal and mentions gallbladder referral.
+Blending region into the score as a magnitude cannot express "not this one", so
+it used to let the wrong side through.
 """
 
 from __future__ import annotations
@@ -19,7 +29,7 @@ import re
 from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, FrozenSet, List, Optional, Tuple
 
 
 # ── Data model ────────────────────────────────────────────────────────────
@@ -75,6 +85,48 @@ MEDICAL_SYNONYMS: Dict[str, List[str]] = {
 }
 
 
+# Words that carry no clinical information about a complaint. This list matters
+# more than it looks: without stemming or a real language model, a function word
+# is indistinguishable from a symptom, and "I can't breathe when I walk up the
+# stairs" once retrieved the *abdomen* monograph on the strength of "when" alone.
+#
+# Deliberately absent: "pain", "sharp", "night", "walk". Those are content, and
+# the mechanism that should neutralise the non-discriminative ones ("pain" is in
+# every chunk) is inverse document frequency, not a blacklist.
+_STOPWORDS = frozenset(
+    {
+        # articles, prepositions, conjunctions
+        "a", "an", "and", "as", "at", "by", "for", "from", "in", "into", "of",
+        "on", "onto", "or", "over", "since", "that", "the", "their", "them",
+        "then", "than", "this", "those", "to", "under", "upon", "with",
+        "within", "without", "yet",
+        # auxiliary and copular verbs
+        "am", "are", "been", "being", "be", "been", "did", "does", "doing",
+        "done", "get", "gets", "getting", "got", "had", "has", "have", "having",
+        "is", "may", "might", "must", "was", "were", "will", "would", "should",
+        "could", "used", "cannot", "cant", "can", "doesnt", "didnt", "dont",
+        "isnt", "wont", "arent", "wasnt", "havent", "hasnt", "hadnt",
+        "wouldnt", "couldnt", "shouldnt",
+        # pronouns and possessives
+        "he", "him", "his", "her", "hers", "herself", "i", "it", "its", "me",
+        "mine", "my", "ours", "our", "she", "theirs", "they", "us", "you",
+        "your", "yours",
+        # question and filler words
+        "any", "anyone", "anything", "because", "before", "both", "each",
+        "else", "enough", "even", "every", "how", "just", "like", "much",
+        "mostly", "no", "not", "only", "own", "quite", "rather", "really",
+        "same", "some", "such", "though", "through", "very", "what", "when",
+        "whenever", "where", "whether", "which", "who", "whom", "whose", "why",
+        # verbs of reporting and everyday action that appear in patient prose
+        "always", "asked", "came", "comes", "coming", "come", "feel", "feeling",
+        "felt", "go", "goes", "going", "gone", "make", "makes", "made", "need",
+        "needed", "needs", "often", "patient", "patients", "say", "said", "says",
+        "seems", "take", "takes", "taking", "told", "wants", "wanted", "was",
+        "usually", "sometimes",
+    }
+)
+
+
 def _tokenize(text: str) -> List[str]:
     """Lower-cased, alphanumeric-only tokens with medical synonym expansion,
     deduped, stopwords removed.
@@ -82,12 +134,7 @@ def _tokenize(text: str) -> List[str]:
     if not text:
         return []
     raw = re.findall(r"[a-z0-9]+", text.lower())
-    stop = {
-        "a", "an", "and", "are", "as", "at", "be", "by", "for", "from",
-        "has", "have", "in", "is", "it", "of", "on", "or", "that", "the",
-        "to", "was", "were", "will", "with", "this", "any", "can", "may",
-        "their", "they", "you", "your", "patient", "patients", "feel", "feeling",
-    }
+    stop = _STOPWORDS
     seen: set[str] = set()
     out: List[str] = []
     for tok in raw:
@@ -151,13 +198,135 @@ def _term_freq(tokens: List[str]) -> Dict[str, float]:
 
 
 def _build_idf(chunks: Dict[str, AnatomyChunk]) -> Dict[str, float]:
-    """idf(t) = log(N / (1 + df(t))) — smoothed, deterministic."""
+    """idf(t) = log(1 + (N - df + 0.5) / (df + 0.5)) - the non-negative form.
+
+    The textbook Robertson-Sparck Jones idf, `log(N / (1 + df))`, is negative for
+    any term in two or more chunks. Here "pain" appears in all 34, so every chunk
+    containing it was scored *below* a chunk that did not - the ranking was
+    actively inverted for the most common symptom word in the knowledge base.
+
+    This form is always positive, is still ~0 for a term in every document (which
+    is the correct message: a word that discriminates nothing should decide
+    nothing), and rises steeply for rare clinical terms such as "fatty" or
+    "crepitus".
+    """
     n = max(1, len(chunks))
     df: Dict[str, int] = {}
     for chunk in chunks.values():
         for tok in set(chunk.tokens):
             df[tok] = df.get(tok, 0) + 1
-    return {tok: math.log(n / (1.0 + d)) for tok, d in df.items()}
+    return {tok: math.log(1.0 + (n - d + 0.5) / (d + 0.5)) for tok, d in df.items()}
+
+
+# ── Region structure ──────────────────────────────────────────────────────
+#
+# The body map sends free-text labels ("Left Arm / Shoulder", "Abdomen (Lower
+# Right)", "Thighs", and UI variants like "Knee (Left)"). Everything the
+# retriever needs from a label is which side it is on and which body parts it
+# names, so labels are parsed into that shape once rather than compared as
+# strings - which is how "thigh" came to fail against "thighs" and how the
+# mirror-image chunk came to survive.
+
+_SIDE_WORDS = ("left", "right")
+# Words that locate a region without naming a body part. Counting them as parts
+# would make every quadrant of the abdomen "the same region".
+_NON_PART_WORDS = frozenset(
+    {"left", "right", "upper", "lower", "pain", "side", "anterior", "posterior"}
+)
+
+
+@dataclass(frozen=True)
+class RegionKey:
+    """The parts of a region label the retriever can reason about.
+
+    `side` is which half of the body it is, `parts` are the body parts named, and
+    `locators` are the words that subdivide a part without naming another one -
+    so "Back (Upper)" and "Back (Lower)" share `parts` but differ in `locators`
+    and are therefore *not* the same region.
+    """
+
+    side: Optional[str]
+    parts: FrozenSet[str]
+    locators: FrozenSet[str]
+
+
+@lru_cache(maxsize=128)
+def _region_key(region: Optional[str]) -> RegionKey:
+    cleaned = re.sub(r"[^a-z0-9 ]", " ", (region or "").strip().lower())
+    words = [word for word in cleaned.split() if len(word) > 2]
+    side = next((word for word in words if word in _SIDE_WORDS), None)
+    parts = frozenset(word for word in words if word not in _NON_PART_WORDS)
+    locators = frozenset(word for word in words if word in _NON_PART_WORDS)
+    return RegionKey(side=side, parts=parts, locators=locators)
+
+
+@lru_cache(maxsize=128)
+def _chunk_region_key(chunk_id: str) -> RegionKey:
+    return _region_key(load_kb()[chunk_id].region)
+
+
+def _side_compatible(query: RegionKey, chunk: RegionKey) -> bool:
+    """False only when both sides are known and they differ.
+
+    A complaint that names no side ("knee pain", or the region left unset) keeps
+    both limbs in play, which is correct - nothing has ruled either out. Once a
+    side *is* known, the other side's monograph is not context for it.
+    """
+    if query.side is None or chunk.side is None:
+        return True
+    return query.side == chunk.side
+
+
+def _region_tier(query: RegionKey, chunk: RegionKey) -> int:
+    """How directly a chunk is about the region that was tapped.
+
+    0  the same region: same parts, same side, same subdivision
+    1  the same part of the body, differently subdivided (upper vs lower back)
+    2  a chunk that names one of the same parts (a knee monograph for a
+       "Leg / Knee" tap, the two-chunk families the body map overlaps)
+    3  nothing about the tapped region at all - reachable only on evidence
+    """
+    if not query.parts:
+        # No region was tapped: the retriever has no opinion and pure evidence
+        # decides. Ranking everything as equally region-relevant would be a
+        # fiction, and "the patient selected nothing" must not bias any chunk.
+        return 3
+    same_part = query.parts == chunk.parts
+    same_side = query.side == chunk.side
+    if same_part and same_side:
+        return 0 if query.locators == chunk.locators else 1
+    if query.parts & chunk.parts:
+        return 2
+    return 3
+
+
+# The tier is a prior on rank, not a magnitude added to a score. Its size is set
+# against what Reciprocal Rank Fusion can actually produce here: a chunk first in
+# both the BM25 and the TF-IDF list earns 2/(60+1) ~ 0.033, and a chunk that
+# matched one incidental word earns roughly 0.016. Against that, 0.0305 means:
+#
+#   * the monograph of the region the patient tapped outranks anything that only
+#     matched an incidental word - the tap is the strongest single fact given;
+#   * it does *not* outrank a chunk that led both ranking methods on the strength
+#     of the complaint's own words, so a description of a textbook infarction
+#     reported against an arm tap can still bring the chest monograph above it.
+#
+# The nearer tiers are spaced by roughly a factor of three, which is enough to
+# win ties between them without any of them being able to bury real evidence.
+_TIER_PRIOR = {0: 0.0305, 1: 0.0100, 2: 0.0030, 3: 0.0}
+
+# Chunks at or below this tier are the region the patient pointed at and its
+# family; they qualify on the tap alone. Above it a chunk needs the words.
+_REGION_FAMILY_TIER = 2
+
+# The largest score the fusion can produce: first place in both ranked lists,
+# plus the strongest region prior. Dividing by it turns the fused score into an
+# absolute confidence that means the same thing for every query, which is what
+# `sources[].score` and the prompt's `score=` line should be. A bare tap with no
+# words puts its own monograph at about 0.48 - honest, since being the part the
+# patient pointed at is real evidence, just not the whole story - and a chunk the
+# words match as well as the tap does approaches 1.0.
+_MAX_FUSED = 2.0 / (60.0 + 1.0) + _TIER_PRIOR[0]
 
 
 def _vectorize(
@@ -186,18 +355,22 @@ def _cosine(a: Dict[str, float], b: Dict[str, float]) -> float:
 
 
 @lru_cache(maxsize=1)
-def _index() -> tuple[Dict[str, Dict[str, float]], Dict[str, AnatomyChunk]]:
-    """Builds and caches the tf-idf vectors for every chunk."""
+def _index() -> tuple[Dict[str, Dict[str, float]], Dict[str, AnatomyChunk], Dict[str, float]]:
+    """Builds and caches the tf-idf vectors for every chunk.
+
+    The idf table is part of the cached index because it is a property of the
+    knowledge base, not of a query: rebuilding it per call made every lookup do
+    a full pass over every chunk's tokens for no reason.
+    """
     chunks = load_kb()
     idf = _build_idf(chunks)
     vectors = {cid: _vectorize(c.tokens, idf) for cid, c in chunks.items()}
-    return vectors, chunks
+    return vectors, chunks, idf
 
 
 def _bm25_score(
     query_tokens: List[str],
     chunk: AnatomyChunk,
-    chunk_tokens_map: Dict[str, List[str]],
     avgdl: float,
     idf: Dict[str, float],
 ) -> float:
@@ -237,69 +410,60 @@ def _rrf_fuse(
 def _retrieve_cached_chunk_ids(
     region_key: str, query_key: str, top_k: int
 ) -> Tuple[Tuple[str, float], ...]:
-    vectors, chunks = _index()
+    """Rank the side-compatible chunks against the words of the complaint.
+
+    Returns (chunk_id, score) already in the order the caller should use, and the
+    score is monotonic in that order: a chunk never reports a larger number while
+    being placed below a smaller one, which is what made the old blended score
+    unusable both to the model (it is printed into the prompt) and to the client
+    (it is returned as `sources[].score`).
+    """
+    vectors, chunks, idf = _index()
     query_tokens = _tokenize(query_key or "")
-    idf = _build_idf(chunks)
     q_vec = _vectorize(query_tokens, idf)
 
-    region_norm = region_key.strip().lower()
-
-    # Precompute BM25 statistics
-    chunk_tokens_map = {cid: list(c.tokens) for cid, c in chunks.items()}
+    region = _region_key(region_key)
     total_length = sum(len(c.tokens) for c in chunks.values())
     avgdl = total_length / max(1, len(chunks))
+    has_words = bool(query_tokens)
 
-    # BM25 ranked list
     bm25_ranked: List[Tuple[str, float]] = []
-    for cid, chunk in chunks.items():
-        score = _bm25_score(query_tokens, chunk, chunk_tokens_map, avgdl, idf)
-        if region_norm:
-            chunk_region_norm = chunk.region.lower()
-            if region_norm == chunk_region_norm:
-                score += 10.0
-            elif region_norm in chunk_region_norm or chunk_region_norm in region_norm:
-                score += 3.0
-            else:
-                directionals = {"right", "left", "upper", "lower", "pain", "side"}
-                region_parts = {w for w in region_norm.split() if w not in directionals and len(w) > 2}
-                chunk_parts = {w for w in chunk_region_norm.split() if w not in directionals and len(w) > 2}
-                if region_parts and region_parts.intersection(chunk_parts):
-                    score += 2.0
-        if score > 0.0:
-            bm25_ranked.append((cid, score))
-    bm25_ranked.sort(key=lambda x: x[1], reverse=True)
-
-    # TF-IDF cosine ranked list
     tfidf_ranked: List[Tuple[str, float]] = []
-    for cid, vec in vectors.items():
-        score = _cosine(q_vec, vec)
-        if region_norm:
-            chunk_region_norm = chunks[cid].region.lower()
-            if region_norm == chunk_region_norm:
-                score += 10.0
-            elif region_norm in chunk_region_norm or chunk_region_norm in region_norm:
-                score += 3.0
-            else:
-                directionals = {"right", "left", "upper", "lower", "pain", "side"}
-                region_parts = {w for w in region_norm.split() if w not in directionals and len(w) > 2}
-                chunk_parts = {w for w in chunk_region_norm.split() if w not in directionals and len(w) > 2}
-                if region_parts and region_parts.intersection(chunk_parts):
-                    score += 2.0
-        if score > 0.0:
-            tfidf_ranked.append((cid, score))
+    eligible: List[Tuple[str, int]] = []
+    for cid, chunk in chunks.items():
+        chunk_region = _chunk_region_key(cid)
+        if not _side_compatible(region, chunk_region):
+            continue
+        tier = _region_tier(region, chunk_region)
+        # The region that was tapped and its family qualify on the tap alone. A
+        # complaint with no words behind it gets nothing else at all: on a bare
+        # ankle tap, padding the window with the cardiac monograph would be an
+        # invented relevance that the model is then told to trust.
+        if tier > _REGION_FAMILY_TIER and not has_words:
+            continue
+        lexical = _bm25_score(query_tokens, chunk, avgdl, idf)
+        if lexical > 0.0:
+            bm25_ranked.append((cid, lexical))
+        cosine = _cosine(q_vec, vectors[cid])
+        if cosine > 0.0:
+            tfidf_ranked.append((cid, cosine))
+        if tier <= _REGION_FAMILY_TIER or lexical > 0.0 or cosine > 0.0:
+            eligible.append((cid, tier))
+
+    bm25_ranked.sort(key=lambda x: x[1], reverse=True)
     tfidf_ranked.sort(key=lambda x: x[1], reverse=True)
+    fused = dict(_rrf_fuse([bm25_ranked, tfidf_ranked]))
 
-    # Fuse with RRF over relevant candidates only
-    fused = _rrf_fuse([bm25_ranked, tfidf_ranked])
-
-    results = []
-    bm25_dict = dict(bm25_ranked)
-    tfidf_dict = dict(tfidf_ranked)
-    for cid, _ in fused[: max(1, top_k)]:
-        score = max(bm25_dict.get(cid, 0.0), tfidf_dict.get(cid, 0.0))
-        if score > 0.0:
-            results.append((cid, score))
-    return tuple(results)
+    ranked: List[Tuple[str, float]] = []
+    for cid, tier in eligible:
+        ranked.append((cid, fused.get(cid, 0.0) + _TIER_PRIOR[tier]))
+    # Python's sort is stable, so equal scores keep knowledge-base order and the
+    # result is reproducible across runs.
+    ranked.sort(key=lambda x: x[1], reverse=True)
+    scaled = [
+        (cid, min(1.0, score / _MAX_FUSED)) for cid, score in ranked
+    ]
+    return tuple(scaled[: max(1, top_k)])
 
 
 def retrieve(
@@ -307,16 +471,34 @@ def retrieve(
     query: str = "",
     top_k: int = 3,
 ) -> List[RetrievalHit]:
-    """Return the top-k chunks most relevant to (region, query) using hybrid search.
+    """Return the chunks that should ground an answer about this complaint.
 
-    Combines BM25 lexical retrieval with TF-IDF cosine similarity using
-    Reciprocal Rank Fusion (RRF) for robust ranking across both methods.
+    Two things decide, in this order:
+
+    1. **Eligibility.** A chunk describing the opposite side of the body to the
+       region that was tapped is never returned. This is a filter, not a penalty,
+       because the two sides mean different things clinically - see the module
+       docstring.
+    2. **Evidence.** BM25 and TF-IDF cosine over the complaint's words, fused with
+       Reciprocal Rank Fusion, with a small prior for the tapped region and its
+       neighbouring parts.
+
+    `score` is an absolute confidence in [0, 1]: 1.0 is a chunk that is both the
+    region that was tapped and first in both ranking methods for a complaint that
+    matches it well, and a chunk that only qualified because it is the region that
+    got tapped sits near 0.48. It is comparable between queries, and results are
+    ordered by it.
+
+    With no words in the query only the tapped region and chunks naming the same
+    body part are returned; with words, a chunk that matches none of them is only
+    returned if it is the tapped region or its family.
+
     Results are cached per (region, query, top_k) tuple.
     """
     chunks = load_kb()
     r_key = (region or "").strip().lower()
     q_key = (query or "").strip().lower()
-    
+
     cached_hits = _retrieve_cached_chunk_ids(r_key, q_key, top_k)
     return [
         RetrievalHit(chunk=chunks[cid], score=score)

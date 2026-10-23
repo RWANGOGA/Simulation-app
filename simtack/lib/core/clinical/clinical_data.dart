@@ -354,44 +354,39 @@ class AnatomyTokenizer {
     'back': ['spine', 'lumbar', 'backache'],
   };
 
+  /// Mirrors `_STOPWORDS` in the retriever. Keep the two in step: a function word
+  /// the offline engine keeps is a symptom the offline engine invents, and
+  /// "I can't breathe when I walk up the stairs" once retrieved the abdomen
+  /// monograph on the strength of "when" alone.
   static const Set<String> _stopwords = {
-    'a',
-    'an',
-    'and',
-    'are',
-    'as',
-    'at',
-    'be',
-    'by',
-    'for',
-    'from',
-    'has',
-    'have',
-    'in',
-    'is',
-    'it',
-    'of',
-    'on',
-    'or',
-    'that',
-    'the',
-    'to',
-    'was',
-    'were',
-    'will',
-    'with',
-    'this',
-    'any',
-    'can',
-    'may',
-    'their',
-    'they',
-    'you',
-    'your',
-    'patient',
-    'patients',
-    'feel',
-    'feeling',
+    // articles, prepositions, conjunctions
+    'a', 'an', 'and', 'as', 'at', 'by', 'for', 'from', 'in', 'into', 'of',
+    'on', 'onto', 'or', 'over', 'since', 'that', 'the', 'their', 'them',
+    'then', 'than', 'this', 'those', 'to', 'under', 'upon', 'with', 'within',
+    'without', 'yet',
+    // auxiliary and copular verbs
+    'am', 'are', 'be', 'been', 'being', 'did', 'does', 'doing', 'done', 'get',
+    'gets', 'getting', 'got', 'had', 'has', 'have', 'having', 'is', 'may',
+    'might', 'must', 'was', 'were', 'will', 'would', 'should', 'could',
+    'used', 'cannot', 'cant', 'can', 'doesnt', 'didnt', 'dont', 'isnt',
+    'wont', 'arent', 'wasnt', 'havent', 'hasnt', 'hadnt', 'wouldnt',
+    'couldnt', 'shouldnt',
+    // pronouns and possessives
+    'he', 'him', 'his', 'her', 'hers', 'herself', 'i', 'it', 'its', 'me',
+    'mine', 'my', 'ours', 'our', 'she', 'theirs', 'they', 'us', 'you',
+    'your', 'yours',
+    // question and filler words
+    'any', 'anyone', 'anything', 'because', 'before', 'both', 'each', 'else',
+    'enough', 'even', 'every', 'how', 'just', 'like', 'much', 'mostly', 'no',
+    'not', 'only', 'own', 'quite', 'rather', 'really', 'same', 'some',
+    'such', 'though', 'through', 'very', 'what', 'when', 'whenever', 'where',
+    'whether', 'which', 'who', 'whom', 'whose', 'why',
+    // verbs of reporting and everyday action found in patient prose
+    'always', 'asked', 'came', 'comes', 'coming', 'come', 'feel', 'feeling',
+    'felt', 'go', 'goes', 'going', 'gone', 'make', 'makes', 'made', 'need',
+    'needed', 'needs', 'often', 'patient', 'patients', 'say', 'said', 'says',
+    'seems', 'take', 'takes', 'taking', 'told', 'wants', 'wanted', 'usually',
+    'sometimes',
   };
 
   static final RegExp _wordPattern = RegExp(r'[a-z0-9]+');
