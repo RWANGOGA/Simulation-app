@@ -65,15 +65,31 @@ from scripts.eval_retrieval import DEFAULT_K, DEFAULT_WINDOW, evaluate, load_cas
 # the same denominator reason, and this time it is a defect that was found, not one
 # that was fixed: with no region tapped, ranking is decided almost entirely by
 # document length, because the region label is not part of the indexed text.
+#
+# After P0-9 (expansion moved to the query side only; inflections folded against
+# the corpus's own vocabulary; clinical jargon bridged to words the monographs
+# actually use): pass 0.857, top1 0.947, mrr 0.968, recall@3 0.877, recall@6 0.942,
+# nDCG@3 0.912, referral 0.864, and every one of the 63 cases that retrieved *no
+# context at all* is now a deliberate out-of-scope abstention rather than a
+# vocabulary hole. Bare region taps are 15/15.
+#
+# One mechanism in that item was tried and reverted, and it is recorded here
+# because a negative result is the point of measuring: indexing the region label
+# as a weighted field changed *no* ranking (fusion is by rank, and the monographs
+# it would have helped were already first in both lists), while indexing the label
+# verbatim made 'right'/'left' repeated high-tf search terms and let the right-knee
+# monograph out-rank the upper-abdomen one for gallbladder referral pain. The
+# `unanchored_query` cases pass on the idf and expansion fixes, not on title
+# weighting, so the title stays out of the searchable text.
 # ---------------------------------------------------------------------------
 FLOORS = {
-    "pass_rate": 0.71,
-    "top1_accuracy": 0.80,
-    "mrr": 0.84,
-    "recall_at_k": 0.75,
-    "recall_at_window": 0.83,
-    "ndcg_at_k": 0.78,
-    "referral_coverage": 0.81,
+    "pass_rate": 0.84,
+    "top1_accuracy": 0.93,
+    "mrr": 0.95,
+    "recall_at_k": 0.86,
+    "recall_at_window": 0.92,
+    "ndcg_at_k": 0.89,
+    "referral_coverage": 0.84,
 }
 
 # Cases that must NEVER be allowed to fail: the complaints whose whole purpose is
@@ -101,47 +117,33 @@ CLINICAL_INVARIANTS = [
 # say "not this one"; a filter does. Thirteen of the fourteen went away when the
 # region stopped being a magnitude.
 KNOWN_SAFETY_DEBT = {
-    # Not a region bug, and P0-9 owns it. There is no stemming, so "toes" never
-    # matches the foot chunk's "toe"; "sharp" is then the only word with any
-    # overlap at all, and the cardiac monograph happens to contain it.
+    # The stemming part of this was true and is now fixed: the foot monographs do
+    # reach the window (ranks 2-3). What remains is that the cardiac monograph
+    # still leads it, because nothing in the system decides that a complaint with
+    # no region tapped and no rare word in common with a monograph should not be
+    # answered from it. That is P0-6's minimum-evidence gate, not a vocabulary gap.
     "toes-not-cardiac": ["chest_heart"],
 }
 
 # Every case that fails today, with the reason. Same ratchet semantics.
 #
-# What remains splits into three causes, and none of them is about the body map:
+# After P0-9 what remains is no longer a vocabulary problem. It is three things:
 #
-#   * vocabulary. No stemming and no clinical synonym coverage for the words
-#     patients and clinicians actually use: "toes"/"toe", "thighs"/"thigh",
-#     "dyspnea", "hematochezia", "odynophagia". P0-9.
-#   * the region label is not indexed. When no region is tapped, the words alone
-#     decide, and a monograph cannot match on what it is called - so "chest pain"
-#     is settled by document length. P0-9.
 #   * no abstain path. The knowledge base describes no ear, paediatric,
 #     mental-health, wound-care or dosing content, so the only correct answer is
 #     "not covered". Four of the six such cases still get an answer, because some
 #     word overlapped by accident - which is the opposite of a safety property.
-#     P0-6.
+#     P0-6, and it owns toes-not-cardiac for the same reason.
+#   * no evidence to order *plausible* candidates. When several monographs all
+#     genuinely match, the tie is broken by document length, so the MI-referred
+#     arm monograph can lead the cardiac one for a breathless patient.
+#   * laterality read from the tap only, never from the sentence.
 KNOWN_RANKING_DEBT = {
-    "bare-right-thigh": "no stemming: a thigh tap cannot reach the `thighs` chunk carrying the DVT red flags",
-    "lay-crushing-chest-to-arm": "a textbook infarction presentation ranks a frozen-shoulder monograph first",
+    "jargon-dyspnea-exertion": "both arm monographs bridge to breath/shortness/chest as well as the cardiac one, and win on length; 'dyspnea on exertion' with nothing tapped should still lead with the chest",
     "lay-fatty-food-upper-abdomen": "biliary referral to the right shoulder is unreachable: the link lives in the abdomen chunk's prose and no word in the complaint names the shoulder, so only a referral graph can follow it",
-    "jargon-dyspnea-exertion": "no lexical match for medical jargon: retrieval returns nothing at all",
-    "jargon-pleuritic": "arm chunks outrank the chest for pleuritic pain",
-    "jargon-hematochezia-llq": "left lower quadrant bleeding retrieved the right side first",
-    "jargon-hepatic-colic": "no lexical match for medical jargon: retrieval returns nothing at all",
-    "jargon-odynophagia": "no lexical match for medical jargon: retrieval returns nothing at all",
-    "refer-renal-to-left-leg": "renal referral to the back is missed; a cranial chunk is served",
+    "refer-renal-to-left-leg": "the back monograph is in the window but at rank 4: the tapped leg/knee family fills all three served slots, so referral content needs a slot reservation, not better matching",
     "text-side-contradicts-tap": "laterality is read from the tapped region only, so a patient who taps the right arm and describes the left cannot reach the left-arm monograph - which for the upper limb is the cardiac one. Needs the side in the free text reconciled with the side of the tap.",
-    # With nothing tapped there is no region prior, and the four candidates for
-    # "chest pain" each contain the word exactly once, so BM25's length
-    # normalisation hands the win to the shortest monograph that mentions it. The
-    # region label is metadata and is not indexed at all: a monograph about the
-    # chest does not get to match the word "chest" from what it is called.
-    "unanchored-chest-pain": "the chest monograph is outranked by arm and back chunks that mention the chest in passing; the region label is not part of the indexed text",
-    "unanchored-knee-after-fall": "a hip/groin monograph leads for a knee complaint, same cause",
-    "unanchored-heel-pain": "thigh and arm monographs lead for a heel complaint, same cause",
-    "toes-not-cardiac": "wrong top-1 for a foot complaint",
+    "toes-not-cardiac": "wrong top-1 for a foot complaint; see KNOWN_SAFETY_DEBT",
     "scope-wound-closure": "no abstain path",
     "scope-mental-health": "no abstain path",
     "scope-dosing": "no abstain path",
@@ -265,16 +267,21 @@ def test_red_flag_content_is_reachable(report, case_id):
 
 
 def test_medical_jargon_is_not_silently_dropped(report):
-    """The jargon group is where retrieval returns *nothing*, which is the most
-    dangerous failure the endpoint can produce: `_run_ask` then sends
+    """The jargon group is where retrieval used to return *nothing*, which is the
+    most dangerous failure the endpoint can produce: `_run_ask` then sends
     "(no context)" and the system prompt forbids anything else. Counted
-    separately so a fix that only reorders never hides it."""
+    separately so a fix that only reorders never hides it.
+
+    The ceiling was three, then P0-9 closed the vocabulary holes and it is now
+    asserted at zero: every clinical term in the fixture reaches a monograph. If a
+    new jargon case is added that returns nothing, this fails - which is the point,
+    and the fix is the synonym table, never a re-tuned floor here.
+    """
     jargon = [r for r in report.results if r.case.group == "clinical_jargon"]
     empty = [r.case.id for r in jargon if not r.retrieved]
-    assert len(empty) <= 3, (
-        f"{len(empty)} of {len(jargon)} medical-vocabulary cases retrieved no "
-        f"chunk at all ({empty}). Every one added is a question the assistant "
-        "cannot answer at all."
+    assert not empty, (
+        f"{len(empty)} of {len(jargon)} medical-vocabulary cases retrieve no chunk "
+        f"at all ({empty}); a clinician typing the proper term is told nothing exists"
     )
 
 
@@ -291,10 +298,10 @@ def test_out_of_scope_complaints_are_recorded_as_unanswered(report):
     Not 0.0 either, and this is worth stating plainly because it is a *new* kind
     of behaviour rather than a designed one: two of the six now retrieve nothing.
     They do so incidentally - no word matched any chunk and no region was tapped -
-    which is the same mechanism that leaves three jargon cases with no context at
-    all (see the test above). Abstaining because your vocabulary failed is not
-    abstaining because the subject is out of scope; the day those two are
-    separated, this number should go up and the jargon count should go to zero.
+    which is no longer the same mechanism as the jargon cases, since those all
+    reach a monograph now (see the test above). Abstaining because your vocabulary
+    failed is not abstaining because the subject is out of scope; the day those two
+    are separated, this number should go up.
     """
     scope = [r for r in report.results if r.case.expect_no_match]
     assert scope, "the fixture lost its out-of-scope cases"
@@ -385,3 +392,144 @@ def test_reported_score_never_contradicts_its_own_ranking(report):
             out_of_range.append(row.case.id)
     assert not broken, f"score increases down the ranking for {broken}"
     assert not out_of_range, f"score outside [0, 1] for {out_of_range}"
+
+
+# ── invariants of the vocabulary itself ───────────────────────────────────
+#
+# Expansion and normalisation are hand-written clinical knowledge, so they rot
+# the moment nobody checks them. These three guards each encode a defect that was
+# actually introduced and measured while building P0-9, not a hypothetical one.
+
+_UPPER_LIMB = {"arm", "shoulder", "elbow", "wrist", "hand", "fingers", "thumb", "armpit"}
+_LOWER_LIMB = {"leg", "knee", "thigh", "ankle", "foot", "shin", "calf", "toes", "heel"}
+
+
+def test_expansion_reaches_the_corpus():
+    """Every synonym entry must land on at least one word a monograph uses.
+
+    A target that occurs in no document expands to a term with idf 0, which buys
+    nothing and reads like coverage. This is the check that made me look up the
+    corpus vocabulary before writing the clinical entries, rather than after.
+    """
+    from app.services import anatomy_retriever as ar
+
+    vocab = ar._raw_corpus_terms()
+    unreachable = [
+        term
+        for term, synonyms in ar.MEDICAL_SYNONYMS.items()
+        if not any(ar.canonical_form(word) in vocab for word in synonyms)
+    ]
+    assert not unreachable, (
+        f"{unreachable}: no target occurs anywhere in the knowledge base, so "
+        "these words expand to nothing"
+    )
+
+
+def test_expansion_never_bridges_on_a_word_that_means_everything():
+    """No target may appear in every monograph.
+
+    "pain" is in all 34 chunks. Putting it in an entry's target list made the
+    most common word in the language an expansion key, so every complaint in the
+    system silently acquired that entry's jargon - and the idf that was supposed
+    to neutralise "pain" cannot undo a term the query never had to earn.
+    """
+    from app.services import anatomy_retriever as ar
+
+    chunks = ar.load_kb()
+    universal = {
+        word
+        for words in chunks.values()
+        for word in set(words.tokens)
+        if all(word in set(chunk.tokens) for chunk in chunks.values())
+    }
+    offending = {
+        (term, word)
+        for term, synonyms in ar.MEDICAL_SYNONYMS.items()
+        for word in synonyms
+        if ar.canonical_form(word) in universal
+    }
+    assert not offending, f"{sorted(offending)}: universal terms carry no information"
+
+
+def test_expansion_stays_narrow_and_never_changes_the_limb():
+    """Two structural bounds on the derived expansion table.
+
+    (a) No word may reach both upper-limb and lower-limb terms except 'joint'.
+        A patient who says 'joint' genuinely has not said which limb; a system
+        that decides for them repeats the error P0-1 removed from the region
+        bonus, where a wrist complaint could acquire thigh advice.
+
+    (b) No word may expand to more than eight others. A query that gains fifteen
+        terms is not being translated, it is being drowned: idf then has nothing
+        left to discriminate on. Measured, this is what actually separated the two
+        closure designs - edge expansion tops out at 7 terms ('chest'), the group
+        closure first attempted reaches 15 for 'chest' and 14 for 'back', and the
+        extra terms were generic ones like 'activity' and 'lying'. That variant
+        measured pass 0.841 against 0.857 here, losing redflag-achilles-pop and
+        unanchored-sore-throat.
+    """
+    from app.services import anatomy_retriever as ar
+
+    def family(words):
+        bases = {ar.canonical_form(word) for word in words}
+        return bases & _UPPER_LIMB, bases & _LOWER_LIMB
+
+    crossings = []
+    for term, synonyms in ar.MEDICAL_SYNONYMS.items():
+        upper, lower = family(synonyms)
+        if upper and lower:
+            crossings.append((term, sorted(upper), sorted(lower)))
+    assert not crossings, (
+        f"these entries expand across both limbs: {crossings}. A wrist complaint "
+        "must never acquire thigh advice."
+    )
+
+    table = ar._synonym_table()
+    crossers = [
+        word
+        for word, extras in table.items()
+        if all(f for f in family({word} | set(extras)))
+    ]
+    assert crossers == ["joint"], (
+        f"words whose expansion spans both limbs: {crossers}. Only 'joint' may, "
+        "and only while it stays a single one-hop edge."
+    )
+
+    widest = sorted(((len(v), k) for k, v in table.items()), reverse=True)[:3]
+    over = [word for word, extras in table.items() if len(extras) > 8]
+    assert not over, (
+        f"{sorted(over)} expand to more than 8 terms (widest today: {widest}). "
+        "Group-sharing a synonym table instead of linking pairs produces exactly "
+        "this, and it measured two fewer passing cases."
+    )
+
+
+def test_normalisation_merges_only_inflections_that_both_exist():
+    """The plural collapse must never invent a stem or join two lexemes.
+
+    Every merge is asserted to be a real (plural, base) pair present in the
+    corpus, and a fixed list of words that look inflected but are not - 'heart',
+    'diabetes', 'stress', 'corpus', 'axis', 'ulnar', 'patellar' - must not move.
+    A stemmer that quietly folds 'patellar' onto 'patella' or 'heart' onto 'hear'
+    would merge distinct clinical concepts, and no metric floor would notice.
+    """
+    from app.services import anatomy_retriever as ar
+
+    vocab = ar._raw_corpus_terms()
+    for word in sorted(vocab):
+        base = ar.canonical_form(word)
+        if base != word:
+            assert base in vocab, f"{word} collapsed to {base}, which is not in the corpus"
+            assert len(base) < len(word), f"{word} -> {base} is not a shortening"
+
+    for word in [
+        "heart", "diabetes", "stress", "corpus", "axis", "ulnar", "patellar",
+        "ovarian", "sciatica", "fever", "nausea", "gas", "menisci", "heel",
+    ]:
+        assert ar.canonical_form(word) == word or ar.canonical_form(word) in vocab, (
+            f"'{word}' must survive unchanged, got '{ar.canonical_form(word)}'"
+        )
+    assert ar.canonical_form("heart") == "heart"
+    assert ar.canonical_form("diabetes") == "diabetes"
+    assert ar.canonical_form("thighs") == "thigh"
+    assert ar.canonical_form("toes") == "toe"

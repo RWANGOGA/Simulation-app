@@ -62,7 +62,12 @@ _KB_PATH = Path(__file__).resolve().parent.parent / "data" / "anatomy_kb.json"
 
 
 # ── Medical Synonym Dictionary for Query Expansion ───────────────────────
-
+#
+# Read this as a *translation table between how people describe a complaint and
+# how the monographs are written*, not as a thesaurus. Entries are deliberately
+# asymmetric in style but are applied symmetrically (see _synonym_table): a
+# monograph that says "abdomen" must be reachable from "tummy", and one that
+# says "back" must be reachable from "lumbar".
 MEDICAL_SYNONYMS: Dict[str, List[str]] = {
     "migraine": ["headache", "cranial", "head", "neurological"],
     "headache": ["migraine", "cranial", "head"],
@@ -82,7 +87,68 @@ MEDICAL_SYNONYMS: Dict[str, List[str]] = {
     "arm": ["arm", "shoulder"],
     "backache": ["back", "lumbar", "spine"],
     "back": ["spine", "lumbar", "backache"],
+    # Clinical vocabulary. The monographs are written in plain prose - the words
+    # 'dyspnea', 'hematochezia', 'crepitus' and 'hepatic' do not occur anywhere
+    # in them - so a clinician typing the proper term reached nothing at all.
+    # Targets below are chosen from words the corpus actually uses; a target that
+    # no monograph contains scores idf 0 and is dead weight
+    # (test_expansion_reaches_the_corpus enforces that at least one target per
+    # group lands).
+    "dyspnea": ["breath", "shortness", "chest"],
+    "exertion": ["breath", "shortness", "chest"],
+    "orthopnea": ["breath", "lying", "chest"],
+    "pleuritic": ["pleura", "breath", "chest", "rib"],
+    "hematemesis": ["blood", "vomiting", "stomach"],
+    "hematochezia": ["blood", "stool", "bowel"],
+    "melena": ["black", "tarry", "stool", "blood"],
+    "odynophagia": ["throat", "esophagus", "gerd"],
+    "dysphagia": ["throat", "esophagus"],
+    "hepatic": ["liver", "gallbladder", "pancreas"],
+    "biliary": ["gallbladder", "gallstones", "liver"],
+    "cholelithiasis": ["gallstones", "gallbladder"],
+    "colic": ["cramp", "gallstones", "stone", "kidney", "back", "waves"],
+    "renal": ["kidney", "ureter", "stone", "back", "groin", "side"],
+    "diaphoresis": ["sweat", "sweating"],
+    "syncope": ["fainting", "faint", "dizzy"],
+    "crepitus": ["joint", "knee", "grinding", "osteoarthritis"],
+    "edema": ["swelling", "swollen", "ankle"],
+    "ambulate": ["bear", "weight", "leg"],
+    "flank": ["side", "back", "kidney", "groin"],
+    "emesis": ["vomiting", "nausea"],
+    # Regional relations: the patient names a part, the monograph is written
+    # about the region that owns it.
+    "heel": ["foot", "plantar", "arch", "steps"],
+    "ankle": ["foot", "leg", "shin"],
+    "shin": ["leg", "calf", "ankle"],
+    "instep": ["foot", "ankle"],
+    "groin": ["hip", "testicle", "abdomen", "pubic"],
+    "jaw": ["mouth", "neck", "teeth"],
 }
+
+
+@lru_cache(maxsize=1)
+def _synonym_table() -> Dict[str, Tuple[str, ...]]:
+    """Symmetric (key <-> target) expansion edges, one hop only.
+
+    The declared dictionary only maps lay-term -> document-term, so a clinician
+    typing the document term ("lumbar", "abdominal", "dyspnea") got no bridge at
+    all; each pair is therefore made bidirectional.
+
+    Bidirectional by *edge*, not by group: members of a group do not inherit each
+    other's targets. Measured on the eval fixture that choice is worth two cases
+    (pass 0.857 against 0.841: redflag-achilles-pop and unanchored-sore-throat).
+    Sharing the whole group widened 'chest' from 7 expansion terms to 15 and 'back'
+    to 14, and the added terms were the generic ones - 'activity', 'rib', 'lying' -
+    which are not translations of anything, they are vocabulary drift. 'arm'
+    cannot reach 'leg' through 'joint' either way, so an upper-limb complaint never
+    becomes a lower-limb one.
+    """
+    table: Dict[str, set] = {}
+    for term, synonyms in MEDICAL_SYNONYMS.items():
+        table.setdefault(term, set()).update(synonyms)
+        for synonym in synonyms:
+            table.setdefault(synonym, set()).add(term)
+    return {member: tuple(sorted(others - {member})) for member, others in table.items()}
 
 
 # Words that carry no clinical information about a complaint. This list matters
@@ -127,33 +193,146 @@ _STOPWORDS = frozenset(
 )
 
 
-def _tokenize(text: str) -> List[str]:
-    """Lower-cased, alphanumeric-only tokens with medical synonym expansion,
-    deduped, stopwords removed.
+def _surface_tokens(text: str) -> List[str]:
+    """Lower-cased alphanumeric content words: stopwords and 1-2 character
+    fragments dropped, order preserved, duplicates removed.
     """
     if not text:
         return []
-    raw = re.findall(r"[a-z0-9]+", text.lower())
-    stop = _STOPWORDS
     seen: set[str] = set()
     out: List[str] = []
-    for tok in raw:
-        if tok in stop or len(tok) < 3:
+    for tok in re.findall(r"[a-z0-9]+", text.lower()):
+        if tok in _STOPWORDS or len(tok) < 3:
             continue
         if tok not in seen:
             seen.add(tok)
             out.append(tok)
-        # Expand synonyms
-        if tok in MEDICAL_SYNONYMS:
-            for syn in MEDICAL_SYNONYMS[tok]:
-                if syn not in seen:
-                    seen.add(syn)
-                    out.append(syn)
     return out
 
 
+def _expand_query(tokens: List[str]) -> List[str]:
+    """Add the synonym group of every query word.
+
+    Expansion belongs on the query side ONLY. Indexing the expansions as well
+    (the previous behaviour) put invented words into the documents themselves,
+    which inflated their document frequency and silently weakened idf, so a term
+    like 'back' stopped discriminating anything. It also made every monograph
+    look like every other monograph -- the corpus stopped being evidence about
+    word rarity and became a list of everything a thesaurus could reach.
+    """
+    table = _synonym_table()
+    seen: set[str] = set(tokens)
+    out = list(tokens)
+    for tok in tokens:
+        for syn in table.get(tok, ()):
+            if syn not in seen:
+                seen.add(syn)
+                out.append(syn)
+    return out
+
+
+# ── Morphological normalisation ───────────────────────────────────────────
+#
+# Deliberately not Porter/Snowball stemming. Those algorithms are tuned for
+# general English and damage biomedical text: they cut the plural of "diabetes"
+# down to a non-word, treat "-us"/"-ial" as suffixes, and fold anatomical terms
+# onto stems no clinician would recognise, which is why clinical NLP (MetaMap)
+# normalises against a controlled vocabulary instead. A 34-monograph corpus can
+# afford the same trick outright: a form is collapsed onto another only when
+# *both* forms occur in the corpus, so a merge can never invent a stem and can
+# never quietly join two different words.
+#
+# What this buys is the inflection families that actually broke retrieval here:
+# "thighs" vs the tapped region "Thigh", "toes" vs the foot monograph's "toe",
+# "swellings", "fractures", "sprains".
+_IRREGULAR_FORMS: Dict[str, str] = {
+    # Suppletive and Latin/Greek plurals, where no suffix rule can help.
+    # Entries whose base form is absent from the corpus are ignored (see
+    # canonical_form), so this table cannot invent vocabulary.
+    "feet": "foot",
+    "teeth": "tooth",
+    "calves": "calf",
+    "menisci": "meniscus",
+    "phalanges": "phalanx",
+    "ligaments": "ligament",
+}
+
+_S_SUFFIX_EXCLUSIONS = ("ss", "us", "is", "xs")  # gas, corpus, axis, taxes-shaped
+
+
+def canonical_form(token: str) -> str:
+    """Base form of an inflected word, using only vocabulary the corpus owns."""
+    vocab = _raw_corpus_terms()
+    irregular = _IRREGULAR_FORMS.get(token)
+    if irregular is not None and irregular in vocab:
+        return irregular
+    if len(token) > 4 and token.endswith("ies"):
+        base = token[:-3] + "y"
+        if base in vocab:
+            return base
+    if len(token) > 4 and token.endswith("es") and token[:-2] in vocab:
+        return token[:-2]
+    if (
+        len(token) > 3
+        and token.endswith("s")
+        and not token.endswith(_S_SUFFIX_EXCLUSIONS)
+        and token[:-1] in vocab
+    ):
+        return token[:-1]
+    return token
+
+
+def _normalise(tokens: List[str]) -> List[str]:
+    """Collapse inflections, then drop the duplicates the collapse creates."""
+    seen: set[str] = set()
+    out: List[str] = []
+    for token in tokens:
+        base = canonical_form(token)
+        if base not in seen:
+            seen.add(base)
+            out.append(base)
+    return out
+
+
+@lru_cache(maxsize=1)
+def _raw_kb_entries() -> tuple:
+    """The knowledge base as stored on disk, before any normalisation."""
+    with _KB_PATH.open("r", encoding="utf-8") as f:
+        raw = json.load(f)
+    return tuple(raw.get("regions", []))
+
+
+@lru_cache(maxsize=1)
+def _raw_corpus_terms() -> FrozenSet[str]:
+    """Every surface word in the corpus, region titles included.
+
+    Titles are part of the *vocabulary* even though they are not part of the
+    searchable text, so that 'Thighs' and 'thigh' are understood to be the same
+    body part by the structured region filter as well as by the text match.
+    """
+    words: set[str] = set()
+    for entry in _raw_kb_entries():
+        words.update(_surface_tokens(_chunk_to_text(entry)))
+        words.update(_surface_tokens(entry.get("region", "")))
+    return frozenset(words)
+
+
+def _tokenize(text: str) -> List[str]:
+    """Query-side tokenisation: content words, synonym bridge, inflections folded."""
+    return _normalise(_expand_query(_surface_tokens(text)))
+
+
 def _chunk_to_text(chunk: dict) -> str:
-    """Concatenate fields with heavy weighting on structures, conditions, and red flags."""
+    """Concatenate fields with heavy weighting on structures, conditions, and red flags.
+
+    The region title is deliberately NOT part of the searchable text. Indexing it
+    was measured on the eval fixture and changed no ranking: fusion is by rank, so
+    lifting a monograph that is already first in both lists buys nothing. Its only
+    observable effect was harmful -- the raw label made 'right'/'left' heavily
+    repeated search terms and let the right-knee monograph out-rank the upper
+    abdomen one for gallbladder referral pain. Laterality is decided by the
+    structured filter, once.
+    """
     parts: List[str] = [chunk.get("text", "")]
     # Double-weight critical medical terms for stronger TF-IDF vectors
     parts.extend(chunk.get("structures", []) * 2)
@@ -166,10 +345,8 @@ def _chunk_to_text(chunk: dict) -> str:
 @lru_cache(maxsize=1)
 def load_kb() -> Dict[str, AnatomyChunk]:
     """Load and cache the knowledge base on first call."""
-    with _KB_PATH.open("r", encoding="utf-8") as f:
-        raw = json.load(f)
     chunks: Dict[str, AnatomyChunk] = {}
-    for entry in raw.get("regions", []):
+    for entry in _raw_kb_entries():
         text = _chunk_to_text(entry)
         chunk = AnatomyChunk(
             id=entry["id"],
@@ -180,7 +357,9 @@ def load_kb() -> Dict[str, AnatomyChunk]:
             common_conditions=entry.get("common_conditions", []),
             red_flags=entry.get("red_flags", []),
             suggested_questions=entry.get("suggested_questions", []),
-            tokens=_tokenize(text),
+            # Documents are indexed exactly as written: no synonym expansion,
+            # only inflections folded onto the corpus's own base forms.
+            tokens=_normalise(_surface_tokens(text)),
         )
         chunks[chunk.id] = chunk
     return chunks
@@ -253,7 +432,9 @@ class RegionKey:
 @lru_cache(maxsize=128)
 def _region_key(region: Optional[str]) -> RegionKey:
     cleaned = re.sub(r"[^a-z0-9 ]", " ", (region or "").strip().lower())
-    words = [word for word in cleaned.split() if len(word) > 2]
+    # Folded through the same normalisation as text, so a tap on "Thighs" and a
+    # monograph titled "Thighs" agree about which body part is meant.
+    words = [canonical_form(word) for word in cleaned.split() if len(word) > 2]
     side = next((word for word in words if word in _SIDE_WORDS), None)
     parts = frozenset(word for word in words if word not in _NON_PART_WORDS)
     locators = frozenset(word for word in words if word in _NON_PART_WORDS)

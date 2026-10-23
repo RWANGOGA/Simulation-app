@@ -14,9 +14,11 @@ writes two kinds of artefact into the Flutter project.
 
 ``simtack/test/fixtures/clinical_golden.json`` — parity vectors. Every case
 records what `triage_service.compute_risk` / `escalation_for` and
-`anatomy_retriever.retrieve` answer today. The Dart ports are tested against
-these, so a transcription slip in either engine fails the test suite instead of
-quietly giving a patient a different score than the practitioner's server.
+`anatomy_retriever.retrieve` answer today, plus the raw output of the lexical
+normalisation (`lexical_vectors`) that decides which words a query is made of.
+The Dart ports are tested against these, so a transcription slip in either
+engine fails the test suite instead of quietly giving a patient a different
+score than the practitioner's server.
 
 Run it whenever the clinical rules or the knowledge base change:
 
@@ -31,6 +33,7 @@ from typing import Any, Dict, List
 from app.data.body_graph import BODY_GRAPH, CONCERN_RISK_BUMP
 from app.schemas import TriageCreate
 from app.services import anatomy_retriever, triage_service
+from scripts.eval_retrieval import load_cases
 
 BACKEND_DIR = Path(__file__).resolve().parent.parent
 APP_DIR = BACKEND_DIR.parent / "simtack"
@@ -325,6 +328,63 @@ def _build_anatomy_cases() -> List[Dict[str, Any]]:
     return cases
 
 
+# Words the lexical vectors probe beyond the corpus itself. A stem that only ever
+# fires on a word nobody indexes is a stem the parity test would never see drift.
+_LEXICAL_EXTRA_WORDS = [
+    "heels", "flanks", "spasms", "colics", "rashes", "nausea", "fever",
+    "vomits", "throats", "lungs", "ribs", "wrists", "elbows", "hips",
+    "shoulders", "neck", "heart", "stress", "gas", "axis", "corpus",
+    "diabetes", "ulnar", "patellar", "ovarian", "sciatica", "menisci",
+    "phalanges", "abscess", "abscesses", "feet", "teeth", "calves",
+]
+
+
+def _eval_query_texts() -> List[str]:
+    """Every complaint the quality gate judges, as a parity probe too.
+
+    The golden anatomy cases are a handful of hand-picked region/query pairs; the
+    eval fixture is 63 phrasings chosen precisely because they are hard - jargon,
+    lay words, referred pain. Those are the strings most likely to expose a
+    missing synonym edge or an over-eager collapse, so the Dart tokenizer is
+    checked against all of them, not only against the ones that happen to score.
+    """
+    return [case.query for case in load_cases()]
+
+
+def _build_lexical_vectors(queries: List[str]) -> Dict[str, Any]:
+    """The two new mechanisms on their own, so parity does not depend on scores.
+
+    30 anatomy cases replaying to 1e-6 proves the ranking agrees *today*. It does
+    not prove the Dart port collapses the same inflections or expands the same
+    synonyms - a drifted stem or an edge present in only one engine can hide
+    behind a well-matched monograph and surface on the next query that nobody
+    thought to vector. These are the raw functions, asserted directly.
+    """
+    probe = set(anatomy_retriever._raw_corpus_terms())
+    probe.update(_LEXICAL_EXTRA_WORDS)
+    for text in [region for region, _ in ANATOMY_QUERIES] + queries:
+        probe.update(anatomy_retriever._surface_tokens(text))
+
+    return {
+        "canonical_form": [
+            {"word": word, "canonical": anatomy_retriever.canonical_form(word)}
+            for word in sorted(probe)
+        ],
+        "expansion": {
+            key: list(targets)
+            for key, targets in sorted(anatomy_retriever._synonym_table().items())
+        },
+        "query_tokens": [
+            {
+                "query": text,
+                "tokens": anatomy_retriever._tokenize(text),
+            }
+            for text in sorted(set(queries))
+            if text
+        ],
+    }
+
+
 def run() -> None:
     summary = _export_runtime_assets()
     golden = {
@@ -336,6 +396,9 @@ def run() -> None:
         ),
         "risk_cases": _build_risk_cases(),
         "anatomy_cases": _build_anatomy_cases(),
+        "lexical_vectors": _build_lexical_vectors(
+            [query for _, query in ANATOMY_QUERIES] + _eval_query_texts()
+        ),
     }
     FIXTURE_PATH.parent.mkdir(parents=True, exist_ok=True)
     FIXTURE_PATH.write_text(
@@ -349,7 +412,8 @@ def run() -> None:
     print(
         f"Wrote {FIXTURE_PATH.relative_to(BACKEND_DIR.parent)}: "
         f"{len(golden['risk_cases'])} risk cases, "
-        f"{len(golden['anatomy_cases'])} anatomy cases."
+        f"{len(golden['anatomy_cases'])} anatomy cases, "
+        f"{len(golden['lexical_vectors']['canonical_form'])} lexical probes."
     )
 
 

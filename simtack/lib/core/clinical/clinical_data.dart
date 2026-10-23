@@ -72,9 +72,14 @@ class ClinicalData {
             .toList(),
     };
 
+    final kbEntries =
+        (kbJson['regions'] as List).whereType<Map<String, dynamic>>().toList();
+    // The inflection collapse is defined by the corpus, so the vocabulary has to
+    // exist before a single chunk is tokenised.
+    AnatomyTokenizer.vocabulary = AnatomyTokenizer.buildVocabulary(kbEntries);
+
     final chunks = <String, AnatomyChunk>{};
-    for (final entry
-        in (kbJson['regions'] as List).whereType<Map<String, dynamic>>()) {
+    for (final entry in kbEntries) {
       final chunk = AnatomyChunk.fromEntry(entry);
       chunks[chunk.id] = chunk;
     }
@@ -299,18 +304,10 @@ class AnatomyChunk {
       commonConditions: conditions,
       redFlags: redFlags,
       suggestedQuestions: questions,
-      // Mirrors _chunk_to_text: critical medical terms are repeated so they
-      // carry more weight in the vector.
-      tokens: AnatomyTokenizer.tokenize([
-        text,
-        ...structures,
-        ...structures,
-        ...conditions,
-        ...conditions,
-        ...redFlags,
-        ...redFlags,
-        ...questions,
-      ].join(' ')),
+      // Mirrors the server's document path: indexed as written, no synonym
+      // expansion, inflections folded onto the corpus's own base forms.
+      tokens:
+          AnatomyTokenizer.indexTokens(AnatomyTokenizer.searchableText(entry)),
     );
   }
 
@@ -352,7 +349,184 @@ class AnatomyTokenizer {
     'arm': ['arm', 'shoulder'],
     'backache': ['back', 'lumbar', 'spine'],
     'back': ['spine', 'lumbar', 'backache'],
+    // Clinical vocabulary: the monographs are written in plain prose, so these
+    // terms reached nothing at all until the backend added them. Mirrored from
+    // MEDICAL_SYNONYMS - test/clinical_parity_test.dart compares the derived
+    // expansion table against the server's, so drift fails the suite.
+    'dyspnea': ['breath', 'shortness', 'chest'],
+    'exertion': ['breath', 'shortness', 'chest'],
+    'orthopnea': ['breath', 'lying', 'chest'],
+    'pleuritic': ['pleura', 'breath', 'chest', 'rib'],
+    'hematemesis': ['blood', 'vomiting', 'stomach'],
+    'hematochezia': ['blood', 'stool', 'bowel'],
+    'melena': ['black', 'tarry', 'stool', 'blood'],
+    'odynophagia': ['throat', 'esophagus', 'gerd'],
+    'dysphagia': ['throat', 'esophagus'],
+    'hepatic': ['liver', 'gallbladder', 'pancreas'],
+    'biliary': ['gallbladder', 'gallstones', 'liver'],
+    'cholelithiasis': ['gallstones', 'gallbladder'],
+    'colic': ['cramp', 'gallstones', 'stone', 'kidney', 'back', 'waves'],
+    'renal': ['kidney', 'ureter', 'stone', 'back', 'groin', 'side'],
+    'diaphoresis': ['sweat', 'sweating'],
+    'syncope': ['fainting', 'faint', 'dizzy'],
+    'crepitus': ['joint', 'knee', 'grinding', 'osteoarthritis'],
+    'edema': ['swelling', 'swollen', 'ankle'],
+    'ambulate': ['bear', 'weight', 'leg'],
+    'flank': ['side', 'back', 'kidney', 'groin'],
+    'emesis': ['vomiting', 'nausea'],
+    'heel': ['foot', 'plantar', 'arch', 'steps'],
+    'ankle': ['foot', 'leg', 'shin'],
+    'shin': ['leg', 'calf', 'ankle'],
+    'instep': ['foot', 'ankle'],
+    'groin': ['hip', 'testicle', 'abdomen', 'pubic'],
+    'jaw': ['mouth', 'neck', 'teeth'],
   };
+
+  /// Suppletive and Latin/Greek plurals, where no suffix rule can help. An entry
+  /// whose base form is absent from [vocabulary] is ignored, so this table cannot
+  /// invent a stem either.
+  static const Map<String, String> _irregularForms = {
+    'feet': 'foot',
+    'teeth': 'tooth',
+    'calves': 'calf',
+    'menisci': 'meniscus',
+    'phalanges': 'phalanx',
+    'ligaments': 'ligament',
+  };
+
+  static const List<String> _sSuffixExclusions = ['ss', 'us', 'is', 'xs'];
+
+  /// Every surface word in the knowledge base, region titles included.
+  ///
+  /// The inflection collapse below is defined *by the corpus*: a form is folded
+  /// onto another only when both occur here. That is what keeps it safe on
+  /// biomedical text, where a general-English stemmer folds 'diabetes' onto a
+  /// non-word and treats '-us' as a suffix. Set once by `ClinicalData.load`
+  /// before any chunk is tokenised; empty means unconfigured, not no vocabulary.
+  static Set<String> vocabulary = const <String>{};
+
+  static final RegExp _wordPattern = RegExp(r'[a-z0-9]+');
+
+  /// The searchable text of an entry: prose, then its critical terms repeated.
+  /// Mirrors `_chunk_to_text`. The region title is deliberately absent - indexing
+  /// it was measured to change no ranking while making 'right'/'left' searchable
+  /// laterality, which the structured filter already owns.
+  static String searchableText(Map<String, dynamic> entry) {
+    List<String> list(String key) =>
+        ((entry[key] as List?) ?? const []).map((e) => e.toString()).toList();
+    final structures = list('structures');
+    final conditions = list('common_conditions');
+    final redFlags = list('red_flags');
+    return [
+      entry['text'] as String? ?? '',
+      ...structures,
+      ...structures,
+      ...conditions,
+      ...conditions,
+      ...redFlags,
+      ...redFlags,
+      ...list('suggested_questions'),
+    ].join(' ');
+  }
+
+  static Set<String> buildVocabulary(Iterable<Map<String, dynamic>> entries) {
+    final words = <String>{};
+    for (final entry in entries) {
+      words.addAll(surfaceTokens(searchableText(entry)));
+      words.addAll(surfaceTokens((entry['region'] as String?) ?? ''));
+    }
+    return words;
+  }
+
+  /// Content words only: lower-cased, no punctuation, stopwords and 1-2 character
+  /// fragments dropped, order preserved, duplicates removed.
+  static List<String> surfaceTokens(String text) {
+    if (text.isEmpty) return const [];
+    final seen = <String>{};
+    final out = <String>[];
+    for (final match in _wordPattern.allMatches(text.toLowerCase())) {
+      final token = match.group(0)!;
+      if (_stopwords.contains(token) || token.length < 3) continue;
+      if (seen.add(token)) out.add(token);
+    }
+    return out;
+  }
+
+  /// Symmetric (key <-> target) expansion edges, one hop only, exactly as the
+  /// server derives them. Group-sharing the targets instead widens 'chest' from 7
+  /// terms to 15 and measured two fewer passing cases on the server's fixture.
+  static final Map<String, List<String>> _expansionTable = () {
+    final table = <String, Set<String>>{};
+    for (final entry in synonyms.entries) {
+      (table[entry.key] ??= <String>{}).addAll(entry.value);
+      for (final target in entry.value) {
+        (table[target] ??= <String>{}).add(entry.key);
+      }
+    }
+    return {
+      for (final entry in table.entries)
+        entry.key: (entry.value.toList()..sort())
+            .where((word) => word != entry.key)
+            .toList(),
+    };
+  }();
+
+  /// The derived table, exposed for `test/clinical_parity_test.dart`: the golden
+  /// fixture records the server's own edges, so a synonym added on one side and
+  /// not the other fails there rather than silently changing what a patient's
+  /// words retrieve.
+  static Map<String, List<String>> get expansionTable => _expansionTable;
+
+  static List<String> expandQuery(List<String> tokens) {
+    final seen = tokens.toSet();
+    final out = <String>[...tokens];
+    for (final token in tokens) {
+      for (final synonym in _expansionTable[token] ?? const <String>[]) {
+        if (seen.add(synonym)) out.add(synonym);
+      }
+    }
+    return out;
+  }
+
+  /// Base form of an inflected word, using only vocabulary the corpus owns.
+  static String canonicalForm(String token) {
+    final irregular = _irregularForms[token];
+    if (irregular != null && vocabulary.contains(irregular)) return irregular;
+    if (token.length > 4 && token.endsWith('ies')) {
+      final base = '${token.substring(0, token.length - 3)}y';
+      if (vocabulary.contains(base)) return base;
+    }
+    if (token.length > 4 && token.endsWith('es')) {
+      final base = token.substring(0, token.length - 2);
+      if (vocabulary.contains(base)) return base;
+    }
+    if (token.length > 3 &&
+        token.endsWith('s') &&
+        !_sSuffixExclusions.any(token.endsWith)) {
+      final base = token.substring(0, token.length - 1);
+      if (vocabulary.contains(base)) return base;
+    }
+    return token;
+  }
+
+  /// Collapse inflections, then drop the duplicates the collapse creates.
+  static List<String> normalise(List<String> tokens) {
+    final seen = <String>{};
+    final out = <String>[];
+    for (final token in tokens) {
+      if (seen.add(canonicalForm(token))) out.add(canonicalForm(token));
+    }
+    return out;
+  }
+
+  /// Document side: indexed exactly as written, no synonym expansion.
+  static List<String> indexTokens(String text) =>
+      normalise(surfaceTokens(text));
+
+  /// Query side, port of `anatomy_retriever._tokenize`: content words, their
+  /// synonym bridge, then inflections folded.
+  static List<String> tokenize(String text) =>
+      normalise(expandQuery(surfaceTokens(text)));
 
   /// Mirrors `_STOPWORDS` in the retriever. Keep the two in step: a function word
   /// the offline engine keeps is a symptom the offline engine invents, and
@@ -388,24 +562,4 @@ class AnatomyTokenizer {
     'seems', 'take', 'takes', 'taking', 'told', 'wants', 'wanted', 'usually',
     'sometimes',
   };
-
-  static final RegExp _wordPattern = RegExp(r'[a-z0-9]+');
-
-  static List<String> tokenize(String text) {
-    if (text.isEmpty) return const [];
-    final seen = <String>{};
-    final out = <String>[];
-    for (final match in _wordPattern.allMatches(text.toLowerCase())) {
-      final token = match.group(0)!;
-      if (_stopwords.contains(token) || token.length < 3) continue;
-      if (seen.add(token)) out.add(token);
-      final expansions = synonyms[token];
-      if (expansions != null) {
-        for (final synonym in expansions) {
-          if (seen.add(synonym)) out.add(synonym);
-        }
-      }
-    }
-    return out;
-  }
 }

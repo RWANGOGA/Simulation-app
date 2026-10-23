@@ -259,7 +259,8 @@ class AnatomyEngine {
     // scored *below* one that did not.
     return {
       for (final entry in documentFrequency.entries)
-        entry.key: math.log(1.0 + (n - entry.value + 0.5) / (entry.value + 0.5)),
+        entry.key:
+            math.log(1.0 + (n - entry.value + 0.5) / (entry.value + 0.5)),
     };
   }
 
@@ -328,7 +329,14 @@ class AnatomyEngine {
   /// parts would make every quadrant of the abdomen "the same region"; ignoring
   /// them entirely would make upper and lower back the same region.
   static const Set<String> _nonPartWords = {
-    'left', 'right', 'upper', 'lower', 'pain', 'side', 'anterior', 'posterior',
+    'left',
+    'right',
+    'upper',
+    'lower',
+    'pain',
+    'side',
+    'anterior',
+    'posterior',
   };
 
   /// The prior on rank for each tier, in the same Reciprocal Rank units as the
@@ -350,15 +358,22 @@ class AnatomyEngine {
   /// Parsed region key per chunk, so the parse happens once per knowledge base
   /// rather than once per query.
   late final Map<String, _RegionKey> _chunkRegionKeys = {
-    for (final entry in _chunks.entries) entry.key: _regionKey(entry.value.region),
+    for (final entry in _chunks.entries)
+      entry.key: _regionKey(entry.value.region),
   };
 
   /// Port of `_region_key`.
   static _RegionKey _regionKey(String region) {
     final cleaned =
         region.trim().toLowerCase().replaceAll(RegExp(r'[^a-z0-9 ]'), ' ');
-    final words =
-        cleaned.split(RegExp(r'\s+')).where((word) => word.length > 2).toList();
+    // Folded through the same normalisation as text, in the same order: drop the
+    // short fragments first, then collapse, so a tap on 'Thighs' and a monograph
+    // titled 'Thighs' agree about which body part is meant.
+    final words = [
+      for (final word
+          in cleaned.split(RegExp(r'\s+')).where((word) => word.length > 2))
+        AnatomyTokenizer.canonicalForm(word)
+    ];
     String? side;
     for (final word in words) {
       if (_sideWords.contains(word)) {

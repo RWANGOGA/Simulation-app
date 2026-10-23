@@ -50,15 +50,15 @@
       "expected": [
         {
           "id": "chest_heart",
-          "score": 0.9719172486624887
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 0.5180676078228208
+          "score": 1.0
         },
         {
           "id": "left_arm_shoulder",
           "score": 0.5097116786643882
+        },
+        {
+          "id": "left_shoulder",
+          "score": 0.5016210170982868
         }
       ],
       "query": "chest pain",
@@ -69,290 +69,14 @@
       "expected": [
         {
           "id": "chest_heart",
-          "score": 0.9719172486624887
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 0.5180676078228208
-        },
-        {
-          "id": "left_arm_shoulder",
-          "score": 0.5097116786643882
-        },
-        {
-          "id": "back_upper",
-          "score": 0.5016210170982868
-        },
-        {
-          "id": "left_shoulder",
-          "score": 0.48998485648530976
-        }
-      ],
-      "query": "chest pain",
-      "region": "Chest / Heart",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "right_arm_shoulder",
-          "score": 0.5180676078228208
-        },
-        {
-          "id": "left_arm_shoulder",
-          "score": 0.5097116786643882
-        },
-        {
-          "id": "back_upper",
-          "score": 0.5016210170982868
-        }
-      ],
-      "query": "chest pain",
-      "region": "",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "right_arm_shoulder",
-          "score": 0.5180676078228208
-        },
-        {
-          "id": "left_arm_shoulder",
-          "score": 0.5097116786643882
-        },
-        {
-          "id": "back_upper",
-          "score": 0.5016210170982868
-        },
-        {
-          "id": "chest_heart",
-          "score": 0.48998485648530976
-        },
-        {
-          "id": "left_shoulder",
-          "score": 0.48998485648530976
-        }
-      ],
-      "query": "chest pain",
-      "region": "",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "headache_cranial",
           "score": 1.0
         },
         {
-          "id": "hips_groin",
+          "id": "left_arm_shoulder",
           "score": 0.5097116786643882
         },
         {
-          "id": "right_shoulder",
-          "score": 0.5016210170982868
-        }
-      ],
-      "query": "severe headache with light sensitivity",
-      "region": "Headache / Cranial",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "headache_cranial",
-          "score": 1.0
-        },
-        {
-          "id": "hips_groin",
-          "score": 0.5097116786643882
-        },
-        {
-          "id": "right_shoulder",
-          "score": 0.5016210170982868
-        },
-        {
           "id": "left_shoulder",
-          "score": 0.4937831887061261
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 0.4788200617756374
-        }
-      ],
-      "query": "severe headache with light sensitivity",
-      "region": "Headache / Cranial",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "abdomen_upper",
-          "score": 1.0
-        },
-        {
-          "id": "abdomen_lower_right",
-          "score": 0.5571148647801764
-        },
-        {
-          "id": "abdomen_lower_left",
-          "score": 0.5335897103802816
-        }
-      ],
-      "query": "burning stomach pain after eating",
-      "region": "Abdomen (Upper)",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "abdomen_upper",
-          "score": 1.0
-        },
-        {
-          "id": "abdomen_lower_right",
-          "score": 0.5571148647801764
-        },
-        {
-          "id": "abdomen_lower_left",
-          "score": 0.5335897103802816
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 0.49770210290220646
-        },
-        {
-          "id": "left_leg_knee",
-          "score": 0.49770210290220646
-        }
-      ],
-      "query": "burning stomach pain after eating",
-      "region": "Abdomen (Upper)",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "back_lower",
-          "score": 0.9761982623971919
-        },
-        {
-          "id": "back_upper",
-          "score": 0.6601376864296176
-        },
-        {
-          "id": "right_ankle",
-          "score": 0.5016210170982868
-        }
-      ],
-      "query": "backache after lifting",
-      "region": "Back Pain (Lower)",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "back_lower",
-          "score": 0.9761982623971919
-        },
-        {
-          "id": "back_upper",
-          "score": 0.6601376864296176
-        },
-        {
-          "id": "right_ankle",
-          "score": 0.5016210170982868
-        },
-        {
-          "id": "right_thigh",
-          "score": 0.4984438347992292
-        },
-        {
-          "id": "left_ankle",
-          "score": 0.4937831887061261
-        }
-      ],
-      "query": "backache after lifting",
-      "region": "Back Pain (Lower)",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "left_arm_shoulder",
-          "score": 0.9875987400585166
-        },
-        {
-          "id": "left_shoulder",
-          "score": 0.5373880426010978
-        },
-        {
-          "id": "left_elbow",
-          "score": 0.5180676078228208
-        }
-      ],
-      "query": "shoulder pain when lifting the arm",
-      "region": "Left Arm / Shoulder",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "left_arm_shoulder",
-          "score": 0.9875987400585166
-        },
-        {
-          "id": "left_shoulder",
-          "score": 0.5373880426010978
-        },
-        {
-          "id": "left_elbow",
-          "score": 0.5180676078228208
-        },
-        {
-          "id": "abdomen_upper",
-          "score": 0.5017474336852571
-        },
-        {
-          "id": "neck",
-          "score": 0.4939037706813901
-        }
-      ],
-      "query": "shoulder pain when lifting the arm",
-      "region": "Left Arm / Shoulder",
-      "top_k": 5
-    },
-    {
-      "expected": [
-        {
-          "id": "right_leg_knee",
-          "score": 0.5612928293593927
-        },
-        {
-          "id": "thighs",
-          "score": 0.5138896432436045
-        },
-        {
-          "id": "right_shin_calf",
-          "score": 0.5016210170982868
-        }
-      ],
-      "query": "calf pain when walking",
-      "region": "Right Leg",
-      "top_k": 3
-    },
-    {
-      "expected": [
-        {
-          "id": "right_leg_knee",
-          "score": 0.5612928293593927
-        },
-        {
-          "id": "thighs",
-          "score": 0.5138896432436045
-        },
-        {
-          "id": "right_shin_calf",
           "score": 0.5016210170982868
         },
         {
@@ -360,46 +84,184 @@
           "score": 0.4937831887061261
         },
         {
-          "id": "hips_groin",
+          "id": "back_upper",
           "score": 0.4861865242644934
         }
       ],
-      "query": "calf pain when walking",
-      "region": "Right Leg",
+      "query": "chest pain",
+      "region": "Chest / Heart",
       "top_k": 5
     },
     {
       "expected": [
         {
-          "id": "neck",
-          "score": 0.9875987400585166
-        },
-        {
-          "id": "right_arm_shoulder",
+          "id": "chest_heart",
           "score": 0.5180676078228208
         },
         {
           "id": "left_arm_shoulder",
-          "score": 0.5056663478813375
+          "score": 0.5097116786643882
+        },
+        {
+          "id": "left_shoulder",
+          "score": 0.5016210170982868
         }
       ],
-      "query": "stiff neck with arm tingling",
-      "region": "Neck",
+      "query": "chest pain",
+      "region": "",
       "top_k": 3
     },
     {
       "expected": [
         {
-          "id": "neck",
-          "score": 0.9875987400585166
-        },
-        {
-          "id": "right_arm_shoulder",
+          "id": "chest_heart",
           "score": 0.5180676078228208
         },
         {
           "id": "left_arm_shoulder",
-          "score": 0.5056663478813375
+          "score": 0.5097116786643882
+        },
+        {
+          "id": "left_shoulder",
+          "score": 0.5016210170982868
+        },
+        {
+          "id": "right_arm_shoulder",
+          "score": 0.4937831887061261
+        },
+        {
+          "id": "back_upper",
+          "score": 0.4861865242644934
+        }
+      ],
+      "query": "chest pain",
+      "region": "",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "headache_cranial",
+          "score": 1.0
+        },
+        {
+          "id": "hips_groin",
+          "score": 0.5097116786643882
+        },
+        {
+          "id": "right_shoulder",
+          "score": 0.5016210170982868
+        }
+      ],
+      "query": "severe headache with light sensitivity",
+      "region": "Headache / Cranial",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "headache_cranial",
+          "score": 1.0
+        },
+        {
+          "id": "hips_groin",
+          "score": 0.5097116786643882
+        },
+        {
+          "id": "right_shoulder",
+          "score": 0.5016210170982868
+        },
+        {
+          "id": "left_shoulder",
+          "score": 0.4937831887061261
+        },
+        {
+          "id": "right_arm_shoulder",
+          "score": 0.47524677773253565
+        }
+      ],
+      "query": "severe headache with light sensitivity",
+      "region": "Headache / Cranial",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "abdomen_upper",
+          "score": 1.0
+        },
+        {
+          "id": "abdomen_lower_right",
+          "score": 0.5571148647801764
+        },
+        {
+          "id": "abdomen_lower_left",
+          "score": 0.5335897103802816
+        }
+      ],
+      "query": "burning stomach pain after eating",
+      "region": "Abdomen (Upper)",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "abdomen_upper",
+          "score": 1.0
+        },
+        {
+          "id": "abdomen_lower_right",
+          "score": 0.5571148647801764
+        },
+        {
+          "id": "abdomen_lower_left",
+          "score": 0.5335897103802816
+        },
+        {
+          "id": "left_leg_knee",
+          "score": 0.5016210170982868
+        },
+        {
+          "id": "right_arm_shoulder",
+          "score": 0.4937831887061261
+        }
+      ],
+      "query": "burning stomach pain after eating",
+      "region": "Abdomen (Upper)",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "back_lower",
+          "score": 1.0
+        },
+        {
+          "id": "back_upper",
+          "score": 0.6677222990503486
+        },
+        {
+          "id": "neck",
+          "score": 0.5016210170982868
+        }
+      ],
+      "query": "backache after lifting",
+      "region": "Back Pain (Lower)",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "back_lower",
+          "score": 1.0
+        },
+        {
+          "id": "back_upper",
+          "score": 0.6677222990503486
+        },
+        {
+          "id": "neck",
+          "score": 0.5016210170982868
         },
         {
           "id": "right_elbow",
@@ -410,6 +272,144 @@
           "score": 0.4861865242644934
         }
       ],
+      "query": "backache after lifting",
+      "region": "Back Pain (Lower)",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "left_arm_shoulder",
+          "score": 0.9836798258624362
+        },
+        {
+          "id": "left_shoulder",
+          "score": 0.5491506198010453
+        },
+        {
+          "id": "left_elbow",
+          "score": 0.5180676078228208
+        }
+      ],
+      "query": "shoulder pain when lifting the arm",
+      "region": "Left Arm / Shoulder",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "left_arm_shoulder",
+          "score": 0.9836798258624362
+        },
+        {
+          "id": "left_shoulder",
+          "score": 0.5491506198010453
+        },
+        {
+          "id": "left_elbow",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "neck",
+          "score": 0.5016210170982868
+        },
+        {
+          "id": "abdomen_upper",
+          "score": 0.4861865242644934
+        }
+      ],
+      "query": "shoulder pain when lifting the arm",
+      "region": "Left Arm / Shoulder",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "right_leg_knee",
+          "score": 0.5530695339971257
+        },
+        {
+          "id": "right_shin_calf",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "thighs",
+          "score": 0.5056663478813375
+        }
+      ],
+      "query": "calf pain when walking",
+      "region": "Right Leg",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "right_leg_knee",
+          "score": 0.5530695339971257
+        },
+        {
+          "id": "right_shin_calf",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "thighs",
+          "score": 0.5056663478813375
+        },
+        {
+          "id": "hips_groin",
+          "score": 0.48998485648530976
+        },
+        {
+          "id": "right_arm_shoulder",
+          "score": 0.4863016252408818
+        }
+      ],
+      "query": "calf pain when walking",
+      "region": "Right Leg",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "neck",
+          "score": 0.9836798258624362
+        },
+        {
+          "id": "right_arm_shoulder",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "chest_heart",
+          "score": 0.5017474336852571
+        }
+      ],
+      "query": "stiff neck with arm tingling",
+      "region": "Neck",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "neck",
+          "score": 0.9836798258624362
+        },
+        {
+          "id": "right_arm_shoulder",
+          "score": 0.5180676078228208
+        },
+        {
+          "id": "chest_heart",
+          "score": 0.5017474336852571
+        },
+        {
+          "id": "left_arm_shoulder",
+          "score": 0.5016210170982868
+        },
+        {
+          "id": "right_shoulder",
+          "score": 0.4825032930200654
+        }
+      ],
       "query": "stiff neck with arm tingling",
       "region": "Neck",
       "top_k": 5
@@ -471,8 +471,8 @@
           "score": 0.5097116786643882
         },
         {
-          "id": "back_upper",
-          "score": 0.5016210170982868
+          "id": "chest_heart",
+          "score": 0.49770210290220646
         }
       ],
       "query": "breathless",
@@ -490,16 +490,16 @@
           "score": 0.5097116786643882
         },
         {
-          "id": "back_upper",
-          "score": 0.5016210170982868
-        },
-        {
           "id": "chest_heart",
-          "score": 0.48998485648530976
+          "score": 0.49770210290220646
         },
         {
           "id": "left_shoulder",
-          "score": 0.48998485648530976
+          "score": 0.49770210290220646
+        },
+        {
+          "id": "back_upper",
+          "score": 0.4861865242644934
         }
       ],
       "query": "breathless",
@@ -510,15 +510,15 @@
       "expected": [
         {
           "id": "hips_groin",
-          "score": 0.5571148647801764
+          "score": 0.565470793938609
         },
         {
           "id": "headache_cranial",
-          "score": 0.5180676078228208
+          "score": 0.5056663478813375
         },
         {
-          "id": "back_lower",
-          "score": 0.49770210290220646
+          "id": "left_leg_knee",
+          "score": 0.5056663478813375
         }
       ],
       "query": "groin pain on one side",
@@ -529,23 +529,23 @@
       "expected": [
         {
           "id": "hips_groin",
-          "score": 0.5571148647801764
+          "score": 0.565470793938609
         },
         {
           "id": "headache_cranial",
-          "score": 0.5180676078228208
-        },
-        {
-          "id": "back_lower",
-          "score": 0.49770210290220646
+          "score": 0.5056663478813375
         },
         {
           "id": "left_leg_knee",
-          "score": 0.49770210290220646
+          "score": 0.5056663478813375
         },
         {
-          "id": "thighs",
-          "score": 0.47524677773253565
+          "id": "back_lower",
+          "score": 0.4937831887061261
+        },
+        {
+          "id": "abdomen_lower_right",
+          "score": 0.4861865242644934
         }
       ],
       "query": "groin pain on one side",
@@ -598,15 +598,15 @@
       "expected": [
         {
           "id": "right_ankle",
-          "score": 0.565470793938609
+          "score": 0.549024203214075
         },
         {
           "id": "left_ankle",
-          "score": 0.5571148647801764
+          "score": 0.5411863748219142
         },
         {
-          "id": "thighs",
-          "score": 0.49770210290220646
+          "id": "right_foot",
+          "score": 0.5335897103802816
         }
       ],
       "query": "sprained ankle swelling",
@@ -617,23 +617,23 @@
       "expected": [
         {
           "id": "right_ankle",
-          "score": 0.565470793938609
+          "score": 0.549024203214075
         },
         {
           "id": "left_ankle",
-          "score": 0.5571148647801764
-        },
-        {
-          "id": "thighs",
-          "score": 0.49770210290220646
+          "score": 0.5411863748219142
         },
         {
           "id": "right_foot",
-          "score": 0.49622465014520806
+          "score": 0.5335897103802816
         },
         {
-          "id": "right_leg_knee",
-          "score": 0.4939037706813901
+          "id": "left_foot",
+          "score": 0.5262232478914256
+        },
+        {
+          "id": "right_shin_calf",
+          "score": 0.5180676078228208
         }
       ],
       "query": "sprained ankle swelling",
@@ -642,6 +642,3880 @@
     }
   ],
   "generated_by": "scripts/export_offline_assets.py",
+  "lexical_vectors": {
+    "canonical_form": [
+      {
+        "canonical": "abdomen",
+        "word": "abdomen"
+      },
+      {
+        "canonical": "abdominal",
+        "word": "abdominal"
+      },
+      {
+        "canonical": "about",
+        "word": "about"
+      },
+      {
+        "canonical": "above",
+        "word": "above"
+      },
+      {
+        "canonical": "abscess",
+        "word": "abscess"
+      },
+      {
+        "canonical": "abscess",
+        "word": "abscesses"
+      },
+      {
+        "canonical": "ache",
+        "word": "ache"
+      },
+      {
+        "canonical": "achilles",
+        "word": "achilles"
+      },
+      {
+        "canonical": "acl",
+        "word": "acl"
+      },
+      {
+        "canonical": "acromioclavicular",
+        "word": "acromioclavicular"
+      },
+      {
+        "canonical": "activity",
+        "word": "activity"
+      },
+      {
+        "canonical": "addition",
+        "word": "addition"
+      },
+      {
+        "canonical": "adhesive",
+        "word": "adhesive"
+      },
+      {
+        "canonical": "affected",
+        "word": "affected"
+      },
+      {
+        "canonical": "after",
+        "word": "after"
+      },
+      {
+        "canonical": "all",
+        "word": "all"
+      },
+      {
+        "canonical": "along",
+        "word": "along"
+      },
+      {
+        "canonical": "alongside",
+        "word": "alongside"
+      },
+      {
+        "canonical": "also",
+        "word": "also"
+      },
+      {
+        "canonical": "angina",
+        "word": "angina"
+      },
+      {
+        "canonical": "ankle",
+        "word": "ankle"
+      },
+      {
+        "canonical": "anterior",
+        "word": "anterior"
+      },
+      {
+        "canonical": "antibiotics",
+        "word": "antibiotics"
+      },
+      {
+        "canonical": "anxious",
+        "word": "anxious"
+      },
+      {
+        "canonical": "appendicitis",
+        "word": "appendicitis"
+      },
+      {
+        "canonical": "appendix",
+        "word": "appendix"
+      },
+      {
+        "canonical": "applicable",
+        "word": "applicable"
+      },
+      {
+        "canonical": "arch",
+        "word": "arch"
+      },
+      {
+        "canonical": "area",
+        "word": "area"
+      },
+      {
+        "canonical": "arise",
+        "word": "arise"
+      },
+      {
+        "canonical": "arm",
+        "word": "arm"
+      },
+      {
+        "canonical": "armpit",
+        "word": "armpit"
+      },
+      {
+        "canonical": "arm",
+        "word": "arms"
+      },
+      {
+        "canonical": "around",
+        "word": "around"
+      },
+      {
+        "canonical": "artery",
+        "word": "arteries"
+      },
+      {
+        "canonical": "artery",
+        "word": "artery"
+      },
+      {
+        "canonical": "arthritis",
+        "word": "arthritis"
+      },
+      {
+        "canonical": "ask",
+        "word": "ask"
+      },
+      {
+        "canonical": "associated",
+        "word": "associated"
+      },
+      {
+        "canonical": "assuming",
+        "word": "assuming"
+      },
+      {
+        "canonical": "attack",
+        "word": "attack"
+      },
+      {
+        "canonical": "attention",
+        "word": "attention"
+      },
+      {
+        "canonical": "axillary",
+        "word": "axillary"
+      },
+      {
+        "canonical": "axis",
+        "word": "axis"
+      },
+      {
+        "canonical": "baby",
+        "word": "baby"
+      },
+      {
+        "canonical": "back",
+        "word": "back"
+      },
+      {
+        "canonical": "backache",
+        "word": "backache"
+      },
+      {
+        "canonical": "baker",
+        "word": "baker"
+      },
+      {
+        "canonical": "band",
+        "word": "band"
+      },
+      {
+        "canonical": "bear",
+        "word": "bear"
+      },
+      {
+        "canonical": "bed",
+        "word": "bed"
+      },
+      {
+        "canonical": "behind",
+        "word": "behind"
+      },
+      {
+        "canonical": "bend",
+        "word": "bend"
+      },
+      {
+        "canonical": "big",
+        "word": "big"
+      },
+      {
+        "canonical": "biopsy",
+        "word": "biopsy"
+      },
+      {
+        "canonical": "bite",
+        "word": "bite"
+      },
+      {
+        "canonical": "bite",
+        "word": "bites"
+      },
+      {
+        "canonical": "black",
+        "word": "black"
+      },
+      {
+        "canonical": "bladder",
+        "word": "bladder"
+      },
+      {
+        "canonical": "blood",
+        "word": "blood"
+      },
+      {
+        "canonical": "bone",
+        "word": "bone"
+      },
+      {
+        "canonical": "bone",
+        "word": "bones"
+      },
+      {
+        "canonical": "bowel",
+        "word": "bowel"
+      },
+      {
+        "canonical": "brachial",
+        "word": "brachial"
+      },
+      {
+        "canonical": "brain",
+        "word": "brain"
+      },
+      {
+        "canonical": "breath",
+        "word": "breath"
+      },
+      {
+        "canonical": "breathe",
+        "word": "breathe"
+      },
+      {
+        "canonical": "breathless",
+        "word": "breathless"
+      },
+      {
+        "canonical": "bronchi",
+        "word": "bronchi"
+      },
+      {
+        "canonical": "bruising",
+        "word": "bruising"
+      },
+      {
+        "canonical": "build",
+        "word": "build"
+      },
+      {
+        "canonical": "bulge",
+        "word": "bulge"
+      },
+      {
+        "canonical": "bunion",
+        "word": "bunion"
+      },
+      {
+        "canonical": "burning",
+        "word": "burning"
+      },
+      {
+        "canonical": "bursa",
+        "word": "bursa"
+      },
+      {
+        "canonical": "bursitis",
+        "word": "bursitis"
+      },
+      {
+        "canonical": "but",
+        "word": "but"
+      },
+      {
+        "canonical": "cage",
+        "word": "cage"
+      },
+      {
+        "canonical": "calcaneofibular",
+        "word": "calcaneofibular"
+      },
+      {
+        "canonical": "calf",
+        "word": "calf"
+      },
+      {
+        "canonical": "calf",
+        "word": "calves"
+      },
+      {
+        "canonical": "cancerous",
+        "word": "cancerous"
+      },
+      {
+        "canonical": "capsulitis",
+        "word": "capsulitis"
+      },
+      {
+        "canonical": "cardiac",
+        "word": "cardiac"
+      },
+      {
+        "canonical": "care",
+        "word": "care"
+      },
+      {
+        "canonical": "carotid",
+        "word": "carotid"
+      },
+      {
+        "canonical": "carpal",
+        "word": "carpal"
+      },
+      {
+        "canonical": "carry",
+        "word": "carry"
+      },
+      {
+        "canonical": "catching",
+        "word": "catching"
+      },
+      {
+        "canonical": "cause",
+        "word": "cause"
+      },
+      {
+        "canonical": "cause",
+        "word": "causes"
+      },
+      {
+        "canonical": "cecum",
+        "word": "cecum"
+      },
+      {
+        "canonical": "central",
+        "word": "central"
+      },
+      {
+        "canonical": "cerebrum",
+        "word": "cerebrum"
+      },
+      {
+        "canonical": "cervical",
+        "word": "cervical"
+      },
+      {
+        "canonical": "change",
+        "word": "change"
+      },
+      {
+        "canonical": "change",
+        "word": "changes"
+      },
+      {
+        "canonical": "chest",
+        "word": "chest"
+      },
+      {
+        "canonical": "cholecystitis",
+        "word": "cholecystitis"
+      },
+      {
+        "canonical": "classic",
+        "word": "classic"
+      },
+      {
+        "canonical": "classically",
+        "word": "classically"
+      },
+      {
+        "canonical": "clear",
+        "word": "clear"
+      },
+      {
+        "canonical": "clot",
+        "word": "clot"
+      },
+      {
+        "canonical": "cluster",
+        "word": "cluster"
+      },
+      {
+        "canonical": "cold",
+        "word": "cold"
+      },
+      {
+        "canonical": "coldness",
+        "word": "coldness"
+      },
+      {
+        "canonical": "colic",
+        "word": "colic"
+      },
+      {
+        "canonical": "colics",
+        "word": "colics"
+      },
+      {
+        "canonical": "collateral",
+        "word": "collateral"
+      },
+      {
+        "canonical": "colon",
+        "word": "colon"
+      },
+      {
+        "canonical": "color",
+        "word": "color"
+      },
+      {
+        "canonical": "common",
+        "word": "common"
+      },
+      {
+        "canonical": "commonly",
+        "word": "commonly"
+      },
+      {
+        "canonical": "compartment",
+        "word": "compartment"
+      },
+      {
+        "canonical": "complete",
+        "word": "complete"
+      },
+      {
+        "canonical": "compression",
+        "word": "compression"
+      },
+      {
+        "canonical": "condition",
+        "word": "condition"
+      },
+      {
+        "canonical": "condition",
+        "word": "conditions"
+      },
+      {
+        "canonical": "constipation",
+        "word": "constipation"
+      },
+      {
+        "canonical": "control",
+        "word": "control"
+      },
+      {
+        "canonical": "contusion",
+        "word": "contusion"
+      },
+      {
+        "canonical": "coronary",
+        "word": "coronary"
+      },
+      {
+        "canonical": "corpus",
+        "word": "corpus"
+      },
+      {
+        "canonical": "costochondritis",
+        "word": "costochondritis"
+      },
+      {
+        "canonical": "costovertebral",
+        "word": "costovertebral"
+      },
+      {
+        "canonical": "cramp",
+        "word": "cramp"
+      },
+      {
+        "canonical": "cranial",
+        "word": "cranial"
+      },
+      {
+        "canonical": "cranium",
+        "word": "cranium"
+      },
+      {
+        "canonical": "crepitus",
+        "word": "crepitus"
+      },
+      {
+        "canonical": "crohn",
+        "word": "crohn"
+      },
+      {
+        "canonical": "cruciate",
+        "word": "cruciate"
+      },
+      {
+        "canonical": "crushing",
+        "word": "crushing"
+      },
+      {
+        "canonical": "cuff",
+        "word": "cuff"
+      },
+      {
+        "canonical": "cut",
+        "word": "cut"
+      },
+      {
+        "canonical": "cut",
+        "word": "cuts"
+      },
+      {
+        "canonical": "cyst",
+        "word": "cyst"
+      },
+      {
+        "canonical": "days",
+        "word": "days"
+      },
+      {
+        "canonical": "deep",
+        "word": "deep"
+      },
+      {
+        "canonical": "deeply",
+        "word": "deeply"
+      },
+      {
+        "canonical": "deficit",
+        "word": "deficit"
+      },
+      {
+        "canonical": "deficit",
+        "word": "deficits"
+      },
+      {
+        "canonical": "deformity",
+        "word": "deformity"
+      },
+      {
+        "canonical": "deltoid",
+        "word": "deltoid"
+      },
+      {
+        "canonical": "diabetes",
+        "word": "diabetes"
+      },
+      {
+        "canonical": "diabetic",
+        "word": "diabetic"
+      },
+      {
+        "canonical": "diaphoresis",
+        "word": "diaphoresis"
+      },
+      {
+        "canonical": "diaphragm",
+        "word": "diaphragm"
+      },
+      {
+        "canonical": "difficulty",
+        "word": "difficulty"
+      },
+      {
+        "canonical": "digital",
+        "word": "digital"
+      },
+      {
+        "canonical": "disc",
+        "word": "disc"
+      },
+      {
+        "canonical": "discharging",
+        "word": "discharging"
+      },
+      {
+        "canonical": "discoloration",
+        "word": "discoloration"
+      },
+      {
+        "canonical": "disc",
+        "word": "discs"
+      },
+      {
+        "canonical": "disease",
+        "word": "disease"
+      },
+      {
+        "canonical": "distal",
+        "word": "distal"
+      },
+      {
+        "canonical": "diverticulitis",
+        "word": "diverticulitis"
+      },
+      {
+        "canonical": "down",
+        "word": "down"
+      },
+      {
+        "canonical": "draining",
+        "word": "draining"
+      },
+      {
+        "canonical": "drains",
+        "word": "drains"
+      },
+      {
+        "canonical": "dull",
+        "word": "dull"
+      },
+      {
+        "canonical": "duodenum",
+        "word": "duodenum"
+      },
+      {
+        "canonical": "dvt",
+        "word": "dvt"
+      },
+      {
+        "canonical": "dysfunction",
+        "word": "dysfunction"
+      },
+      {
+        "canonical": "dyspnea",
+        "word": "dyspnea"
+      },
+      {
+        "canonical": "ear",
+        "word": "ear"
+      },
+      {
+        "canonical": "early",
+        "word": "early"
+      },
+      {
+        "canonical": "easily",
+        "word": "easily"
+      },
+      {
+        "canonical": "easy",
+        "word": "easy"
+      },
+      {
+        "canonical": "eating",
+        "word": "eating"
+      },
+      {
+        "canonical": "ectopic",
+        "word": "ectopic"
+      },
+      {
+        "canonical": "elbow",
+        "word": "elbow"
+      },
+      {
+        "canonical": "elbow",
+        "word": "elbows"
+      },
+      {
+        "canonical": "embolism",
+        "word": "embolism"
+      },
+      {
+        "canonical": "enlarging",
+        "word": "enlarging"
+      },
+      {
+        "canonical": "entrapment",
+        "word": "entrapment"
+      },
+      {
+        "canonical": "epicondylitis",
+        "word": "epicondylitis"
+      },
+      {
+        "canonical": "erector",
+        "word": "erector"
+      },
+      {
+        "canonical": "esophagus",
+        "word": "esophagus"
+      },
+      {
+        "canonical": "especially",
+        "word": "especially"
+      },
+      {
+        "canonical": "ever",
+        "word": "ever"
+      },
+      {
+        "canonical": "exam",
+        "word": "exam"
+      },
+      {
+        "canonical": "exercise",
+        "word": "exercise"
+      },
+      {
+        "canonical": "exertion",
+        "word": "exertion"
+      },
+      {
+        "canonical": "extensor",
+        "word": "extensor"
+      },
+      {
+        "canonical": "extremely",
+        "word": "extremely"
+      },
+      {
+        "canonical": "eyes",
+        "word": "eyes"
+      },
+      {
+        "canonical": "fainting",
+        "word": "fainting"
+      },
+      {
+        "canonical": "fall",
+        "word": "fall"
+      },
+      {
+        "canonical": "fallopian",
+        "word": "fallopian"
+      },
+      {
+        "canonical": "fascia",
+        "word": "fascia"
+      },
+      {
+        "canonical": "fasciitis",
+        "word": "fasciitis"
+      },
+      {
+        "canonical": "fatty",
+        "word": "fatty"
+      },
+      {
+        "canonical": "feeding",
+        "word": "feeding"
+      },
+      {
+        "canonical": "foot",
+        "word": "feet"
+      },
+      {
+        "canonical": "fell",
+        "word": "fell"
+      },
+      {
+        "canonical": "females",
+        "word": "females"
+      },
+      {
+        "canonical": "femoral",
+        "word": "femoral"
+      },
+      {
+        "canonical": "femur",
+        "word": "femur"
+      },
+      {
+        "canonical": "fever",
+        "word": "fever"
+      },
+      {
+        "canonical": "few",
+        "word": "few"
+      },
+      {
+        "canonical": "fibula",
+        "word": "fibula"
+      },
+      {
+        "canonical": "finger",
+        "word": "finger"
+      },
+      {
+        "canonical": "finger",
+        "word": "fingers"
+      },
+      {
+        "canonical": "firm",
+        "word": "firm"
+      },
+      {
+        "canonical": "first",
+        "word": "first"
+      },
+      {
+        "canonical": "fixed",
+        "word": "fixed"
+      },
+      {
+        "canonical": "flag",
+        "word": "flag"
+      },
+      {
+        "canonical": "flag",
+        "word": "flags"
+      },
+      {
+        "canonical": "flank",
+        "word": "flank"
+      },
+      {
+        "canonical": "flanks",
+        "word": "flanks"
+      },
+      {
+        "canonical": "flexor",
+        "word": "flexor"
+      },
+      {
+        "canonical": "flight",
+        "word": "flight"
+      },
+      {
+        "canonical": "fluid",
+        "word": "fluid"
+      },
+      {
+        "canonical": "follicle",
+        "word": "follicle"
+      },
+      {
+        "canonical": "follicle",
+        "word": "follicles"
+      },
+      {
+        "canonical": "folliculitis",
+        "word": "folliculitis"
+      },
+      {
+        "canonical": "food",
+        "word": "food"
+      },
+      {
+        "canonical": "foot",
+        "word": "foot"
+      },
+      {
+        "canonical": "footwear",
+        "word": "footwear"
+      },
+      {
+        "canonical": "fracture",
+        "word": "fracture"
+      },
+      {
+        "canonical": "fracture",
+        "word": "fractures"
+      },
+      {
+        "canonical": "frozen",
+        "word": "frozen"
+      },
+      {
+        "canonical": "fully",
+        "word": "fully"
+      },
+      {
+        "canonical": "funny",
+        "word": "funny"
+      },
+      {
+        "canonical": "gallbladder",
+        "word": "gallbladder"
+      },
+      {
+        "canonical": "gallstones",
+        "word": "gallstones"
+      },
+      {
+        "canonical": "ganglion",
+        "word": "ganglion"
+      },
+      {
+        "canonical": "gas",
+        "word": "gas"
+      },
+      {
+        "canonical": "gastritis",
+        "word": "gastritis"
+      },
+      {
+        "canonical": "gastrocnemius",
+        "word": "gastrocnemius"
+      },
+      {
+        "canonical": "gastrointestinal",
+        "word": "gastrointestinal"
+      },
+      {
+        "canonical": "gerd",
+        "word": "gerd"
+      },
+      {
+        "canonical": "gives",
+        "word": "gives"
+      },
+      {
+        "canonical": "giving",
+        "word": "giving"
+      },
+      {
+        "canonical": "gland",
+        "word": "gland"
+      },
+      {
+        "canonical": "gland",
+        "word": "glands"
+      },
+      {
+        "canonical": "glenohumeral",
+        "word": "glenohumeral"
+      },
+      {
+        "canonical": "golfer",
+        "word": "golfer"
+      },
+      {
+        "canonical": "gout",
+        "word": "gout"
+      },
+      {
+        "canonical": "gradually",
+        "word": "gradually"
+      },
+      {
+        "canonical": "gripping",
+        "word": "gripping"
+      },
+      {
+        "canonical": "groin",
+        "word": "groin"
+      },
+      {
+        "canonical": "growing",
+        "word": "growing"
+      },
+      {
+        "canonical": "habits",
+        "word": "habits"
+      },
+      {
+        "canonical": "hair",
+        "word": "hair"
+      },
+      {
+        "canonical": "hallux",
+        "word": "hallux"
+      },
+      {
+        "canonical": "hamstring",
+        "word": "hamstring"
+      },
+      {
+        "canonical": "hand",
+        "word": "hand"
+      },
+      {
+        "canonical": "hard",
+        "word": "hard"
+      },
+      {
+        "canonical": "head",
+        "word": "head"
+      },
+      {
+        "canonical": "headache",
+        "word": "headache"
+      },
+      {
+        "canonical": "healing",
+        "word": "healing"
+      },
+      {
+        "canonical": "hear",
+        "word": "hear"
+      },
+      {
+        "canonical": "heard",
+        "word": "heard"
+      },
+      {
+        "canonical": "heart",
+        "word": "heart"
+      },
+      {
+        "canonical": "heel",
+        "word": "heel"
+      },
+      {
+        "canonical": "heels",
+        "word": "heels"
+      },
+      {
+        "canonical": "hematochezia",
+        "word": "hematochezia"
+      },
+      {
+        "canonical": "hematuria",
+        "word": "hematuria"
+      },
+      {
+        "canonical": "hepatic",
+        "word": "hepatic"
+      },
+      {
+        "canonical": "hepatitis",
+        "word": "hepatitis"
+      },
+      {
+        "canonical": "hernia",
+        "word": "hernia"
+      },
+      {
+        "canonical": "herniation",
+        "word": "herniation"
+      },
+      {
+        "canonical": "hidradenitis",
+        "word": "hidradenitis"
+      },
+      {
+        "canonical": "high",
+        "word": "high"
+      },
+      {
+        "canonical": "hip",
+        "word": "hip"
+      },
+      {
+        "canonical": "hip",
+        "word": "hips"
+      },
+      {
+        "canonical": "home",
+        "word": "home"
+      },
+      {
+        "canonical": "hot",
+        "word": "hot"
+      },
+      {
+        "canonical": "humerus",
+        "word": "humerus"
+      },
+      {
+        "canonical": "hurts",
+        "word": "hurts"
+      },
+      {
+        "canonical": "hypertensive",
+        "word": "hypertensive"
+      },
+      {
+        "canonical": "immobility",
+        "word": "immobility"
+      },
+      {
+        "canonical": "immobilization",
+        "word": "immobilization"
+      },
+      {
+        "canonical": "impingement",
+        "word": "impingement"
+      },
+      {
+        "canonical": "inability",
+        "word": "inability"
+      },
+      {
+        "canonical": "include",
+        "word": "include"
+      },
+      {
+        "canonical": "including",
+        "word": "including"
+      },
+      {
+        "canonical": "increase",
+        "word": "increase"
+      },
+      {
+        "canonical": "index",
+        "word": "index"
+      },
+      {
+        "canonical": "infarction",
+        "word": "infarction"
+      },
+      {
+        "canonical": "infected",
+        "word": "infected"
+      },
+      {
+        "canonical": "infection",
+        "word": "infection"
+      },
+      {
+        "canonical": "infection",
+        "word": "infections"
+      },
+      {
+        "canonical": "inflammation",
+        "word": "inflammation"
+      },
+      {
+        "canonical": "infraspinatus",
+        "word": "infraspinatus"
+      },
+      {
+        "canonical": "inguinal",
+        "word": "inguinal"
+      },
+      {
+        "canonical": "injury",
+        "word": "injury"
+      },
+      {
+        "canonical": "inner",
+        "word": "inner"
+      },
+      {
+        "canonical": "intercostal",
+        "word": "intercostal"
+      },
+      {
+        "canonical": "intervertebral",
+        "word": "intervertebral"
+      },
+      {
+        "canonical": "involve",
+        "word": "involve"
+      },
+      {
+        "canonical": "irritation",
+        "word": "irritation"
+      },
+      {
+        "canonical": "itches",
+        "word": "itches"
+      },
+      {
+        "canonical": "itself",
+        "word": "itself"
+      },
+      {
+        "canonical": "jaundice",
+        "word": "jaundice"
+      },
+      {
+        "canonical": "jaw",
+        "word": "jaw"
+      },
+      {
+        "canonical": "joint",
+        "word": "joint"
+      },
+      {
+        "canonical": "joint",
+        "word": "joints"
+      },
+      {
+        "canonical": "kidney",
+        "word": "kidney"
+      },
+      {
+        "canonical": "kidney",
+        "word": "kidneys"
+      },
+      {
+        "canonical": "knee",
+        "word": "knee"
+      },
+      {
+        "canonical": "last",
+        "word": "last"
+      },
+      {
+        "canonical": "lasting",
+        "word": "lasting"
+      },
+      {
+        "canonical": "later",
+        "word": "later"
+      },
+      {
+        "canonical": "lateral",
+        "word": "lateral"
+      },
+      {
+        "canonical": "left",
+        "word": "left"
+      },
+      {
+        "canonical": "leg",
+        "word": "leg"
+      },
+      {
+        "canonical": "leg",
+        "word": "legs"
+      },
+      {
+        "canonical": "life",
+        "word": "life"
+      },
+      {
+        "canonical": "lift",
+        "word": "lift"
+      },
+      {
+        "canonical": "lifting",
+        "word": "lifting"
+      },
+      {
+        "canonical": "ligament",
+        "word": "ligament"
+      },
+      {
+        "canonical": "ligament",
+        "word": "ligaments"
+      },
+      {
+        "canonical": "light",
+        "word": "light"
+      },
+      {
+        "canonical": "little",
+        "word": "little"
+      },
+      {
+        "canonical": "liver",
+        "word": "liver"
+      },
+      {
+        "canonical": "locked",
+        "word": "locked"
+      },
+      {
+        "canonical": "locking",
+        "word": "locking"
+      },
+      {
+        "canonical": "locks",
+        "word": "locks"
+      },
+      {
+        "canonical": "long",
+        "word": "long"
+      },
+      {
+        "canonical": "looking",
+        "word": "looking"
+      },
+      {
+        "canonical": "loss",
+        "word": "loss"
+      },
+      {
+        "canonical": "lost",
+        "word": "lost"
+      },
+      {
+        "canonical": "lower",
+        "word": "lower"
+      },
+      {
+        "canonical": "lumbar",
+        "word": "lumbar"
+      },
+      {
+        "canonical": "lump",
+        "word": "lump"
+      },
+      {
+        "canonical": "lung",
+        "word": "lung"
+      },
+      {
+        "canonical": "lung",
+        "word": "lungs"
+      },
+      {
+        "canonical": "lymph",
+        "word": "lymph"
+      },
+      {
+        "canonical": "lymphadenitis",
+        "word": "lymphadenitis"
+      },
+      {
+        "canonical": "lymphadenopathy",
+        "word": "lymphadenopathy"
+      },
+      {
+        "canonical": "malleoli",
+        "word": "malleoli"
+      },
+      {
+        "canonical": "many",
+        "word": "many"
+      },
+      {
+        "canonical": "mass",
+        "word": "mass"
+      },
+      {
+        "canonical": "mcl",
+        "word": "mcl"
+      },
+      {
+        "canonical": "meals",
+        "word": "meals"
+      },
+      {
+        "canonical": "medial",
+        "word": "medial"
+      },
+      {
+        "canonical": "median",
+        "word": "median"
+      },
+      {
+        "canonical": "medical",
+        "word": "medical"
+      },
+      {
+        "canonical": "meninges",
+        "word": "meninges"
+      },
+      {
+        "canonical": "meniscal",
+        "word": "meniscal"
+      },
+      {
+        "canonical": "menisci",
+        "word": "menisci"
+      },
+      {
+        "canonical": "menstrual",
+        "word": "menstrual"
+      },
+      {
+        "canonical": "metacarpals",
+        "word": "metacarpals"
+      },
+      {
+        "canonical": "metatarsals",
+        "word": "metatarsals"
+      },
+      {
+        "canonical": "middle",
+        "word": "middle"
+      },
+      {
+        "canonical": "migraine",
+        "word": "migraine"
+      },
+      {
+        "canonical": "migrating",
+        "word": "migrating"
+      },
+      {
+        "canonical": "minor",
+        "word": "minor"
+      },
+      {
+        "canonical": "miss",
+        "word": "miss"
+      },
+      {
+        "canonical": "missed",
+        "word": "missed"
+      },
+      {
+        "canonical": "mole",
+        "word": "mole"
+      },
+      {
+        "canonical": "more",
+        "word": "more"
+      },
+      {
+        "canonical": "morning",
+        "word": "morning"
+      },
+      {
+        "canonical": "morton",
+        "word": "morton"
+      },
+      {
+        "canonical": "most",
+        "word": "most"
+      },
+      {
+        "canonical": "motion",
+        "word": "motion"
+      },
+      {
+        "canonical": "move",
+        "word": "move"
+      },
+      {
+        "canonical": "moved",
+        "word": "moved"
+      },
+      {
+        "canonical": "movement",
+        "word": "movement"
+      },
+      {
+        "canonical": "move",
+        "word": "moves"
+      },
+      {
+        "canonical": "muscle",
+        "word": "muscle"
+      },
+      {
+        "canonical": "muscle",
+        "word": "muscles"
+      },
+      {
+        "canonical": "muscular",
+        "word": "muscular"
+      },
+      {
+        "canonical": "musculoskeletal",
+        "word": "musculoskeletal"
+      },
+      {
+        "canonical": "myocardial",
+        "word": "myocardial"
+      },
+      {
+        "canonical": "myself",
+        "word": "myself"
+      },
+      {
+        "canonical": "nausea",
+        "word": "nausea"
+      },
+      {
+        "canonical": "navel",
+        "word": "navel"
+      },
+      {
+        "canonical": "near",
+        "word": "near"
+      },
+      {
+        "canonical": "nearby",
+        "word": "nearby"
+      },
+      {
+        "canonical": "neck",
+        "word": "neck"
+      },
+      {
+        "canonical": "nerve",
+        "word": "nerve"
+      },
+      {
+        "canonical": "nerve",
+        "word": "nerves"
+      },
+      {
+        "canonical": "neurological",
+        "word": "neurological"
+      },
+      {
+        "canonical": "neuroma",
+        "word": "neuroma"
+      },
+      {
+        "canonical": "new",
+        "word": "new"
+      },
+      {
+        "canonical": "night",
+        "word": "night"
+      },
+      {
+        "canonical": "node",
+        "word": "node"
+      },
+      {
+        "canonical": "node",
+        "word": "nodes"
+      },
+      {
+        "canonical": "normal",
+        "word": "normal"
+      },
+      {
+        "canonical": "now",
+        "word": "now"
+      },
+      {
+        "canonical": "numb",
+        "word": "numb"
+      },
+      {
+        "canonical": "numbness",
+        "word": "numbness"
+      },
+      {
+        "canonical": "objects",
+        "word": "objects"
+      },
+      {
+        "canonical": "occasionally",
+        "word": "occasionally"
+      },
+      {
+        "canonical": "odynophagia",
+        "word": "odynophagia"
+      },
+      {
+        "canonical": "off",
+        "word": "off"
+      },
+      {
+        "canonical": "one",
+        "word": "one"
+      },
+      {
+        "canonical": "open",
+        "word": "open"
+      },
+      {
+        "canonical": "osteoarthritis",
+        "word": "osteoarthritis"
+      },
+      {
+        "canonical": "other",
+        "word": "other"
+      },
+      {
+        "canonical": "out",
+        "word": "out"
+      },
+      {
+        "canonical": "outer",
+        "word": "outer"
+      },
+      {
+        "canonical": "outstretched",
+        "word": "outstretched"
+      },
+      {
+        "canonical": "ovarian",
+        "word": "ovarian"
+      },
+      {
+        "canonical": "ovary",
+        "word": "ovary"
+      },
+      {
+        "canonical": "overnight",
+        "word": "overnight"
+      },
+      {
+        "canonical": "overuse",
+        "word": "overuse"
+      },
+      {
+        "canonical": "pain",
+        "word": "pain"
+      },
+      {
+        "canonical": "painless",
+        "word": "painless"
+      },
+      {
+        "canonical": "pain",
+        "word": "pains"
+      },
+      {
+        "canonical": "pancreas",
+        "word": "pancreas"
+      },
+      {
+        "canonical": "pancreatitis",
+        "word": "pancreatitis"
+      },
+      {
+        "canonical": "patella",
+        "word": "patella"
+      },
+      {
+        "canonical": "patellar",
+        "word": "patellar"
+      },
+      {
+        "canonical": "pelvic",
+        "word": "pelvic"
+      },
+      {
+        "canonical": "pelvis",
+        "word": "pelvis"
+      },
+      {
+        "canonical": "peptic",
+        "word": "peptic"
+      },
+      {
+        "canonical": "pericranial",
+        "word": "pericranial"
+      },
+      {
+        "canonical": "period",
+        "word": "period"
+      },
+      {
+        "canonical": "persistent",
+        "word": "persistent"
+      },
+      {
+        "canonical": "phalanges",
+        "word": "phalanges"
+      },
+      {
+        "canonical": "phrenic",
+        "word": "phrenic"
+      },
+      {
+        "canonical": "plantar",
+        "word": "plantar"
+      },
+      {
+        "canonical": "pleura",
+        "word": "pleura"
+      },
+      {
+        "canonical": "pleurisy",
+        "word": "pleurisy"
+      },
+      {
+        "canonical": "pleuritic",
+        "word": "pleuritic"
+      },
+      {
+        "canonical": "plexus",
+        "word": "plexus"
+      },
+      {
+        "canonical": "pneumonia",
+        "word": "pneumonia"
+      },
+      {
+        "canonical": "pneumothorax",
+        "word": "pneumothorax"
+      },
+      {
+        "canonical": "pop",
+        "word": "pop"
+      },
+      {
+        "canonical": "popping",
+        "word": "popping"
+      },
+      {
+        "canonical": "positive",
+        "word": "positive"
+      },
+      {
+        "canonical": "possible",
+        "word": "possible"
+      },
+      {
+        "canonical": "pregnancy",
+        "word": "pregnancy"
+      },
+      {
+        "canonical": "pressure",
+        "word": "pressure"
+      },
+      {
+        "canonical": "problems",
+        "word": "problems"
+      },
+      {
+        "canonical": "proportion",
+        "word": "proportion"
+      },
+      {
+        "canonical": "proximal",
+        "word": "proximal"
+      },
+      {
+        "canonical": "pulled",
+        "word": "pulled"
+      },
+      {
+        "canonical": "pulmonary",
+        "word": "pulmonary"
+      },
+      {
+        "canonical": "purely",
+        "word": "purely"
+      },
+      {
+        "canonical": "pus",
+        "word": "pus"
+      },
+      {
+        "canonical": "push",
+        "word": "push"
+      },
+      {
+        "canonical": "pyelonephritis",
+        "word": "pyelonephritis"
+      },
+      {
+        "canonical": "quadrant",
+        "word": "quadrant"
+      },
+      {
+        "canonical": "quadriceps",
+        "word": "quadriceps"
+      },
+      {
+        "canonical": "quervain",
+        "word": "quervain"
+      },
+      {
+        "canonical": "quickly",
+        "word": "quickly"
+      },
+      {
+        "canonical": "racquet",
+        "word": "racquet"
+      },
+      {
+        "canonical": "radiate",
+        "word": "radiate"
+      },
+      {
+        "canonical": "radiate",
+        "word": "radiates"
+      },
+      {
+        "canonical": "radiating",
+        "word": "radiating"
+      },
+      {
+        "canonical": "radiation",
+        "word": "radiation"
+      },
+      {
+        "canonical": "radiculopathy",
+        "word": "radiculopathy"
+      },
+      {
+        "canonical": "radius",
+        "word": "radius"
+      },
+      {
+        "canonical": "raise",
+        "word": "raise"
+      },
+      {
+        "canonical": "rapidly",
+        "word": "rapidly"
+      },
+      {
+        "canonical": "rash",
+        "word": "rash"
+      },
+      {
+        "canonical": "rashes",
+        "word": "rashes"
+      },
+      {
+        "canonical": "ray",
+        "word": "ray"
+      },
+      {
+        "canonical": "reach",
+        "word": "reach"
+      },
+      {
+        "canonical": "reacting",
+        "word": "reacting"
+      },
+      {
+        "canonical": "reactive",
+        "word": "reactive"
+      },
+      {
+        "canonical": "recent",
+        "word": "recent"
+      },
+      {
+        "canonical": "recently",
+        "word": "recently"
+      },
+      {
+        "canonical": "red",
+        "word": "red"
+      },
+      {
+        "canonical": "redness",
+        "word": "redness"
+      },
+      {
+        "canonical": "referred",
+        "word": "referred"
+      },
+      {
+        "canonical": "region",
+        "word": "region"
+      },
+      {
+        "canonical": "relates",
+        "word": "relates"
+      },
+      {
+        "canonical": "repetitive",
+        "word": "repetitive"
+      },
+      {
+        "canonical": "rest",
+        "word": "rest"
+      },
+      {
+        "canonical": "retrosternal",
+        "word": "retrosternal"
+      },
+      {
+        "canonical": "rhomboid",
+        "word": "rhomboid"
+      },
+      {
+        "canonical": "rib",
+        "word": "rib"
+      },
+      {
+        "canonical": "rib",
+        "word": "ribs"
+      },
+      {
+        "canonical": "right",
+        "word": "right"
+      },
+      {
+        "canonical": "rigid",
+        "word": "rigid"
+      },
+      {
+        "canonical": "ring",
+        "word": "ring"
+      },
+      {
+        "canonical": "risk",
+        "word": "risk"
+      },
+      {
+        "canonical": "roll",
+        "word": "roll"
+      },
+      {
+        "canonical": "rolling",
+        "word": "rolling"
+      },
+      {
+        "canonical": "rotator",
+        "word": "rotator"
+      },
+      {
+        "canonical": "rule",
+        "word": "rule"
+      },
+      {
+        "canonical": "running",
+        "word": "running"
+      },
+      {
+        "canonical": "rupture",
+        "word": "rupture"
+      },
+      {
+        "canonical": "saphenous",
+        "word": "saphenous"
+      },
+      {
+        "canonical": "scalp",
+        "word": "scalp"
+      },
+      {
+        "canonical": "scaphoid",
+        "word": "scaphoid"
+      },
+      {
+        "canonical": "sciatic",
+        "word": "sciatic"
+      },
+      {
+        "canonical": "sciatica",
+        "word": "sciatica"
+      },
+      {
+        "canonical": "sensation",
+        "word": "sensation"
+      },
+      {
+        "canonical": "sensitivity",
+        "word": "sensitivity"
+      },
+      {
+        "canonical": "severe",
+        "word": "severe"
+      },
+      {
+        "canonical": "shares",
+        "word": "shares"
+      },
+      {
+        "canonical": "sharp",
+        "word": "sharp"
+      },
+      {
+        "canonical": "shave",
+        "word": "shave"
+      },
+      {
+        "canonical": "shin",
+        "word": "shin"
+      },
+      {
+        "canonical": "shooting",
+        "word": "shooting"
+      },
+      {
+        "canonical": "shortness",
+        "word": "shortness"
+      },
+      {
+        "canonical": "shoulder",
+        "word": "shoulder"
+      },
+      {
+        "canonical": "shoulder",
+        "word": "shoulders"
+      },
+      {
+        "canonical": "side",
+        "word": "side"
+      },
+      {
+        "canonical": "sided",
+        "word": "sided"
+      },
+      {
+        "canonical": "sigmoid",
+        "word": "sigmoid"
+      },
+      {
+        "canonical": "signal",
+        "word": "signal"
+      },
+      {
+        "canonical": "significant",
+        "word": "significant"
+      },
+      {
+        "canonical": "sinus",
+        "word": "sinus"
+      },
+      {
+        "canonical": "sinusitis",
+        "word": "sinusitis"
+      },
+      {
+        "canonical": "site",
+        "word": "site"
+      },
+      {
+        "canonical": "skin",
+        "word": "skin"
+      },
+      {
+        "canonical": "skull",
+        "word": "skull"
+      },
+      {
+        "canonical": "sleep",
+        "word": "sleep"
+      },
+      {
+        "canonical": "soleus",
+        "word": "soleus"
+      },
+      {
+        "canonical": "sore",
+        "word": "sore"
+      },
+      {
+        "canonical": "sore",
+        "word": "sores"
+      },
+      {
+        "canonical": "spaces",
+        "word": "spaces"
+      },
+      {
+        "canonical": "spasms",
+        "word": "spasms"
+      },
+      {
+        "canonical": "spinae",
+        "word": "spinae"
+      },
+      {
+        "canonical": "spine",
+        "word": "spine"
+      },
+      {
+        "canonical": "spleen",
+        "word": "spleen"
+      },
+      {
+        "canonical": "splints",
+        "word": "splints"
+      },
+      {
+        "canonical": "spondylosis",
+        "word": "spondylosis"
+      },
+      {
+        "canonical": "sports",
+        "word": "sports"
+      },
+      {
+        "canonical": "sprain",
+        "word": "sprain"
+      },
+      {
+        "canonical": "sprained",
+        "word": "sprained"
+      },
+      {
+        "canonical": "sprain",
+        "word": "sprains"
+      },
+      {
+        "canonical": "spread",
+        "word": "spread"
+      },
+      {
+        "canonical": "spreading",
+        "word": "spreading"
+      },
+      {
+        "canonical": "stairs",
+        "word": "stairs"
+      },
+      {
+        "canonical": "stand",
+        "word": "stand"
+      },
+      {
+        "canonical": "start",
+        "word": "start"
+      },
+      {
+        "canonical": "started",
+        "word": "started"
+      },
+      {
+        "canonical": "start",
+        "word": "starts"
+      },
+      {
+        "canonical": "steps",
+        "word": "steps"
+      },
+      {
+        "canonical": "sternocleidomastoid",
+        "word": "sternocleidomastoid"
+      },
+      {
+        "canonical": "stiff",
+        "word": "stiff"
+      },
+      {
+        "canonical": "stiffness",
+        "word": "stiffness"
+      },
+      {
+        "canonical": "still",
+        "word": "still"
+      },
+      {
+        "canonical": "stitches",
+        "word": "stitches"
+      },
+      {
+        "canonical": "stomach",
+        "word": "stomach"
+      },
+      {
+        "canonical": "stone",
+        "word": "stone"
+      },
+      {
+        "canonical": "stone",
+        "word": "stones"
+      },
+      {
+        "canonical": "stool",
+        "word": "stool"
+      },
+      {
+        "canonical": "stool",
+        "word": "stools"
+      },
+      {
+        "canonical": "straighten",
+        "word": "straighten"
+      },
+      {
+        "canonical": "strain",
+        "word": "strain"
+      },
+      {
+        "canonical": "stress",
+        "word": "stress"
+      },
+      {
+        "canonical": "structures",
+        "word": "structures"
+      },
+      {
+        "canonical": "subacromial",
+        "word": "subacromial"
+      },
+      {
+        "canonical": "subscapularis",
+        "word": "subscapularis"
+      },
+      {
+        "canonical": "sudden",
+        "word": "sudden"
+      },
+      {
+        "canonical": "suddenly",
+        "word": "suddenly"
+      },
+      {
+        "canonical": "suggestive",
+        "word": "suggestive"
+      },
+      {
+        "canonical": "supplying",
+        "word": "supplying"
+      },
+      {
+        "canonical": "suppurativa",
+        "word": "suppurativa"
+      },
+      {
+        "canonical": "supraspinatus",
+        "word": "supraspinatus"
+      },
+      {
+        "canonical": "surfaces",
+        "word": "surfaces"
+      },
+      {
+        "canonical": "surgery",
+        "word": "surgery"
+      },
+      {
+        "canonical": "surrounding",
+        "word": "surrounding"
+      },
+      {
+        "canonical": "swallowing",
+        "word": "swallowing"
+      },
+      {
+        "canonical": "sweat",
+        "word": "sweat"
+      },
+      {
+        "canonical": "sweating",
+        "word": "sweating"
+      },
+      {
+        "canonical": "sweat",
+        "word": "sweats"
+      },
+      {
+        "canonical": "swelled",
+        "word": "swelled"
+      },
+      {
+        "canonical": "swelling",
+        "word": "swelling"
+      },
+      {
+        "canonical": "swollen",
+        "word": "swollen"
+      },
+      {
+        "canonical": "symptoms",
+        "word": "symptoms"
+      },
+      {
+        "canonical": "syndrome",
+        "word": "syndrome"
+      },
+      {
+        "canonical": "talofibular",
+        "word": "talofibular"
+      },
+      {
+        "canonical": "talus",
+        "word": "talus"
+      },
+      {
+        "canonical": "tarry",
+        "word": "tarry"
+      },
+      {
+        "canonical": "tear",
+        "word": "tear"
+      },
+      {
+        "canonical": "tear",
+        "word": "tears"
+      },
+      {
+        "canonical": "teeth",
+        "word": "teeth"
+      },
+      {
+        "canonical": "temporal",
+        "word": "temporal"
+      },
+      {
+        "canonical": "tender",
+        "word": "tender"
+      },
+      {
+        "canonical": "tenderness",
+        "word": "tenderness"
+      },
+      {
+        "canonical": "tendinitis",
+        "word": "tendinitis"
+      },
+      {
+        "canonical": "tendinopathy",
+        "word": "tendinopathy"
+      },
+      {
+        "canonical": "tendon",
+        "word": "tendon"
+      },
+      {
+        "canonical": "tendon",
+        "word": "tendons"
+      },
+      {
+        "canonical": "tennis",
+        "word": "tennis"
+      },
+      {
+        "canonical": "tenosynovitis",
+        "word": "tenosynovitis"
+      },
+      {
+        "canonical": "tension",
+        "word": "tension"
+      },
+      {
+        "canonical": "teres",
+        "word": "teres"
+      },
+      {
+        "canonical": "test",
+        "word": "test"
+      },
+      {
+        "canonical": "thigh",
+        "word": "thigh"
+      },
+      {
+        "canonical": "thigh",
+        "word": "thighs"
+      },
+      {
+        "canonical": "thoracic",
+        "word": "thoracic"
+      },
+      {
+        "canonical": "throat",
+        "word": "throat"
+      },
+      {
+        "canonical": "throat",
+        "word": "throats"
+      },
+      {
+        "canonical": "thrombosis",
+        "word": "thrombosis"
+      },
+      {
+        "canonical": "thumb",
+        "word": "thumb"
+      },
+      {
+        "canonical": "thyroid",
+        "word": "thyroid"
+      },
+      {
+        "canonical": "thyroiditis",
+        "word": "thyroiditis"
+      },
+      {
+        "canonical": "tibia",
+        "word": "tibia"
+      },
+      {
+        "canonical": "tibialis",
+        "word": "tibialis"
+      },
+      {
+        "canonical": "tight",
+        "word": "tight"
+      },
+      {
+        "canonical": "tightness",
+        "word": "tightness"
+      },
+      {
+        "canonical": "time",
+        "word": "time"
+      },
+      {
+        "canonical": "tingling",
+        "word": "tingling"
+      },
+      {
+        "canonical": "tissue",
+        "word": "tissue"
+      },
+      {
+        "canonical": "toe",
+        "word": "toe"
+      },
+      {
+        "canonical": "toe",
+        "word": "toes"
+      },
+      {
+        "canonical": "touch",
+        "word": "touch"
+      },
+      {
+        "canonical": "trachea",
+        "word": "trachea"
+      },
+      {
+        "canonical": "trapezius",
+        "word": "trapezius"
+      },
+      {
+        "canonical": "trauma",
+        "word": "trauma"
+      },
+      {
+        "canonical": "travel",
+        "word": "travel"
+      },
+      {
+        "canonical": "trigger",
+        "word": "trigger"
+      },
+      {
+        "canonical": "tube",
+        "word": "tube"
+      },
+      {
+        "canonical": "tummy",
+        "word": "tummy"
+      },
+      {
+        "canonical": "tunnel",
+        "word": "tunnel"
+      },
+      {
+        "canonical": "twist",
+        "word": "twist"
+      },
+      {
+        "canonical": "twisting",
+        "word": "twisting"
+      },
+      {
+        "canonical": "two",
+        "word": "two"
+      },
+      {
+        "canonical": "type",
+        "word": "type"
+      },
+      {
+        "canonical": "ulcer",
+        "word": "ulcer"
+      },
+      {
+        "canonical": "ulna",
+        "word": "ulna"
+      },
+      {
+        "canonical": "ulnar",
+        "word": "ulnar"
+      },
+      {
+        "canonical": "unexplained",
+        "word": "unexplained"
+      },
+      {
+        "canonical": "upper",
+        "word": "upper"
+      },
+      {
+        "canonical": "ureter",
+        "word": "ureter"
+      },
+      {
+        "canonical": "urgent",
+        "word": "urgent"
+      },
+      {
+        "canonical": "urinary",
+        "word": "urinary"
+      },
+      {
+        "canonical": "urine",
+        "word": "urine"
+      },
+      {
+        "canonical": "valgus",
+        "word": "valgus"
+      },
+      {
+        "canonical": "vein",
+        "word": "vein"
+      },
+      {
+        "canonical": "vein",
+        "word": "veins"
+      },
+      {
+        "canonical": "vertebrae",
+        "word": "vertebrae"
+      },
+      {
+        "canonical": "vertebral",
+        "word": "vertebral"
+      },
+      {
+        "canonical": "vessels",
+        "word": "vessels"
+      },
+      {
+        "canonical": "via",
+        "word": "via"
+      },
+      {
+        "canonical": "visible",
+        "word": "visible"
+      },
+      {
+        "canonical": "visual",
+        "word": "visual"
+      },
+      {
+        "canonical": "vomiting",
+        "word": "vomiting"
+      },
+      {
+        "canonical": "vomits",
+        "word": "vomits"
+      },
+      {
+        "canonical": "walk",
+        "word": "walk"
+      },
+      {
+        "canonical": "walking",
+        "word": "walking"
+      },
+      {
+        "canonical": "warm",
+        "word": "warm"
+      },
+      {
+        "canonical": "warmth",
+        "word": "warmth"
+      },
+      {
+        "canonical": "way",
+        "word": "way"
+      },
+      {
+        "canonical": "weak",
+        "word": "weak"
+      },
+      {
+        "canonical": "weakness",
+        "word": "weakness"
+      },
+      {
+        "canonical": "weeks",
+        "word": "weeks"
+      },
+      {
+        "canonical": "weight",
+        "word": "weight"
+      },
+      {
+        "canonical": "went",
+        "word": "went"
+      },
+      {
+        "canonical": "worse",
+        "word": "worse"
+      },
+      {
+        "canonical": "worsen",
+        "word": "worsen"
+      },
+      {
+        "canonical": "worst",
+        "word": "worst"
+      },
+      {
+        "canonical": "worth",
+        "word": "worth"
+      },
+      {
+        "canonical": "wound",
+        "word": "wound"
+      },
+      {
+        "canonical": "wound",
+        "word": "wounds"
+      },
+      {
+        "canonical": "wrist",
+        "word": "wrist"
+      },
+      {
+        "canonical": "wrist",
+        "word": "wrists"
+      },
+      {
+        "canonical": "yellowing",
+        "word": "yellowing"
+      }
+    ],
+    "expansion": {
+      "abdomen": [
+        "belly",
+        "groin",
+        "gut",
+        "stomach",
+        "tummy"
+      ],
+      "abdominal": [
+        "belly",
+        "stomach",
+        "tummy"
+      ],
+      "ambulate": [
+        "bear",
+        "leg",
+        "weight"
+      ],
+      "angina": [
+        "cardiac",
+        "chest",
+        "coronary",
+        "heart"
+      ],
+      "ankle": [
+        "edema",
+        "foot",
+        "instep",
+        "leg",
+        "shin"
+      ],
+      "arch": [
+        "heel"
+      ],
+      "arm": [
+        "shoulder"
+      ],
+      "back": [
+        "backache",
+        "colic",
+        "flank",
+        "lumbar",
+        "renal",
+        "spine"
+      ],
+      "backache": [
+        "back",
+        "lumbar",
+        "spine"
+      ],
+      "bear": [
+        "ambulate"
+      ],
+      "belly": [
+        "abdomen",
+        "abdominal",
+        "gut",
+        "stomach"
+      ],
+      "biliary": [
+        "gallbladder",
+        "gallstones",
+        "liver"
+      ],
+      "black": [
+        "melena"
+      ],
+      "blood": [
+        "hematemesis",
+        "hematochezia",
+        "melena"
+      ],
+      "bowel": [
+        "hematochezia"
+      ],
+      "breath": [
+        "breathless",
+        "dyspnea",
+        "exertion",
+        "orthopnea",
+        "pleuritic"
+      ],
+      "breathless": [
+        "breath",
+        "chest",
+        "dyspnea",
+        "respiratory"
+      ],
+      "calf": [
+        "shin"
+      ],
+      "cardiac": [
+        "angina",
+        "heart"
+      ],
+      "chest": [
+        "angina",
+        "breathless",
+        "dyspnea",
+        "exertion",
+        "heart",
+        "orthopnea",
+        "pleuritic"
+      ],
+      "cholelithiasis": [
+        "gallbladder",
+        "gallstones"
+      ],
+      "colic": [
+        "back",
+        "cramp",
+        "gallstones",
+        "kidney",
+        "stone",
+        "waves"
+      ],
+      "coronary": [
+        "angina"
+      ],
+      "cramp": [
+        "colic"
+      ],
+      "cranial": [
+        "dizzy",
+        "head",
+        "headache",
+        "lightheaded",
+        "migraine"
+      ],
+      "crepitus": [
+        "grinding",
+        "joint",
+        "knee",
+        "osteoarthritis"
+      ],
+      "diaphoresis": [
+        "sweat",
+        "sweating"
+      ],
+      "dizzy": [
+        "cranial",
+        "lightheaded",
+        "neurological",
+        "syncope",
+        "vertigo"
+      ],
+      "dysphagia": [
+        "esophagus",
+        "throat"
+      ],
+      "dyspnea": [
+        "breath",
+        "breathless",
+        "chest",
+        "shortness"
+      ],
+      "edema": [
+        "ankle",
+        "swelling",
+        "swollen"
+      ],
+      "emesis": [
+        "nausea",
+        "vomiting"
+      ],
+      "esophagus": [
+        "dysphagia",
+        "odynophagia"
+      ],
+      "exertion": [
+        "breath",
+        "chest",
+        "shortness"
+      ],
+      "faint": [
+        "syncope"
+      ],
+      "fainting": [
+        "syncope"
+      ],
+      "flank": [
+        "back",
+        "groin",
+        "kidney",
+        "side"
+      ],
+      "foot": [
+        "ankle",
+        "heel",
+        "instep"
+      ],
+      "gallbladder": [
+        "biliary",
+        "cholelithiasis",
+        "hepatic"
+      ],
+      "gallstones": [
+        "biliary",
+        "cholelithiasis",
+        "colic"
+      ],
+      "gerd": [
+        "odynophagia"
+      ],
+      "grinding": [
+        "crepitus"
+      ],
+      "groin": [
+        "abdomen",
+        "flank",
+        "hip",
+        "pubic",
+        "renal",
+        "testicle"
+      ],
+      "gut": [
+        "abdomen",
+        "belly",
+        "stomach",
+        "tummy"
+      ],
+      "head": [
+        "cranial",
+        "headache",
+        "migraine"
+      ],
+      "headache": [
+        "cranial",
+        "head",
+        "migraine"
+      ],
+      "heart": [
+        "angina",
+        "cardiac",
+        "chest"
+      ],
+      "heel": [
+        "arch",
+        "foot",
+        "plantar",
+        "steps"
+      ],
+      "hematemesis": [
+        "blood",
+        "stomach",
+        "vomiting"
+      ],
+      "hematochezia": [
+        "blood",
+        "bowel",
+        "stool"
+      ],
+      "hepatic": [
+        "gallbladder",
+        "liver",
+        "pancreas"
+      ],
+      "hip": [
+        "groin"
+      ],
+      "instep": [
+        "ankle",
+        "foot"
+      ],
+      "jaw": [
+        "mouth",
+        "neck",
+        "teeth"
+      ],
+      "joint": [
+        "crepitus",
+        "knee",
+        "shoulder"
+      ],
+      "kidney": [
+        "colic",
+        "flank",
+        "renal"
+      ],
+      "knee": [
+        "crepitus",
+        "joint",
+        "leg"
+      ],
+      "leg": [
+        "ambulate",
+        "ankle",
+        "knee",
+        "shin",
+        "thigh"
+      ],
+      "lightheaded": [
+        "cranial",
+        "dizzy",
+        "neurological",
+        "vertigo"
+      ],
+      "liver": [
+        "biliary",
+        "hepatic"
+      ],
+      "lumbar": [
+        "back",
+        "backache"
+      ],
+      "lying": [
+        "orthopnea"
+      ],
+      "melena": [
+        "black",
+        "blood",
+        "stool",
+        "tarry"
+      ],
+      "migraine": [
+        "cranial",
+        "head",
+        "headache",
+        "neurological"
+      ],
+      "mouth": [
+        "jaw"
+      ],
+      "nausea": [
+        "emesis"
+      ],
+      "neck": [
+        "jaw"
+      ],
+      "neurological": [
+        "dizzy",
+        "lightheaded",
+        "migraine"
+      ],
+      "odynophagia": [
+        "esophagus",
+        "gerd",
+        "throat"
+      ],
+      "orthopnea": [
+        "breath",
+        "chest",
+        "lying"
+      ],
+      "osteoarthritis": [
+        "crepitus"
+      ],
+      "pancreas": [
+        "hepatic"
+      ],
+      "plantar": [
+        "heel"
+      ],
+      "pleura": [
+        "pleuritic"
+      ],
+      "pleuritic": [
+        "breath",
+        "chest",
+        "pleura",
+        "rib"
+      ],
+      "pubic": [
+        "groin"
+      ],
+      "renal": [
+        "back",
+        "groin",
+        "kidney",
+        "side",
+        "stone",
+        "ureter"
+      ],
+      "respiratory": [
+        "breathless"
+      ],
+      "rib": [
+        "pleuritic"
+      ],
+      "shin": [
+        "ankle",
+        "calf",
+        "leg"
+      ],
+      "shortness": [
+        "dyspnea",
+        "exertion"
+      ],
+      "shoulder": [
+        "arm",
+        "joint"
+      ],
+      "side": [
+        "flank",
+        "renal"
+      ],
+      "spine": [
+        "back",
+        "backache"
+      ],
+      "steps": [
+        "heel"
+      ],
+      "stomach": [
+        "abdomen",
+        "abdominal",
+        "belly",
+        "gut",
+        "hematemesis",
+        "tummy"
+      ],
+      "stone": [
+        "colic",
+        "renal"
+      ],
+      "stool": [
+        "hematochezia",
+        "melena"
+      ],
+      "sweat": [
+        "diaphoresis"
+      ],
+      "sweating": [
+        "diaphoresis"
+      ],
+      "swelling": [
+        "edema"
+      ],
+      "swollen": [
+        "edema"
+      ],
+      "syncope": [
+        "dizzy",
+        "faint",
+        "fainting"
+      ],
+      "tarry": [
+        "melena"
+      ],
+      "teeth": [
+        "jaw"
+      ],
+      "testicle": [
+        "groin"
+      ],
+      "thigh": [
+        "leg"
+      ],
+      "throat": [
+        "dysphagia",
+        "odynophagia"
+      ],
+      "tummy": [
+        "abdomen",
+        "abdominal",
+        "gut",
+        "stomach"
+      ],
+      "ureter": [
+        "renal"
+      ],
+      "vertigo": [
+        "dizzy",
+        "lightheaded"
+      ],
+      "vomiting": [
+        "emesis",
+        "hematemesis"
+      ],
+      "waves": [
+        "colic"
+      ],
+      "weight": [
+        "ambulate"
+      ]
+    },
+    "query_tokens": [
+      {
+        "query": "I can't breathe when I walk up the stairs",
+        "tokens": [
+          "breathe",
+          "walk",
+          "stairs"
+        ]
+      },
+      {
+        "query": "I can't lift my arm above my head and it hurts to reach behind me",
+        "tokens": [
+          "lift",
+          "arm",
+          "above",
+          "head",
+          "hurts",
+          "reach",
+          "behind",
+          "shoulder",
+          "cranial",
+          "headache",
+          "migraine"
+        ]
+      },
+      {
+        "query": "I cut myself deeply and the wound needs stitches",
+        "tokens": [
+          "cut",
+          "myself",
+          "deeply",
+          "wound",
+          "stitches"
+        ]
+      },
+      {
+        "query": "I feel anxious and cannot sleep at night",
+        "tokens": [
+          "anxious",
+          "sleep",
+          "night"
+        ]
+      },
+      {
+        "query": "I fell onto my outstretched hand and my wrist still hurts weeks later",
+        "tokens": [
+          "fell",
+          "outstretched",
+          "hand",
+          "wrist",
+          "still",
+          "hurts",
+          "weeks",
+          "later"
+        ]
+      },
+      {
+        "query": "I have lost control of my bladder and my groin is numb",
+        "tokens": [
+          "lost",
+          "control",
+          "bladder",
+          "groin",
+          "numb",
+          "abdomen",
+          "flank",
+          "hip",
+          "pubic",
+          "renal",
+          "testicle"
+        ]
+      },
+      {
+        "query": "I heard a pop at the back of my ankle and now I can't push off",
+        "tokens": [
+          "heard",
+          "pop",
+          "back",
+          "ankle",
+          "now",
+          "push",
+          "off",
+          "backache",
+          "colic",
+          "flank",
+          "lumbar",
+          "renal",
+          "spine",
+          "edema",
+          "foot",
+          "instep",
+          "leg",
+          "shin"
+        ]
+      },
+      {
+        "query": "ache in my shoulder with pain under my right ribs after eating",
+        "tokens": [
+          "ache",
+          "shoulder",
+          "pain",
+          "right",
+          "rib",
+          "after",
+          "eating",
+          "arm",
+          "joint"
+        ]
+      },
+      {
+        "query": "appendix pain",
+        "tokens": [
+          "appendix",
+          "pain"
+        ]
+      },
+      {
+        "query": "backache after lifting",
+        "tokens": [
+          "backache",
+          "after",
+          "lifting",
+          "back",
+          "lumbar",
+          "spine"
+        ]
+      },
+      {
+        "query": "blood in my urine and pain in my side",
+        "tokens": [
+          "blood",
+          "urine",
+          "pain",
+          "side",
+          "hematemesis",
+          "hematochezia",
+          "melena",
+          "flank",
+          "renal"
+        ]
+      },
+      {
+        "query": "breathless",
+        "tokens": [
+          "breathless",
+          "breath",
+          "chest",
+          "dyspnea",
+          "respiratory"
+        ]
+      },
+      {
+        "query": "bunion with hallux valgus pain",
+        "tokens": [
+          "bunion",
+          "hallux",
+          "valgus",
+          "pain"
+        ]
+      },
+      {
+        "query": "burning stomach pain after eating",
+        "tokens": [
+          "burning",
+          "stomach",
+          "pain",
+          "after",
+          "eating",
+          "abdomen",
+          "abdominal",
+          "belly",
+          "gut",
+          "hematemesis",
+          "tummy"
+        ]
+      },
+      {
+        "query": "calf pain when walking",
+        "tokens": [
+          "calf",
+          "pain",
+          "walking",
+          "shin"
+        ]
+      },
+      {
+        "query": "chest pain",
+        "tokens": [
+          "chest",
+          "pain",
+          "angina",
+          "breathless",
+          "dyspnea",
+          "exertion",
+          "heart",
+          "orthopnea",
+          "pleuritic"
+        ]
+      },
+      {
+        "query": "chest pain radiating to my left arm and jaw, sweating",
+        "tokens": [
+          "chest",
+          "pain",
+          "radiating",
+          "left",
+          "arm",
+          "jaw",
+          "sweating",
+          "angina",
+          "breathless",
+          "dyspnea",
+          "exertion",
+          "heart",
+          "orthopnea",
+          "pleuritic",
+          "shoulder",
+          "mouth",
+          "neck",
+          "teeth",
+          "diaphoresis"
+        ]
+      },
+      {
+        "query": "chest pressure with diaphoresis and nausea",
+        "tokens": [
+          "chest",
+          "pressure",
+          "diaphoresis",
+          "nausea",
+          "angina",
+          "breathless",
+          "dyspnea",
+          "exertion",
+          "heart",
+          "orthopnea",
+          "pleuritic",
+          "sweat",
+          "sweating",
+          "emesis"
+        ]
+      },
+      {
+        "query": "chest tightness radiating into my arm with nausea",
+        "tokens": [
+          "chest",
+          "tightness",
+          "radiating",
+          "arm",
+          "nausea",
+          "angina",
+          "breathless",
+          "dyspnea",
+          "exertion",
+          "heart",
+          "orthopnea",
+          "pleuritic",
+          "shoulder",
+          "emesis"
+        ]
+      },
+      {
+        "query": "crepitus and locking of the knee",
+        "tokens": [
+          "crepitus",
+          "locking",
+          "knee",
+          "grinding",
+          "joint",
+          "osteoarthritis",
+          "leg"
+        ]
+      },
+      {
+        "query": "crushing chest pain spreading to left arm",
+        "tokens": [
+          "crushing",
+          "chest",
+          "pain",
+          "spreading",
+          "left",
+          "arm",
+          "angina",
+          "breathless",
+          "dyspnea",
+          "exertion",
+          "heart",
+          "orthopnea",
+          "pleuritic",
+          "shoulder"
+        ]
+      },
+      {
+        "query": "crushing pressure in my chest going down my left arm",
+        "tokens": [
+          "crushing",
+          "pressure",
+          "chest",
+          "down",
+          "left",
+          "arm",
+          "angina",
+          "breathless",
+          "dyspnea",
+          "exertion",
+          "heart",
+          "orthopnea",
+          "pleuritic",
+          "shoulder"
+        ]
+      },
+      {
+        "query": "dyspnea on exertion",
+        "tokens": [
+          "dyspnea",
+          "exertion",
+          "breath",
+          "breathless",
+          "chest",
+          "shortness"
+        ]
+      },
+      {
+        "query": "flank pain radiating to the groin with hematuria",
+        "tokens": [
+          "flank",
+          "pain",
+          "radiating",
+          "groin",
+          "hematuria",
+          "back",
+          "kidney",
+          "side",
+          "abdomen",
+          "hip",
+          "pubic",
+          "renal",
+          "testicle"
+        ]
+      },
+      {
+        "query": "groin pain on one side",
+        "tokens": [
+          "groin",
+          "pain",
+          "one",
+          "side",
+          "abdomen",
+          "flank",
+          "hip",
+          "pubic",
+          "renal",
+          "testicle"
+        ]
+      },
+      {
+        "query": "hematochezia with left lower quadrant pain",
+        "tokens": [
+          "hematochezia",
+          "left",
+          "lower",
+          "quadrant",
+          "pain",
+          "blood",
+          "bowel",
+          "stool"
+        ]
+      },
+      {
+        "query": "hepatic colic",
+        "tokens": [
+          "hepatic",
+          "colic",
+          "gallbladder",
+          "liver",
+          "pancreas",
+          "back",
+          "cramp",
+          "gallstones",
+          "kidney",
+          "stone",
+          "waves"
+        ]
+      },
+      {
+        "query": "how many days of antibiotics do I need for a sinus infection",
+        "tokens": [
+          "many",
+          "days",
+          "antibiotics",
+          "sinus",
+          "infection"
+        ]
+      },
+      {
+        "query": "is this mole cancerous or does it need a biopsy",
+        "tokens": [
+          "mole",
+          "cancerous",
+          "biopsy"
+        ]
+      },
+      {
+        "query": "it started around my navel then moved down to the right side",
+        "tokens": [
+          "started",
+          "around",
+          "navel",
+          "moved",
+          "down",
+          "right",
+          "side",
+          "flank",
+          "renal"
+        ]
+      },
+      {
+        "query": "knee swelling after a fall",
+        "tokens": [
+          "knee",
+          "swelling",
+          "after",
+          "fall",
+          "crepitus",
+          "joint",
+          "leg",
+          "edema"
+        ]
+      },
+      {
+        "query": "knee swelling after twisting it",
+        "tokens": [
+          "knee",
+          "swelling",
+          "after",
+          "twisting",
+          "crepitus",
+          "joint",
+          "leg",
+          "edema"
+        ]
+      },
+      {
+        "query": "my arm has gone weak and numb since the neck pain started",
+        "tokens": [
+          "arm",
+          "weak",
+          "numb",
+          "neck",
+          "pain",
+          "started",
+          "shoulder",
+          "jaw"
+        ]
+      },
+      {
+        "query": "my baby is not feeding and has a rash",
+        "tokens": [
+          "baby",
+          "feeding",
+          "rash"
+        ]
+      },
+      {
+        "query": "my big toe went red, hot and swollen overnight",
+        "tokens": [
+          "big",
+          "toe",
+          "went",
+          "red",
+          "hot",
+          "swollen",
+          "overnight",
+          "edema"
+        ]
+      },
+      {
+        "query": "my calf is hot and tender since the knee swelled",
+        "tokens": [
+          "calf",
+          "hot",
+          "tender",
+          "knee",
+          "swelled",
+          "shin",
+          "crepitus",
+          "joint",
+          "leg"
+        ]
+      },
+      {
+        "query": "my calf is swollen, warm and tender after a long flight",
+        "tokens": [
+          "calf",
+          "swollen",
+          "warm",
+          "tender",
+          "after",
+          "long",
+          "flight",
+          "shin",
+          "edema"
+        ]
+      },
+      {
+        "query": "my ear itches and drains fluid",
+        "tokens": [
+          "ear",
+          "itches",
+          "drains",
+          "fluid"
+        ]
+      },
+      {
+        "query": "odynophagia and retrosternal burning",
+        "tokens": [
+          "odynophagia",
+          "retrosternal",
+          "burning",
+          "esophagus",
+          "gerd",
+          "throat"
+        ]
+      },
+      {
+        "query": "pain comes on after fatty food and I feel it in my back",
+        "tokens": [
+          "pain",
+          "after",
+          "fatty",
+          "food",
+          "back",
+          "backache",
+          "colic",
+          "flank",
+          "lumbar",
+          "renal",
+          "spine"
+        ]
+      },
+      {
+        "query": "pain from my lower back running into the back of my thigh",
+        "tokens": [
+          "pain",
+          "lower",
+          "back",
+          "running",
+          "thigh",
+          "backache",
+          "colic",
+          "flank",
+          "lumbar",
+          "renal",
+          "spine",
+          "leg"
+        ]
+      },
+      {
+        "query": "pain in my heel when I stand up",
+        "tokens": [
+          "pain",
+          "heel",
+          "stand",
+          "arch",
+          "foot",
+          "plantar",
+          "steps"
+        ]
+      },
+      {
+        "query": "pain in my left arm and jaw",
+        "tokens": [
+          "pain",
+          "left",
+          "arm",
+          "jaw",
+          "shoulder",
+          "mouth",
+          "neck",
+          "teeth"
+        ]
+      },
+      {
+        "query": "pain in my right shoulder and arm",
+        "tokens": [
+          "pain",
+          "right",
+          "shoulder",
+          "arm",
+          "joint"
+        ]
+      },
+      {
+        "query": "pain shooting down the back of my leg with numbness",
+        "tokens": [
+          "pain",
+          "shooting",
+          "down",
+          "back",
+          "leg",
+          "numbness",
+          "backache",
+          "colic",
+          "flank",
+          "lumbar",
+          "renal",
+          "spine",
+          "ambulate",
+          "ankle",
+          "knee",
+          "shin",
+          "thigh"
+        ]
+      },
+      {
+        "query": "pleuritic chest pain",
+        "tokens": [
+          "pleuritic",
+          "chest",
+          "pain",
+          "breath",
+          "pleura",
+          "rib",
+          "angina",
+          "breathless",
+          "dyspnea",
+          "exertion",
+          "heart",
+          "orthopnea"
+        ]
+      },
+      {
+        "query": "positive pregnancy test with severe one sided pain",
+        "tokens": [
+          "positive",
+          "pregnancy",
+          "test",
+          "severe",
+          "one",
+          "sided",
+          "pain"
+        ]
+      },
+      {
+        "query": "severe headache with light sensitivity",
+        "tokens": [
+          "severe",
+          "headache",
+          "light",
+          "sensitivity",
+          "cranial",
+          "head",
+          "migraine"
+        ]
+      },
+      {
+        "query": "sharp pain in my chest when I breathe in",
+        "tokens": [
+          "sharp",
+          "pain",
+          "chest",
+          "breathe",
+          "angina",
+          "breathless",
+          "dyspnea",
+          "exertion",
+          "heart",
+          "orthopnea",
+          "pleuritic"
+        ]
+      },
+      {
+        "query": "sharp pains in my toes at night",
+        "tokens": [
+          "sharp",
+          "pain",
+          "toe",
+          "night"
+        ]
+      },
+      {
+        "query": "shoulder pain when lifting the arm",
+        "tokens": [
+          "shoulder",
+          "pain",
+          "lifting",
+          "arm",
+          "joint"
+        ]
+      },
+      {
+        "query": "sore throat and a tender swelling in my neck with fever",
+        "tokens": [
+          "sore",
+          "throat",
+          "tender",
+          "swelling",
+          "neck",
+          "fever",
+          "dysphagia",
+          "odynophagia",
+          "edema",
+          "jaw"
+        ]
+      },
+      {
+        "query": "sore throat and difficulty swallowing",
+        "tokens": [
+          "sore",
+          "throat",
+          "difficulty",
+          "swallowing",
+          "dysphagia",
+          "odynophagia"
+        ]
+      },
+      {
+        "query": "sprained ankle swelling",
+        "tokens": [
+          "sprained",
+          "ankle",
+          "swelling",
+          "edema",
+          "foot",
+          "instep",
+          "leg",
+          "shin"
+        ]
+      },
+      {
+        "query": "stiff neck with arm tingling",
+        "tokens": [
+          "stiff",
+          "neck",
+          "arm",
+          "tingling",
+          "jaw",
+          "shoulder"
+        ]
+      },
+      {
+        "query": "sudden worst headache of my life with a stiff neck and fever",
+        "tokens": [
+          "sudden",
+          "worst",
+          "headache",
+          "life",
+          "stiff",
+          "neck",
+          "fever",
+          "cranial",
+          "head",
+          "migraine",
+          "jaw"
+        ]
+      },
+      {
+        "query": "the bite on my hand is red, warm and discharging pus",
+        "tokens": [
+          "bite",
+          "hand",
+          "red",
+          "warm",
+          "discharging",
+          "pus"
+        ]
+      },
+      {
+        "query": "tummy ache",
+        "tokens": [
+          "tummy",
+          "ache",
+          "abdomen",
+          "abdominal",
+          "gut",
+          "stomach"
+        ]
+      },
+      {
+        "query": "worst headache I have ever had, my neck is stiff and I have a fever",
+        "tokens": [
+          "worst",
+          "headache",
+          "ever",
+          "neck",
+          "stiff",
+          "fever",
+          "cranial",
+          "head",
+          "migraine",
+          "jaw"
+        ]
+      }
+    ]
+  },
   "note": "Records what the Python services answer today. The Dart ports in lib/core/clinical are tested against these vectors; regenerate with the script whenever the rules or the KB change.",
   "risk_cases": [
     {

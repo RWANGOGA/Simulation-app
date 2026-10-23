@@ -13,21 +13,32 @@ import 'support/clinical_assets.dart';
 /// answers.
 ///
 /// `test/fixtures/clinical_golden.json` is recorded from the Python services by
-/// `Backend-fastapi/scripts/export_offline_assets.py`: 433 scored reports and
-/// 30 retrieval queries, each with the output the server produced. The app has
-/// to reproduce every one of them. If a rule, a rounding, a tie-break or a
-/// knowledge-base entry changes on either side without the other following,
-/// this file goes red — which is the only thing standing between "works
-/// offline" and "scores a patient differently offline".
+/// `Backend-fastapi/scripts/export_offline_assets.py`: 433 scored reports, 30
+/// retrieval queries and the raw output of the lexical normalisation, each with
+/// the answer the server produced. The app has to reproduce every one of them. If
+/// a rule, a rounding, a tie-break, a stem or a synonym edge changes on either
+/// side without the other following, this file goes red — which is the only thing
+/// standing between "works offline" and "scores a patient differently offline".
 void main() {
   late ClinicalData data;
   late Map<String, dynamic> golden;
+  late Map<String, dynamic> lexicalVectors;
 
   setUpAll(() async {
     data = await loadClinicalDataForTest();
     golden = jsonDecode(
       File('test/fixtures/clinical_golden.json').readAsStringSync(),
     ) as Map<String, dynamic>;
+    final raw = golden['lexical_vectors'];
+    if (raw is! Map<String, dynamic>) {
+      // Fail once, loudly, with the fix in the message: three loops over an
+      // absent section would otherwise pass as perfect parity.
+      throw StateError(
+        'the golden fixture carries no lexical_vectors — regenerate it with '
+        '`venv/bin/python -m scripts.export_offline_assets`',
+      );
+    }
+    lexicalVectors = raw;
   });
 
   tearDownAll(() {
@@ -323,4 +334,103 @@ void main() {
       expect(AnatomyInsight.fromJson(payload).sources, isEmpty);
     });
   });
+
+  // The two mechanisms P0-9 added, asserted on their own rather than through a
+  // score. Thirty matching rankings prove the engines agree about those thirty
+  // queries; they do not prove the offline engine folds 'thighs' the same way or
+  // knows the same synonym edges — a drifted rule can hide behind a monograph
+  // that dominates the ranking and surface on the next complaint nobody vector
+  // picked. These are the raw functions, compared to what the server returns.
+  group('lexical normalisation parity', () {
+    test('folds exactly the inflections the server folds', () {
+      final probes = (lexicalVectors['canonical_form'] as List)
+          .cast<Map<String, dynamic>>();
+      expect(probes.length, greaterThan(500));
+
+      final mismatches = <String>[
+        for (final probe in probes)
+          if (AnatomyTokenizer.canonicalForm(probe['word'] as String) !=
+              probe['canonical'])
+            '${probe['word']} -> '
+                '${AnatomyTokenizer.canonicalForm(probe['word'] as String)} '
+                '!= ${probe['canonical']}',
+      ];
+      expect(
+        mismatches,
+        isEmpty,
+        reason: '${mismatches.length} words collapse differently:\n'
+            '${mismatches.take(15).join('\n')}',
+      );
+    });
+
+    test('knows the same synonym edges, in the same order', () {
+      final expected =
+          (lexicalVectors['expansion'] as Map).cast<String, dynamic>();
+      final actual = AnatomyTokenizer.expansionTable;
+
+      expect(
+        actual.keys.toList()..sort(),
+        expected.keys.toList()..sort(),
+        reason: 'the two synonym tables no longer cover the same words',
+      );
+
+      final mismatches = <String>[
+        for (final entry in expected.entries)
+          if (!_sameList(actual[entry.key] ?? const <String>[],
+              (entry.value as List).cast<String>()))
+            '${entry.key}: ${actual[entry.key]} != ${entry.value}',
+      ];
+      expect(
+        mismatches,
+        isEmpty,
+        reason: '${mismatches.length} expansion lists differ:\n'
+            '${mismatches.take(15).join('\n')}',
+      );
+    });
+
+    test('turns every complaint the gate judges into the server\'s tokens', () {
+      final cases =
+          (lexicalVectors['query_tokens'] as List).cast<Map<String, dynamic>>();
+      expect(cases.length, greaterThan(50));
+
+      final mismatches = <String>[
+        for (final recorded in cases)
+          if (!_sameList(
+            AnatomyTokenizer.tokenize(recorded['query'] as String),
+            (recorded['tokens'] as List).cast<String>(),
+          ))
+            '"${recorded['query']}" -> '
+                '${AnatomyTokenizer.tokenize(recorded['query'] as String)} '
+                '!= ${recorded['tokens']}',
+      ];
+      expect(
+        mismatches,
+        isEmpty,
+        reason: '${mismatches.length} queries tokenise differently:\n'
+            '${mismatches.take(6).join('\n')}',
+      );
+    });
+
+    test('the documents hold no invented words, only their own', () {
+      // The server expanded synonyms into the corpus until P0-9 stopped it:
+      // indexed translations inflate document frequency, weaken idf, and make
+      // every monograph look like every other one. The offline index has to be
+      // equally honest, or the two engines score different text.
+      final corpusWords = AnatomyTokenizer.vocabulary;
+      expect(corpusWords, isNotEmpty);
+      for (final chunk in data.chunks.values) {
+        final foreign =
+            chunk.tokens.where((word) => !corpusWords.contains(word)).toList();
+        expect(
+          foreign,
+          isEmpty,
+          reason: '${chunk.id} is indexed on words the corpus never used: '
+              '$foreign',
+        );
+      }
+    });
+  });
 }
+
+bool _sameList(List<String> a, List<String> b) =>
+    a.length == b.length && a.asMap().entries.every((e) => e.value == b[e.key]);
