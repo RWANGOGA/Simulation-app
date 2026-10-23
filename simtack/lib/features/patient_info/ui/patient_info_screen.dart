@@ -34,6 +34,11 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
   String _gender = 'Female';
   bool _isSubmitting = false;
 
+  /// Why the record could not be stored, if it could not be. Shown above the
+  /// button so a failure is something the patient can read and retry, not a
+  /// spinner that never stops.
+  String? _submitError;
+
   @override
   void dispose() {
     _ageController.dispose();
@@ -266,6 +271,31 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                   ),
                 ),
                 const SizedBox(height: 16),
+                if (_submitError != null) ...[
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFEE2E2),
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFFEF4444)),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline,
+                            color: Color(0xFFEF4444), size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _submitError!,
+                            style: const TextStyle(
+                                color: Color(0xFFB91C1C), fontSize: 14),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 SizedBox(
                   width: double.infinity,
                   height: 56,
@@ -381,8 +411,32 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
   Future<void> _onContinue() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _isSubmitting = true);
+    setState(() {
+      _isSubmitting = true;
+      _submitError = null;
+    });
 
+    try {
+      await _recordAndOpenBodyMap();
+    } catch (error) {
+      // Nothing in here is allowed to escape. The local write is the one step
+      // the patient cannot work around, and an uncaught error left the button
+      // disabled for good: the form looked like it was still loading while
+      // nothing was running.
+      if (!mounted) return;
+      setState(() {
+        _submitError = 'This record could not be saved on this device. '
+            'Please try again.';
+      });
+      debugPrint('Patient intake failed: $error');
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+    }
+  }
+
+  /// Stores the patient on this device and opens the body map. Split out so
+  /// [_onContinue] can own the spinner and the error message in one place.
+  Future<void> _recordAndOpenBodyMap() async {
     // Build the patient profile
     final profile = PatientProfile(
       age: int.parse(_ageController.text),
@@ -443,7 +497,5 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         ),
       ),
     );
-
-    if (mounted) setState(() => _isSubmitting = false);
   }
 }

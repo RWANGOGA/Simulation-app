@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'stored_json.dart';
 import 'triage_draft.dart';
 
 /// Local, offline-capable storage for in-progress triage reports.
@@ -17,32 +18,36 @@ class DraftStorage {
     final prefs = await SharedPreferences.getInstance();
     final drafts = await loadAll();
     drafts.insert(0, draft);
-    await prefs.setString(_key, jsonEncode(drafts.map((d) => d.toJson()).toList()));
+    await prefs.setString(
+        _key, jsonEncode(drafts.map((d) => d.toJson()).toList()));
   }
 
   static Future<List<TriageDraft>> loadAll() async {
     final prefs = await SharedPreferences.getInstance();
     final drafts = <TriageDraft>[];
 
-    final raw = prefs.getString(_key);
-    if (raw != null) {
-      for (final entry in (jsonDecode(raw) as List)) {
-        try {
-          drafts.add(TriageDraft.fromJson(entry as Map<String, dynamic>));
-        } catch (_) {
-          // Skip corrupt entries rather than losing the rest.
-        }
+    // Tolerant of anything under the key that is not the list this writes: a
+    // read that throws would take the save path with it (see stored_json.dart).
+    for (final entry in decodeStoredObjects(prefs.getString(_key))) {
+      try {
+        drafts.add(TriageDraft.fromJson(entry));
+      } catch (_) {
+        // Skip corrupt entries rather than losing the rest.
       }
     }
 
-    // One-time migration of the old single-draft slot.
+    // One-time migration of the old single-draft slot. decodeStoredObjects
+    // accepts a bare object, which is exactly what that slot holds.
     final legacyRaw = prefs.getString(_legacyKey);
     if (legacyRaw != null) {
-      try {
-        drafts.add(TriageDraft.fromJson(jsonDecode(legacyRaw) as Map<String, dynamic>));
-      } catch (_) {}
+      for (final entry in decodeStoredObjects(legacyRaw)) {
+        try {
+          drafts.add(TriageDraft.fromJson(entry));
+        } catch (_) {}
+      }
       await prefs.remove(_legacyKey);
-      await prefs.setString(_key, jsonEncode(drafts.map((d) => d.toJson()).toList()));
+      await prefs.setString(
+          _key, jsonEncode(drafts.map((d) => d.toJson()).toList()));
     }
 
     drafts.sort((a, b) => b.savedAt.compareTo(a.savedAt));
@@ -59,7 +64,8 @@ class DraftStorage {
     final prefs = await SharedPreferences.getInstance();
     final drafts = await loadAll();
     drafts.removeWhere((d) => d.savedAt == draft.savedAt);
-    await prefs.setString(_key, jsonEncode(drafts.map((d) => d.toJson()).toList()));
+    await prefs.setString(
+        _key, jsonEncode(drafts.map((d) => d.toJson()).toList()));
   }
 
   /// A submitted report supersedes every saved draft.

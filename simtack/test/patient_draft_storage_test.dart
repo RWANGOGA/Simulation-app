@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 import 'package:simtack/core/storage/patient_draft.dart';
 import 'package:simtack/core/storage/patient_draft_storage.dart';
 import 'package:simtack/core/models/patient_profile.dart';
@@ -44,8 +45,10 @@ void main() {
         fullName: 'Jane Smith',
       );
 
-      final draft1 = PatientDraft.createOffline(profile1).copyWith(patientCode: 'ABC123');
-      final draft2 = PatientDraft.createOffline(profile2).copyWith(patientCode: 'ABC123');
+      final draft1 =
+          PatientDraft.createOffline(profile1).copyWith(patientCode: 'ABC123');
+      final draft2 =
+          PatientDraft.createOffline(profile2).copyWith(patientCode: 'ABC123');
 
       await PatientDraftStorage.save(draft1);
       await PatientDraftStorage.save(draft2);
@@ -98,7 +101,8 @@ void main() {
         height: 180.0,
       );
 
-      final draft = PatientDraft.createOffline(profile).copyWith(patientCode: 'XYZ789');
+      final draft =
+          PatientDraft.createOffline(profile).copyWith(patientCode: 'XYZ789');
       await PatientDraftStorage.save(draft);
 
       final found = await PatientDraftStorage.loadAll();
@@ -124,12 +128,14 @@ void main() {
     test('clear removes all drafts', () async {
       await PatientDraftStorage.save(PatientDraft(
         localId: -1,
-        profile: PatientProfile(age: 20, gender: 'Male', weight: 60.0, height: 170.0),
+        profile: PatientProfile(
+            age: 20, gender: 'Male', weight: 60.0, height: 170.0),
         savedAt: DateTime(2024, 1, 1),
       ));
       await PatientDraftStorage.save(PatientDraft(
         localId: -2,
-        profile: PatientProfile(age: 25, gender: 'Female', weight: 65.0, height: 165.0),
+        profile: PatientProfile(
+            age: 25, gender: 'Female', weight: 65.0, height: 165.0),
         savedAt: DateTime(2024, 1, 2),
       ));
 
@@ -142,13 +148,15 @@ void main() {
     test('loadAll returns drafts sorted newest first', () async {
       final oldDraft = PatientDraft(
         localId: -1,
-        profile: PatientProfile(age: 20, gender: 'Male', weight: 60.0, height: 170.0),
+        profile: PatientProfile(
+            age: 20, gender: 'Male', weight: 60.0, height: 170.0),
         savedAt: DateTime(2024, 1, 1),
       );
 
       final newDraft = PatientDraft(
         localId: -2,
-        profile: PatientProfile(age: 25, gender: 'Female', weight: 65.0, height: 165.0),
+        profile: PatientProfile(
+            age: 25, gender: 'Female', weight: 65.0, height: 165.0),
         savedAt: DateTime(2024, 1, 2),
       );
 
@@ -163,13 +171,15 @@ void main() {
     test('loadLatest returns most recent draft', () async {
       await PatientDraftStorage.save(PatientDraft(
         localId: -1,
-        profile: PatientProfile(age: 20, gender: 'Male', weight: 60.0, height: 170.0),
+        profile: PatientProfile(
+            age: 20, gender: 'Male', weight: 60.0, height: 170.0),
         savedAt: DateTime(2024, 1, 1),
       ));
 
       await PatientDraftStorage.save(PatientDraft(
         localId: -2,
-        profile: PatientProfile(age: 25, gender: 'Female', weight: 65.0, height: 165.0),
+        profile: PatientProfile(
+            age: 25, gender: 'Female', weight: 65.0, height: 165.0),
         savedAt: DateTime(2024, 1, 2),
       ));
 
@@ -205,7 +215,8 @@ void main() {
       );
 
       final original = PatientDraft.createOffline(profile);
-      final updated = original.copyWith(isSynced: true, patientId: 42, patientCode: 'ABC123');
+      final updated = original.copyWith(
+          isSynced: true, patientId: 42, patientCode: 'ABC123');
 
       expect(updated.isSynced, isTrue);
       expect(updated.patientId, 42);
@@ -250,6 +261,68 @@ void main() {
       expect(restored.profile.nextOfKinName, original.profile.nextOfKinName);
       expect(restored.profile.nextOfKinPhone, original.profile.nextOfKinPhone);
       expect(restored.profile.hospitalName, original.profile.hospitalName);
+    });
+  });
+
+  // A device's draft slot is written by whatever build of the app ran last, and
+  // the value found there is not always the list this build expects. Reading it
+  // used to cast the decoded value to `List`, which throws a `TypeError` — an
+  // `Error`, so the `catch` around each entry never saw it. Because every write
+  // starts with a read, one bad value made the intake form unsubmittable for
+  // good. See core/storage/stored_json.dart.
+  group('PatientDraftStorage with a value it did not write', () {
+    test('a JSON object is read as the one draft the old build stored',
+        () async {
+      final draft = PatientDraft.createOffline(const PatientProfile(
+        age: 30,
+        gender: 'Female',
+        weight: 70.0,
+        height: 165.0,
+        fullName: 'Jane Doe',
+      ));
+      SharedPreferences.setMockInitialValues(
+          {'patient_drafts': jsonEncode(draft.toJson())});
+
+      final drafts = await PatientDraftStorage.loadAll();
+
+      expect(drafts, hasLength(1));
+      expect(drafts.single.profile.fullName, 'Jane Doe');
+    });
+
+    test('unparseable text reads as no drafts instead of throwing', () async {
+      SharedPreferences.setMockInitialValues(
+          {'patient_drafts': 'not json at all'});
+
+      expect(await PatientDraftStorage.loadAll(), isEmpty);
+    });
+
+    test('a list of non-objects reads as no drafts', () async {
+      SharedPreferences.setMockInitialValues({
+        'patient_drafts': jsonEncode([1, 'two', null, []]),
+      });
+
+      expect(await PatientDraftStorage.loadAll(), isEmpty);
+    });
+
+    test('save still works over a value it cannot read', () async {
+      // The reported failure: the patient could never get past the form again,
+      // because the write that records them begins by reading this slot.
+      SharedPreferences.setMockInitialValues(
+          {'patient_drafts': '{"truncated": '});
+
+      await PatientDraftStorage.save(
+        PatientDraft.createOffline(const PatientProfile(
+          age: 41,
+          gender: 'Male',
+          weight: 82.0,
+          height: 178.0,
+          fullName: 'Brian Okello',
+        )),
+      );
+
+      final drafts = await PatientDraftStorage.loadAll();
+      expect(drafts, hasLength(1));
+      expect(drafts.single.profile.fullName, 'Brian Okello');
     });
   });
 }

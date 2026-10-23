@@ -178,7 +178,20 @@ class _AtomyBridgeAppState extends State<AtomyBridgeApp> {
 
   /// The access token expired and could not be refreshed: wipe the practitioner
   /// stack so no stale protected screen stays reachable.
+  ///
+  /// Only a practitioner session can expire, and this used to run for every 401
+  /// the app saw. A patient holds no session at all, so a rejection they could do
+  /// nothing about — a delayed answer to the `/auth/me` that `restoreSession`
+  /// stopped waiting for, or an upload of their own record — replaced the flow
+  /// they were in the middle of with the login screen. The record being filled
+  /// in is the one thing a patient cannot redo, so it is never worth discarding
+  /// to protect a session that does not exist.
   void _returnToLogin() {
+    if (!AuthService.instance.hasActiveSession) return;
+    // Mark the session handled before navigating: the same dead token can fail
+    // several requests at once, and each of them lands here.
+    AuthService.instance.noteSessionEnded();
+
     final navigator = _navigatorKey.currentState;
     if (navigator == null) return;
     navigator.pushAndRemoveUntil(

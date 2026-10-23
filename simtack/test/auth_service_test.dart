@@ -153,6 +153,72 @@ void main() {
   });
 
   // ---------------------------------------------------------------
+  // practitioner session marker
+  // ---------------------------------------------------------------
+  // main.dart only sends the app back to the login screen when this says a
+  // practitioner session exists, so it has to track sign-in and sign-out and
+  // nothing else — `ApiClient.logout()` clears the token as part of *handling* a
+  // rejected session and must leave the decision to the caller.
+  group('AuthService session marker', () {
+    test('a successful sign-in marks the session, logout ends it', () async {
+      ApiClient.httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/login')) {
+          return http.Response(
+            jsonEncode(
+                {'access_token': 'test.jwt.token', 'token_type': 'bearer'}),
+            200,
+          );
+        }
+        return http.Response(
+          jsonEncode({
+            'id': 1,
+            'email': 'doc@test.com',
+            'full_name': 'Dr. Test',
+            'is_active': true,
+          }),
+          200,
+        );
+      });
+
+      await AuthService.instance
+          .login(email: 'doc@test.com', password: 'pass123');
+      expect(AuthService.instance.hasActiveSession, isTrue);
+
+      await AuthService.instance.logout();
+      expect(AuthService.instance.hasActiveSession, isFalse);
+    });
+
+    test('an expired session is only acted on once', () async {
+      ApiClient.httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/login')) {
+          return http.Response(
+            jsonEncode(
+                {'access_token': 'test.jwt.token', 'token_type': 'bearer'}),
+            200,
+          );
+        }
+        return http.Response(
+          jsonEncode({
+            'id': 1,
+            'email': 'doc@test.com',
+            'full_name': 'Dr. Test',
+            'is_active': true,
+          }),
+          200,
+        );
+      });
+      await AuthService.instance
+          .login(email: 'doc@test.com', password: 'pass123');
+
+      // What main.dart does when the redirect has been issued: the same dead
+      // token can fail several requests at once, and only the first may move the
+      // app to the login screen.
+      AuthService.instance.noteSessionEnded();
+      expect(AuthService.instance.hasActiveSession, isFalse);
+    });
+  });
+
+  // ---------------------------------------------------------------
   // getCurrentDoctor()
   // ---------------------------------------------------------------
   group('AuthService.getCurrentDoctor', () {

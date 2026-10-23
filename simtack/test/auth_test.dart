@@ -282,6 +282,33 @@ void main() {
       expect(refreshCalls, 0, reason: 'never refresh on a failed sign-in');
     });
 
+    test('a 401 on a request carrying no token is not an expired session',
+        () async {
+      // The intake endpoints are called by patients who have no account at all.
+      // A 401 there says "not authenticated", which is the truth and nobody's
+      // problem — signing the device out of a session it never had threw the
+      // patient off the screen they were on, and did it again on every retry of
+      // the upload queue because the token was already gone.
+      final storage = FakeTokenStorage();
+      ApiClient.tokenStorage = storage;
+
+      var expiredCallbacks = 0;
+      ApiClient.onSessionExpired = () => expiredCallbacks++;
+
+      ApiClient.httpClient = MockClient((request) async {
+        expect(request.headers.containsKey('Authorization'), isFalse);
+        return http.Response(jsonEncode({'detail': 'Not authenticated'}), 401);
+      });
+
+      await expectLater(
+        ApiClient.getCurrentDoctor(),
+        throwsA(isA<ApiException>()
+            .having((e) => e.isUnauthorized, 'isUnauthorized', isTrue)),
+      );
+      expect(expiredCallbacks, 0,
+          reason: 'a session that does not exist cannot expire');
+    });
+
     test('an automatic refresh persists the rotated refresh token', () async {
       // The backend spends the refresh token it is given and hands back a
       // replacement. Losing the replacement would break the next refresh.

@@ -565,21 +565,31 @@ class ApiClient {
     }
 
     if (response.statusCode == 401 && authenticated && retryOnUnauthorized) {
-      if (await _refreshAccessTokenOnce()) {
-        // The access token changed, so the auth header has to be rebuilt —
-        // replaying the stale one would just 401 again.
-        return _send(
-          method,
-          uri,
-          headers: await _withFreshToken(headers),
-          body: body,
-          timeout: timeout,
-          authenticated: authenticated,
-          retryOnUnauthorized: false,
-          expectedStatus: expectedStatus,
-        );
+      // A 401 only means "the session ended" when the request actually carried
+      // one. The intake endpoints are reached by patients who have no token at
+      // all, and a call still in flight when the token was already cleared lands
+      // here looking exactly like an expiry. Treating those as an expiry signed
+      // the patient out of nothing at all, pulled them off the screen they were
+      // on, and did it again on every retry of the upload queue, since the token
+      // was gone by then.
+      final hadCredential = headers?.containsKey('Authorization') ?? false;
+      if (hadCredential) {
+        if (await _refreshAccessTokenOnce()) {
+          // The access token changed, so the auth header has to be rebuilt —
+          // replaying the stale one would just 401 again.
+          return _send(
+            method,
+            uri,
+            headers: await _withFreshToken(headers),
+            body: body,
+            timeout: timeout,
+            authenticated: authenticated,
+            retryOnUnauthorized: false,
+            expectedStatus: expectedStatus,
+          );
+        }
+        await _clearSession();
       }
-      await _clearSession();
     }
 
     if (response.statusCode != expectedStatus) {

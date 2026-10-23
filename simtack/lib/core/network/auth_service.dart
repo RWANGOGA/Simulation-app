@@ -25,7 +25,32 @@ class AuthService {
   /// cannot keep going indefinitely.
   static const Duration offlineTrustWindow = Duration(days: 7);
 
+  /// Whether a practitioner is signed in on this device right now.
+  ///
+  /// This exists so an expired token can be told apart from a 401 that has
+  /// nothing to do with the practitioner: a patient filling in an assessment
+  /// holds no session, so nothing about their flow may be torn down when the
+  /// server rejects a request they made. Kept here rather than derived from the
+  /// token because the handler has to consult it *after* `ApiClient` has already
+  /// deleted the token. `ApiClient.logout()` deliberately does not touch it —
+  /// that path is how a rejected session is cleared, and the caller decides what
+  /// the app does next.
+  bool _hasActiveSession = false;
+
+  bool get hasActiveSession => _hasActiveSession;
+
+  /// Called once the app has acted on an expiry, so the second 401 from the same
+  /// dead session does not send the user to the login screen twice.
+  void noteSessionEnded() => _hasActiveSession = false;
+
   Future<Doctor> login(
+      {required String email, required String password}) async {
+    final doctor = await _login(email: email, password: password);
+    _hasActiveSession = true;
+    return doctor;
+  }
+
+  Future<Doctor> _login(
       {required String email, required String password}) async {
     // No connectivity pre-flight: ApiClient already bounds every request and
     // reports transport failures itself, so checking first only added a
@@ -53,6 +78,32 @@ class AuthService {
   }
 
   Future<Doctor> register({
+    required String email,
+    required String password,
+    required String fullName,
+    String? role,
+    String? licenseNumber,
+    String? phone,
+    String? hospitalName,
+    DateTime? dateOfBirth,
+    String? inviteCode,
+  }) async {
+    final doctor = await _register(
+      email: email,
+      password: password,
+      fullName: fullName,
+      role: role,
+      licenseNumber: licenseNumber,
+      phone: phone,
+      hospitalName: hospitalName,
+      dateOfBirth: dateOfBirth,
+      inviteCode: inviteCode,
+    );
+    _hasActiveSession = true;
+    return doctor;
+  }
+
+  Future<Doctor> _register({
     required String email,
     required String password,
     required String fullName,
@@ -205,6 +256,12 @@ class AuthService {
   /// the cached credential stayed usable offline forever. Now a rejection from
   /// the server ends the session on the device too.
   Future<bool> restoreSession() async {
+    final restored = await _restoreSession();
+    _hasActiveSession = restored;
+    return restored;
+  }
+
+  Future<bool> _restoreSession() async {
     if (await ApiClient.isLoggedIn) {
       try {
         final doctor = await ApiClient.getCurrentDoctor();
@@ -462,5 +519,8 @@ class AuthService {
 
   Future<bool> get isLoggedIn => ApiClient.isLoggedIn;
 
-  Future<void> logout() => ApiClient.logout();
+  Future<void> logout() async {
+    _hasActiveSession = false;
+    await ApiClient.logout();
+  }
 }

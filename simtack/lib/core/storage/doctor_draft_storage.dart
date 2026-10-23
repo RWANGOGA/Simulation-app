@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'doctor_draft.dart';
+import 'stored_json.dart';
 
 /// Local, offline-capable storage for practitioner accounts.
 /// Allows creating/logging in offline and syncing later.
@@ -16,21 +17,21 @@ class DoctorDraftStorage {
         d.profile.email == draft.profile.email || d.localId == draft.localId);
 
     drafts.insert(0, draft);
-    await prefs.setString(_key, jsonEncode(drafts.map((d) => d.toJson()).toList()));
+    await prefs.setString(
+        _key, jsonEncode(drafts.map((d) => d.toJson()).toList()));
   }
 
   static Future<List<DoctorDraft>> loadAll() async {
     final prefs = await SharedPreferences.getInstance();
     final drafts = <DoctorDraft>[];
 
-    final raw = prefs.getString(_key);
-    if (raw != null) {
-      for (final entry in (jsonDecode(raw) as List)) {
-        try {
-          drafts.add(DoctorDraft.fromJson(entry as Map<String, dynamic>));
-        } catch (_) {
-          // Skip corrupt entries
-        }
+    // Tolerant by design: an unreadable account list must not stop a save, and
+    // the caller here is always mid-save (see stored_json.dart).
+    for (final entry in decodeStoredObjects(prefs.getString(_key))) {
+      try {
+        drafts.add(DoctorDraft.fromJson(entry));
+      } catch (_) {
+        // Skip corrupt entries
       }
     }
 
@@ -41,7 +42,8 @@ class DoctorDraftStorage {
   static Future<DoctorDraft?> findByEmail(String email) async {
     final drafts = await loadAll();
     try {
-      return drafts.firstWhere((d) => d.profile.email.toLowerCase() == email.toLowerCase());
+      return drafts.firstWhere(
+          (d) => d.profile.email.toLowerCase() == email.toLowerCase());
     } catch (_) {
       return null;
     }
@@ -56,7 +58,8 @@ class DoctorDraftStorage {
     final prefs = await SharedPreferences.getInstance();
     final drafts = await loadAll();
     drafts.removeWhere((d) => d.localId == draft.localId);
-    await prefs.setString(_key, jsonEncode(drafts.map((d) => d.toJson()).toList()));
+    await prefs.setString(
+        _key, jsonEncode(drafts.map((d) => d.toJson()).toList()));
   }
 
   static Future<void> clear() async {
