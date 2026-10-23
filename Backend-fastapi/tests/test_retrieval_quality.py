@@ -66,12 +66,23 @@ from scripts.eval_retrieval import DEFAULT_K, DEFAULT_WINDOW, evaluate, load_cas
 # that was fixed: with no region tapped, ranking is decided almost entirely by
 # document length, because the region label is not part of the indexed text.
 #
+# P0-9's own baseline is the state after P0-1, re-measured on today's 63 cases:
+# pass 0.714, top1 0.807, mrr 0.849, recall@3 0.759, recall@6 0.835, nDCG@3 0.788,
+# referral 0.818, 18 failing cases, 5 cases retrieving no context at all (three of
+# them clinical_jargon: 'hepatic colic', 'odynophagia and retrosternal burning',
+# 'dyspnea on exertion'), 1 safety violation.
+#
 # After P0-9 (expansion moved to the query side only; inflections folded against
 # the corpus's own vocabulary; clinical jargon bridged to words the monographs
 # actually use): pass 0.857, top1 0.947, mrr 0.968, recall@3 0.877, recall@6 0.942,
-# nDCG@3 0.912, referral 0.864, and every one of the 63 cases that retrieved *no
-# context at all* is now a deliberate out-of-scope abstention rather than a
-# vocabulary hole. Bare region taps are 15/15.
+# nDCG@3 0.912, referral 0.864, 9 failing cases, and the only two cases left with no
+# context at all are deliberate out-of-scope abstentions rather than vocabulary
+# holes. All 15 bare taps were already being *served* context before this item
+# (that is what `bare_taps_served_without_text` counts, coverage not correctness);
+# what changed is that the 'Right Thigh' tap now ranks the right monograph first,
+# because 'thighs' folds onto 'thigh'. Safety violations are unchanged at 1, and
+# `toes-not-cardiac` is now P0-6's business: the chest monograph reaches the window
+# because nothing gates on minimum evidence, not because a word was unknown.
 #
 # One mechanism in that item was tried and reverted, and it is recorded here
 # because a negative result is the point of measuring: indexing the region label
