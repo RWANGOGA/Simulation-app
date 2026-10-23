@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/github_palette.dart';
 import 'practitioner_sidebar.dart';
 
+/// The practitioner area's page frame: a GitHub-style canvas with the
+/// navigation rail on the left at wide sizes, and behind a drawer at narrow
+/// ones.
+///
+/// The background is the Primer canvas rather than `AppPalette.scaffold` so
+/// everything the practitioner sees sits on the console's own surface — the
+/// patient flow's purple sheet never appears behind a session list.
 class PractitionerScaffold extends StatelessWidget {
   final String currentRoute;
-  final Widget Function(BuildContext context, VoidCallback? openDrawer) contentBuilder;
+  final Widget Function(BuildContext context, VoidCallback? openDrawer)
+      contentBuilder;
   final Widget? footer;
 
   const PractitionerScaffold({
@@ -21,11 +29,12 @@ class PractitionerScaffold extends StatelessWidget {
         final isWide = constraints.maxWidth > 600;
 
         return Scaffold(
-          backgroundColor: AppPalette.scaffold(context),
+          backgroundColor: GhColors.canvas(context),
           drawer: isWide
               ? null
               : Drawer(
                   width: MediaQuery.of(context).size.width * 0.75,
+                  backgroundColor: GhColors.surface(context),
                   child: PractitionerSidebar(currentRoute: currentRoute),
                 ),
           // Builder sits *under* Scaffold so Scaffold.of(context) can see it.
@@ -45,7 +54,8 @@ class PractitionerScaffold extends StatelessWidget {
                             scaffoldContext,
                             isWide
                                 ? null
-                                : () => Scaffold.of(scaffoldContext).openDrawer(),
+                                : () =>
+                                    Scaffold.of(scaffoldContext).openDrawer(),
                           ),
                         ),
                       ],

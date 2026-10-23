@@ -4,7 +4,8 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/github_palette.dart';
+import '../../../core/theme/github_kit.dart';
 import '../../../core/theme/app_header_bar.dart';
 import '../../../core/offline/offline_repository.dart';
 import '../../report/ui/clinical_report_screen.dart';
@@ -56,7 +57,8 @@ class _PractitionerDashboardScreenState
     setState(() => _isLoading = true);
     try {
       final stats = await OfflineRepository.instance.getTriageStats();
-      final recent = await OfflineRepository.instance.getTriageList(limit: 5, offset: 0);
+      final recent =
+          await OfflineRepository.instance.getTriageList(limit: 5, offset: 0);
       final sessions = await OfflineRepository.instance.getTriageList(
         limit: _limit,
         offset: 0,
@@ -176,16 +178,19 @@ class _PractitionerDashboardScreenState
     return 'LOW';
   }
 
-  Color _getRiskColor(String level) {
+  /// Clinical risk → Primer tone. One mapping for the whole console, so the
+  /// dashboard, the session list and the report cannot disagree about what
+  /// "medium" looks like.
+  GhTone _riskTone(String level) {
     switch (level) {
       case 'HIGH':
-        return const Color(0xFFDC2626);
+        return GhTone.danger;
       case 'MEDIUM':
-        return const Color(0xFFF59E0B);
+        return GhTone.attention;
       case 'LOW':
-        return const Color(0xFF16A34A);
+        return GhTone.success;
       default:
-        return AppPalette.textMuted(context);
+        return GhTone.neutral;
     }
   }
 
@@ -238,8 +243,12 @@ class _PractitionerDashboardScreenState
           ),
           Expanded(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
+                ? Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: GhColors.accent(context),
+                    ),
+                  )
                 : _buildMainContent(),
           ),
         ],
@@ -261,35 +270,35 @@ class _PractitionerDashboardScreenState
           children: [
             if (_stats != null)
               Wrap(
-                spacing: 16,
-                runSpacing: 16,
+                spacing: 12,
+                runSpacing: 12,
                 children: [
-                  _buildStatCard(
-                    t.statTotalLabel,
-                    _stats!['total'].toString(),
-                    const Color(0xFF0F172A),
-                    Icons.people,
+                  GhStatTile(
+                    label: t.statTotalLabel,
+                    value: _stats!['total'].toString(),
+                    icon: Icons.people_outline,
+                    tone: GhTone.accent,
                     onTap: () => _navigateToSessionList(),
                   ),
-                  _buildStatCard(
-                    t.statHighRiskLabel,
-                    _stats!['high_risk'].toString(),
-                    const Color(0xFFDC2626),
-                    Icons.warning,
+                  GhStatTile(
+                    label: t.statHighRiskLabel,
+                    value: _stats!['high_risk'].toString(),
+                    icon: Icons.warning_amber_outlined,
+                    tone: GhTone.danger,
                     onTap: () => _navigateToSessionList(riskLevel: 'HIGH'),
                   ),
-                  _buildStatCard(
-                    t.statMediumRiskLabel,
-                    _stats!['medium_risk'].toString(),
-                    const Color(0xFFD97706),
-                    Icons.trending_up,
+                  GhStatTile(
+                    label: t.statMediumRiskLabel,
+                    value: _stats!['medium_risk'].toString(),
+                    icon: Icons.trending_up,
+                    tone: GhTone.attention,
                     onTap: () => _navigateToSessionList(riskLevel: 'MEDIUM'),
                   ),
-                  _buildStatCard(
-                    t.statLowRiskLabel,
-                    _stats!['low_risk'].toString(),
-                    const Color(0xFF059669),
-                    Icons.check_circle,
+                  GhStatTile(
+                    label: t.statLowRiskLabel,
+                    value: _stats!['low_risk'].toString(),
+                    icon: Icons.check_circle_outline,
+                    tone: GhTone.success,
                     onTap: () => _navigateToSessionList(riskLevel: 'LOW'),
                   ),
                 ],
@@ -298,21 +307,21 @@ class _PractitionerDashboardScreenState
             const SizedBox(height: 24),
 
             Wrap(
-              spacing: 16,
-              runSpacing: 16,
+              spacing: 12,
+              runSpacing: 12,
               children: [
                 _buildActionCard(
                   t.patientLookupTitle,
                   t.actionPatientLookupSubtitle,
                   Icons.person_search,
-                  const Color(0xFF6D28D9),
+                  GhTone.accent,
                   () => _navigateToPatientOverview(),
                 ),
                 _buildActionCard(
                   t.actionNewTriageTitle,
                   t.actionNewTriageSubtitle,
                   Icons.add_circle_outline,
-                  const Color(0xFF16A34A),
+                  GhTone.success,
                   () => _navigateToNewTriage(),
                 ),
               ],
@@ -330,44 +339,27 @@ class _PractitionerDashboardScreenState
             // share — a plain Row can't shrink the fixed-width filters,
             // so it overflows outright rather than squeezing gracefully.
             Wrap(
-              spacing: 12,
-              runSpacing: 12,
+              spacing: 8,
+              runSpacing: 8,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
-                SizedBox(
+                GhTextField(
                   width: 260,
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: t.searchPatientIdHint,
-                      prefixIcon: Icon(Icons.search,
-                          color: AppPalette.textMuted(context)),
-                      filled: true,
-                      fillColor: AppPalette.inputFill(context),
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide.none),
-                      contentPadding: const EdgeInsets.symmetric(vertical: 0),
-                    ),
-                    onChanged: (value) {
-                      setState(() => _searchQuery = value.toUpperCase());
-                      _searchDebounce?.cancel();
-                      _searchDebounce =
-                          Timer(const Duration(milliseconds: 400), () {
-                        _loadData();
-                      });
-                    },
-                  ),
+                  hint: t.searchPatientIdHint,
+                  prefixIcon: Icons.search,
+                  onChanged: (value) {
+                    setState(() => _searchQuery = value.toUpperCase());
+                    _searchDebounce?.cancel();
+                    _searchDebounce =
+                        Timer(const Duration(milliseconds: 400), () {
+                      _loadData();
+                    });
+                  },
                 ),
                 if (!kIsWeb)
-                  IconButton.filled(
-                    tooltip: t.scanPatientQrTooltip,
-                    style: IconButton.styleFrom(
-                      backgroundColor: const Color(0xFF6D28D9),
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
-                    ),
-                    icon: const Icon(Icons.qr_code_scanner),
+                  GhButton(
+                    'Scan QR',
+                    icon: Icons.qr_code_scanner,
                     onPressed: _scanQr,
                   ),
                 _buildDropdownFilter(_selectedRisk, Icons.filter_list,
@@ -386,48 +378,23 @@ class _PractitionerDashboardScreenState
 
             const SizedBox(height: 24),
 
-            Row(
-              children: [
-                Text(t.navTriageSessions,
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppPalette.textPrimary(context))),
-                const Spacer(),
-                TextButton(
+            GhSectionHeader(
+              t.navTriageSessions,
+              actions: [
+                GhButton(
+                  t.viewAllButton,
+                  variant: GhButtonVariant.link,
                   onPressed: _navigateToSessionList,
-                  child: Text(t.viewAllButton,
-                      style: const TextStyle(
-                          fontSize: 14,
-                          color: Color(0xFF6D28D9),
-                          fontWeight: FontWeight.w600)),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
 
             if (_sessions.isEmpty)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(40),
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 72,
-                        height: 72,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF6D28D9).withOpacity(0.10),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.inbox_outlined,
-                            size: 32, color: Color(0xFF6D28D9)),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(t.noTriageSessionsFoundMessage,
-                          style:
-                              TextStyle(color: AppPalette.textMuted(context))),
-                    ],
-                  ),
+              GhBox(
+                child: GhEmptyState(
+                  icon: Icons.inbox_outlined,
+                  message: t.noTriageSessionsFoundMessage,
                 ),
               )
             else
@@ -435,18 +402,13 @@ class _PractitionerDashboardScreenState
 
             if (_hasMore && _sessions.isNotEmpty)
               Padding(
-                padding: const EdgeInsets.only(top: 16),
+                padding: const EdgeInsets.only(top: 12),
                 child: Center(
-                  child: TextButton.icon(
+                  child: GhButton(
+                    _isLoadingMore ? t.loadingEllipsis : t.loadMoreButton,
+                    variant: GhButtonVariant.secondary,
+                    busy: _isLoadingMore,
                     onPressed: _isLoadingMore ? null : _loadMore,
-                    icon: _isLoadingMore
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2))
-                        : const Icon(Icons.expand_more),
-                    label: Text(
-                        _isLoadingMore ? t.loadingEllipsis : t.loadMoreButton),
                   ),
                 ),
               ),
@@ -459,54 +421,46 @@ class _PractitionerDashboardScreenState
   Widget _buildRecentSessionsSection() {
     if (_recentSessions.isEmpty) return const SizedBox.shrink();
     final t = AppLocalizations.of(context)!;
+    final recent = _recentSessions.take(5).toList();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Text(t.recentActivityTitle,
-                style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppPalette.textPrimary(context))),
-            const Spacer(),
-            TextButton(
-              onPressed: _navigateToSessionList,
-              child: Text(t.seeAllButton,
-                  style: const TextStyle(
-                      fontSize: 14,
-                      color: Color(0xFF6D28D9),
-                      fontWeight: FontWeight.w600)),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppPalette.surface(context),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppPalette.border(context)),
-          ),
-          child: Column(
-            children: _recentSessions
-                .take(5)
-                .map((session) => _buildRecentSessionItem(session))
-                .toList(),
-          ),
+    return GhBox(
+      header: t.recentActivityTitle,
+      headerActions: [
+        GhButton(
+          t.seeAllButton,
+          variant: GhButtonVariant.link,
+          onPressed: _navigateToSessionList,
         ),
       ],
+      flush: true,
+      child: Column(
+        children: [
+          for (var index = 0; index < recent.length; index++)
+            _buildRecentSessionItem(
+              recent[index],
+              showDivider: index < recent.length - 1,
+            ),
+        ],
+      ),
     );
   }
 
-  Widget _buildRecentSessionItem(Map<String, dynamic> session) {
+  Widget _buildRecentSessionItem(Map<String, dynamic> session,
+      {bool showDivider = true}) {
+    final t = AppLocalizations.of(context)!;
     final riskLevel = _getRiskLevel(session['risk_score']);
-    final riskColor = _getRiskColor(riskLevel);
+    final tone = _riskTone(riskLevel);
     final date = DateTime.parse(session['created_at']);
     final formattedDate = DateFormat('MMM dd, HH:mm').format(date);
 
-    return InkWell(
+    return GhActionRow(
+      icon: Icons.monitor_heart_outlined,
+      tone: tone,
+      title: session['anonymous_code'] ?? t.unknownLabel,
+      subtitle:
+          '${session['body_region']} • ${session['pain_type']} • $formattedDate',
+      showDivider: showDivider,
+      trailing: _buildStateLabels(session, riskLevel),
       onTap: () async {
         await Navigator.of(context).push(
           AppPageRoute(
@@ -518,305 +472,139 @@ class _PractitionerDashboardScreenState
         );
         _loadData();
       },
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: riskColor.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(Icons.medical_services, color: riskColor, size: 20),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    session['anonymous_code'] ??
-                        AppLocalizations.of(context)!.unknownLabel,
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                        color: Color(0xFF1E293B)),
-                  ),
-                  Text(
-                    '${session['body_region']} • ${session['pain_type']}',
-                    style: TextStyle(
-                        fontSize: 12, color: AppPalette.textMuted(context)),
-                  ),
-                ],
-              ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: riskColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(_riskDisplayLabel(context, riskLevel),
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: riskColor,
-                          fontSize: 11)),
-                ),
-                const SizedBox(height: 4),
-                Text(formattedDate,
-                    style: TextStyle(
-                        fontSize: 10, color: AppPalette.textMuted(context))),
-              ],
-            ),
-          ],
+    );
+  }
+
+  /// The risk and status pills that trail every session row. GitHub reads
+  /// state as a coloured label, not as a tinted avatar, so the row's colour
+  /// budget is spent on these two pills only.
+  Widget _buildStateLabels(Map<String, dynamic> session, String riskLevel) {
+    final t = AppLocalizations.of(context)!;
+    final isClosed = session['status'] == 'closed';
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GhLabel(_riskDisplayLabel(context, riskLevel),
+            tone: _riskTone(riskLevel)),
+        const SizedBox(width: 6),
+        GhLabel(
+          isClosed ? t.statusClosedLabel : t.statusOpenLabel,
+          tone: isClosed ? GhTone.done : GhTone.success,
         ),
-      ),
+      ],
     );
   }
 
   Widget _buildSessionList() {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: _sessions.length,
-      itemBuilder: (context, index) {
-        final session = _sessions[index];
-        final riskLevel = _getRiskLevel(session['risk_score']);
-        final riskColor = _getRiskColor(riskLevel);
-        final isClosed = session['status'] == 'closed';
-        final date = DateTime.parse(session['created_at']);
-        final formattedDate = DateFormat('MMM dd, HH:mm').format(date);
-
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          elevation: 1,
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          color: AppPalette.surface(context),
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(16),
-            leading: CircleAvatar(
-              backgroundColor: riskColor.withOpacity(0.1),
-              child: Icon(Icons.medical_services, color: riskColor, size: 24),
+    return GhBox(
+      flush: true,
+      child: Column(
+        children: [
+          for (var index = 0; index < _sessions.length; index++)
+            _buildSessionRow(
+              _sessions[index],
+              showDivider: index < _sessions.length - 1,
             ),
-            title: Text(
-              session['anonymous_code'] ??
-                  AppLocalizations.of(context)!.unknownIdLabel,
-              style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
-                  color: Color(0xFF1E293B)),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text(
-                    '${session['body_region']} • ${session['pain_type']} (${session['severity']}/10)',
-                    style: TextStyle(color: AppPalette.textSecondary(context))),
-                if (_demoLine(session) != null) ...[
-                  const SizedBox(height: 4),
-                  Text(_demoLine(session)!,
-                      style: const TextStyle(
-                          fontSize: 12,
-                          color: Color(0xFF6D28D9),
-                          fontWeight: FontWeight.w600)),
-                ],
-                const SizedBox(height: 4),
-                Text(formattedDate,
-                    style: TextStyle(
-                        fontSize: 12, color: AppPalette.textMuted(context))),
-              ],
-            ),
-            trailing: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: riskColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: riskColor.withOpacity(0.3)),
-                  ),
-                  child: Text(_riskDisplayLabel(context, riskLevel),
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: riskColor,
-                          fontSize: 12)),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  isClosed
-                      ? AppLocalizations.of(context)!.statusClosedLabel
-                      : AppLocalizations.of(context)!.statusOpenLabel,
-                  style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: isClosed
-                          ? AppPalette.textMuted(context)
-                          : const Color(0xFFF59E0B)),
-                ),
-              ],
-            ),
-            onTap: () async {
-              await Navigator.of(context).push(
-                AppPageRoute(
-                  builder: (_) => ClinicalReportScreen(
-                    patientId: session['anonymous_code'],
-                    practitionerMode: true,
-                  ),
-                ),
-              );
-              _loadData();
-            },
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildStatCard(
-      String label, String value, Color color, IconData icon,
-      {VoidCallback? onTap}) {
-    return SizedBox(
-      width: 180,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppPalette.surface(context),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppPalette.border(context)),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2))
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Icon(icon, color: color, size: 24),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(value,
-                          style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              color: color),
-                          overflow: TextOverflow.ellipsis),
-                      Text(label,
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: AppPalette.textMuted(context),
-                              fontWeight: FontWeight.w600),
-                          overflow: TextOverflow.ellipsis),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+        ],
       ),
     );
   }
 
+  Widget _buildSessionRow(Map<String, dynamic> session,
+      {required bool showDivider}) {
+    final t = AppLocalizations.of(context)!;
+    final riskLevel = _getRiskLevel(session['risk_score']);
+    final date = DateTime.parse(session['created_at']);
+    final formattedDate = DateFormat('MMM dd, HH:mm').format(date);
+    final demo = _demoLine(session);
+
+    return GhActionRow(
+      icon: Icons.monitor_heart_outlined,
+      tone: _riskTone(riskLevel),
+      title: session['anonymous_code'] ?? t.unknownIdLabel,
+      subtitle: [
+        '${session['body_region']} • ${session['pain_type']} (${session['severity']}/10)',
+        if (demo != null) demo,
+        formattedDate,
+      ].join(' • '),
+      showDivider: showDivider,
+      trailing: _buildStateLabels(session, riskLevel),
+      onTap: () async {
+        await Navigator.of(context).push(
+          AppPageRoute(
+            builder: (_) => ClinicalReportScreen(
+              patientId: session['anonymous_code'],
+              practitionerMode: true,
+            ),
+          ),
+        );
+        _loadData();
+      },
+    );
+  }
+
   Widget _buildActionCard(String title, String subtitle, IconData icon,
-      Color color, VoidCallback onTap) {
-    // Same fixed-width-inside-Wrap reasoning as _buildStatCard above.
-    // The colored left accent is a separate Container inside a ClipRRect,
-    // not a Border side — Flutter's Border.paint refuses a borderRadius on
-    // a border whose sides aren't all the same color.
+      GhTone tone, VoidCallback onTap) {
+    // Fixed width inside the Wrap above, same reasoning as the stat tiles:
+    // a Row cannot shrink a fixed-width child, a Wrap reflows it.
+    final color = tone.color(context);
+
     return SizedBox(
       width: 280,
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(6),
+          hoverColor: GhColors.surfaceHover(context),
           child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             decoration: BoxDecoration(
-              color: AppPalette.surface(context),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppPalette.border(context)),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2))
-              ],
+              color: GhColors.surface(context),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: GhColors.border(context)),
             ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(13),
-              child: IntrinsicHeight(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Container(width: 4, color: color),
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                  color: color.withOpacity(0.1),
-                                  borderRadius: BorderRadius.circular(10)),
-                              child: Icon(icon, color: color, size: 24),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(title,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              AppPalette.textPrimary(context))),
-                                  const SizedBox(height: 4),
-                                  Text(subtitle,
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color:
-                                              AppPalette.textMuted(context))),
-                                ],
-                              ),
-                            ),
-                            Icon(Icons.arrow_forward_ios,
-                                size: 14, color: AppPalette.textMuted(context)),
-                          ],
+            child: Row(
+              children: [
+                Container(
+                  width: 28,
+                  height: 28,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: tone.subtle(context),
+                    borderRadius: BorderRadius.circular(6),
+                    border: Border.all(color: color.withOpacity(0.28)),
+                  ),
+                  child: Icon(icon, size: 16, color: color),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        title,
+                        overflow: TextOverflow.ellipsis,
+                        style: GhType.bodyStrong.copyWith(
+                          color: GhColors.fg(context),
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        overflow: TextOverflow.ellipsis,
+                        style: GhType.meta.copyWith(
+                          color: GhColors.fgMuted(context),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                Icon(Icons.chevron_right,
+                    size: 16, color: GhColors.fgMuted(context)),
+              ],
             ),
           ),
         ),
@@ -824,74 +612,73 @@ class _PractitionerDashboardScreenState
     );
   }
 
+  /// A filter control drawn as a GitHub select: a bordered 32px button whose
+  /// label is the current choice.
   Widget _buildDropdownFilter(String? currentValue, IconData icon,
       List<String> items, void Function(String?) onChanged) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
-          color: AppPalette.surface(context),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppPalette.border(context))),
-      child: DropdownButton<String>(
-        value: items.contains(currentValue) ? currentValue : null,
-        underline: const SizedBox(),
-        icon: Icon(icon, color: AppPalette.textMuted(context), size: 20),
-        items: items
-            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
-            .toList(),
-        onChanged: onChanged,
+        color: GhColors.defaultButtonBg(context),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(color: GhColors.border(context)),
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String>(
+          value: items.contains(currentValue) ? currentValue : null,
+          isDense: true,
+          borderRadius: BorderRadius.circular(6),
+          dropdownColor: GhColors.surface(context),
+          style: GhType.body.copyWith(color: GhColors.fg(context)),
+          icon: Icon(icon, size: 14, color: GhColors.fgMuted(context)),
+          hint: Text(items.first,
+              style: GhType.body.copyWith(color: GhColors.fg(context))),
+          items: items
+              .map((e) => DropdownMenuItem<String>(
+                    value: e,
+                    child: Text(e,
+                        style:
+                            GhType.body.copyWith(color: GhColors.fg(context))),
+                  ))
+              .toList(),
+          onChanged: onChanged,
+        ),
       ),
     );
   }
 
   Widget _buildFooter(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
       decoration: BoxDecoration(
-        color: AppPalette.surface(context),
-        border: Border(top: BorderSide(color: AppPalette.border(context))),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.02),
-            blurRadius: 8,
-            offset: const Offset(0, -2),
-          ),
-        ],
+        color: GhColors.surface(context),
+        border: Border(top: BorderSide(color: GhColors.border(context))),
       ),
       child: SafeArea(
         top: false,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Expanded(
-              child: OutlinedButton.icon(
+              child: GhButton(
+                'Home',
+                icon: Icons.home_outlined,
+                variant: GhButtonVariant.secondary,
+                expanded: true,
                 onPressed: () => Navigator.of(context).pushAndRemoveUntil(
                   AppPageRoute(builder: (_) => const WelcomeScreen()),
                   (route) => false,
                 ),
-                icon: const Icon(Icons.home_outlined, size: 20, color: Color(0xFF6D28D9)),
-                label: const Text('Home',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF6D28D9))),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFF6D28D9)),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                ),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 8),
             Expanded(
-              child: OutlinedButton.icon(
+              child: GhButton(
+                'New Patient',
+                icon: Icons.add_circle_outline,
+                variant: GhButtonVariant.primary,
+                expanded: true,
                 onPressed: () => Navigator.of(context).push(
                   AppPageRoute(builder: (_) => const PatientInfoScreen()),
-                ),
-                icon: const Icon(Icons.add_circle_outline, size: 20, color: Color(0xFF16A34A)),
-                label: const Text('New Patient',
-                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Color(0xFF16A34A))),
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Color(0xFF16A34A)),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 ),
               ),
             ),
@@ -989,16 +776,16 @@ class _SessionListScreenState extends State<SessionListScreen> {
     return 'LOW';
   }
 
-  Color _getRiskColor(String level) {
+  GhTone _riskTone(String level) {
     switch (level) {
       case 'HIGH':
-        return const Color(0xFFDC2626);
+        return GhTone.danger;
       case 'MEDIUM':
-        return const Color(0xFFF59E0B);
+        return GhTone.attention;
       case 'LOW':
-        return const Color(0xFF16A34A);
+        return GhTone.success;
       default:
-        return AppPalette.textMuted(context);
+        return GhTone.neutral;
     }
   }
 
@@ -1020,166 +807,229 @@ class _SessionListScreenState extends State<SessionListScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     return Scaffold(
-      backgroundColor: AppPalette.scaffold(context),
-      appBar: AppBar(
-        backgroundColor: AppPalette.surface(context),
-        elevation: 0,
-        title: Text(t.allTriageSessionsTitle,
-            style: TextStyle(
-                color: AppPalette.textPrimary(context),
-                fontWeight: FontWeight.bold)),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: AppPalette.textPrimary(context)),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list, color: Color(0xFF6D28D9)),
-            onPressed: () => _showFilterSheet(),
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
-          : Column(
+      backgroundColor: GhColors.canvas(context),
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: GhColors.headerBg(context),
+              border: Border(
+                bottom: BorderSide(color: Colors.black.withOpacity(0.28)),
+              ),
+            ),
+            child: Row(
               children: [
-                if (_selectedRisk != null || _selectedStatus != null)
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    color: AppPalette.surface(context),
-                    child: Row(
-                      children: [
-                        if (_selectedRisk != null)
-                          Chip(
-                            label: Text(_selectedRisk!),
-                            onDeleted: () {
-                              setState(() => _selectedRisk = null);
-                              _loadSessions();
-                            },
-                          ),
-                        if (_selectedStatus != null) ...[
-                          const SizedBox(width: 8),
-                          Chip(
-                            label: Text(_selectedStatus!),
-                            onDeleted: () {
-                              setState(() => _selectedStatus = null);
-                              _loadSessions();
-                            },
-                          ),
-                        ],
-                        const Spacer(),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              _selectedRisk = null;
-                              _selectedStatus = null;
-                            });
-                            _loadSessions();
-                          },
-                          child: Text(t.clearAllButton),
-                        ),
-                      ],
+                AppHeaderIconButton(
+                  icon: Icons.arrow_back,
+                  tooltip: t.allTriageSessionsTitle,
+                  onPressed: () => Navigator.of(context).pop(),
+                  compact: true,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    t.allTriageSessionsTitle,
+                    overflow: TextOverflow.ellipsis,
+                    style: GhType.headerTitle.copyWith(
+                      color: GhColors.headerFg(context),
                     ),
                   ),
-                Expanded(
-                  child: _sessions.isEmpty
-                      ? Center(
-                          child: Text(t.noSessionsFoundMessage,
-                              style: TextStyle(
-                                  color: AppPalette.textMuted(context))))
-                      : RefreshIndicator(
-                          onRefresh: _loadSessions,
-                          child: ListView.builder(
-                            padding: const EdgeInsets.all(16),
-                            itemCount: _sessions.length + (_hasMore ? 1 : 0),
-                            itemBuilder: (context, index) {
-                              if (index >= _sessions.length) {
-                                return Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(16),
-                                    child: _isLoadingMore
-                                        ? const CircularProgressIndicator()
-                                        : TextButton(
-                                            onPressed: _loadMore,
-                                            child: Text(t.loadMoreButton),
-                                          ),
-                                  ),
-                                );
-                              }
-
-                              final session = _sessions[index];
-                              final riskLevel =
-                                  _getRiskLevel(session['risk_score']);
-                              final riskColor = _getRiskColor(riskLevel);
-                              final date =
-                                  DateTime.parse(session['created_at']);
-                              final formattedDate =
-                                  DateFormat('MMM dd, yyyy, HH:mm')
-                                      .format(date);
-
-                              return Card(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.all(16),
-                                  leading: CircleAvatar(
-                                    backgroundColor: riskColor.withOpacity(0.1),
-                                    child: Icon(Icons.medical_services,
-                                        color: riskColor),
-                                  ),
-                                  title: Text(
-                                    session['anonymous_code'] ?? t.unknownLabel,
-                                    style: const TextStyle(
-                                        fontWeight: FontWeight.bold),
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(height: 4),
-                                      Text(
-                                          '${session['body_region']} • ${session['pain_type']}'),
-                                      Text(formattedDate,
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: AppPalette.textMuted(
-                                                  context))),
-                                    ],
-                                  ),
-                                  trailing: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 8, vertical: 4),
-                                    decoration: BoxDecoration(
-                                      color: riskColor.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                        _riskDisplayLabel(context, riskLevel),
-                                        style: TextStyle(
-                                            color: riskColor,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 11)),
-                                  ),
-                                  onTap: () async {
-                                    await Navigator.of(context).push(
-                                      AppPageRoute(
-                                        builder: (_) => ClinicalReportScreen(
-                                          patientId: session['anonymous_code'],
-                                          practitionerMode: true,
-                                        ),
-                                      ),
-                                    );
-                                    _loadSessions();
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        ),
+                ),
+                AppHeaderIconButton(
+                  icon: Icons.filter_list,
+                  tooltip: t.filterSessionsTitle,
+                  onPressed: () => _showFilterSheet(),
                 ),
               ],
             ),
+          ),
+          if (_isLoading)
+            Expanded(
+              child: Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: GhColors.accent(context),
+                ),
+              ),
+            )
+          else ...[
+            if (_selectedRisk != null || _selectedStatus != null)
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                  color: GhColors.surface(context),
+                  border: Border(
+                    bottom: BorderSide(color: GhColors.border(context)),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    if (_selectedRisk != null)
+                      _filterPill(context, _selectedRisk!, () {
+                        setState(() => _selectedRisk = null);
+                        _loadSessions();
+                      }),
+                    if (_selectedStatus != null) ...[
+                      const SizedBox(width: 8),
+                      _filterPill(context, _selectedStatus!, () {
+                        setState(() => _selectedStatus = null);
+                        _loadSessions();
+                      }),
+                    ],
+                    const Spacer(),
+                    GhButton(
+                      t.clearAllButton,
+                      variant: GhButtonVariant.link,
+                      onPressed: () {
+                        setState(() {
+                          _selectedRisk = null;
+                          _selectedStatus = null;
+                        });
+                        _loadSessions();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _loadSessions,
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    if (_sessions.isEmpty)
+                      GhBox(
+                        child: GhEmptyState(
+                          icon: Icons.inbox_outlined,
+                          message: t.noSessionsFoundMessage,
+                        ),
+                      )
+                    else
+                      GhBox(
+                        flush: true,
+                        child: Column(
+                          children: [
+                            for (var index = 0;
+                                index < _sessions.length;
+                                index++)
+                              _sessionRow(
+                                context,
+                                t,
+                                _sessions[index],
+                                showDivider: index < _sessions.length - 1,
+                              ),
+                          ],
+                        ),
+                      ),
+                    if (_hasMore)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: Center(
+                          child: GhButton(
+                            t.loadMoreButton,
+                            variant: GhButtonVariant.secondary,
+                            busy: _isLoadingMore,
+                            onPressed: _isLoadingMore ? null : _loadMore,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _sessionRow(
+      BuildContext context, AppLocalizations t, Map<String, dynamic> session,
+      {required bool showDivider}) {
+    final riskLevel = _getRiskLevel(session['risk_score']);
+    final date = DateTime.parse(session['created_at']);
+    final formattedDate = DateFormat('MMM dd, yyyy, HH:mm').format(date);
+
+    return GhActionRow(
+      icon: Icons.monitor_heart_outlined,
+      tone: _riskTone(riskLevel),
+      title: session['anonymous_code'] ?? t.unknownLabel,
+      subtitle:
+          '${session['body_region']} • ${session['pain_type']} • $formattedDate',
+      showDivider: showDivider,
+      trailing: GhLabel(
+        _riskDisplayLabel(context, riskLevel),
+        tone: _riskTone(riskLevel),
+      ),
+      onTap: () async {
+        await Navigator.of(context).push(
+          AppPageRoute(
+            builder: (_) => ClinicalReportScreen(
+              patientId: session['anonymous_code'],
+              practitionerMode: true,
+            ),
+          ),
+        );
+        _loadSessions();
+      },
+    );
+  }
+
+  /// An applied filter, shown as a label with the small dismiss cross that
+  /// GitHub puts next to a filter chip.
+  Widget _filterPill(BuildContext context, String value, VoidCallback onClear) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GhLabel(value, tone: GhTone.neutral),
+        InkWell(
+          onTap: onClear,
+          borderRadius: BorderRadius.circular(999),
+          child: Padding(
+            padding: const EdgeInsets.all(3),
+            child:
+                Icon(Icons.close, size: 12, color: GhColors.fgMuted(context)),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// A selectable pill for the filter sheet — the GitHub equivalent of a
+  /// `ChoiceChip`, with the accent ring reserved for the current choice.
+  Widget _choicePill(BuildContext context,
+      {required String label,
+      required bool selected,
+      required VoidCallback onTap}) {
+    return Material(
+      color: selected
+          ? GhColors.accentSubtle(context)
+          : GhColors.defaultButtonBg(context),
+      borderRadius: BorderRadius.circular(999),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(999),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(
+              color: selected
+                  ? GhColors.accent(context).withOpacity(0.45)
+                  : GhColors.border(context),
+            ),
+          ),
+          child: Text(
+            label,
+            style: GhType.meta.copyWith(
+              color: selected ? GhColors.accent(context) : GhColors.fg(context),
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -1187,70 +1037,75 @@ class _SessionListScreenState extends State<SessionListScreen> {
     final t = AppLocalizations.of(context)!;
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppPalette.surface(context),
+      backgroundColor: GhColors.surface(context),
       shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(6))),
       builder: (context) => StatefulBuilder(
         builder: (context, setSheetState) => Padding(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(t.filterSessionsTitle,
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 24),
-              Text(t.riskLevelLabel,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+                  style: GhType.sectionTitle
+                      .copyWith(color: GhColors.fg(context))),
+              const SizedBox(height: 20),
+              Text(t.riskLevelLabel.toUpperCase(),
+                  style: GhType.meta.copyWith(
+                      color: GhColors.fgMuted(context),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                      letterSpacing: 0.6)),
               const SizedBox(height: 8),
               Wrap(
-                spacing: 8,
+                spacing: 6,
+                runSpacing: 6,
                 children: ['All', 'HIGH', 'MEDIUM', 'LOW'].map((level) {
                   final isSelected = _selectedRisk == level ||
                       (_selectedRisk == null && level == 'All');
-                  return ChoiceChip(
-                    label: Text(level),
+                  return _choicePill(
+                    context,
+                    label: level,
                     selected: isSelected,
-                    onSelected: (selected) {
-                      setSheetState(
-                          () => _selectedRisk = level == 'All' ? null : level);
-                    },
+                    onTap: () => setSheetState(
+                        () => _selectedRisk = level == 'All' ? null : level),
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 24),
-              Text(t.statusLabel,
-                  style: const TextStyle(fontWeight: FontWeight.w600)),
+              const SizedBox(height: 20),
+              Text(t.statusLabel.toUpperCase(),
+                  style: GhType.meta.copyWith(
+                      color: GhColors.fgMuted(context),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                      letterSpacing: 0.6)),
               const SizedBox(height: 8),
               Wrap(
-                spacing: 8,
+                spacing: 6,
+                runSpacing: 6,
                 children: ['Any', 'open', 'closed'].map((status) {
                   final isSelected = _selectedStatus == status ||
                       (_selectedStatus == null && status == 'Any');
-                  return ChoiceChip(
-                    label: Text(status),
+                  return _choicePill(
+                    context,
+                    label: status,
                     selected: isSelected,
-                    onSelected: (selected) {
-                      setSheetState(() =>
-                          _selectedStatus = status == 'Any' ? null : status);
-                    },
+                    onTap: () => setSheetState(() =>
+                        _selectedStatus = status == 'Any' ? null : status),
                   );
                 }).toList(),
               ),
-              const SizedBox(height: 24),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () {
-                    setState(() {});
-                    Navigator.pop(context);
-                    _loadSessions();
-                  },
-                  style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6D28D9)),
-                  child: Text(t.applyFiltersButton),
-                ),
+              const SizedBox(height: 20),
+              GhButton(
+                t.applyFiltersButton,
+                variant: GhButtonVariant.primary,
+                expanded: true,
+                onPressed: () {
+                  setState(() {});
+                  Navigator.pop(context);
+                  _loadSessions();
+                },
               ),
             ],
           ),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../../../../core/theme/app_palette.dart';
+import '../../../../core/theme/github_kit.dart';
+import '../../../../core/theme/github_palette.dart';
 import '../../../../core/theme/app_header_bar.dart';
 import '../../../../core/network/auth_service.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -103,7 +104,7 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
         SnackBar(
             content:
                 Text('${AppLocalizations.of(context)!.saveChangesButton} ✓'),
-            backgroundColor: const Color(0xFF16A34A)),
+            backgroundColor: GhColors.success(context)),
       );
     } catch (e) {
       if (!mounted) return;
@@ -111,7 +112,7 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text('Failed to save: $e'),
-            backgroundColor: const Color(0xFFDC2626)),
+            backgroundColor: GhColors.danger(context)),
       );
     }
   }
@@ -130,13 +131,72 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
     }
   }
 
-  InputDecoration _inputDecoration(BuildContext context, String label) {
+  /// The console's input: 32px, one border, blue ring on focus.
+  InputDecoration _inputDecoration(BuildContext context) {
+    OutlineInputBorder border(Color color, [double width = 1]) =>
+        OutlineInputBorder(
+          borderRadius: BorderRadius.circular(6),
+          borderSide: BorderSide(color: color, width: width),
+        );
+
     return InputDecoration(
-      labelText: label,
+      isDense: true,
       filled: true,
-      fillColor: AppPalette.inputFill(context),
-      border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      fillColor: GhColors.surface(context),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      border: border(GhColors.border(context)),
+      enabledBorder: border(GhColors.border(context)),
+      disabledBorder: border(GhColors.borderMuted(context)),
+      focusedBorder: border(GhColors.accent(context), 2),
+    );
+  }
+
+  /// A settings row: label on the left, field on the right — GitHub's own
+  /// settings layout, stacked on narrow screens.
+  /// A settings row: label on the left, control on the right — GitHub's own
+  /// settings layout, stacked on narrow screens.
+  Widget _settingsRow({
+    required BuildContext context,
+    required String label,
+    required Widget field,
+  }) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final labelText = Text(label,
+            style: GhType.title.copyWith(color: GhColors.fg(context)));
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: GhColors.borderMuted(context)),
+            ),
+          ),
+          child: constraints.maxWidth >= 560
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      width: 200,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: labelText,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(child: field),
+                  ],
+                )
+              : Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    labelText,
+                    const SizedBox(height: 6),
+                    field,
+                  ],
+                ),
+        );
+      },
     );
   }
 
@@ -149,15 +209,101 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
     VoidCallback? onTap,
     String? Function(String?)? validator,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: TextFormField(
+    return _settingsRow(
+      context: context,
+      label: label,
+      field: TextFormField(
         controller: controller,
         keyboardType: keyboardType,
         readOnly: readOnly || onTap != null,
         onTap: onTap,
-        decoration: _inputDecoration(context, label),
         validator: validator,
+        style: GhType.body.copyWith(color: GhColors.fg(context)),
+        decoration: _inputDecoration(context),
+      ),
+    );
+  }
+
+  Widget _buildDateField(BuildContext context) {
+    final value = _dateOfBirth == null
+        ? 'Not set'
+        : DateFormat('yyyy-MM-dd').format(_dateOfBirth!);
+    return _settingsRow(
+      context: context,
+      label: 'Date of Birth',
+      field: InkWell(
+        onTap: _isEditing ? _pickDate : null,
+        borderRadius: BorderRadius.circular(6),
+        child: InputDecorator(
+          decoration: _inputDecoration(context),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  value,
+                  style: GhType.body.copyWith(
+                    color: _dateOfBirth == null
+                        ? GhColors.fgMuted(context)
+                        : GhColors.fg(context),
+                  ),
+                ),
+              ),
+              Icon(Icons.calendar_today_outlined,
+                  size: 14, color: GhColors.fgMuted(context)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildIdentity(BuildContext context) {
+    final name = _fullNameController.text.trim();
+    return Row(
+      children: [
+        GhAvatar(name: name.isEmpty ? null : name, size: 64),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                name.isEmpty ? 'Practitioner' : name,
+                style:
+                    GhType.sectionTitle.copyWith(color: GhColors.fg(context)),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Practitioner Account',
+                style: GhType.body.copyWith(color: GhColors.fgMuted(context)),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLoadError(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: SizedBox(
+          width: 520,
+          child: GhBanner(
+            'Error loading profile: $_errorMessage',
+            tone: GhTone.danger,
+            icon: Icons.error_outline,
+            actions: [
+              GhButton(
+                'Retry',
+                icon: Icons.refresh,
+                variant: GhButtonVariant.secondary,
+                onPressed: _loadProfile,
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -174,7 +320,10 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
             onMenuTap: openDrawer,
             actions: [
               if (_isEditing)
-                TextButton.icon(
+                GhButton(
+                  'Cancel',
+                  icon: Icons.close,
+                  variant: GhButtonVariant.header,
                   onPressed: _isSaving
                       ? null
                       : () {
@@ -182,169 +331,84 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
                           _loadProfile();
                           setState(() => _isEditing = false);
                         },
-                  icon: const Icon(Icons.close, size: 18),
-                  label: const Text('Cancel'),
-                  style: TextButton.styleFrom(
-                      foregroundColor: AppPalette.textMuted(context)),
                 ),
-              ElevatedButton.icon(
-                onPressed: _isSaving
-                    ? null
-                    : _isEditing
-                        ? _saveProfile
-                        : () => setState(() => _isEditing = true),
-                icon: _isSaving
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white))
-                    : Icon(_isEditing ? Icons.save : Icons.edit, size: 18),
-                label: Text(_isSaving
-                    ? 'Saving...'
-                    : (_isEditing ? 'Save Changes' : 'Edit Profile')),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6D28D9),
-                  foregroundColor: Colors.white,
-                ),
+              GhButton(
+                _isSaving
+                    ? 'Saving…'
+                    : (_isEditing ? 'Save Changes' : 'Edit Profile'),
+                icon: _isEditing ? Icons.check : Icons.edit_outlined,
+                variant: _isEditing
+                    ? GhButtonVariant.primary
+                    : GhButtonVariant.header,
+                busy: _isSaving,
+                onPressed: _isEditing
+                    ? _saveProfile
+                    : () => setState(() => _isEditing = true),
               ),
             ],
           ),
           Expanded(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF6D28D9)))
+                ? Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: GhColors.accent(context),
+                    ),
+                  )
                 : _errorMessage != null
-                    ? Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(24),
-                          child: Column(
-                            children: [
-                              const Icon(Icons.error_outline,
-                                  size: 48, color: Color(0xFFDC2626)),
-                              const SizedBox(height: 16),
-                              Text('Error loading profile',
-                                  style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppPalette.textPrimary(context))),
-                              const SizedBox(height: 8),
-                              Text(_errorMessage!,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: AppPalette.textMuted(context))),
-                              const SizedBox(height: 16),
-                              ElevatedButton.icon(
-                                  onPressed: _loadProfile,
-                                  icon: const Icon(Icons.refresh),
-                                  label: const Text('Retry')),
-                            ],
-                          ),
-                        ),
-                      )
+                    ? _buildLoadError(context)
                     : SingleChildScrollView(
                         padding: const EdgeInsets.all(24),
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 720),
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      width: 64,
-                                      height: 64,
-                                      decoration: const BoxDecoration(
-                                          color: Color(0xFF6D28D9),
-                                          shape: BoxShape.circle),
-                                      child: const Icon(Icons.person,
-                                          color: Colors.white, size: 32),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            _fullNameController.text
-                                                    .trim()
-                                                    .isEmpty
-                                                ? 'Practitioner'
-                                                : _fullNameController.text
-                                                    .trim(),
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold,
-                                                color: AppPalette.textPrimary(
-                                                    context)),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            'Practitioner Account',
-                                            style: TextStyle(
-                                                fontSize: 13,
-                                                color: AppPalette.textMuted(
-                                                    context)),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 24),
-                                _buildField(
-                                    context: context,
-                                    label: 'Full Name',
-                                    controller: _fullNameController,
-                                    readOnly: !_isEditing,
-                                    validator: (v) =>
-                                        (v == null || v.trim().isEmpty)
-                                            ? 'Full name is required'
-                                            : null),
-                                _buildField(
-                                    context: context,
-                                    label: 'Role / Specialty',
-                                    controller: _roleController,
-                                    readOnly: !_isEditing),
-                                _buildField(
-                                    context: context,
-                                    label: 'License Number',
-                                    controller: _licenseNumberController,
-                                    readOnly: !_isEditing),
-                                _buildField(
-                                    context: context,
-                                    label: 'Phone',
-                                    controller: _phoneController,
-                                    keyboardType: TextInputType.phone,
-                                    readOnly: !_isEditing),
-                                _buildField(
-                                    context: context,
-                                    label: 'Hospital / Clinic Name',
-                                    controller: _hospitalNameController,
-                                    readOnly: !_isEditing),
-                                InkWell(
-                                  onTap: _isEditing ? _pickDate : null,
-                                  child: InputDecorator(
-                                    decoration: _inputDecoration(
-                                        context, 'Date of Birth'),
-                                    child: Text(
-                                      _dateOfBirth == null
-                                          ? 'Not set'
-                                          : DateFormat('yyyy-MM-dd')
-                                              .format(_dateOfBirth!),
-                                      style: TextStyle(
-                                          color: _dateOfBirth == null
-                                              ? AppPalette.textMuted(context)
-                                              : AppPalette.textPrimary(
-                                                  context)),
-                                    ),
+                          constraints: const BoxConstraints(maxWidth: 860),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildIdentity(context),
+                              const SizedBox(height: 24),
+                              GhBox(
+                                header: 'Profile',
+                                flush: true,
+                                child: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    children: [
+                                      _buildField(
+                                          context: context,
+                                          label: 'Full Name',
+                                          controller: _fullNameController,
+                                          readOnly: !_isEditing,
+                                          validator: (v) =>
+                                              (v == null || v.trim().isEmpty)
+                                                  ? 'Full name is required'
+                                                  : null),
+                                      _buildField(
+                                          context: context,
+                                          label: 'Role / Specialty',
+                                          controller: _roleController,
+                                          readOnly: !_isEditing),
+                                      _buildField(
+                                          context: context,
+                                          label: 'License Number',
+                                          controller: _licenseNumberController,
+                                          readOnly: !_isEditing),
+                                      _buildField(
+                                          context: context,
+                                          label: 'Phone',
+                                          controller: _phoneController,
+                                          keyboardType: TextInputType.phone,
+                                          readOnly: !_isEditing),
+                                      _buildField(
+                                          context: context,
+                                          label: 'Hospital / Clinic Name',
+                                          controller: _hospitalNameController,
+                                          readOnly: !_isEditing),
+                                      _buildDateField(context),
+                                    ],
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),

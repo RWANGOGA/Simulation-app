@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/offline/local_database.dart';
 import '../../../core/theme/app_page_route.dart';
+import '../../../core/theme/github_kit.dart';
+import '../../../core/theme/github_palette.dart';
 import '../../auth/ui/login_screen.dart';
 import '../../../core/network/auth_service.dart';
 import 'practitioner_dashboard_screen.dart';
@@ -9,10 +11,16 @@ import 'reports_screen.dart';
 import 'qr_scan_screen.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
-// 🌟 ADDED: Import for the new Session History screen
 import '../../history/ui/practitioner_session_history_screen.dart';
 import '../../profile/ui/practitioner_profile_screen.dart';
 
+/// The practitioner console's left navigation, in GitHub's sidebar idiom:
+/// a white rail separated by a one-pixel border, small section captions, and
+/// current-page rows tinted with the accent colour.
+///
+/// The colours come from `GhColors` rather than `AppPalette` on purpose — this
+/// rail is the practitioner's workspace, and it is meant to read as console
+/// chrome, not as a patient-facing card.
 class PractitionerSidebar extends StatefulWidget {
   final String currentRoute;
 
@@ -29,11 +37,13 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
   String? _doctorName;
   String? _doctorEmail;
   String? _hospitalName;
+  int? _pendingSync;
 
   @override
   void initState() {
     super.initState();
     _loadDoctor();
+    _loadPendingSync();
   }
 
   Future<void> _loadDoctor() async {
@@ -51,31 +61,38 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
     }
   }
 
+  /// How many records the device still owes the server (or would, if there
+  /// were one). Shown as a status line so a practitioner knows their work is
+  /// safe before they close the app.
+  Future<void> _loadPendingSync() async {
+    try {
+      final db = await LocalDatabase.open();
+      final pending = await db.read((db) => db.pendingUploadCount);
+      if (mounted) setState(() => _pendingSync = pending);
+    } catch (_) {
+      // The status line simply stays hidden if the store cannot be read.
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 260,
+      width: 264,
       decoration: BoxDecoration(
-        color: AppPalette.surface(context),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 20,
-            offset: const Offset(4, 0),
-          ),
-        ],
+        color: GhColors.surface(context),
+        border: Border(
+          right: BorderSide(color: GhColors.border(context)),
+        ),
       ),
       child: Column(
         children: [
-          // ── Logo & Brand ─────────────────────────────────────────────
-          _buildHeader(),
-          const Divider(height: 1, color: Color(0xFFE2E8F0)),
-
-          // ── Navigation Menu ─────────────────────────────────────────
+          _buildHeader(context),
+          const GhRule(),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               children: [
+                _sectionLabel(context, 'Workspace'),
                 _buildNavItem(
                   context,
                   icon: Icons.dashboard_outlined,
@@ -90,13 +107,13 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
                 ),
                 _buildNavItem(
                   context,
-                  icon: Icons.medical_services_outlined,
+                  icon: Icons.monitor_heart_outlined,
                   label: 'Triage Sessions',
                   route: '/sessions',
                 ),
                 _buildNavItem(
                   context,
-                  icon: Icons.assessment_outlined,
+                  icon: Icons.insert_chart_outlined,
                   label: 'Reports',
                   route: '/reports',
                 ),
@@ -107,7 +124,11 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
                   route: '/scan',
                   onTap: () => _scanQR(context),
                 ),
-                const Divider(height: 24, color: Color(0xFFE2E8F0)),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: GhRule(),
+                ),
+                _sectionLabel(context, 'Account'),
                 _buildNavItem(
                   context,
                   icon: Icons.person_outline,
@@ -117,7 +138,7 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
                 ),
                 _buildNavItem(
                   context,
-                  icon: Icons.settings_outlined,
+                  icon: Icons.tune,
                   label: 'Settings',
                   route: '/settings',
                 ),
@@ -130,53 +151,68 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
               ],
             ),
           ),
-
-          // ── User Profile & Logout ────────────────────────────────────
           _buildFooter(context),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.all(20),
+  Widget _sectionLabel(BuildContext context, String label) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+      child: Text(
+        label.toUpperCase(),
+        style: GhType.meta.copyWith(
+          color: GhColors.fgMuted(context),
+          fontWeight: FontWeight.w600,
+          fontSize: 11,
+          letterSpacing: 0.6,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
       child: Row(
         children: [
           Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: Color(0xFF6D28D9),
-              shape: BoxShape.circle,
+            width: 28,
+            height: 28,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: GhColors.headerBg(context),
+              borderRadius: BorderRadius.circular(6),
             ),
-            child: const Icon(
-              Icons.medical_services,
-              color: Colors.white,
-              size: 22,
+            child: Icon(
+              Icons.monitor_heart_outlined,
+              size: 16,
+              color: GhColors.headerFg(context),
             ),
           ),
-          const SizedBox(width: 12),
-          const Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Simtack',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF1E293B),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Simtack',
+                  overflow: TextOverflow.ellipsis,
+                  style: GhType.bodyStrong.copyWith(
+                    color: GhColors.fg(context),
+                  ),
                 ),
-              ),
-              Text(
-                'Practitioner',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Color(0xFF64748B),
-                  fontWeight: FontWeight.w500,
+                Text(
+                  'Practitioner',
+                  overflow: TextOverflow.ellipsis,
+                  style: GhType.meta.copyWith(
+                    color: GhColors.fgMuted(context),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -193,10 +229,13 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
     final isActive = widget.currentRoute == route;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 1),
       child: Material(
-        color: Colors.transparent,
+        color: isActive ? GhColors.accentSubtle(context) : Colors.transparent,
+        borderRadius: BorderRadius.circular(6),
         child: InkWell(
+          borderRadius: BorderRadius.circular(6),
+          hoverColor: GhColors.surfaceHover(context),
           onTap: () {
             if (Scaffold.maybeOf(context)?.isDrawerOpen ?? false) {
               Navigator.of(context).pop();
@@ -204,48 +243,30 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
             onTap?.call();
             if (onTap == null) _navigateToRoute(context, route);
           },
-          borderRadius: BorderRadius.circular(10),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: isActive
-                  ? const Color(0xFF6D28D9).withOpacity(0.10)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(10),
-            ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
             child: Row(
               children: [
                 Icon(
                   icon,
-                  size: 20,
+                  size: 16,
                   color: isActive
-                      ? const Color(0xFF6D28D9)
-                      : AppPalette.textMuted(context),
+                      ? GhColors.accent(context)
+                      : GhColors.fgMuted(context),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     label,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w500,
+                    overflow: TextOverflow.ellipsis,
+                    style: GhType.body.copyWith(
                       color: isActive
-                          ? const Color(0xFF6D28D9)
-                          : AppPalette.textPrimary(context),
+                          ? GhColors.accent(context)
+                          : GhColors.fg(context),
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                     ),
                   ),
                 ),
-                if (isActive)
-                  Container(
-                    width: 4,
-                    height: 20,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF6D28D9),
-                      borderRadius: BorderRadius.horizontal(
-                        left: Radius.circular(2),
-                      ),
-                    ),
-                  ),
               ],
             ),
           ),
@@ -263,52 +284,41 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
         : 'doctor@simtack.com';
     final displayHospital =
         _hospitalName?.trim().isNotEmpty == true ? _hospitalName!.trim() : null;
+    final pending = _pendingSync;
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppPalette.subtleFill(context),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        color: GhColors.surfaceSubtle(context),
+        border: Border(top: BorderSide(color: GhColors.border(context))),
       ),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              const CircleAvatar(
-                radius: 20,
-                backgroundColor: Color(0xFF6D28D9),
-                child: Icon(
-                  Icons.person,
-                  color: Colors.white,
-                  size: 20,
-                ),
-              ),
-              const SizedBox(width: 10),
+              GhAvatar(name: displayName, size: 28),
+              const SizedBox(width: 8),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       displayName,
-                      style: const TextStyle(
-                        fontSize: 13,
+                      overflow: TextOverflow.ellipsis,
+                      style: GhType.meta.copyWith(
+                        color: GhColors.fg(context),
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF1E293B),
+                        fontSize: 13,
                       ),
                     ),
-                    if (displayHospital != null)
-                      Text(
-                        displayHospital,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: AppPalette.textMuted(context),
-                        ),
-                      ),
                     Text(
-                      displayEmail,
-                      style: TextStyle(
+                      displayHospital ?? displayEmail,
+                      overflow: TextOverflow.ellipsis,
+                      style: GhType.meta.copyWith(
+                        color: GhColors.fgMuted(context),
                         fontSize: 11,
-                        color: AppPalette.textMuted(context),
                       ),
                     ),
                   ],
@@ -316,25 +326,37 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          const Divider(height: 1),
-          const SizedBox(height: 12),
-          // Logout button
-          SizedBox(
-            width: double.infinity,
-            child: OutlinedButton.icon(
-              onPressed: () => _logout(context),
-              icon: const Icon(Icons.logout, size: 16),
-              label: const Text('Logout'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: const Color(0xFFDC2626),
-                side: const BorderSide(color: Color(0xFFDC2626)),
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+          if (pending != null) ...[
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                GhDot(
+                  size: 7,
+                  tone: pending == 0 ? GhTone.success : GhTone.attention,
                 ),
-              ),
+                const SizedBox(width: 6),
+                Expanded(
+                  child: Text(
+                    pending == 0
+                        ? 'Everything saved on this device'
+                        : '$pending waiting to sync',
+                    overflow: TextOverflow.ellipsis,
+                    style: GhType.meta.copyWith(
+                      color: GhColors.fgMuted(context),
+                      fontSize: 11,
+                    ),
+                  ),
+                ),
+              ],
             ),
+          ],
+          const SizedBox(height: 10),
+          GhButton(
+            'Logout',
+            icon: Icons.logout,
+            variant: GhButtonVariant.secondary,
+            expanded: true,
+            onPressed: () => _logout(context),
           ),
         ],
       ),
@@ -351,7 +373,6 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
         break;
       case '/patients':
         Navigator.of(context).push(
-          // 🌟 FIXED: Matched the class name to the imported file
           AppPageRoute(builder: (_) => const PatientOverviewScreen()),
         );
         break;
@@ -368,23 +389,19 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
         break;
       case '/settings':
         Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => const AccessibilitySettingsScreen(),
-          ),
+          AppPageRoute(builder: (_) => const AccessibilitySettingsScreen()),
         );
         break;
       case '/profile':
         Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => const PractitionerProfileScreen(),
-          ),
+          AppPageRoute(builder: (_) => const PractitionerProfileScreen()),
         );
         break;
       default:
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('This screen is under construction'),
-            backgroundColor: Color(0xFF6D28D9),
+          SnackBar(
+            content: Text('$route is not built yet'),
+            backgroundColor: GhColors.attention(context),
           ),
         );
     }
@@ -412,20 +429,19 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
   Future<void> _logout(BuildContext context) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: const Text('Logout'),
         content: const Text('Are you sure you want to logout?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+          GhButton(
+            'Cancel',
+            variant: GhButtonVariant.secondary,
+            onPressed: () => Navigator.of(dialogContext).pop(false),
           ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFDC2626),
-            ),
-            child: const Text('Logout'),
+          GhButton(
+            'Logout',
+            variant: GhButtonVariant.danger,
+            onPressed: () => Navigator.of(dialogContext).pop(true),
           ),
         ],
       ),

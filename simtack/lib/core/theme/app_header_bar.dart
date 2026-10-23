@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
+import 'github_palette.dart';
 
-/// Gradient header banner shared by every practitioner screen — replaces
-/// the old flat white bar so each screen reads as a distinct, branded
-/// space rather than a generic admin panel.
+/// The practitioner area's top bar, in GitHub's global-navigation idiom: a dark
+/// chrome strip, the product mark on the left, the page title beside it, and
+/// translucent square icon buttons on the right.
+///
+/// Only practitioner screens use this. The patient side never sees the console
+/// chrome — it stays on the purple/teal language of `AppPalette`.
 class AppHeaderBar extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -21,27 +25,43 @@ class AppHeaderBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF5B21B6), Color(0xFF8B5CF6)],
+      constraints: const BoxConstraints(minHeight: 56),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: GhColors.headerBg(context),
+        border: Border(
+          bottom: BorderSide(color: Colors.black.withOpacity(0.28)),
         ),
-        boxShadow: [
-          BoxShadow(color: Color(0x33000000), blurRadius: 14, offset: Offset(0, 6)),
-        ],
       ),
       child: Row(
         children: [
           if (onMenuTap != null) ...[
-            IconButton(
-              icon: const Icon(Icons.menu, color: Colors.white),
+            AppHeaderIconButton(
+              icon: Icons.menu,
               tooltip: AppLocalizations.of(context)!.menuTooltip,
               onPressed: onMenuTap,
+              compact: true,
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: 8),
           ],
+          Container(
+            width: 26,
+            height: 26,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: GhColors.headerFg(context).withOpacity(0.14),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: GhColors.headerFg(context).withOpacity(0.24),
+              ),
+            ),
+            child: Icon(
+              Icons.monitor_heart_outlined,
+              size: 16,
+              color: GhColors.headerFg(context),
+            ),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,31 +70,40 @@ class AppHeaderBar extends StatelessWidget {
                 Text(
                   title,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 21, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: GhType.headerTitle.copyWith(
+                    color: GhColors.headerFg(context),
+                  ),
                 ),
                 Text(
                   subtitle,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 12, color: Colors.white.withOpacity(0.82)),
+                  style: GhType.headerSubtitle.copyWith(
+                    color: GhColors.headerFgMuted(context),
+                  ),
                 ),
               ],
             ),
           ),
-          for (final action in actions) ...[const SizedBox(width: 4), action],
+          for (final action in actions) ...[
+            const SizedBox(width: 6),
+            action,
+          ],
         ],
       ),
     );
   }
 }
 
-/// Header icon button pre-styled for the gradient bar (white icon on a
-/// translucent white circle) so action icons stay visible on any accent
-/// gradient without every call site repeating the same style.
+/// Square 32px icon button sized for the dark bar.
+///
+/// `compact` drops the translucent plate, for icons that sit flush in a row
+/// (the menu button, which GitHub also leaves unplated).
 class AppHeaderIconButton extends StatelessWidget {
   final IconData icon;
   final String tooltip;
   final VoidCallback? onPressed;
   final Widget? loadingChild;
+  final bool compact;
 
   const AppHeaderIconButton({
     super.key,
@@ -82,18 +111,26 @@ class AppHeaderIconButton extends StatelessWidget {
     required this.tooltip,
     required this.onPressed,
     this.loadingChild,
+    this.compact = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.16),
-        shape: BoxShape.circle,
+        color: compact ? Colors.transparent : GhColors.headerActionBg(context),
+        borderRadius: BorderRadius.circular(6),
+        border: compact
+            ? null
+            : Border.all(color: GhColors.headerFg(context).withOpacity(0.16)),
       ),
       child: IconButton(
-        icon: loadingChild ?? Icon(icon, color: Colors.white, size: 20),
+        icon: loadingChild ??
+            Icon(icon, color: GhColors.headerFg(context), size: 16),
         tooltip: tooltip,
+        visualDensity: VisualDensity.compact,
+        constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+        padding: EdgeInsets.zero,
         onPressed: onPressed,
       ),
     );

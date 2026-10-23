@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../../../core/theme/github_palette.dart';
+
 /// Full-screen camera scanner for the patient's QR clinical passport
 /// (blueprint section 2 — "Point camera to scan the patient's QR code").
 ///
@@ -59,9 +61,10 @@ class _QrScanScreenState extends State<QrScanScreen> {
     return Scaffold(
       backgroundColor: Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: GhColors.headerBg(context),
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Scan Patient QR', style: TextStyle(color: Colors.white)),
+        title: const Text('Scan Patient QR',
+            style: TextStyle(color: Colors.white)),
         centerTitle: true,
         actions: [
           IconButton(
@@ -98,8 +101,11 @@ class _QrScanScreenState extends State<QrScanScreen> {
               width: 240,
               height: 240,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF6D28D9), width: 3),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(
+                  color: GhColors.accent(context),
+                  width: 2,
+                ),
               ),
             ),
           ),

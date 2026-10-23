@@ -9,14 +9,22 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/offline/offline_repository.dart';
-import '../../../core/theme/app_card.dart';
 import '../../../core/theme/app_page_route.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/github_kit.dart';
+import '../../../core/theme/github_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import 'qr_scan_screen.dart';
 import 'practitioner_scaffold.dart';
+
+/// The one input border shape in this screen: 6px radius, one pixel, so the
+/// code field matches every other control on the console.
+OutlineInputBorder _inputBorder(Color color, [double width = 1]) =>
+    OutlineInputBorder(
+      borderRadius: BorderRadius.circular(6),
+      borderSide: BorderSide(color: color, width: width),
+    );
 
 const _regionPositions = <String, Offset>{
   'Headache / Cranial': Offset(0.50, 0.08),
@@ -185,11 +193,13 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
     );
   }
 
-  Color _getRiskColor(double? score) {
+  /// Score → tone. This is the same mapping the dashboard uses, so a pin on the
+  /// body map and a label in the session list cannot disagree about "medium".
+  GhTone _riskTone(double? score) {
     final s = score ?? 0.0;
-    if (s >= 0.7) return const Color(0xFFDC2626);
-    if (s >= 0.4) return const Color(0xFFF59E0B);
-    return const Color(0xFF16A34A);
+    if (s >= 0.7) return GhTone.danger;
+    if (s >= 0.4) return GhTone.attention;
+    return GhTone.success;
   }
 
   String _getRiskLabel(double? score) {
@@ -264,76 +274,47 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
 
   Widget _leftPanel() {
     final t = AppLocalizations.of(context)!;
-    return AppCard(
+    return GhBox(
+      header: t.patientLookupTitle,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionHeader(Icons.qr_code_2, t.patientLookupTitle),
-          const SizedBox(height: 16),
-          TextField(
-            key: const Key('patient_code_field'),
-            controller: _codeController,
-            textCapitalization: TextCapitalization.characters,
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: AppPalette.textPrimary(context),
-              letterSpacing: 1.2,
-            ),
-            decoration: InputDecoration(
-              hintText: t.patientCodeHint,
-              hintStyle: TextStyle(
-                  color: AppPalette.textDisabled(context),
-                  fontWeight: FontWeight.normal,
-                  letterSpacing: 0),
-              prefixIcon:
-                  Icon(Icons.search, color: AppPalette.textMuted(context)),
-              filled: true,
-              fillColor: AppPalette.inputFill(context),
-              border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none),
-              contentPadding:
-                  const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-            ),
-            onChanged: _onCodeChanged,
-          ),
+          _codeField(t),
           const SizedBox(height: 12),
           if (!kIsWeb)
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                key: const Key('scan_qr_button'),
-                onPressed: _scanQr,
-                icon: const Icon(Icons.qr_code_scanner, size: 18),
-                label: Text(t.scanPatientQrButton),
-                style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12)),
-              ),
+            GhButton(
+              t.scanPatientQrButton,
+              key: const Key('scan_qr_button'),
+              icon: Icons.qr_code_scanner,
+              variant: GhButtonVariant.secondary,
+              expanded: true,
+              onPressed: _scanQr,
             ),
           if (_enteredCode.isNotEmpty) ...[
-            const SizedBox(height: 20),
-            Divider(color: AppPalette.border(context)),
+            const SizedBox(height: 16),
+            const GhRule(),
             const SizedBox(height: 16),
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
               decoration: BoxDecoration(
-                  color: const Color(0xFF6D28D9),
-                  borderRadius: BorderRadius.circular(10)),
+                color: GhColors.surfaceSubtle(context),
+                borderRadius: BorderRadius.circular(6),
+                border: Border.all(color: GhColors.border(context)),
+              ),
               child: Column(
                 children: [
                   Text(t.patientAnonymousIdLabel,
-                      style: const TextStyle(
-                          fontSize: 10,
-                          color: Colors.white70,
+                      style: GhType.meta.copyWith(
+                          color: GhColors.fgMuted(context),
                           letterSpacing: 2,
                           fontWeight: FontWeight.w600)),
                   const SizedBox(height: 4),
                   Text(_enteredCode,
-                      style: const TextStyle(
+                      style: GhType.code.copyWith(
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          color: GhColors.accent(context),
                           letterSpacing: 2)),
                 ],
               ),
@@ -345,10 +326,8 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                      color: const Color(0xFF6D28D9).withOpacity(0.30),
-                      width: 2),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: GhColors.border(context)),
                 ),
                 child: QrImageView(
                   data: _qrUrl(_enteredCode),
@@ -356,42 +335,62 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                   size: 160,
                   backgroundColor: Colors.white,
                   eyeStyle: const QrEyeStyle(
-                      eyeShape: QrEyeShape.square, color: Color(0xFF6D28D9)),
+                      eyeShape: QrEyeShape.square, color: Color(0xFF0969DA)),
                   dataModuleStyle: const QrDataModuleStyle(
                       dataModuleShape: QrDataModuleShape.square,
-                      color: Color(0xFF1E293B)),
+                      color: Color(0xFF1F2328)),
                 ),
               ),
             ),
             const SizedBox(height: 8),
             Text(t.encryptedQrPassportLabel,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF64748B))),
+                style: GhType.meta.copyWith(
+                    color: GhColors.fgMuted(context),
+                    fontWeight: FontWeight.w500)),
             const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                key: const Key('open_report_button'),
-                onPressed: () => _openReport(_enteredCode),
-                icon: const Icon(Icons.open_in_new, size: 16),
-                label: Text(t.openFullClinicalReportButton),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF6D28D9),
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10)),
-                ),
-              ),
+            GhButton(
+              t.openFullClinicalReportButton,
+              key: const Key('open_report_button'),
+              icon: Icons.open_in_new,
+              variant: GhButtonVariant.primary,
+              expanded: true,
+              onPressed: () => _openReport(_enteredCode),
             ),
           ],
         ],
       ),
     );
   }
+
+  /// The lookup field: 32px, one border, blue ring on focus — GitHub's input.
+  Widget _codeField(AppLocalizations t) => TextField(
+        key: const Key('patient_code_field'),
+        controller: _codeController,
+        textCapitalization: TextCapitalization.characters,
+        style: GhType.code
+            .copyWith(color: GhColors.fg(context), fontWeight: FontWeight.w600),
+        decoration: InputDecoration(
+          isDense: true,
+          filled: true,
+          fillColor: GhColors.surface(context),
+          hintText: t.patientCodeHint,
+          hintStyle: GhType.body.copyWith(
+              color: GhColors.fgMuted(context),
+              fontWeight: FontWeight.normal,
+              letterSpacing: 0),
+          prefixIcon:
+              Icon(Icons.search, size: 16, color: GhColors.fgMuted(context)),
+          prefixIconConstraints:
+              const BoxConstraints(minWidth: 34, minHeight: 32),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          border: _inputBorder(GhColors.border(context)),
+          enabledBorder: _inputBorder(GhColors.border(context)),
+          focusedBorder: _inputBorder(GhColors.accent(context), 2),
+        ),
+        onChanged: _onCodeChanged,
+      );
 
   Widget _rightPanel() => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -404,15 +403,13 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
 
   Widget _bodyMapCard() {
     final t = AppLocalizations.of(context)!;
-    return AppCard(
-      padding: const EdgeInsets.all(16),
+    return GhBox(
+      header: t.bodyMapTitle,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _sectionHeader(Icons.accessibility_new, t.bodyMapTitle),
-          const SizedBox(height: 16),
           ClipRRect(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(6),
             child: SizedBox(
               height: 360,
               child: LayoutBuilder(
@@ -430,7 +427,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                           cameraControls: false,
                           cameraOrbit: '0deg 75deg 105%',
                           disableZoom: true,
-                          backgroundColor: AppPalette.subtleFill(context),
+                          backgroundColor: GhColors.canvasInset(context),
                           interactionPromptThreshold: 999999,
                         ),
                       ),
@@ -441,7 +438,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                       if (_sessions.isNotEmpty)
                         ..._sessions.map((s) {
                           final pos = _positionForRegion(s.bodyRegion);
-                          final color = _getRiskColor(s.riskScore);
+                          final color = _riskTone(s.riskScore).color(context);
                           final redFlag = s.needsEmergencyCare;
                           final left = pos.dx * constraints.maxWidth - 7;
                           final top = pos.dy * constraints.maxHeight - 7;
@@ -461,7 +458,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                         color: redFlag
-                                            ? const Color(0xFFDC2626)
+                                            ? GhColors.danger(context)
                                             : Colors.white,
                                         width: redFlag ? 2.5 : 1.5),
                                     boxShadow: [
@@ -509,11 +506,11 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _legendDot(const Color(0xFFDC2626), t.statHighRiskLabel),
+                _legendDot(GhTone.danger, t.statHighRiskLabel),
                 const SizedBox(width: 16),
-                _legendDot(const Color(0xFFF59E0B), t.statMediumRiskLabel),
+                _legendDot(GhTone.attention, t.statMediumRiskLabel),
                 const SizedBox(width: 16),
-                _legendDot(const Color(0xFF16A34A), t.statLowRiskLabel),
+                _legendDot(GhTone.success, t.statLowRiskLabel),
               ],
             ),
           ],
@@ -522,245 +519,155 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
     );
   }
 
-  Widget _legendDot(Color color, String label) => Row(
+  Widget _legendDot(GhTone tone, String label) => Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+          GhDot(tone: tone, size: 10),
           const SizedBox(width: 6),
           Text(label,
-              style: TextStyle(
-                  fontSize: 11,
-                  color: AppPalette.textMuted(context),
+              style: GhType.meta.copyWith(
+                  color: GhColors.fgMuted(context),
                   fontWeight: FontWeight.w500)),
         ],
       );
 
   Widget _timelineCard() {
     final t = AppLocalizations.of(context)!;
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              _sectionHeader(Icons.timeline, t.visitHistoryTitle),
-              if (_sessions.isNotEmpty) ...[
-                const Spacer(),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                      color: const Color(0xFF6D28D9).withOpacity(0.10),
-                      borderRadius: BorderRadius.circular(8)),
-                  child: Text(t.sessionCountLabel(_sessions.length),
-                      style: const TextStyle(
-                          fontSize: 11,
-                          color: Color(0xFF6D28D9),
-                          fontWeight: FontWeight.w600)),
+    return GhBox(
+      header: t.visitHistoryTitle,
+      headerActions: [
+        if (_sessions.isNotEmpty)
+          GhCounter('${_sessions.length}', tone: GhTone.accent),
+      ],
+      flush: true,
+      child: _loading
+          ? Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: GhColors.accent(context),
                 ),
-              ],
-            ],
-          ),
-          const SizedBox(height: 16),
-          if (_loading)
-            const Center(
-                child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24),
-                    child: CircularProgressIndicator(strokeWidth: 2)))
-          else if (_error != null)
-            _errorRow(_error!)
-          else if (_sessions.isEmpty && _enteredCode.isEmpty)
-            _emptyHint(t.enterCodeForHistoryHint)
-          else if (_sessions.isEmpty)
-            _emptyHint(t.noVisitsFoundHint(_enteredCode))
-          else
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: _sessions.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (_, i) => _sessionRow(i, _sessions.length - i),
-            ),
-        ],
-      ),
+              ),
+            )
+          : _error != null
+              ? Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: _errorRow(_error!),
+                )
+              : _sessions.isEmpty && _enteredCode.isEmpty
+                  ? _emptyHint(t.enterCodeForHistoryHint)
+                  : _sessions.isEmpty
+                      ? _emptyHint(t.noVisitsFoundHint(_enteredCode))
+                      : Column(
+                          children: [
+                            for (var i = 0; i < _sessions.length; i++)
+                              _sessionRow(i, _sessions.length - i),
+                          ],
+                        ),
     );
   }
 
+  /// A timeline row in the console idiom: hairline divider, state labels on the
+  /// right, and the risk hue carried by the leading dot instead of by a filled
+  /// card — so a long visit list reads as a table, not as a stack of tiles.
   Widget _sessionRow(int index, int sessionNumber) {
     final t = AppLocalizations.of(context)!;
     final session = _sessions[index];
     final score = session.riskScore ?? 0.0;
-    final color = _getRiskColor(score);
+    final tone = _riskTone(score);
     final label = _riskDisplayLabel(context, _getRiskLabel(score));
     // A red flag outranks the score colour on this row. The score is a clamped
     // sum, so an escalated session can otherwise sit here looking ordinary.
     final redFlag = session.needsEmergencyCare;
-    final accent = redFlag ? const Color(0xFFDC2626) : color;
-    final date = session.createdAt;
-    final dateStr = DateFormat('dd MMM yyyy, HH:mm').format(date);
+    final isClosed = session.status == 'closed';
+    final dateStr = DateFormat('dd MMM yyyy, HH:mm').format(session.createdAt);
 
-    return InkWell(
-      key: Key('session_row_$index'),
-      onTap: () => _openReport(_enteredCode),
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-            color: AppPalette.inputFill(context),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: AppPalette.border(context))),
-        child: Row(
-          children: [
-            Container(
-                width: 10,
-                height: 10,
-                decoration: BoxDecoration(
-                    color: accent,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                        color: Colors.white, width: redFlag ? 2.5 : 1.5))),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Material(
+          color: Colors.transparent,
+          child: InkWell(
+            key: Key('session_row_$index'),
+            onTap: () => _openReport(_enteredCode),
+            hoverColor: GhColors.surfaceHover(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              child: Row(
                 children: [
-                  Row(
-                    children: [
-                      Text(t.sessionNumberLabel(sessionNumber),
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppPalette.textPrimary(context))),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppPalette.subtleFill(context),
-                          borderRadius: BorderRadius.circular(4),
+                  GhDot(tone: tone, size: 10),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                t.sessionNumberLabel(sessionNumber),
+                                overflow: TextOverflow.ellipsis,
+                                style: GhType.bodyStrong
+                                    .copyWith(color: GhColors.fg(context)),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            GhLabel(
+                              isClosed
+                                  ? t.statusClosedLabel
+                                  : t.statusOpenLabel,
+                              tone: isClosed ? GhTone.done : GhTone.success,
+                            ),
+                            if (redFlag) ...[
+                              const SizedBox(width: 6),
+                              KeyedSubtree(
+                                key: Key('red_flag_$index'),
+                                child: GhLabel(
+                                  t.redFlagLabel.toUpperCase(),
+                                  tone: GhTone.danger,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
-                        child: Text(
-                          session.status == 'closed'
-                              ? t.statusClosedLabel
-                              : t.statusOpenLabel,
-                          style: TextStyle(
-                              fontSize: 10,
-                              color: AppPalette.textMuted(context)),
-                        ),
-                      ),
-                      if (redFlag) ...[
-                        const SizedBox(width: 6),
-                        Container(
-                          key: Key('red_flag_$index'),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 6, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: accent.withOpacity(0.12),
-                            borderRadius: BorderRadius.circular(4),
-                            border: Border.all(color: accent),
-                          ),
-                          child: Text(
-                            t.redFlagLabel.toUpperCase(),
-                            style: TextStyle(
-                                fontSize: 10,
-                                fontWeight: FontWeight.w800,
-                                color: accent),
-                          ),
-                        ),
+                        const SizedBox(height: 4),
+                        Text(dateStr,
+                            style: GhType.meta
+                                .copyWith(color: GhColors.fgMuted(context))),
+                        const SizedBox(height: 2),
+                        Text(
+                            '${session.bodyRegion} • ${session.painType} (${session.severity}/10)',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: GhType.meta
+                                .copyWith(color: GhColors.fgMuted(context))),
                       ],
-                    ],
+                    ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(dateStr,
-                      style: TextStyle(
-                          fontSize: 12, color: AppPalette.textMuted(context))),
-                  const SizedBox(height: 4),
-                  Text(
-                      '${session.bodyRegion} • ${session.painType} (${session.severity}/10)',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                          fontSize: 12,
-                          color: AppPalette.textSecondary(context))),
+                  const SizedBox(width: 12),
+                  GhLabel(label, tone: tone),
+                  const SizedBox(width: 8),
+                  Icon(Icons.chevron_right,
+                      size: 16, color: GhColors.fgMuted(context)),
                 ],
               ),
             ),
-            const SizedBox(width: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-              decoration: BoxDecoration(
-                  color: color.withOpacity(0.10),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(color: color.withOpacity(0.25))),
-              child: Text(label,
-                  style: TextStyle(
-                      fontSize: 11, fontWeight: FontWeight.bold, color: color)),
-            ),
-            const SizedBox(width: 8),
-            Icon(Icons.chevron_right,
-                size: 18, color: AppPalette.textMuted(context)),
-          ],
+          ),
         ),
-      ),
+        Container(height: 1, color: GhColors.borderMuted(context)),
+      ],
     );
   }
 
-  Widget _sectionHeader(IconData icon, String title) => Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-                color: const Color(0xFF6D28D9).withOpacity(0.10),
-                borderRadius: BorderRadius.circular(8)),
-            child: Icon(icon, color: const Color(0xFF6D28D9), size: 18),
-          ),
-          const SizedBox(width: 10),
-          Text(title,
-              style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.bold,
-                  color: AppPalette.textPrimary(context))),
-        ],
+  Widget _errorRow(String message) => GhBanner(
+        message,
+        tone: GhTone.danger,
+        icon: Icons.error_outline,
       );
 
-  Widget _errorRow(String message) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Row(children: [
-          const Icon(Icons.error_outline, color: Color(0xFFDC2626), size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-              child: Text(message,
-                  style:
-                      const TextStyle(fontSize: 13, color: Color(0xFFDC2626))))
-        ]),
-      );
-
-  Widget _emptyHint(String text) => Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 28),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF6D28D9).withOpacity(0.10),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(Icons.history,
-                    color: Color(0xFF6D28D9), size: 26),
-              ),
-              const SizedBox(height: 12),
-              Text(text,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 13, color: AppPalette.textMuted(context))),
-            ],
-          ),
-        ),
+  Widget _emptyHint(String text) => GhEmptyState(
+        icon: Icons.history,
+        message: text,
       );
 }

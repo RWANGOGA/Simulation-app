@@ -7,7 +7,8 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 import '../../../core/offline/offline_repository.dart';
-import '../../../core/theme/app_palette.dart';
+import '../../../core/theme/github_kit.dart';
+import '../../../core/theme/github_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
 import '../../../l10n/app_localizations.dart';
 import 'practitioner_scaffold.dart';
@@ -15,14 +16,18 @@ import 'practitioner_scaffold.dart';
 import '../../../core/theme/app_page_route.dart';
 import 'practitioner_dashboard_screen.dart';
 
+/// Slice colours, in Primer's published scale. A chart is the one place the
+/// console needs more than the six semantic hues, so these stay a fixed ramp
+/// rather than resolving against brightness — a slice must stay the same
+/// colour when the practitioner flips the theme.
 const List<Color> _chartPalette = [
-  Color(0xFF0F172A), // Slate Navy
-  Color(0xFF0284C7), // Medical Cyan
-  Color(0xFF059669), // Emerald Green
-  Color(0xFFD97706), // Amber
-  Color(0xFFDC2626), // Crimson
-  Color(0xFF475569), // Muted Slate
-  Color(0xFF2563EB), // Royal Blue
+  Color(0xFF0969DA), // accent.emphasis (blue)
+  Color(0xFF1A7F37), // success.emphasis (green)
+  Color(0xFF9A6700), // attention.emphasis (yellow)
+  Color(0xFFCF222E), // danger.emphasis (red)
+  Color(0xFF8250DF), // done.emphasis (purple)
+  Color(0xFF0550AE), // accent.muted
+  Color(0xFF6E7681), // fg.subtle (grey)
 ];
 
 class ReportsScreen extends StatefulWidget {
@@ -51,7 +56,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
       _error = null;
     });
     try {
-      final reports = await OfflineRepository.instance.getTriageReports(period: _period);
+      final reports =
+          await OfflineRepository.instance.getTriageReports(period: _period);
       if (mounted) setState(() => _reports = reports);
     } catch (e) {
       if (mounted) setState(() => _error = '$e');
@@ -133,8 +139,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
           ),
           Expanded(
             child: _isLoading
-                ? const Center(
-                    child: CircularProgressIndicator(color: Color(0xFF0F172A)))
+                ? Center(
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: GhColors.accent(context),
+                    ),
+                  )
                 : _error != null
                     ? _buildError(_error!)
                     : _buildContent(_reports!),
@@ -145,69 +155,41 @@ class _ReportsScreenState extends State<ReportsScreen> {
   }
 
   Widget _buildError(String message) {
+    final t = AppLocalizations.of(context)!;
     return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.error_outline, color: Colors.red, size: 48),
-          const SizedBox(height: 16),
-          Text(message,
-              style: const TextStyle(color: Colors.red, fontSize: 14),
-              textAlign: TextAlign.center),
-          const SizedBox(height: 24),
-          ElevatedButton(
+      child: SizedBox(
+        width: 460,
+        child: GhBanner(
+          message,
+          tone: GhTone.danger,
+          icon: Icons.error_outline,
+          actions: [
+            GhButton(
+              t.retryButton,
+              variant: GhButtonVariant.secondary,
               onPressed: _loadReports,
-              child: Text(AppLocalizations.of(context)!.retryButton)),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
+  /// GitHub's repo nav is an underline tab bar, so the period filter reads as
+  /// three views of the same data instead of three buttons competing with the
+  /// actions underneath them.
   Widget _periodSelector() {
-    Widget button(String value, String label) {
-      final selected = _period == value;
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _setPeriod(value),
-          borderRadius: BorderRadius.circular(8),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 150),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: selected
-                  ? const Color(0xFF0F172A)
-                  : AppPalette.surface(context),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: selected
-                    ? const Color(0xFF0F172A)
-                    : AppPalette.border(context),
-              ),
-            ),
-            child: Text(
-              label,
-              style: TextStyle(
-                color: selected
-                    ? Colors.white
-                    : AppPalette.textSecondary(context),
-                fontWeight: selected ? FontWeight.bold : FontWeight.w500,
-                fontSize: 13,
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-
     final t = AppLocalizations.of(context)!;
-    return Wrap(
-      spacing: 8,
-      children: [
-        button('week', t.periodThisWeek),
-        button('month', t.periodThisMonth),
-        button('all', t.periodAllTime),
+    const order = ['week', 'month', 'all'];
+    return GhUnderlineTabs(
+      labels: [t.periodThisWeek, t.periodThisMonth, t.periodAllTime],
+      icons: const [
+        Icons.date_range_outlined,
+        Icons.calendar_month_outlined,
+        Icons.history,
       ],
+      selectedIndex: order.indexOf(_period),
+      onSelected: (index) => _setPeriod(order[index]),
     );
   }
 
@@ -233,25 +215,11 @@ class _ReportsScreenState extends State<ReportsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _periodSelector(),
-            const SizedBox(height: 80),
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0F172A).withOpacity(0.08),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.inbox_outlined,
-                        size: 32, color: Color(0xFF0F172A)),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(t.noSessionsInPeriodMessage,
-                      style: TextStyle(color: AppPalette.textMuted(context))),
-                ],
+            const SizedBox(height: 24),
+            GhBox(
+              child: GhEmptyState(
+                icon: Icons.inbox_outlined,
+                message: t.noSessionsInPeriodMessage,
               ),
             ),
           ],
@@ -270,67 +238,73 @@ class _ReportsScreenState extends State<ReportsScreen> {
             _periodSelector(),
             const SizedBox(height: 20),
             Wrap(
-              spacing: 16,
-              runSpacing: 16,
+              spacing: 12,
+              runSpacing: 12,
               children: [
-                _statCard(
-                  t.statTotalSessionsLabel,
-                  '$total',
-                  const Color(0xFF0F172A),
-                  Icons.people,
+                GhStatTile(
+                  label: t.statTotalSessionsLabel,
+                  value: '$total',
+                  icon: Icons.people_outline,
+                  tone: GhTone.accent,
+                  width: 190,
                   onTap: () => Navigator.of(context).push(
                     AppPageRoute(builder: (_) => const SessionListScreen()),
                   ),
                 ),
-                _statCard(
-                  t.statHighRiskLabel,
-                  '$highRiskCount',
-                  const Color(0xFFDC2626),
-                  Icons.warning_amber,
+                GhStatTile(
+                  label: t.statHighRiskLabel,
+                  value: '$highRiskCount',
+                  icon: Icons.warning_amber_outlined,
+                  tone: GhTone.danger,
+                  width: 190,
                   onTap: () => Navigator.of(context).push(
                     AppPageRoute(
                         builder: (_) =>
                             const SessionListScreen(initialRiskLevel: 'HIGH')),
                   ),
                 ),
-                _statCard(
-                  t.statMediumRiskLabel,
-                  '$mediumRiskCount',
-                  const Color(0xFFD97706),
-                  Icons.trending_up,
+                GhStatTile(
+                  label: t.statMediumRiskLabel,
+                  value: '$mediumRiskCount',
+                  icon: Icons.trending_up,
+                  tone: GhTone.attention,
+                  width: 190,
                   onTap: () => Navigator.of(context).push(
                     AppPageRoute(
                         builder: (_) => const SessionListScreen(
                             initialRiskLevel: 'MEDIUM')),
                   ),
                 ),
-                _statCard(
-                  t.statLowRiskLabel,
-                  '$lowRiskCount',
-                  const Color(0xFF059669),
-                  Icons.check_circle,
+                GhStatTile(
+                  label: t.statLowRiskLabel,
+                  value: '$lowRiskCount',
+                  icon: Icons.check_circle_outline,
+                  tone: GhTone.success,
+                  width: 190,
                   onTap: () => Navigator.of(context).push(
                     AppPageRoute(
                         builder: (_) =>
                             const SessionListScreen(initialRiskLevel: 'LOW')),
                   ),
                 ),
-                _statCard(
-                  t.statusOpenLabel,
-                  '$openCount',
-                  const Color(0xFF0284C7),
-                  Icons.folder_open,
+                GhStatTile(
+                  label: t.statusOpenLabel,
+                  value: '$openCount',
+                  icon: Icons.folder_open,
+                  tone: GhTone.accent,
+                  width: 190,
                   onTap: () => Navigator.of(context).push(
                     AppPageRoute(
                         builder: (_) =>
                             const SessionListScreen(initialStatus: 'open')),
                   ),
                 ),
-                _statCard(
-                  t.statusClosedLabel,
-                  '$closedCount',
-                  const Color(0xFF059669),
-                  Icons.check_circle_outline,
+                GhStatTile(
+                  label: t.statusClosedLabel,
+                  value: '$closedCount',
+                  icon: Icons.check_box_outlined,
+                  tone: GhTone.done,
+                  width: 190,
                   onTap: () => Navigator.of(context).push(
                     AppPageRoute(
                         builder: (_) =>
@@ -338,21 +312,23 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   ),
                 ),
                 if (avgSeverity != null)
-                  _statCard(
-                    t.statAvgSeverityLabel,
-                    '${avgSeverity.toStringAsFixed(1)}/10',
-                    const Color(0xFFD97706),
-                    Icons.speed,
+                  GhStatTile(
+                    label: t.statAvgSeverityLabel,
+                    value: '${avgSeverity.toStringAsFixed(1)}/10',
+                    icon: Icons.speed,
+                    tone: GhTone.attention,
+                    width: 190,
                     onTap: () => Navigator.of(context).push(
                       AppPageRoute(builder: (_) => const SessionListScreen()),
                     ),
                   ),
                 if (avgRiskScore != null)
-                  _statCard(
-                    t.statAvgRiskScoreLabel,
-                    avgRiskScore.toStringAsFixed(2),
-                    const Color(0xFFDC2626),
-                    Icons.warning_amber,
+                  GhStatTile(
+                    label: t.statAvgRiskScoreLabel,
+                    value: avgRiskScore.toStringAsFixed(2),
+                    icon: Icons.insights_outlined,
+                    tone: GhTone.danger,
+                    width: 190,
                     onTap: () => Navigator.of(context).push(
                       AppPageRoute(builder: (_) => const SessionListScreen()),
                     ),
@@ -368,7 +344,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   {'label': t.statusOpenLabel, 'count': openCount},
                   {'label': t.statusClosedLabel, 'count': closedCount},
                 ],
-                colors: const [Color(0xFF0284C7), Color(0xFF059669)],
+                colors: const [Color(0xFF0969DA), Color(0xFF8250DF)],
               ),
               const SizedBox(height: 32),
             ],
@@ -405,73 +381,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     );
   }
 
-  Widget _sectionTitle(String text) => Text(
-        text,
-        style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: AppPalette.textPrimary(context)),
-      );
-
-  Widget _statCard(String label, String value, Color color, IconData icon,
-      {VoidCallback? onTap}) {
-    return SizedBox(
-      width: 180,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppPalette.surface(context),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppPalette.border(context)),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withOpacity(0.02),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2))
-              ],
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(10)),
-                  child: Icon(icon, color: color, size: 22),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(value,
-                          style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: color),
-                          overflow: TextOverflow.ellipsis),
-                      Text(label,
-                          style: TextStyle(
-                              fontSize: 11,
-                              color: AppPalette.textMuted(context),
-                              fontWeight: FontWeight.w600),
-                          overflow: TextOverflow.ellipsis),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
+  Widget _sectionTitle(String text) => GhSectionHeader(text);
 
   /// Donut chart with a legend list beside/below it. Caps the pie at the
   /// top 6 slices (already sorted by count from the backend) plus an
@@ -493,14 +403,8 @@ class _ReportsScreenState extends State<ReportsScreen> {
     }
     final total = sliceRows.fold<int>(0, (sum, r) => sum + (r['count'] as int));
 
-    return Container(
-      width: double.infinity,
+    return GhBox(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppPalette.surface(context),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppPalette.border(context)),
-      ),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final chart = SizedBox(
@@ -541,27 +445,25 @@ class _ReportsScreenState extends State<ReportsScreen> {
                       Expanded(
                         child: Text(
                           sliceRows[i]['label'] as String,
-                          style: TextStyle(
-                              fontSize: 13,
-                              color: AppPalette.textPrimary(context)),
+                          style:
+                              GhType.body.copyWith(color: GhColors.fg(context)),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         '${sliceRows[i]['count']}',
-                        style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: AppPalette.textPrimary(context)),
+                        style: GhType.body.copyWith(
+                            color: GhColors.fg(context),
+                            fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(width: 4),
                       Text(
                         total == 0
                             ? ''
                             : '(${(((sliceRows[i]['count'] as int) / total) * 100).round()}%)',
-                        style: TextStyle(
-                            fontSize: 11, color: AppPalette.textMuted(context)),
+                        style: GhType.meta
+                            .copyWith(color: GhColors.fgMuted(context)),
                       ),
                     ],
                   ),
@@ -682,7 +584,9 @@ Future<Uint8List> _buildReportPdf(
       build: (context) => [
         pw.Text('Simtack Triage Report',
             style: pw.TextStyle(
-                fontSize: 22, fontWeight: pw.FontWeight.bold, color: navyColor)),
+                fontSize: 22,
+                fontWeight: pw.FontWeight.bold,
+                color: navyColor)),
         pw.SizedBox(height: 4),
         pw.Text(
             'Period: $periodLabel  •  Generated: ${DateTime.now().toString().split('.').first}',
