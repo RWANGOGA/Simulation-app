@@ -50,9 +50,12 @@ class BodyMapScreen extends StatefulWidget {
   static String _generateConversationId() {
     final random = _secureRandom();
     final id = StringBuffer('conv_');
-    for (var i = 0; i < 4; i++) {
-      // 32 bits per round, so four rounds is a full 128-bit id.
-      id.write(random.nextInt(1 << 32).toRadixString(16).padLeft(8, '0'));
+    // 32 hex digits = 128 bits. One nibble per call rather than
+    // `nextInt(1 << 32)` per word: under dart2js `1 << 32` is 0, and
+    // `Random.nextInt(0)` throws — which would stop the body map from opening at
+    // all on the web (see OfflineRepository._token for the same trap).
+    for (var i = 0; i < 32; i++) {
+      id.write(random.nextInt(16).toRadixString(16));
     }
     return id.toString();
   }

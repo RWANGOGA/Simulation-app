@@ -611,10 +611,18 @@ class OfflineRepository {
 
   static String _nowIso() => DateTime.now().toUtc().toIso8601String();
 
-  /// Random, unique-enough identifier for an outbox entry.
+  /// A unique-ish id for a queued operation: when it was made, plus a random
+  /// suffix so two rows created in the same microsecond stay distinct.
+  ///
+  /// The range is 2^30 and not 2^32 on purpose. Under dart2js `1 << 32` is **0**
+  /// — the shift wraps the way a 32-bit JS int's does — and `Random.nextInt(0)`
+  /// throws `RangeError: max must be in range 0 < max ≤ 2^32`. That took down
+  /// patient intake on the deployed web build, because this runs inside
+  /// [createPatient], while every test passed on the Dart VM where `1 << 32` is
+  /// 4294967296. 2^30 is the widest range that means the same number on both.
   static String _token() {
     final micros = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
-    final rand = _random.nextInt(1 << 32).toRadixString(36);
+    final rand = _random.nextInt(1 << 30).toRadixString(36);
     return '$micros-$rand';
   }
 
