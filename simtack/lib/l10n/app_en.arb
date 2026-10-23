@@ -505,8 +505,6 @@
   "@vitalsTitle": {"description": "Section title over the captured vitals on the review screen."},
   "heartRateLabel": "Heart Rate",
   "@heartRateLabel": {"description": "Label for the captured heart rate."},
-  "spo2EstLabel": "SpO2 (est.)",
-  "@spo2EstLabel": {"description": "Label for the estimated signal-quality proxy shown as SpO2."},
   "consentSubmitNotice": "By submitting, you consent to sharing this clinical data with the attending physician for triage purposes.",
   "@consentSubmitNotice": {"description": "Consent notice above the submit button."},
   "saveDraftButton": "Save Draft",

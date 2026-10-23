@@ -193,7 +193,6 @@
   "intensityLabel": "Intensity",
   "vitalsTitle": "Vitals",
   "heartRateLabel": "Heart Rate",
-  "spo2EstLabel": "SpO2 (est.)",
   "consentSubmitNotice": "By submitting, you consent to sharing this clinical data with the attending physician for triage purposes.",
   "saveDraftButton": "Save Draft",
   "submitButton": "Submit",

@@ -83,7 +83,6 @@ DIRECTIONS = [
 ]
 
 HEART_RATES = [None, 45.0, 50.0, 55.0, 88.0, 100.0, 101.0, 120.0, 121.0, 150.0]
-SPO2_VALUES = [None, 0.0, 88.0, 91.0, 92.0, 94.0, 95.0, 99.0]
 WEIGHT_HEIGHT = [
     (None, None),
     (50.0, 160.0),   # BMI 19.5 — normal
@@ -133,7 +132,6 @@ def _export_runtime_assets() -> Dict[str, Any]:
             "critical_bump": 0.15,
             "high_bump": 0.10,
         },
-        "spo2": {"low_below": 92.0, "moderate_below": 95.0, "low_bump": 0.15, "moderate_bump": 0.10},
         "bmi": {"obese_at": 30.0, "underweight_below": 18.5, "bump": 0.05},
         "severity": {"max": 10, "weight": 0.50},
         "bands": {"high": 0.7, "medium": 0.4},
@@ -183,7 +181,6 @@ def _risk_case(
     severity: int = 5,
     direction: str | None = None,
     heart_rate: float | None = None,
-    spo2: float | None = None,
     weight: float | None = None,
     height: float | None = None,
     siblings: List[str] | None = None,
@@ -194,7 +191,6 @@ def _risk_case(
         severity=severity,
         direction=direction,
         heart_rate=heart_rate,
-        spo2=spo2,
     )
     siblings = siblings or []
     risk, contributions = triage_service.compute_risk(
@@ -210,7 +206,6 @@ def _risk_case(
             "severity": severity,
             "direction": direction,
             "heart_rate": heart_rate,
-            "spo2": spo2,
             "patient_weight": weight,
             "patient_height": height,
             "siblings": siblings,
@@ -254,8 +249,6 @@ def _build_risk_cases() -> List[Dict[str, Any]]:
     # Vitals.
     for heart_rate in HEART_RATES:
         cases.append(_risk_case(region="Headache / Cranial", heart_rate=heart_rate))
-    for spo2 in SPO2_VALUES:
-        cases.append(_risk_case(region="Chest / Heart", spo2=spo2))
     for weight, height in WEIGHT_HEIGHT:
         cases.append(_risk_case(region="Abdomen (Upper)", weight=weight, height=height))
 
@@ -281,7 +274,6 @@ def _build_risk_cases() -> List[Dict[str, Any]]:
                 severity=random.randint(1, 10),
                 direction=random.choice(DIRECTIONS),
                 heart_rate=random.choice(HEART_RATES),
-                spo2=random.choice(SPO2_VALUES),
                 weight=weight,
                 height=height,
                 siblings=siblings,

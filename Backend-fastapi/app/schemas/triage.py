@@ -7,7 +7,10 @@ class TriageBase(BaseModel):
     pain_type: str = Field(..., description="e.g., sharp, burning, throbbing")
     severity: int = Field(..., ge=1, le=10)
     heart_rate: Optional[float] = Field(None, description="BPM from camera PPG")
-    spo2: Optional[float] = Field(None, description="SpO2 estimate (%) from camera PPG — perfusion-based proxy, not clinical pulse-oximetry")
+    # No SpO2 field: the camera estimate is a perfusion proxy, not pulse-oximetry,
+    # and a number that looks like an oxygen saturation on a triage record invites
+    # clinical decisions that the measurement cannot support. The stored column on
+    # older visits is left untouched but is read by nothing (see models/triage.py).
     direction: Optional[str] = Field(None, description="e.g., Towards Back, Radiating Down")
     depth: Optional[str] = Field(None, description="e.g., Superficial, Moderate, Deep")
     expansion_behavior: Optional[str] = Field(None, description="e.g., Stays Small, Spreading, Multiplying")

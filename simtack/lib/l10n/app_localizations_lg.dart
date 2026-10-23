@@ -632,9 +632,6 @@ class AppLocalizationsLg extends AppLocalizations {
   String get heartRateLabel => 'Omutima';
 
   @override
-  String get spo2EstLabel => 'SpO2 (okulambika)';
-
-  @override
   String get consentSubmitNotice => 'Bw\'oweereza, okkiriza okugabana amawulire gano n\'omusawo akulabirira ku lw\'okwekenneenya.';
 
   @override

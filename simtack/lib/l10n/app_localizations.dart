@@ -1257,12 +1257,6 @@ abstract class AppLocalizations {
   /// **'Heart Rate'**
   String get heartRateLabel;
 
-  /// Label for the estimated signal-quality proxy shown as SpO2.
-  ///
-  /// In en, this message translates to:
-  /// **'SpO2 (est.)'**
-  String get spo2EstLabel;
-
   /// Consent notice above the submit button.
   ///
   /// In en, this message translates to:

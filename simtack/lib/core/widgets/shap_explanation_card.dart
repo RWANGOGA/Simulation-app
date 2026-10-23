@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import '../clinical/retired_factors.dart';
 
 /// Renders the backend's risk-score breakdown (the `shap_explanation` JSON
 /// on a TriageResult) as a readable "why this score" list. Anatomical
@@ -32,6 +33,15 @@ class ShapExplanationCard extends StatelessWidget {
     }
     if (factors.isEmpty) return const SizedBox.shrink();
 
+    // A record filed by an older version can still name a factor the app no
+    // longer measures. The stored breakdown is left as written for the audit
+    // trail, but it is not shown as if it were current reasoning.
+    final visible = factors
+        .where((f) =>
+            f is! Map || !isRetiredRiskFactor((f['factor'] ?? '').toString()))
+        .toList();
+    if (visible.isEmpty) return const SizedBox.shrink();
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(12),
@@ -48,7 +58,7 @@ class ShapExplanationCard extends StatelessWidget {
             style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 1),
           ),
           const SizedBox(height: 8),
-          ...factors.map((f) {
+          ...visible.map((f) {
             final factor = f as Map<String, dynamic>;
             final label = factor['factor'] as String? ?? '';
             final shap = (factor['shap'] as num?)?.toDouble() ?? 0.0;

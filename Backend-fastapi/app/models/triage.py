@@ -12,6 +12,10 @@ class TriageSession(Base):
     pain_type = Column(String)
     severity = Column(Integer)
     heart_rate = Column(Float, nullable=True)
+    # Retired: no code path reads or writes this any more (the API schema, the
+    # score, the offline engine and the app's cache all dropped it). The column
+    # stays so the values recorded on older visits are not destroyed and so the
+    # model keeps matching the shipped schema; new rows leave it NULL.
     spo2 = Column(Float, nullable=True)
     direction = Column(String, nullable=True)
     depth = Column(String, nullable=True)

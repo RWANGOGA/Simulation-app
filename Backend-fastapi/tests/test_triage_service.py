@@ -65,12 +65,8 @@ class TestTriageService(unittest.TestCase):
         self.assertEqual(_region_weight("Right Ankle"), 0.10)
         self.assertEqual(_region_weight("Hips / Groin"), 0.10)
 
-    def test_spo2_and_bmi_contributions(self):
-        from app.services.triage_service import _spo2_contribution, _bmi_contribution
-        self.assertEqual(_spo2_contribution(None), 0.0)
-        self.assertEqual(_spo2_contribution(98.0), 0.0)
-        self.assertEqual(_spo2_contribution(94.0), 0.10)
-        self.assertEqual(_spo2_contribution(89.0), 0.15)
+    def test_bmi_contribution(self):
+        from app.services.triage_service import _bmi_contribution
 
         contrib, bmi = _bmi_contribution(None, 170.0)
         self.assertEqual(contrib, 0.0)
@@ -85,13 +81,35 @@ class TestTriageService(unittest.TestCase):
         self.assertEqual(contrib, 0.05)
         self.assertAlmostEqual(bmi, 35.9, places=1)
 
+    def test_oxygen_saturation_is_not_a_scoring_input(self):
+        """The camera figure is a perfusion proxy, not pulse-oximetry, so it must
+        not move a triage score or reach a practitioner as an oxygen saturation.
+
+        Asserted as behaviour rather than absence: a client that still posts the
+        field has to be ignored, not rejected (the mobile app ships updates on its
+        own schedule) and not rewarded with extra risk.
+        """
+        from app.services import triage_service
+
+        self.assertFalse(hasattr(triage_service, "_spo2_contribution"))
+        self.assertNotIn("spo2", TriageCreate.model_fields)
+
+        base = TriageCreate(
+            body_region="Chest / Heart", pain_type="sharp", severity=7, heart_rate=110.0
+        )
+        legacy = TriageCreate(
+            body_region="Chest / Heart", pain_type="sharp", severity=7,
+            heart_rate=110.0, spo2=88.0,
+        )
+        self.assertNotIn("spo2", legacy.model_dump())
+        self.assertEqual(compute_risk(base), compute_risk(legacy))
+
     def test_compute_risk_with_sibling_regions(self):
         triage_data = TriageCreate(
             body_region="Chest / Heart",
             pain_type="sharp",
             severity=7,
             heart_rate=110.0,
-            spo2=93.0,
         )
         # Sibling region has classic cardiac radiation
         siblings = ["Left Arm / Shoulder"]

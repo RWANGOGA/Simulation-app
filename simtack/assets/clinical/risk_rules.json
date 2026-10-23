@@ -120,11 +120,5 @@
     "max": 10,
     "weight": 0.5
   },
-  "spo2": {
-    "low_below": 92.0,
-    "low_bump": 0.15,
-    "moderate_below": 95.0,
-    "moderate_bump": 0.1
-  },
   "version": 1
 }

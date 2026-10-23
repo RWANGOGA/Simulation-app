@@ -175,5 +175,48 @@ void main() {
       expect(find.text('+40%'), findsOneWidget);
       expect(find.byType(FractionallySizedBox), findsOneWidget);
     });
+
+    testWidgets('a record filed by an older version does not resurface SpO2',
+        (tester) async {
+      // The row below is what a device that ran the previous version stored:
+      // the score and the breakdown were written by an engine that still had a
+      // term for the camera's SpO2 estimate. Neither the number nor its label
+      // is something this app can verify or stand behind any more, and a
+      // practitioner reading "SpO2 88.0%" on a report will act on it as if it
+      // were pulse oximetry. The stored record is not rewritten; it is simply
+      // not presented as current reasoning.
+      final shap = jsonEncode([
+        {'factor': 'Severity 8/10', 'shap': 0.35, 'impact': '+'},
+        {'factor': 'SpO2 88.0%', 'shap': 0.15, 'impact': '+'},
+        {'factor': 'Heart rate 112.0 bpm', 'shap': 0.1, 'impact': '+'},
+      ]);
+      final patient = await seedPatient();
+      await fileReport(
+        patientCode: patient.code,
+        region: 'Chest',
+        painType: 'sharp',
+        severity: 8,
+        visitId: 'visit-a',
+        createdAt: '2026-08-01T09:00:00',
+        shapExplanation: shap,
+      );
+
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(_wrap(ClinicalReportScreen(
+          patientId: patient.code, practitionerMode: true)));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.widgetWithText(ExpansionTile, 'WHY THIS SCORE?'));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('SpO2', skipOffstage: false), findsNothing);
+      // Everything else on the report still renders: this is a filter on one
+      // retired factor, not a report that stops opening.
+      expect(find.text('Severity 8/10'), findsOneWidget);
+      expect(find.text('Heart rate 112.0 bpm'), findsOneWidget);
+    });
   });
 }

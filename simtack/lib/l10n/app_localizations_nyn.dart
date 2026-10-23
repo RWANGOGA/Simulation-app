@@ -632,9 +632,6 @@ class AppLocalizationsNyn extends AppLocalizations {
   String get heartRateLabel => 'Heart Rate';
 
   @override
-  String get spo2EstLabel => 'SpO2 (est.)';
-
-  @override
   String get consentSubmitNotice => 'By submitting, you consent to sharing this clinical data with the attending physician for triage purposes.';
 
   @override

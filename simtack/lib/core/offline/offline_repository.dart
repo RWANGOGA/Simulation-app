@@ -135,7 +135,6 @@ class OfflineRepository {
         // The capture form no longer collects vitals, and TriageReport does not
         // send them, so the server scores these as absent too.
         heartRate: null,
-        spo2: null,
         patientWeight: _asDouble(patient['weight']),
         patientHeight: _asDouble(patient['height']),
         siblingRegions: db.regionsInVisit(report.visitId),
@@ -152,7 +151,6 @@ class OfflineRepository {
         'pain_type': report.painType,
         'severity': report.severity,
         'heart_rate': null,
-        'spo2': null,
         'direction': report.direction,
         'depth': report.depth,
         'expansion_behavior': report.expansionBehavior,
@@ -529,7 +527,6 @@ class OfflineRepository {
       severity: (session['severity'] as num?)?.toInt() ?? 0,
       direction: session['direction'] as String?,
       heartRate: _asDouble(session['heart_rate']),
-      spo2: _asDouble(session['spo2']),
     );
 
     return <String, dynamic>{
@@ -540,7 +537,6 @@ class OfflineRepository {
       'pain_type': session['pain_type'],
       'severity': session['severity'],
       'heart_rate': session['heart_rate'],
-      'spo2': session['spo2'],
       'direction': session['direction'],
       'depth': session['depth'],
       'expansion_behavior': session['expansion_behavior'],

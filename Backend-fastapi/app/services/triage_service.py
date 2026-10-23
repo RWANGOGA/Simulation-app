@@ -79,16 +79,6 @@ def _connectivity_contributions(region: str, sibling_regions: List[str]) -> List
     return contributions
 
 
-def _spo2_contribution(spo2: Optional[float]) -> float:
-    """Low blood-oxygen estimates raise the triage priority."""
-    if spo2 is None or spo2 <= 0:
-        return 0.0
-    if spo2 < 92:
-        return 0.15
-    if spo2 < 95:
-        return 0.10
-    return 0.0
-
 def _bmi_contribution(weight_kg: Optional[float], height_cm: Optional[float]) -> Tuple[float, Optional[float]]:
     """
     Weight/height were collected at intake but never influenced the score.
@@ -123,9 +113,6 @@ def compute_risk(
         contributions.append({"factor": f"Heart rate {data.heart_rate} bpm", "shap": hr_c, "impact": "+" if hr_c >= 0 else "-"})
     if sibling_regions:
         contributions.extend(_connectivity_contributions(data.body_region, sibling_regions))
-    spo2_c = _spo2_contribution(data.spo2)
-    if spo2_c:
-        contributions.append({"factor": f"SpO2 {data.spo2}%", "shap": spo2_c, "impact": "+" if spo2_c >= 0 else "-"})
     bmi_c, bmi = _bmi_contribution(patient_weight, patient_height)
     if bmi_c:
         contributions.append({"factor": f"BMI {bmi:.1f} (weight/height)", "shap": bmi_c, "impact": "+" if bmi_c >= 0 else "-"})

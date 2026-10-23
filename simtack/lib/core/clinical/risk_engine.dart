@@ -11,7 +11,6 @@ class TriageInput {
     required this.severity,
     this.direction,
     this.heartRate,
-    this.spo2,
     this.patientWeight,
     this.patientHeight,
     this.siblingRegions = const [],
@@ -22,7 +21,6 @@ class TriageInput {
   final int severity;
   final String? direction;
   final double? heartRate;
-  final double? spo2;
   final double? patientWeight;
   final double? patientHeight;
 
@@ -36,7 +34,6 @@ class TriageInput {
         severity: (json['severity'] as num?)?.toInt() ?? 0,
         direction: json['direction'] as String?,
         heartRate: (json['heart_rate'] as num?)?.toDouble(),
-        spo2: (json['spo2'] as num?)?.toDouble(),
         patientWeight: (json['patient_weight'] as num?)?.toDouble(),
         patientHeight: (json['patient_height'] as num?)?.toDouble(),
         siblingRegions: ((json['siblings'] as List?) ?? const [])
@@ -50,7 +47,6 @@ class TriageInput {
         'severity': severity,
         'direction': direction,
         'heart_rate': heartRate,
-        'spo2': spo2,
         'patient_weight': patientWeight,
         'patient_height': patientHeight,
         'siblings': siblingRegions,
@@ -160,15 +156,6 @@ class RiskEngine {
       );
     }
 
-    final spo2Share = _spo2Contribution(input.spo2);
-    if (spo2Share != 0) {
-      contributions.add(RiskContribution(
-        factor: 'SpO2 ${_pyFloat(input.spo2!)}%',
-        shap: spo2Share,
-        impact: spo2Share >= 0 ? '+' : '-',
-      ));
-    }
-
     final bmiResult =
         _bmiContribution(input.patientWeight, input.patientHeight);
     if (bmiResult.contribution != 0) {
@@ -224,14 +211,6 @@ class RiskEngine {
       return rules.heartRateCriticalBump;
     }
     if (heartRate > rules.heartRateHighAbove) return rules.heartRateHighBump;
-    return 0.0;
-  }
-
-  double _spo2Contribution(double? spo2) {
-    // A reading of zero means "no reading", not "no oxygen".
-    if (spo2 == null || spo2 <= 0) return 0.0;
-    if (spo2 < _rules.spo2LowBelow) return _rules.spo2LowBump;
-    if (spo2 < _rules.spo2ModerateBelow) return _rules.spo2ModerateBump;
     return 0.0;
   }
 

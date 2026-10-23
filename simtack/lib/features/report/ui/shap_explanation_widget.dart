@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import '../../../../core/clinical/retired_factors.dart';
 import '../../../../l10n/app_localizations.dart';
 
 class ShapFactor {
@@ -51,7 +52,7 @@ class ShapExplanationWidget extends StatelessWidget {
             ? (factor['impact'] == '-' ? '-' : '+')
             : (shap < 0 ? '-' : '+');
         return ShapFactor(label: label, shap: shap, impact: impact);
-      }).toList();
+      }).where((f) => !isRetiredRiskFactor(f.label)).toList();
     } catch (_) {
       return [];
     }
@@ -284,7 +285,7 @@ class CompactShapExplanationWidget extends StatelessWidget {
             ? (factor['impact'] == '-' ? '-' : '+')
             : (shap < 0 ? '-' : '+');
         return ShapFactor(label: label, shap: shap, impact: impact);
-      }).toList()
+      }).where((f) => !isRetiredRiskFactor(f.label)).toList()
         ..sort((a, b) => b.magnitude.compareTo(a.magnitude));
     } catch (_) {
       return [];

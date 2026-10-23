@@ -131,10 +131,6 @@ class RiskRules {
     required this.heartRateHighAbove,
     required this.heartRateCriticalBump,
     required this.heartRateHighBump,
-    required this.spo2LowBelow,
-    required this.spo2ModerateBelow,
-    required this.spo2LowBump,
-    required this.spo2ModerateBump,
     required this.bmiObeseAt,
     required this.bmiUnderweightBelow,
     required this.bmiBump,
@@ -162,10 +158,8 @@ class RiskRules {
   final double heartRateCriticalBump;
   final double heartRateHighBump;
 
-  final double spo2LowBelow;
-  final double spo2ModerateBelow;
-  final double spo2LowBump;
-  final double spo2ModerateBump;
+  // No SpO2 thresholds: the offline engine scores exactly what the server scores,
+  // and the server dropped the camera perfusion estimate from the risk model.
 
   final double bmiObeseAt;
   final double bmiUnderweightBelow;
@@ -188,7 +182,6 @@ class RiskRules {
 
   factory RiskRules.fromJson(Map<String, dynamic> json) {
     final heartRate = json['heart_rate'] as Map<String, dynamic>;
-    final spo2 = json['spo2'] as Map<String, dynamic>;
     final bmi = json['bmi'] as Map<String, dynamic>;
     final severity = json['severity'] as Map<String, dynamic>;
     final bands = json['bands'] as Map<String, dynamic>;
@@ -210,10 +203,6 @@ class RiskRules {
       heartRateHighAbove: (heartRate['high_above'] as num).toDouble(),
       heartRateCriticalBump: (heartRate['critical_bump'] as num).toDouble(),
       heartRateHighBump: (heartRate['high_bump'] as num).toDouble(),
-      spo2LowBelow: (spo2['low_below'] as num).toDouble(),
-      spo2ModerateBelow: (spo2['moderate_below'] as num).toDouble(),
-      spo2LowBump: (spo2['low_bump'] as num).toDouble(),
-      spo2ModerateBump: (spo2['moderate_bump'] as num).toDouble(),
       bmiObeseAt: (bmi['obese_at'] as num).toDouble(),
       bmiUnderweightBelow: (bmi['underweight_below'] as num).toDouble(),
       bmiBump: (bmi['bump'] as num).toDouble(),

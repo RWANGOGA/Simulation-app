@@ -35,14 +35,18 @@ def _check_triage_rate_limit(request: Request, db: Session) -> None:
 
 def _session_payload(session: TriageSession, patient) -> dict:
     """Single source of truth for the triage response shape — every
-    endpoint returns this so new fields (spo2, decision workflow, ...)
-    only need to be added in one place."""
+    endpoint returns this so new fields (decision workflow, ...)
+    only need to be added in one place.
+
+    `spo2` is deliberately absent. The column still exists on old rows, but the
+    camera figure behind it is a perfusion proxy and no response, score or screen
+    should present it as an oxygen saturation."""
     return {
         "id": session.id, "patient_id": session.patient_id,
         "anonymous_code": patient.anonymous_code if patient else None,
         "body_region": session.body_region, "pain_type": session.pain_type,
         "severity": session.severity, "heart_rate": session.heart_rate,
-        "spo2": session.spo2, "direction": session.direction, "depth": session.depth,
+        "direction": session.direction, "depth": session.depth,
         "expansion_behavior": session.expansion_behavior, "triggers": session.triggers,
         "relievers": session.relievers, "daily_limitations": session.daily_limitations,
         "visit_id": session.visit_id,
