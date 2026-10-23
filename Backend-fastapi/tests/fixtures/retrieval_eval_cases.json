@@ -1,0 +1,444 @@
+{
+  "description": "Golden evaluation set for the anatomy retriever. Expectations are written from clinical reasoning against app/data/anatomy_kb.json, NOT from what the retriever currently returns - the whole point is to measure the gap between the two. Field semantics: region/query are the inputs handed to retrieve(); top1_acceptable is the set of chunk ids it is clinically correct to put first; should_include are chunks that must appear somewhere in the window because the clinical picture spans them (referred pain, shared red flags); must_not_include are chunks that must never be served for this case, because acting on them would be clinically wrong; expect_no_match marks complaints this knowledge base does not cover at all, where the only correct behaviour is to say so. Cases are grouped by the failure mode they probe.",
+  "version": 1,
+  "cases": [
+    {
+      "id": "bare-chest",
+      "group": "bare_region_tap",
+      "region": "Chest / Heart",
+      "query": "",
+      "top1_acceptable": ["chest_heart"]
+    },
+    {
+      "id": "bare-headache",
+      "group": "bare_region_tap",
+      "region": "Headache / Cranial",
+      "query": "",
+      "top1_acceptable": ["headache_cranial"]
+    },
+    {
+      "id": "bare-neck",
+      "group": "bare_region_tap",
+      "region": "Neck",
+      "query": "",
+      "top1_acceptable": ["neck"]
+    },
+    {
+      "id": "bare-abdomen-upper",
+      "group": "bare_region_tap",
+      "region": "Abdomen (Upper)",
+      "query": "",
+      "top1_acceptable": ["abdomen_upper"]
+    },
+    {
+      "id": "bare-abdomen-lower-right",
+      "group": "bare_region_tap",
+      "region": "Abdomen (Lower Right)",
+      "query": "",
+      "top1_acceptable": ["abdomen_lower_right"]
+    },
+    {
+      "id": "bare-back-lower",
+      "group": "bare_region_tap",
+      "region": "Back Pain (Lower)",
+      "query": "",
+      "top1_acceptable": ["back_lower"]
+    },
+    {
+      "id": "bare-right-shoulder",
+      "group": "bare_region_tap",
+      "region": "Right Shoulder",
+      "query": "",
+      "top1_acceptable": ["right_shoulder", "right_arm_shoulder"],
+      "must_not_include": ["left_arm_shoulder"]
+    },
+    {
+      "id": "bare-left-arm-shoulder",
+      "group": "bare_region_tap",
+      "region": "Left Arm / Shoulder",
+      "query": "",
+      "top1_acceptable": ["left_arm_shoulder", "left_shoulder"],
+      "must_not_include": ["right_arm_shoulder"]
+    },
+    {
+      "id": "bare-right-thigh",
+      "group": "bare_region_tap",
+      "region": "Right Thigh",
+      "query": "",
+      "top1_acceptable": ["right_thigh", "thighs"],
+      "should_include": ["thighs"],
+      "must_not_include": ["left_thigh"]
+    },
+    {
+      "id": "bare-left-knee",
+      "group": "bare_region_tap",
+      "region": "Left Knee",
+      "query": "",
+      "top1_acceptable": ["left_knee", "left_leg_knee"],
+      "must_not_include": ["right_knee", "right_leg_knee"]
+    },
+    {
+      "id": "bare-right-shin-calf",
+      "group": "bare_region_tap",
+      "region": "Right Shin / Calf",
+      "query": "",
+      "top1_acceptable": ["right_shin_calf"],
+      "must_not_include": ["left_shin_calf"]
+    },
+    {
+      "id": "bare-left-ankle",
+      "group": "bare_region_tap",
+      "region": "Left Ankle",
+      "query": "",
+      "top1_acceptable": ["left_ankle"],
+      "must_not_include": ["right_ankle"]
+    },
+    {
+      "id": "bare-right-foot",
+      "group": "bare_region_tap",
+      "region": "Right Foot",
+      "query": "",
+      "top1_acceptable": ["right_foot"],
+      "must_not_include": ["left_foot"]
+    },
+    {
+      "id": "bare-hips-groin",
+      "group": "bare_region_tap",
+      "region": "Hips / Groin",
+      "query": "",
+      "top1_acceptable": ["hips_groin"]
+    },
+    {
+      "id": "bare-left-armpit",
+      "group": "bare_region_tap",
+      "region": "Left Armpit",
+      "query": "",
+      "top1_acceptable": ["left_armpit"],
+      "must_not_include": []
+    },
+    {
+      "id": "lay-breathless-stairs",
+      "group": "lay_vocabulary",
+      "region": "Chest / Heart",
+      "query": "I can't breathe when I walk up the stairs",
+      "top1_acceptable": ["chest_heart"]
+    },
+    {
+      "id": "lay-crushing-chest-to-arm",
+      "group": "lay_vocabulary",
+      "region": null,
+      "query": "crushing pressure in my chest going down my left arm",
+      "top1_acceptable": ["chest_heart", "left_arm_shoulder"],
+      "should_include": ["left_arm_shoulder"]
+    },
+    {
+      "id": "lay-fatty-food-upper-abdomen",
+      "group": "lay_vocabulary",
+      "region": "Abdomen (Upper)",
+      "query": "pain comes on after fatty food and I feel it in my back",
+      "top1_acceptable": ["abdomen_upper"],
+      "should_include": [["right_shoulder", "right_arm_shoulder"]]
+    },
+    {
+      "id": "lay-hot-red-toe",
+      "group": "lay_vocabulary",
+      "region": "Left Foot",
+      "query": "my big toe went red, hot and swollen overnight",
+      "top1_acceptable": ["left_foot"]
+    },
+    {
+      "id": "lay-shooting-leg-numbness",
+      "group": "lay_vocabulary",
+      "region": "Back Pain (Lower)",
+      "query": "pain shooting down the back of my leg with numbness",
+      "top1_acceptable": ["back_lower"],
+      "should_include": [["left_thigh", "right_thigh", "thighs"]]
+    },
+    {
+      "id": "lay-worst-headache-stiff-neck",
+      "group": "lay_vocabulary",
+      "region": "Headache / Cranial",
+      "query": "worst headache I have ever had, my neck is stiff and I have a fever",
+      "top1_acceptable": ["headache_cranial"],
+      "should_include": ["neck"]
+    },
+    {
+      "id": "lay-swollen-calf-after-flight",
+      "group": "lay_vocabulary",
+      "region": "Right Shin / Calf",
+      "query": "my calf is swollen, warm and tender after a long flight",
+      "top1_acceptable": ["right_shin_calf"],
+      "should_include": [["right_thigh", "thighs"]]
+    },
+    {
+      "id": "lay-cant-lift-arm",
+      "group": "lay_vocabulary",
+      "region": "Left Arm / Shoulder",
+      "query": "I can't lift my arm above my head and it hurts to reach behind me",
+      "top1_acceptable": ["left_arm_shoulder", "left_shoulder"]
+    },
+    {
+      "id": "lay-sharp-inhale-chest",
+      "group": "lay_vocabulary",
+      "region": "Chest / Heart",
+      "query": "sharp pain in my chest when I breathe in",
+      "top1_acceptable": ["chest_heart"]
+    },
+    {
+      "id": "lay-sore-throat-neck-lump",
+      "group": "lay_vocabulary",
+      "region": "Neck",
+      "query": "sore throat and a tender swelling in my neck with fever",
+      "top1_acceptable": ["neck"]
+    },
+    {
+      "id": "jargon-dyspnea-exertion",
+      "group": "clinical_jargon",
+      "region": null,
+      "query": "dyspnea on exertion",
+      "top1_acceptable": ["chest_heart"]
+    },
+    {
+      "id": "jargon-pleuritic",
+      "group": "clinical_jargon",
+      "region": null,
+      "query": "pleuritic chest pain",
+      "top1_acceptable": ["chest_heart", "back_upper"]
+    },
+    {
+      "id": "jargon-hematochezia-llq",
+      "group": "clinical_jargon",
+      "region": null,
+      "query": "hematochezia with left lower quadrant pain",
+      "top1_acceptable": ["abdomen_lower_left"]
+    },
+    {
+      "id": "jargon-hepatic-colic",
+      "group": "clinical_jargon",
+      "region": null,
+      "query": "hepatic colic",
+      "top1_acceptable": ["abdomen_upper"]
+    },
+    {
+      "id": "jargon-odynophagia",
+      "group": "clinical_jargon",
+      "region": null,
+      "query": "odynophagia and retrosternal burning",
+      "top1_acceptable": ["chest_heart", "abdomen_upper"]
+    },
+    {
+      "id": "jargon-knee-crepitus-locking",
+      "group": "clinical_jargon",
+      "region": null,
+      "query": "crepitus and locking of the knee",
+      "top1_acceptable": ["left_knee", "right_knee", "left_leg_knee", "right_leg_knee"]
+    },
+    {
+      "id": "jargon-flank-to-groin",
+      "group": "clinical_jargon",
+      "region": null,
+      "query": "flank pain radiating to the groin with hematuria",
+      "top1_acceptable": ["hips_groin", "back_lower", "abdomen_lower_left", "abdomen_lower_right"]
+    },
+    {
+      "id": "jargon-diaphoresis-left-arm",
+      "group": "clinical_jargon",
+      "region": "Left Arm / Shoulder",
+      "query": "chest pressure with diaphoresis and nausea",
+      "top1_acceptable": ["chest_heart", "left_arm_shoulder"],
+      "should_include": ["chest_heart"]
+    },
+    {
+      "id": "jargon-hallux-valgus",
+      "group": "clinical_jargon",
+      "region": null,
+      "query": "bunion with hallux valgus pain",
+      "top1_acceptable": ["left_foot", "right_foot"]
+    },
+    {
+      "id": "refer-right-shoulder-gallbladder",
+      "group": "referred_pain",
+      "region": "Right Shoulder",
+      "query": "ache in my shoulder with pain under my right ribs after eating",
+      "top1_acceptable": ["right_shoulder", "right_arm_shoulder", "abdomen_upper"],
+      "should_include": ["abdomen_upper"],
+      "must_not_include": ["left_arm_shoulder"]
+    },
+    {
+      "id": "refer-left-arm-cardiac",
+      "group": "referred_pain",
+      "region": "Left Arm / Shoulder",
+      "query": "chest tightness radiating into my arm with nausea",
+      "top1_acceptable": ["left_arm_shoulder", "chest_heart"],
+      "should_include": ["chest_heart"],
+      "must_not_include": ["right_arm_shoulder"]
+    },
+    {
+      "id": "refer-appendicitis-migration",
+      "group": "referred_pain",
+      "region": "Abdomen (Lower Right)",
+      "query": "it started around my navel then moved down to the right side",
+      "top1_acceptable": ["abdomen_lower_right"]
+    },
+    {
+      "id": "refer-cauda-equina",
+      "group": "referred_pain",
+      "region": "Back Pain (Lower)",
+      "query": "I have lost control of my bladder and my groin is numb",
+      "top1_acceptable": ["back_lower", "back_upper"],
+      "should_include": ["back_upper"]
+    },
+    {
+      "id": "refer-knee-to-calf-dvt",
+      "group": "referred_pain",
+      "region": "Right Leg / Knee",
+      "query": "my calf is hot and tender since the knee swelled",
+      "top1_acceptable": ["right_leg_knee", "right_shin_calf"],
+      "should_include": ["right_shin_calf"]
+    },
+    {
+      "id": "refer-sciatica-to-thigh",
+      "group": "referred_pain",
+      "region": "Left Thigh",
+      "query": "pain from my lower back running into the back of my thigh",
+      "top1_acceptable": ["left_thigh", "thighs", "back_lower"],
+      "should_include": ["back_lower"]
+    },
+    {
+      "id": "refer-renal-to-left-leg",
+      "group": "referred_pain",
+      "region": "Left Leg / Knee",
+      "query": "blood in my urine and pain in my side",
+      "top1_acceptable": ["left_leg_knee", "back_lower", "hips_groin"],
+      "should_include": ["back_lower"]
+    },
+    {
+      "id": "redflag-sah-meningism",
+      "group": "red_flag_reachability",
+      "region": null,
+      "query": "sudden worst headache of my life with a stiff neck and fever",
+      "top1_acceptable": ["headache_cranial"],
+      "should_include": ["neck"]
+    },
+    {
+      "id": "redflag-mi-presentation",
+      "group": "red_flag_reachability",
+      "region": null,
+      "query": "chest pain radiating to my left arm and jaw, sweating",
+      "top1_acceptable": ["chest_heart", "left_arm_shoulder"],
+      "should_include": ["left_arm_shoulder"]
+    },
+    {
+      "id": "redflag-scaphoid-fall",
+      "group": "red_flag_reachability",
+      "region": null,
+      "query": "I fell onto my outstretched hand and my wrist still hurts weeks later",
+      "top1_acceptable": ["left_wrist", "right_wrist"],
+      "should_include": [["left_wrist", "right_wrist"]]
+    },
+    {
+      "id": "redflag-ectopic",
+      "group": "red_flag_reachability",
+      "region": "Abdomen (Lower Left)",
+      "query": "positive pregnancy test with severe one sided pain",
+      "top1_acceptable": ["abdomen_lower_left", "abdomen_lower_right"]
+    },
+    {
+      "id": "redflag-neck-weak-arm",
+      "group": "red_flag_reachability",
+      "region": "Neck",
+      "query": "my arm has gone weak and numb since the neck pain started",
+      "top1_acceptable": ["neck"],
+      "should_include": [["left_arm_shoulder", "right_arm_shoulder"]]
+    },
+    {
+      "id": "redflag-infected-hand-bite",
+      "group": "red_flag_reachability",
+      "region": "Left Hand",
+      "query": "the bite on my hand is red, warm and discharging pus",
+      "top1_acceptable": ["left_hand"]
+    },
+    {
+      "id": "redflag-achilles-pop",
+      "group": "red_flag_reachability",
+      "region": null,
+      "query": "I heard a pop at the back of my ankle and now I can't push off",
+      "top1_acceptable": ["left_ankle", "right_ankle", "left_shin_calf", "right_shin_calf"]
+    },
+    {
+      "id": "toes-not-cardiac",
+      "group": "laterality_and_precision",
+      "region": null,
+      "query": "sharp pains in my toes at night",
+      "top1_acceptable": ["left_foot", "right_foot"],
+      "must_not_include": ["chest_heart"]
+    },
+    {
+      "id": "right-shoulder-no-cardiac-left-arm",
+      "group": "laterality_and_precision",
+      "region": "Right Arm / Shoulder",
+      "query": "pain in my right shoulder and arm",
+      "top1_acceptable": ["right_arm_shoulder", "right_shoulder"],
+      "must_not_include": ["left_arm_shoulder"]
+    },
+    {
+      "id": "left-knee-both-knees",
+      "group": "laterality_and_precision",
+      "region": "Left Knee",
+      "query": "knee swelling after twisting it",
+      "top1_acceptable": ["left_knee", "left_leg_knee"],
+      "must_not_include": ["right_knee", "right_leg_knee"]
+    },
+    {
+      "id": "abdomen-right-not-left",
+      "group": "laterality_and_precision",
+      "region": "Abdomen (Lower Right)",
+      "query": "appendix pain",
+      "top1_acceptable": ["abdomen_lower_right"],
+      "should_include": ["abdomen_lower_right"],
+      "must_not_include": ["abdomen_lower_left"]
+    },
+    {
+      "id": "scope-paediatric-feeding",
+      "group": "out_of_scope",
+      "region": null,
+      "query": "my baby is not feeding and has a rash",
+      "expect_no_match": true
+    },
+    {
+      "id": "scope-wound-closure",
+      "group": "out_of_scope",
+      "region": null,
+      "query": "I cut myself deeply and the wound needs stitches",
+      "expect_no_match": true
+    },
+    {
+      "id": "scope-mental-health",
+      "group": "out_of_scope",
+      "region": null,
+      "query": "I feel anxious and cannot sleep at night",
+      "expect_no_match": true
+    },
+    {
+      "id": "scope-dosing",
+      "group": "out_of_scope",
+      "region": null,
+      "query": "how many days of antibiotics do I need for a sinus infection",
+      "expect_no_match": true
+    },
+    {
+      "id": "scope-ear",
+      "group": "out_of_scope",
+      "region": null,
+      "query": "my ear itches and drains fluid",
+      "expect_no_match": true
+    },
+    {
+      "id": "scope-skin-lesion",
+      "group": "out_of_scope",
+      "region": null,
+      "query": "is this mole cancerous or does it need a biopsy",
+      "expect_no_match": true
+    }
+  ]
+}

@@ -1,0 +1,1065 @@
+{
+  "by_group": {
+    "bare_region_tap": {
+      "cases": 15,
+      "evidence_free": 15,
+      "passed": 8,
+      "top1_accuracy": 1.0,
+      "violations": 7
+    },
+    "clinical_jargon": {
+      "cases": 9,
+      "evidence_free": 0,
+      "passed": 4,
+      "top1_accuracy": 0.4444444444444444,
+      "violations": 0
+    },
+    "laterality_and_precision": {
+      "cases": 4,
+      "evidence_free": 0,
+      "passed": 0,
+      "top1_accuracy": 0.75,
+      "violations": 5
+    },
+    "lay_vocabulary": {
+      "cases": 10,
+      "evidence_free": 1,
+      "passed": 8,
+      "top1_accuracy": 0.9,
+      "violations": 0
+    },
+    "out_of_scope": {
+      "cases": 6,
+      "evidence_free": 0,
+      "passed": 0,
+      "top1_accuracy": 0.0,
+      "violations": 0
+    },
+    "red_flag_reachability": {
+      "cases": 7,
+      "evidence_free": 0,
+      "passed": 7,
+      "top1_accuracy": 1.0,
+      "violations": 0
+    },
+    "referred_pain": {
+      "cases": 7,
+      "evidence_free": 0,
+      "passed": 4,
+      "top1_accuracy": 1.0,
+      "violations": 2
+    }
+  },
+  "cases": [
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-chest",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "chest_heart"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-headache",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "headache_cranial"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-neck",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "neck"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-abdomen-upper",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "abdomen_upper",
+        "abdomen_lower_right",
+        "abdomen_lower_left",
+        "back_upper"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-abdomen-lower-right",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "abdomen_lower_right",
+        "abdomen_upper",
+        "abdomen_lower_left"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-back-lower",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "back_lower",
+        "back_upper"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-right-shoulder",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "right_shoulder",
+        "right_arm_shoulder",
+        "left_arm_shoulder",
+        "left_shoulder"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": [
+        "left_arm_shoulder"
+      ]
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-left-arm-shoulder",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "left_arm_shoulder",
+        "right_arm_shoulder",
+        "right_shoulder",
+        "left_shoulder"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": [
+        "right_arm_shoulder"
+      ]
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-right-thigh",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "right_thigh",
+        "left_thigh"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": [
+        "left_thigh"
+      ]
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-left-knee",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "left_knee",
+        "right_leg_knee",
+        "left_leg_knee",
+        "right_knee"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": [
+        "right_leg_knee"
+      ]
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-right-shin-calf",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "right_shin_calf",
+        "left_shin_calf"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": [
+        "left_shin_calf"
+      ]
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-left-ankle",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "left_ankle",
+        "right_ankle"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": [
+        "right_ankle"
+      ]
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-right-foot",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "right_foot",
+        "left_foot"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": [
+        "left_foot"
+      ]
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-hips-groin",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "hips_groin"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "bare_region_tap",
+      "id": "bare-left-armpit",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "left_armpit",
+        "right_armpit"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "lay_vocabulary",
+      "id": "lay-breathless-stairs",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "chest_heart",
+        "abdomen_upper",
+        "right_hand",
+        "abdomen_lower_right",
+        "left_hand",
+        "headache_cranial"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": true,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "lay_vocabulary",
+      "id": "lay-crushing-chest-to-arm",
+      "passed": false,
+      "reciprocal_rank": 0.5,
+      "retrieved": [
+        "left_shoulder",
+        "chest_heart",
+        "left_arm_shoulder",
+        "right_arm_shoulder",
+        "right_shoulder",
+        "headache_cranial"
+      ],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "lay_vocabulary",
+      "id": "lay-fatty-food-upper-abdomen",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "abdomen_upper",
+        "back_upper",
+        "back_lower",
+        "abdomen_lower_left",
+        "right_ankle",
+        "right_thigh"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "lay_vocabulary",
+      "id": "lay-hot-red-toe",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "left_foot",
+        "right_foot",
+        "right_shin_calf",
+        "left_shin_calf",
+        "right_leg_knee",
+        "left_leg_knee"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "lay_vocabulary",
+      "id": "lay-shooting-leg-numbness",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "back_lower",
+        "right_thigh",
+        "back_upper",
+        "left_thigh",
+        "right_ankle",
+        "chest_heart"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "lay_vocabulary",
+      "id": "lay-worst-headache-stiff-neck",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "headache_cranial",
+        "hips_groin",
+        "right_shoulder",
+        "left_shoulder",
+        "neck",
+        "right_arm_shoulder"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "lay_vocabulary",
+      "id": "lay-swollen-calf-after-flight",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "right_shin_calf",
+        "left_shin_calf",
+        "right_thigh",
+        "left_thigh",
+        "thighs",
+        "right_armpit"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "lay_vocabulary",
+      "id": "lay-cant-lift-arm",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "left_arm_shoulder",
+        "right_shoulder",
+        "left_shoulder",
+        "right_arm_shoulder",
+        "hips_groin",
+        "headache_cranial"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "lay_vocabulary",
+      "id": "lay-sharp-inhale-chest",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "chest_heart",
+        "right_arm_shoulder",
+        "left_arm_shoulder",
+        "back_upper",
+        "abdomen_upper",
+        "abdomen_lower_right"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "lay_vocabulary",
+      "id": "lay-sore-throat-neck-lump",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "neck",
+        "hips_groin",
+        "right_foot",
+        "left_foot",
+        "headache_cranial",
+        "right_arm_shoulder"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "clinical_jargon",
+      "id": "jargon-dyspnea-exertion",
+      "passed": false,
+      "reciprocal_rank": 0.0,
+      "retrieved": [],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "clinical_jargon",
+      "id": "jargon-pleuritic",
+      "passed": false,
+      "reciprocal_rank": 0.3333333333333333,
+      "retrieved": [
+        "right_arm_shoulder",
+        "left_arm_shoulder",
+        "back_upper",
+        "chest_heart",
+        "left_shoulder",
+        "right_leg_knee"
+      ],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "clinical_jargon",
+      "id": "jargon-hematochezia-llq",
+      "passed": false,
+      "reciprocal_rank": 0.5,
+      "retrieved": [
+        "abdomen_lower_right",
+        "abdomen_lower_left",
+        "left_leg_knee",
+        "left_arm_shoulder",
+        "chest_heart",
+        "right_thigh"
+      ],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "clinical_jargon",
+      "id": "jargon-hepatic-colic",
+      "passed": false,
+      "reciprocal_rank": 0.0,
+      "retrieved": [],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "clinical_jargon",
+      "id": "jargon-odynophagia",
+      "passed": false,
+      "reciprocal_rank": 0.0,
+      "retrieved": [],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "clinical_jargon",
+      "id": "jargon-knee-crepitus-locking",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "right_leg_knee",
+        "right_knee",
+        "left_knee",
+        "hips_groin",
+        "left_leg_knee",
+        "thighs"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "clinical_jargon",
+      "id": "jargon-flank-to-groin",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "hips_groin",
+        "back_lower",
+        "left_arm_shoulder",
+        "abdomen_upper",
+        "chest_heart",
+        "left_shoulder"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "clinical_jargon",
+      "id": "jargon-diaphoresis-left-arm",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "left_arm_shoulder",
+        "left_shoulder",
+        "right_arm_shoulder",
+        "headache_cranial",
+        "right_shoulder",
+        "chest_heart"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "clinical_jargon",
+      "id": "jargon-hallux-valgus",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "right_foot",
+        "left_foot",
+        "right_leg_knee",
+        "right_arm_shoulder",
+        "thighs",
+        "hips_groin"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "referred_pain",
+      "id": "refer-right-shoulder-gallbladder",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "right_shoulder",
+        "right_arm_shoulder",
+        "left_arm_shoulder",
+        "left_shoulder",
+        "abdomen_upper",
+        "back_upper"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": [
+        "left_arm_shoulder"
+      ]
+    },
+    {
+      "abstained": null,
+      "group": "referred_pain",
+      "id": "refer-left-arm-cardiac",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "left_arm_shoulder",
+        "left_shoulder",
+        "right_arm_shoulder",
+        "chest_heart",
+        "right_shoulder",
+        "abdomen_upper"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": [
+        "right_arm_shoulder"
+      ]
+    },
+    {
+      "abstained": null,
+      "group": "referred_pain",
+      "id": "refer-appendicitis-migration",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "abdomen_lower_right",
+        "abdomen_upper",
+        "left_leg_knee",
+        "right_knee",
+        "abdomen_lower_left",
+        "right_shoulder"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "referred_pain",
+      "id": "refer-cauda-equina",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "back_lower",
+        "back_upper",
+        "hips_groin"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "referred_pain",
+      "id": "refer-knee-to-calf-dvt",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "right_leg_knee",
+        "left_leg_knee",
+        "right_knee",
+        "left_knee",
+        "right_shin_calf",
+        "left_shin_calf"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "referred_pain",
+      "id": "refer-sciatica-to-thigh",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "left_thigh",
+        "right_thigh",
+        "back_lower",
+        "back_upper",
+        "right_ankle",
+        "chest_heart"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "referred_pain",
+      "id": "refer-renal-to-left-leg",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "left_leg_knee",
+        "right_knee",
+        "headache_cranial",
+        "right_leg_knee",
+        "left_knee",
+        "thighs"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "red_flag_reachability",
+      "id": "redflag-sah-meningism",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "headache_cranial",
+        "hips_groin",
+        "right_shoulder",
+        "left_shoulder",
+        "neck",
+        "right_arm_shoulder"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "red_flag_reachability",
+      "id": "redflag-mi-presentation",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "chest_heart",
+        "left_arm_shoulder",
+        "left_shoulder",
+        "right_arm_shoulder",
+        "abdomen_upper",
+        "abdomen_lower_left"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "red_flag_reachability",
+      "id": "redflag-scaphoid-fall",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "right_wrist",
+        "left_wrist",
+        "right_elbow",
+        "left_elbow",
+        "right_armpit",
+        "left_armpit"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "red_flag_reachability",
+      "id": "redflag-ectopic",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "abdomen_lower_left",
+        "abdomen_lower_right",
+        "headache_cranial",
+        "abdomen_upper",
+        "right_arm_shoulder",
+        "hips_groin"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "red_flag_reachability",
+      "id": "redflag-neck-weak-arm",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "neck",
+        "right_arm_shoulder",
+        "left_arm_shoulder",
+        "right_elbow",
+        "abdomen_upper",
+        "hips_groin"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "red_flag_reachability",
+      "id": "redflag-infected-hand-bite",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "left_hand",
+        "right_hand",
+        "right_wrist",
+        "right_shin_calf",
+        "left_wrist",
+        "left_shin_calf"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "red_flag_reachability",
+      "id": "redflag-achilles-pop",
+      "passed": true,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "right_ankle",
+        "left_ankle",
+        "back_upper",
+        "right_thigh",
+        "back_lower",
+        "left_thigh"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": null,
+      "group": "laterality_and_precision",
+      "id": "toes-not-cardiac",
+      "passed": false,
+      "reciprocal_rank": 0.0,
+      "retrieved": [
+        "chest_heart",
+        "right_wrist",
+        "left_wrist",
+        "right_armpit",
+        "left_armpit"
+      ],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": [
+        "chest_heart"
+      ]
+    },
+    {
+      "abstained": null,
+      "group": "laterality_and_precision",
+      "id": "right-shoulder-no-cardiac-left-arm",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "right_arm_shoulder",
+        "right_shoulder",
+        "left_arm_shoulder",
+        "abdomen_upper",
+        "left_shoulder",
+        "right_elbow"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": [
+        "left_arm_shoulder"
+      ]
+    },
+    {
+      "abstained": null,
+      "group": "laterality_and_precision",
+      "id": "left-knee-both-knees",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "left_knee",
+        "right_knee",
+        "right_leg_knee",
+        "left_leg_knee",
+        "hips_groin",
+        "right_ankle"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": [
+        "right_knee",
+        "right_leg_knee"
+      ]
+    },
+    {
+      "abstained": null,
+      "group": "laterality_and_precision",
+      "id": "abdomen-right-not-left",
+      "passed": false,
+      "reciprocal_rank": 1.0,
+      "retrieved": [
+        "abdomen_lower_right",
+        "abdomen_upper",
+        "abdomen_lower_left",
+        "right_leg_knee",
+        "right_arm_shoulder",
+        "thighs"
+      ],
+      "top1_correct": true,
+      "top1_evidence_free": false,
+      "violations": [
+        "abdomen_lower_left"
+      ]
+    },
+    {
+      "abstained": false,
+      "group": "out_of_scope",
+      "id": "scope-paediatric-feeding",
+      "passed": false,
+      "reciprocal_rank": 0.0,
+      "retrieved": [
+        "right_foot",
+        "left_foot"
+      ],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": false,
+      "group": "out_of_scope",
+      "id": "scope-wound-closure",
+      "passed": false,
+      "reciprocal_rank": 0.0,
+      "retrieved": [
+        "right_foot",
+        "left_foot",
+        "right_shin_calf",
+        "left_shin_calf",
+        "right_hand",
+        "left_hand"
+      ],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": false,
+      "group": "out_of_scope",
+      "id": "scope-mental-health",
+      "passed": false,
+      "reciprocal_rank": 0.0,
+      "retrieved": [
+        "right_wrist",
+        "left_wrist",
+        "right_armpit",
+        "left_armpit"
+      ],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": false,
+      "group": "out_of_scope",
+      "id": "scope-dosing",
+      "passed": false,
+      "reciprocal_rank": 0.0,
+      "retrieved": [
+        "neck",
+        "right_foot",
+        "right_ankle",
+        "left_foot",
+        "left_ankle",
+        "right_elbow"
+      ],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": false,
+      "group": "out_of_scope",
+      "id": "scope-ear",
+      "passed": false,
+      "reciprocal_rank": 0.0,
+      "retrieved": [
+        "right_armpit",
+        "left_armpit"
+      ],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": []
+    },
+    {
+      "abstained": false,
+      "group": "out_of_scope",
+      "id": "scope-skin-lesion",
+      "passed": false,
+      "reciprocal_rank": 0.0,
+      "retrieved": [
+        "back_lower",
+        "right_wrist",
+        "chest_heart",
+        "left_wrist"
+      ],
+      "top1_correct": false,
+      "top1_evidence_free": false,
+      "violations": []
+    }
+  ],
+  "summary": {
+    "abstention_accuracy": 0.0,
+    "bare_taps_served_without_text": 15,
+    "cases": 58,
+    "evidence_free_top1_rate": 0.027,
+    "k": 3,
+    "mrr": 0.891,
+    "ndcg_at_k": 0.8024,
+    "pass_rate": 0.5345,
+    "recall_at_k": 0.758,
+    "recall_at_window": 0.8574,
+    "referral_coverage": 0.8333,
+    "safety_violations": [
+      "bare-right-shoulder: left_arm_shoulder",
+      "bare-left-arm-shoulder: right_arm_shoulder",
+      "bare-right-thigh: left_thigh",
+      "bare-left-knee: right_leg_knee",
+      "bare-right-shin-calf: left_shin_calf",
+      "bare-left-ankle: right_ankle",
+      "bare-right-foot: left_foot",
+      "refer-right-shoulder-gallbladder: left_arm_shoulder",
+      "refer-left-arm-cardiac: right_arm_shoulder",
+      "toes-not-cardiac: chest_heart",
+      "right-shoulder-no-cardiac-left-arm: left_arm_shoulder",
+      "left-knee-both-knees: right_knee",
+      "left-knee-both-knees: right_leg_knee",
+      "abdomen-right-not-left: abdomen_lower_left"
+    ],
+    "top1_accuracy": 0.8654,
+    "window": 6
+  }
+}
