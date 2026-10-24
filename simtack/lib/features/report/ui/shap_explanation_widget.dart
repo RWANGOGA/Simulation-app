@@ -43,16 +43,21 @@ class ShapExplanationWidget extends StatelessWidget {
       final decoded = jsonDecode(shapExplanation!);
       if (decoded is! List || decoded.isEmpty) return [];
 
-      return decoded.map((f) {
-        final factor = f is Map<String, dynamic> ? f : <String, dynamic>{};
-        final label = (factor['factor'] ?? t.unknownFactorLabel).toString();
-        final shap = factor['shap'] is num ? (factor['shap'] as num).toDouble() : 0.0;
-        final hasImpactKey = factor.containsKey('impact');
-        final impact = hasImpactKey
-            ? (factor['impact'] == '-' ? '-' : '+')
-            : (shap < 0 ? '-' : '+');
-        return ShapFactor(label: label, shap: shap, impact: impact);
-      }).where((f) => !isRetiredRiskFactor(f.label)).toList();
+      return decoded
+          .map((f) {
+            final factor = f is Map<String, dynamic> ? f : <String, dynamic>{};
+            final label = (factor['factor'] ?? t.unknownFactorLabel).toString();
+            final shap = factor['shap'] is num
+                ? (factor['shap'] as num).toDouble()
+                : 0.0;
+            final hasImpactKey = factor.containsKey('impact');
+            final impact = hasImpactKey
+                ? (factor['impact'] == '-' ? '-' : '+')
+                : (shap < 0 ? '-' : '+');
+            return ShapFactor(label: label, shap: shap, impact: impact);
+          })
+          .where((f) => !isRetiredRiskFactor(f.label))
+          .toList();
     } catch (_) {
       return [];
     }
@@ -65,7 +70,8 @@ class ShapExplanationWidget extends StatelessWidget {
 
     if (factors.isEmpty) return const SizedBox.shrink();
 
-    final maxShap = factors.fold<double>(0.0, (m, f) => f.magnitude > m ? f.magnitude : m);
+    final maxShap =
+        factors.fold<double>(0.0, (m, f) => f.magnitude > m ? f.magnitude : m);
     final posColor = positiveColor ?? const Color(0xFFDC2626);
     final negColor = negativeColor ?? const Color(0xFF16A34A);
 
@@ -78,7 +84,8 @@ class ShapExplanationWidget extends StatelessWidget {
       tilePadding: EdgeInsets.zero,
       title: Row(
         children: [
-          const Icon(Icons.analytics_outlined, size: 20, color: Color(0xFF0284C7)),
+          const Icon(Icons.analytics_outlined,
+              size: 20, color: Color(0xFF0284C7)),
           const SizedBox(width: 12),
           Text(
             t.whyThisScoreTitle,
@@ -109,7 +116,8 @@ class ShapExplanationWidget extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 8),
-          child: _buildFactorList(context, factors, maxShap, posColor, negColor),
+          child:
+              _buildFactorList(context, factors, maxShap, posColor, negColor),
         ),
       ],
     );
@@ -202,7 +210,8 @@ class _ShapFactorRow extends StatelessWidget {
             : magnitude >= 0.10
                 ? const Color(0xFFF59E0B)
                 : const Color(0xFF64748B);
-    final fraction = maxShap > 0 ? (magnitude / maxShap).clamp(0.04, 1.0) : 0.04;
+    final fraction =
+        maxShap > 0 ? (magnitude / maxShap).clamp(0.04, 1.0) : 0.04;
     final valueLabel = '${raises ? '+' : '-'}${(magnitude * 100).toInt()}%';
 
     return Padding(
@@ -215,7 +224,8 @@ class _ShapFactorRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   factor.label,
-                  style: const TextStyle(fontSize: 13, color: Color(0xFF1E293B)),
+                  style:
+                      const TextStyle(fontSize: 13, color: Color(0xFF1E293B)),
                 ),
               ),
               Text(
@@ -276,16 +286,21 @@ class CompactShapExplanationWidget extends StatelessWidget {
       final decoded = jsonDecode(shapExplanation!);
       if (decoded is! List || decoded.isEmpty) return [];
 
-      return decoded.map((f) {
-        final factor = f is Map<String, dynamic> ? f : <String, dynamic>{};
-        final label = (factor['factor'] ?? t.unknownFactorLabel).toString();
-        final shap = factor['shap'] is num ? (factor['shap'] as num).toDouble() : 0.0;
-        final hasImpactKey = factor.containsKey('impact');
-        final impact = hasImpactKey
-            ? (factor['impact'] == '-' ? '-' : '+')
-            : (shap < 0 ? '-' : '+');
-        return ShapFactor(label: label, shap: shap, impact: impact);
-      }).where((f) => !isRetiredRiskFactor(f.label)).toList()
+      return decoded
+          .map((f) {
+            final factor = f is Map<String, dynamic> ? f : <String, dynamic>{};
+            final label = (factor['factor'] ?? t.unknownFactorLabel).toString();
+            final shap = factor['shap'] is num
+                ? (factor['shap'] as num).toDouble()
+                : 0.0;
+            final hasImpactKey = factor.containsKey('impact');
+            final impact = hasImpactKey
+                ? (factor['impact'] == '-' ? '-' : '+')
+                : (shap < 0 ? '-' : '+');
+            return ShapFactor(label: label, shap: shap, impact: impact);
+          })
+          .where((f) => !isRetiredRiskFactor(f.label))
+          .toList()
         ..sort((a, b) => b.magnitude.compareTo(a.magnitude));
     } catch (_) {
       return [];
@@ -301,7 +316,8 @@ class CompactShapExplanationWidget extends StatelessWidget {
 
     final displayFactors = factors.take(maxFactors).toList();
     final hasMore = factors.length > maxFactors;
-    final maxShap = factors.fold<double>(0.0, (m, f) => f.magnitude > m ? f.magnitude : m);
+    final maxShap =
+        factors.fold<double>(0.0, (m, f) => f.magnitude > m ? f.magnitude : m);
     final posColor = positiveColor ?? const Color(0xFFDC2626);
     final negColor = negativeColor ?? const Color(0xFF16A34A);
 
@@ -317,7 +333,8 @@ class CompactShapExplanationWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.analytics_outlined, size: 16, color: Color(0xFF0284C7)),
+              const Icon(Icons.analytics_outlined,
+                  size: 16, color: Color(0xFF0284C7)),
               const SizedBox(width: 8),
               Text(
                 t.whyThisScoreTitle,
@@ -379,7 +396,8 @@ class _CompactFactorRow extends StatelessWidget {
             : magnitude >= 0.10
                 ? const Color(0xFFF59E0B)
                 : const Color(0xFF64748B);
-    final fraction = maxShap > 0 ? (magnitude / maxShap).clamp(0.04, 1.0) : 0.04;
+    final fraction =
+        maxShap > 0 ? (magnitude / maxShap).clamp(0.04, 1.0) : 0.04;
     final valueLabel = '${raises ? '+' : '-'}${(magnitude * 100).toInt()}%';
 
     return Padding(
@@ -392,7 +410,8 @@ class _CompactFactorRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   factor.label,
-                  style: const TextStyle(fontSize: 11, color: Color(0xFF334155)),
+                  style:
+                      const TextStyle(fontSize: 11, color: Color(0xFF334155)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),

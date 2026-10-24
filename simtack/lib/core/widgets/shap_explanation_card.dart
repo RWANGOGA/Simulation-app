@@ -55,7 +55,11 @@ class ShapExplanationCard extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Color(0xFF64748B), letterSpacing: 1),
+            style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF64748B),
+                letterSpacing: 1),
           ),
           const SizedBox(height: 8),
           ...visible.map((f) {
@@ -71,7 +75,9 @@ class ShapExplanationCard extends StatelessWidget {
                   Icon(
                     isConnection ? Icons.link : Icons.circle,
                     size: isConnection ? 16 : 6,
-                    color: isConnection ? const Color(0xFF0284C7) : const Color(0xFF94A3B8),
+                    color: isConnection
+                        ? const Color(0xFF0284C7)
+                        : const Color(0xFF94A3B8),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -79,14 +85,20 @@ class ShapExplanationCard extends StatelessWidget {
                       label,
                       style: TextStyle(
                         fontSize: 13,
-                        color: isConnection ? const Color(0xFF0F172A) : const Color(0xFF334155),
-                        fontWeight: isConnection ? FontWeight.w600 : FontWeight.normal,
+                        color: isConnection
+                            ? const Color(0xFF0F172A)
+                            : const Color(0xFF334155),
+                        fontWeight:
+                            isConnection ? FontWeight.w600 : FontWeight.normal,
                       ),
                     ),
                   ),
                   Text(
                     '+${(shap * 100).toInt()}%',
-                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Color(0xFF64748B)),
+                    style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF64748B)),
                   ),
                 ],
               ),

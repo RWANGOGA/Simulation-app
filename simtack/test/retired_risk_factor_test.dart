@@ -77,7 +77,8 @@ void main() {
       expect(find.text('Severity 8/10'), findsOneWidget);
     });
 
-    testWidgets('the patient-facing card on the success screen', (tester) async {
+    testWidgets('the patient-facing card on the success screen',
+        (tester) async {
       await tester.pumpWidget(_wrap(const ShapExplanationCard(
         shapExplanation: legacyExplanation,
       )));
@@ -93,7 +94,8 @@ void main() {
       // Better an absent explanation than a fabricated one: the widget must not
       // invent a placeholder factor to fill the gap.
       await tester.pumpWidget(_wrap(const ShapExplanationWidget(
-        shapExplanation: '[{"factor": "SpO2 88.0%", "shap": 0.15, "impact": "+"}]',
+        shapExplanation:
+            '[{"factor": "SpO2 88.0%", "shap": 0.15, "impact": "+"}]',
         initiallyExpanded: true,
       )));
       await tester.pumpAndSettle();
