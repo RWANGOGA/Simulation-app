@@ -2,18 +2,23 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import '../../../../core/clinical/retired_factors.dart';
+import '../../../../core/clinical/risk_engine.dart';
 import '../../../../l10n/app_localizations.dart';
 
 class ShapFactor {
   final String label;
-  final double shap;
+  final double contribution;
   final String impact;
 
   const ShapFactor({
     required this.label,
-    required this.shap,
+    required this.contribution,
     required this.impact,
   });
+
+  /// Pre-rename name for [contribution].
+  @Deprecated('Use contribution')
+  double get shap => contribution;
 
   bool get raisesRisk => impact == '+';
 
@@ -27,7 +32,7 @@ class ShapFactor {
   /// interface uses for reassuring clinical findings told clinicians the opposite
   /// of what it meant: a cap is reached *because* findings stacked up.
   bool get isScoreAdjustment => impact == '-';
-  double get magnitude => shap.abs();
+  double get magnitude => contribution.abs();
 }
 
 class ShapExplanationWidget extends StatelessWidget {
@@ -64,14 +69,13 @@ class ShapExplanationWidget extends StatelessWidget {
           .map((f) {
             final factor = f is Map<String, dynamic> ? f : <String, dynamic>{};
             final label = (factor['factor'] ?? t.unknownFactorLabel).toString();
-            final shap = factor['shap'] is num
-                ? (factor['shap'] as num).toDouble()
-                : 0.0;
+            final weight = RiskContribution.valueOf(factor);
             final hasImpactKey = factor.containsKey('impact');
             final impact = hasImpactKey
                 ? (factor['impact'] == '-' ? '-' : '+')
-                : (shap < 0 ? '-' : '+');
-            return ShapFactor(label: label, shap: shap, impact: impact);
+                : (weight < 0 ? '-' : '+');
+            return ShapFactor(
+                label: label, contribution: weight, impact: impact);
           })
           .where((f) => !isRetiredRiskFactor(f.label))
           .toList();
@@ -331,14 +335,13 @@ class CompactShapExplanationWidget extends StatelessWidget {
           .map((f) {
             final factor = f is Map<String, dynamic> ? f : <String, dynamic>{};
             final label = (factor['factor'] ?? t.unknownFactorLabel).toString();
-            final shap = factor['shap'] is num
-                ? (factor['shap'] as num).toDouble()
-                : 0.0;
+            final weight = RiskContribution.valueOf(factor);
             final hasImpactKey = factor.containsKey('impact');
             final impact = hasImpactKey
                 ? (factor['impact'] == '-' ? '-' : '+')
-                : (shap < 0 ? '-' : '+');
-            return ShapFactor(label: label, shap: shap, impact: impact);
+                : (weight < 0 ? '-' : '+');
+            return ShapFactor(
+                label: label, contribution: weight, impact: impact);
           })
           .where((f) => !isRetiredRiskFactor(f.label))
           .toList()

@@ -57,21 +57,45 @@ class TriageInput {
 class RiskContribution {
   const RiskContribution({
     required this.factor,
-    required this.shap,
+    required this.contribution,
     this.impact,
   });
 
   final String factor;
-  final double shap;
 
-  /// '+' / '-' as the server emits it. Null for the connectivity factors,
-  /// which the Python implementation appends without one — kept null rather
-  /// than invented so stored explanations stay identical to the server's.
+  /// How much this finding added to (or, for the arithmetic cap row,
+  /// subtracted from) the score.
+  ///
+  /// Named `contribution` because that is what it is. The previous name claimed
+  /// these were SHAP values, which would mean an attribution model sat behind
+  /// them; nothing does - they are fixed weights added together.
+  final double contribution;
+
+  /// Pre-rename name for [contribution]. Kept so call sites and stored payloads
+  /// written before the rename keep compiling and decoding; drop once nothing
+  /// reads it.
+  @Deprecated('Use contribution')
+  double get shap => contribution;
+
+  /// '+' / '-' as the server emits it. Null only for payloads written before
+  /// the server started signing the connectivity factors.
   final String? impact;
+
+  /// Reads a factor weight out of a stored or server-supplied row.
+  ///
+  /// Both keys are accepted because sessions are kept offline: rows written by
+  /// an earlier build carry `shap`, and refusing them would turn every factor of
+  /// every historical triage into "0%" rather than admitting the old name.
+  static double valueOf(Map<String, dynamic> row) {
+    final value = row['contribution'] ?? row['shap'];
+    return value is num ? value.toDouble() : 0.0;
+  }
 
   Map<String, dynamic> toJson() => {
         'factor': factor,
-        'shap': shap,
+        'contribution': contribution,
+        // Mirrored for readers that predate the rename, matching the server.
+        'shap': contribution,
         if (impact != null) 'impact': impact,
       };
 }
@@ -123,21 +147,21 @@ class RiskEngine {
         _round2((input.severity / 10.0) * rules.severityWeight);
     contributions.add(RiskContribution(
       factor: 'Severity ${input.severity}/10',
-      shap: severityShare,
+      contribution: severityShare,
       impact: severityShare >= 0 ? '+' : '-',
     ));
 
     final regionShare = _regionWeight(input.bodyRegion);
     contributions.add(RiskContribution(
       factor: 'Region: ${input.bodyRegion}',
-      shap: regionShare,
+      contribution: regionShare,
       impact: regionShare >= 0 ? '+' : '-',
     ));
 
     final painShare = _painTypeWeight(input.painType);
     contributions.add(RiskContribution(
       factor: 'Pain type: ${input.painType}',
-      shap: painShare,
+      contribution: painShare,
       impact: painShare >= 0 ? '+' : '-',
     ));
 
@@ -145,7 +169,7 @@ class RiskEngine {
     if (heartRateShare != 0) {
       contributions.add(RiskContribution(
         factor: 'Heart rate ${_pyFloat(input.heartRate!)} bpm',
-        shap: heartRateShare,
+        contribution: heartRateShare,
         impact: heartRateShare >= 0 ? '+' : '-',
       ));
     }
@@ -161,14 +185,14 @@ class RiskEngine {
     if (bmiResult.contribution != 0) {
       contributions.add(RiskContribution(
         factor: 'BMI ${bmiResult.bmi!.toStringAsFixed(1)} (weight/height)',
-        shap: bmiResult.contribution,
+        contribution: bmiResult.contribution,
         impact: bmiResult.contribution >= 0 ? '+' : '-',
       ));
     }
 
     var total = 0.0;
     for (final contribution in contributions) {
-      total += contribution.shap;
+      total += contribution.contribution;
     }
     final raw = _round2(total);
     final risk = math.min(1.0, raw);
@@ -183,7 +207,7 @@ class RiskEngine {
       contributions.add(RiskContribution(
         factor:
             'Score capped at 1.00 (findings summed to ${raw.toStringAsFixed(2)})',
-        shap: _round2(risk - raw),
+        contribution: _round2(risk - raw),
         impact: '-',
       ));
     }
@@ -193,7 +217,7 @@ class RiskEngine {
     // explicit index tiebreak.
     final indexed = contributions.indexed.toList()
       ..sort((a, b) {
-        final byWeight = b.$2.shap.compareTo(a.$2.shap);
+        final byWeight = b.$2.contribution.compareTo(a.$2.contribution);
         return byWeight != 0 ? byWeight : a.$1.compareTo(b.$1);
       });
 
@@ -270,7 +294,11 @@ class RiskEngine {
 
       contributions.add(RiskContribution(
         factor: 'Connected to reported $other pain: ${match.note}',
-        shap: _rules.concernBumps[match.concern] ?? 0.0,
+        contribution: _rules.concernBumps[match.concern] ?? 0.0,
+        // Python signs every row through one helper now, so connectivity rows
+        // carry '+' like the rest. A bump is never negative, so the sign is
+        // fixed rather than computed.
+        impact: '+',
       ));
     }
     return contributions;

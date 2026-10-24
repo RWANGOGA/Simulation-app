@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../clinical/retired_factors.dart';
+import '../clinical/risk_engine.dart';
 
 /// Renders the backend's risk-score breakdown (the `shap_explanation` JSON
 /// on a TriageResult) as a readable "why this score" list. Anatomical
@@ -65,7 +66,7 @@ class ShapExplanationCard extends StatelessWidget {
           ...visible.map((f) {
             final factor = f as Map<String, dynamic>;
             final label = factor['factor'] as String? ?? '';
-            final shap = (factor['shap'] as num?)?.toDouble() ?? 0.0;
+            final shap = RiskContribution.valueOf(factor);
             final isConnection = label.startsWith('Connected to reported');
             return Padding(
               padding: const EdgeInsets.symmetric(vertical: 4),

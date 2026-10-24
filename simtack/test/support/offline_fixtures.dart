@@ -83,6 +83,7 @@ Future<TriageResult> fileReport({
   double? riskScore,
   String status = 'open',
   String? shapExplanation,
+  double? heartRate,
 }) async {
   final report = await OfflineRepository.instance.sendTriage(
     TriageReport(
@@ -97,7 +98,8 @@ Future<TriageResult> fileReport({
   if (createdAt == null &&
       riskScore == null &&
       status == 'open' &&
-      shapExplanation == null) {
+      shapExplanation == null &&
+      heartRate == null) {
     return report;
   }
 
@@ -111,6 +113,9 @@ Future<TriageResult> fileReport({
     if (riskScore != null) session['risk_score'] = riskScore;
     if (status != 'open') session['status'] = status;
     if (shapExplanation != null) session['shap_explanation'] = shapExplanation;
+    // A vital rather than a symptom, so it is not part of TriageReport. The
+    // escalation verdict is recomputed from this column on every read.
+    if (heartRate != null) session['heart_rate'] = heartRate;
   });
   return report;
 }

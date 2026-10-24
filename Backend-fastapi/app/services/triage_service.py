@@ -56,6 +56,31 @@ def _heart_rate_contribution(heart_rate: Optional[float]) -> float:
         return 0.10
     return 0.0
 
+def _factor(factor: str, contribution: float) -> Dict[str, Any]:
+    """One row of the risk explanation.
+
+    `contribution` is the name these always should have had. Nothing here is a
+    SHAP value: there is no attribution model, no background dataset and no
+    cooperative-game solution behind these numbers - they are hand-set weights
+    added together, and the old key asserted otherwise to anyone reading the API.
+    The rename matters because a clinician or reviewer who believes the numbers are
+    SHAP-derived will also believe they explain the model's *behaviour* rather than
+    restating its constants.
+
+    `shap` is mirrored for one release. Clients already shipped read that key, so a
+    row carrying only `contribution` renders as "+0%" on every factor of every
+    triage for those versions - a silent, total loss of the explanation rather than
+    a visible break. Drop the mirror once those builds are gone; `tests/
+    test_triage_service.py` pins the equivalence in the meantime.
+    """
+    return {
+        "factor": factor,
+        "contribution": contribution,
+        "shap": contribution,
+        "impact": "+" if contribution >= 0 else "-",
+    }
+
+
 def _connectivity_contributions(region: str, sibling_regions: List[str]) -> List[Dict[str, Any]]:
     """Checks the current region against every other region already
     reported in the same visit. Each real anatomical connection found
@@ -72,10 +97,10 @@ def _connectivity_contributions(region: str, sibling_regions: List[str]) -> List
         conn = find_connection(region, other_region)
         if conn is None:
             continue
-        contributions.append({
-            "factor": f"Connected to reported {other_region} pain: {conn['note']}",
-            "shap": CONCERN_RISK_BUMP[conn["concern"]],
-        })
+        contributions.append(_factor(
+            f"Connected to reported {other_region} pain: {conn['note']}",
+            CONCERN_RISK_BUMP[conn["concern"]],
+        ))
     return contributions
 
 
@@ -103,20 +128,20 @@ def compute_risk(
     not just this one point in isolation."""
     contributions: List[Dict[str, Any]] = []
     severity_c = round((data.severity / 10.0) * 0.50, 2)
-    contributions.append({"factor": f"Severity {data.severity}/10", "shap": severity_c, "impact": "+" if severity_c >= 0 else "-"})
+    contributions.append(_factor(f"Severity {data.severity}/10", severity_c))
     region_c = _region_weight(data.body_region)
-    contributions.append({"factor": f"Region: {data.body_region}", "shap": region_c, "impact": "+" if region_c >= 0 else "-"})
+    contributions.append(_factor(f"Region: {data.body_region}", region_c))
     pain_c = _pain_type_weight(data.pain_type)
-    contributions.append({"factor": f"Pain type: {data.pain_type}", "shap": pain_c, "impact": "+" if pain_c >= 0 else "-"})
+    contributions.append(_factor(f"Pain type: {data.pain_type}", pain_c))
     hr_c = _heart_rate_contribution(data.heart_rate)
     if hr_c:
-        contributions.append({"factor": f"Heart rate {data.heart_rate} bpm", "shap": hr_c, "impact": "+" if hr_c >= 0 else "-"})
+        contributions.append(_factor(f"Heart rate {data.heart_rate} bpm", hr_c))
     if sibling_regions:
         contributions.extend(_connectivity_contributions(data.body_region, sibling_regions))
     bmi_c, bmi = _bmi_contribution(patient_weight, patient_height)
     if bmi_c:
-        contributions.append({"factor": f"BMI {bmi:.1f} (weight/height)", "shap": bmi_c, "impact": "+" if bmi_c >= 0 else "-"})
-    raw = round(sum(c["shap"] for c in contributions), 2)
+        contributions.append(_factor(f"BMI {bmi:.1f} (weight/height)", bmi_c))
+    raw = round(sum(c["contribution"] for c in contributions), 2)
     risk = min(1.0, raw)
     # The cap has to appear in the explanation, or the explanation is wrong.
     #
@@ -134,12 +159,11 @@ def compute_risk(
     # than findings that sum to exactly 1.00, and the capped number cannot show it,
     # so the row says how much was discarded.
     if risk < raw:
-        contributions.append({
-            "factor": f"Score capped at 1.00 (findings summed to {raw:.2f})",
-            "shap": round(risk - raw, 2),
-            "impact": "-",
-        })
-    contributions.sort(key=lambda c: c["shap"], reverse=True)
+        contributions.append(_factor(
+            f"Score capped at 1.00 (findings summed to {raw:.2f})",
+            round(risk - raw, 2),
+        ))
+    contributions.sort(key=lambda c: c["contribution"], reverse=True)
     return risk, contributions
 
 

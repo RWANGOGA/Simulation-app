@@ -138,4 +138,44 @@ void main() {
       expect(find.text('Lowers Risk'), findsOneWidget);
     });
   });
+
+  // The factor weight was renamed `shap` -> `contribution`, because nothing here
+  // is a SHAP value. Sessions are stored on the device, so both names have to be
+  // readable for as long as rows written by an older build are still on phones.
+  // The failure mode without the fallback is quiet and total: every factor of
+  // every historical triage reads back as 0 and the panel claims the score was
+  // made of nothing.
+  group('rows written before the rename still render', () {
+    const oldRow = '''
+[
+  {"factor": "Severity 8/10", "shap": 0.4, "impact": "+"},
+  {"factor": "Score capped at 1.00 (findings summed to 1.10)", "shap": -0.5, "impact": "-"}
+]
+''';
+    const newRow = '''
+[
+  {"factor": "Severity 8/10", "contribution": 0.4, "impact": "+"},
+  {"factor": "Score capped at 1.00 (findings summed to 1.10)", "contribution": -0.5, "impact": "-"}
+]
+''';
+
+    for (final entry
+        in {'legacy shap key': oldRow, 'renamed key': newRow}.entries) {
+      testWidgets('${entry.key} gives the same numbers', (tester) async {
+        await tester.pumpWidget(_wrap(ShapExplanationCard(
+          shapExplanation: entry.value,
+        )));
+        await tester.pumpAndSettle();
+
+        final rendered = tester
+            .widgetList<Text>(find.byType(Text))
+            .map((t) => t.data)
+            .whereType<String>()
+            .toList();
+
+        expect(rendered, contains('+40%'), reason: rendered.toString());
+        expect(rendered, contains('-50%'), reason: rendered.toString());
+      });
+    }
+  });
 }

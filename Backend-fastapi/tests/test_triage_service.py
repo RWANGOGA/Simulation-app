@@ -92,6 +92,47 @@ class TestTriageService(unittest.TestCase):
 
         self.assertGreater(capped_cases, 0, "no case ever reached the cap")
 
+    def test_every_factor_carries_contribution_and_its_shap_alias(self):
+        """`contribution` is the real name; `shap` is a compatibility mirror.
+
+        Nothing in this service is a SHAP value - there is no attribution model,
+        just hand-set weights summed - so the key was renamed. The mirror exists
+        only because builds already on phones read `shap`, and a row with only the
+        new key renders "+0%" for every factor instead of failing loudly.
+
+        Asserted row by row including the cap, because the failure this guards is
+        a *missing* mirror on one branch: the connectivity and cap rows are built
+        somewhere other than the main list and were the likely ones to be missed.
+        """
+        data = TriageCreate(
+            body_region="Chest / Heart", pain_type="crushing", severity=10,
+            heart_rate=135.0,
+        )
+        _, contributions = compute_risk(
+            data,
+            sibling_regions=["Left Arm / Shoulder"],
+            patient_weight=120.0,
+            patient_height=160.0,
+        )
+        self.assertGreaterEqual(len(contributions), 6)
+        for row in contributions:
+            self.assertIn("contribution", row, row)
+            self.assertIn("shap", row, row)
+            self.assertEqual(row["contribution"], row["shap"], row)
+            self.assertEqual(
+                row["impact"], "+" if row["contribution"] >= 0 else "-", row
+            )
+
+    def test_connectivity_factor_gains_an_impact_sign(self):
+        """It used to be the one row without an `impact` key at all."""
+        data = TriageCreate(
+            body_region="Chest / Heart", pain_type="dull", severity=4,
+        )
+        _, contributions = compute_risk(data, sibling_regions=["Left Arm / Shoulder"])
+        connectivity = [c for c in contributions if c["factor"].startswith("Connected to")]
+        self.assertEqual(len(connectivity), 1)
+        self.assertEqual(connectivity[0]["impact"], "+")
+
     def test_cap_is_named_as_a_factor_so_the_discard_is_visible(self):
         data = TriageCreate(
             body_region="Chest / Heart", pain_type="crushing", severity=10,

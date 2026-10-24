@@ -219,4 +219,71 @@ void main() {
       expect(find.text('Heart rate 112.0 bpm'), findsOneWidget);
     });
   });
+
+  group('the suggested priority is not allowed to undercut a red flag', () {
+    testWidgets('an emergency verdict outranks a low score', (tester) async {
+      final patient = await seedPatient();
+      // A stored 0.35 score - the "low risk" band, i.e. routine follow-up - on a
+      // report whose heart rate alone trips the emergency rule. The two numbers
+      // disagree on purpose: the score is a weighted sum built to grade ordinary
+      // pain, the red-flag screen is a rule set built to catch the one finding
+      // that must not wait. Only one of them is asking for a decision.
+      await fileReport(
+        patientCode: patient.code,
+        region: 'Ankle',
+        painType: 'dull',
+        severity: 3,
+        heartRate: 130.0,
+        riskScore: 0.35,
+        visitId: 'visit-redflag',
+      );
+
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(_wrap(ClinicalReportScreen(
+          patientId: patient.code, practitionerMode: true)));
+      await tester.pumpAndSettle();
+
+      expect(
+          find.text('Review Immediately', skipOffstage: false), findsOneWidget,
+          reason: 'an emergency verdict was turned into a routine follow-up');
+      expect(find.text('Routine Follow-up', skipOffstage: false), findsNothing,
+          reason: 'the score band softened the red flag');
+      // And the reader is told why the priority does not match the percentage.
+      expect(
+        find.textContaining('Red flag', skipOffstage: false),
+        findsWidgets,
+        reason:
+            'a priority that contradicts the score needs its reason on screen',
+      );
+    });
+
+    testWidgets('a quiet report is still allowed to be routine',
+        (tester) async {
+      final patient = await seedPatient();
+      await fileReport(
+        patientCode: patient.code,
+        region: 'Ankle',
+        painType: 'dull',
+        severity: 2,
+        riskScore: 0.2,
+        visitId: 'visit-quiet',
+      );
+
+      tester.view.physicalSize = const Size(1200, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      await tester.pumpWidget(_wrap(ClinicalReportScreen(
+          patientId: patient.code, practitionerMode: true)));
+      await tester.pumpAndSettle();
+
+      expect(
+          find.text('Routine Follow-up', skipOffstage: false), findsOneWidget);
+      expect(find.text('Review Immediately', skipOffstage: false), findsNothing,
+          reason: 'the rule change must not escalate ordinary pain');
+    });
+  });
 }

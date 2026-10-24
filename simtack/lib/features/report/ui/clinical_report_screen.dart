@@ -1002,21 +1002,51 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     );
   }
 
-  String _suggestedPriority(double? score) {
-    if ((score ?? 0) >= 0.7) return 'Review Immediately';
-    if ((score ?? 0) >= 0.4) return 'Urgent Review (24h)';
+  /// Urgency implied by the score band alone.
+  int _bandRank(double? score) {
+    if ((score ?? 0) >= 0.7) return 2;
+    if ((score ?? 0) >= 0.4) return 1;
+    return 0;
+  }
+
+  /// Urgency the clinician is actually asked to act on.
+  ///
+  /// The score and the red-flag screen answer different questions, and the screen
+  /// exists for exactly the cases the bands miss. An ankle sprain with a heart rate
+  /// of 130 scores 0.35 - "routine" - while the screen fires emergency on the rate
+  /// alone, so reading the score alone suggested "Routine Follow-up" for a patient
+  /// whose own report had already tripped an emergency rule.
+  ///
+  /// The worse of the two wins: nothing changes when they agree, and a red flag is
+  /// never softened by a low total. The score can still raise the priority, which
+  /// keeps the dozen graded weights doing their job.
+  int _urgencyRank(double? score, TriageEscalation? escalation) {
+    final band = _bandRank(score);
+    final flag = escalation == null
+        ? 0
+        : escalation.isEmergency
+            ? 2
+            : escalation.isUrgent
+                ? 1
+                : 0;
+    return flag > band ? flag : band;
+  }
+
+  String _suggestedPriority(int rank) {
+    if (rank >= 2) return 'Review Immediately';
+    if (rank == 1) return 'Urgent Review (24h)';
     return 'Routine Follow-up';
   }
 
-  List<String> _recommendedActions(double? score) {
-    if ((score ?? 0) >= 0.7) {
+  List<String> _recommendedActions(int rank) {
+    if (rank >= 2) {
       return [
         'Physical examination',
         'Urgent review',
         'Consider urgent labs / imaging'
       ];
     }
-    if ((score ?? 0) >= 0.4) {
+    if (rank == 1) {
       return ['Urgent review within 24h', 'Targeted physical exam'];
     }
     return ['Routine follow-up', 'Safety-net advice'];
@@ -1029,7 +1059,8 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
         await OfflineRepository.instance.updateTriageDecision(
           report.id,
           status: _decisionStatus,
-          priority: _suggestedPriority(worst.riskScore),
+          priority: _suggestedPriority(
+              _urgencyRank(worst.riskScore, worst.escalation)),
           actionsTaken: _checkedActions.toList(),
           clinicalNotes: _notesController.text,
         );
@@ -1058,15 +1089,17 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
   Widget _buildDecisionCard(TriageResult worst) {
     final t = AppLocalizations.of(context)!;
     final score = worst.riskScore;
-    final suggested = _suggestedPriority(score);
-    final options = _recommendedActions(score);
+    final escalation = worst.escalation;
+    final rank = _urgencyRank(score, escalation);
+    final suggested = _suggestedPriority(rank);
+    final options = _recommendedActions(rank);
     final allOptions = [
       ...options,
       ..._checkedActions.where((a) => !options.contains(a))
     ];
-    final priorityColor = (score ?? 0) >= 0.7
+    final priorityColor = rank >= 2
         ? _kCrimsonRed
-        : (score ?? 0) >= 0.4
+        : rank == 1
             ? _kAmberWarn
             : _kSafeGreen;
 
@@ -1108,6 +1141,30 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                         color: priorityColor)),
               ],
             ),
+            // Why the priority is what it is, when that reason is not the score.
+            // Without this line a red flag on a 0.35 report reads as the panel
+            // contradicting the percentage above it.
+            if (escalation != null &&
+                _urgencyRank(score, escalation) > _bandRank(score)) ...[
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.warning_amber_rounded,
+                      size: 16, color: _kCrimsonRed),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      '${t.redFlagLabel}: ${escalation.action}',
+                      style: const TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: _kCrimsonRed),
+                    ),
+                  ),
+                ],
+              ),
+            ],
             const SizedBox(height: 12),
             Row(
               children: [

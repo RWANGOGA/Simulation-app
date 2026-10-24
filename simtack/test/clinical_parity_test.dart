@@ -112,7 +112,9 @@ void main() {
           final actual = assessment.contributions[i];
           final want = expectedContributions[i];
           if (actual.factor != want['factor'] ||
-              (actual.shap - (want['shap'] as num).toDouble()).abs() > 1e-12 ||
+              (actual.contribution - (want['contribution'] as num).toDouble())
+                      .abs() >
+                  1e-12 ||
               actual.impact != want['impact']) {
             mismatches.add(
               '$label: contribution $i is ${actual.toJson()} != $want',
@@ -146,7 +148,7 @@ void main() {
         final assessment = engine.compute(input);
         final total = assessment.contributions.fold<double>(
           0.0,
-          (sum, contribution) => sum + contribution.shap,
+          (sum, contribution) => sum + contribution.contribution,
         );
 
         expect(
@@ -161,7 +163,7 @@ void main() {
           lessThanOrEqualTo(1.0),
           reason: 'risk escaped the 0..1 range the bands assume',
         );
-        if (assessment.contributions.any((c) => c.shap < 0)) capped++;
+        if (assessment.contributions.any((c) => c.contribution < 0)) capped++;
       }
 
       expect(capped, greaterThan(0), reason: 'no case ever reached the cap');
