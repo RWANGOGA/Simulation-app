@@ -698,6 +698,40 @@ class _InsightBody extends StatelessWidget {
           ),
           const SizedBox(height: 12),
         ],
+        // A contradiction between the tap and the narrative, stated rather than
+        // quietly resolved: everything below this line is about the other side of
+        // the body than the one that was selected. Amber, not the grey of the
+        // standing disclaimer, because it is specific to this patient's answer.
+        if (insight.lateralityNote != null)
+          Container(
+            padding: const EdgeInsets.all(10),
+            margin: const EdgeInsets.only(bottom: 12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFFFBEB),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: const Color(0xFFFCD34D)),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 1, right: 8),
+                  child: Icon(Icons.swap_horiz,
+                      size: 14, color: Color(0xFF92400E)),
+                ),
+                Expanded(
+                  child: Text(
+                    insight.lateralityNote!,
+                    style: const TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFF92400E),
+                        fontWeight: FontWeight.w600,
+                        height: 1.35),
+                  ),
+                ),
+              ],
+            ),
+          ),
         if (insight.disclaimer.isNotEmpty)
           Container(
             padding: const EdgeInsets.all(10),

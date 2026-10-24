@@ -481,6 +481,91 @@ def _side_compatible(query: RegionKey, chunk: RegionKey) -> bool:
     return query.side == chunk.side
 
 
+def _narrative_side(surface: List[str]) -> Optional[str]:
+    """The side the complaint itself states, or None.
+
+    Only an unambiguous statement counts: a sentence naming both sides ("pain in
+    both arms, worse on the left") has no single laterality, so it defers to the
+    tap rather than silently picking one.
+    """
+    named = {tok for tok in surface if tok in _SIDE_WORDS}
+    if len(named) == 1:
+        return next(iter(named))
+    return None
+
+
+def _governing_region_key(region: Optional[str], surface: List[str]) -> RegionKey:
+    """The region to filter by: the tap's parts, the narrative's side.
+
+    The body map and the sentence are two statements about the same body, and the
+    tap is the coarser one. A patient who taps "Right Arm / Shoulder" and writes
+    "pain in my left arm and jaw" has done two things that cannot both be true of
+    the same limb - and the written side is the more specific, deliberate act, and
+    the one that matches a cardiac referral pattern (left arm plus jaw). Reading
+    laterality from the tap alone made the left-arm monograph *unreachable* for
+    that complaint, which is the boundary of the structured-filter approach: the
+    filter is right, it was just being handed the wrong side.
+
+    So the parts still come from the tap - the narrative does not get to move the
+    complaint to a different body part, which is what keeps the P0-1 guarantee that
+    no other body region leaks in - while the side comes from the narrative when it
+    states one. The locator that carried the old side is replaced rather than kept
+    alongside it, so the tapped part on the stated side is the *same* region
+    (tier 0), not the same part differently subdivided.
+
+    Everything else about laterality is unchanged and deliberate: the side is a
+    filter, so overriding it also withdraws the tapped side's own monograph (a
+    patient who says left is not describing their right shoulder), and a narrative
+    that names no side leaves the tap in charge.
+    """
+    base = _region_key(region)
+    side = _narrative_side(surface)
+    if side is None or side == base.side:
+        return base
+    locators = (base.locators - frozenset(_SIDE_WORDS)) | {side}
+    return RegionKey(side=side, parts=base.parts, locators=locators)
+
+
+def side_override(region: Optional[str], query: Optional[str]) -> Optional[Tuple[str, str]]:
+    """`(tap's side, side actually used)` when the complaint overrode the tap.
+
+    Reconciling a contradiction silently is still a contradiction. The clinician
+    selected "Right Arm / Shoulder" on the body map, and the retriever is now
+    answering for the left - so the screen shows left-arm content under a right-arm
+    choice, which reads like a bug unless it is said out loud. This exposes the
+    decision the same function made, rather than making callers re-derive it and
+    risk disagreeing with the retriever about what it did.
+
+    None when there is nothing to report: no side stated, no side tapped, or the
+    two agreeing. A tap with no side that the sentence fills in is not a conflict.
+    """
+    base = _region_key(region or "")
+    side = _narrative_side(_surface_tokens((query or "").strip().lower()))
+    if side is None or base.side is None or side == base.side:
+        return None
+    return base.side, side
+
+
+def laterality_note(region: Optional[str], query: Optional[str]) -> Optional[str]:
+    """The clinician-facing sentence for [side_override], or None.
+
+    Lives next to the decision rather than in the endpoint because the endpoint, the
+    offline Dart engine and the golden vectors all have to say the same thing about
+    it: three copies of a sentence drift, and a patient-facing discrepancy message is
+    the last place to discover that. The recorded wording in the golden fixture is
+    what pins the Dart port, so this text can be changed here and regenerated.
+    """
+    override = side_override(region, query)
+    if override is None:
+        return None
+    tapped, used = override
+    return (
+        f"The body map was set to the {tapped} side, but this complaint describes "
+        f"the {used} side. The information below follows the {used} side, because "
+        "what the patient wrote is the more specific statement."
+    )
+
+
 def _region_tier(query: RegionKey, chunk: RegionKey) -> int:
     """How directly a chunk is about the region that was tapped.
 
@@ -697,7 +782,7 @@ def _retrieve_cached_chunk_ids(
     query_tokens = _tokenize(query_key or "")
     q_vec = _vectorize(query_tokens, idf)
 
-    region = _region_key(region_key)
+    region = _governing_region_key(region_key, _surface_tokens(query_key or ""))
     total_length = sum(len(c.tokens) for c in chunks.values())
     avgdl = total_length / max(1, len(chunks))
     query_terms = frozenset(query_tokens)

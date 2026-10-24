@@ -116,7 +116,29 @@ def compute_risk(
     bmi_c, bmi = _bmi_contribution(patient_weight, patient_height)
     if bmi_c:
         contributions.append({"factor": f"BMI {bmi:.1f} (weight/height)", "shap": bmi_c, "impact": "+" if bmi_c >= 0 else "-"})
-    risk = min(1.0, round(sum(c["shap"] for c in contributions), 2))
+    raw = round(sum(c["shap"] for c in contributions), 2)
+    risk = min(1.0, raw)
+    # The cap has to appear in the explanation, or the explanation is wrong.
+    #
+    # `shap` values are advertised as the reasons behind `risk_score`, and the card
+    # draws a bar per factor against the total. Summing to 1.30 while the score says
+    # 1.00 means the panel shows the clinician a breakdown that does not add up to
+    # the number it is explaining - and the only way they can discover the
+    # discrepancy is by doing the arithmetic themselves, on a screen whose purpose
+    # is to save them from doing that.
+    #
+    # Recorded as a negative factor rather than by dropping the clamp: the score is
+    # a 0..1 quantity that bands, client bars and stored rows all assume, and
+    # widening it would silently re-band every historical triage. The cap is also
+    # genuinely clinical information - findings that sum to 1.30 are more pressured
+    # than findings that sum to exactly 1.00, and the capped number cannot show it,
+    # so the row says how much was discarded.
+    if risk < raw:
+        contributions.append({
+            "factor": f"Score capped at 1.00 (findings summed to {raw:.2f})",
+            "shap": round(risk - raw, 2),
+            "impact": "-",
+        })
     contributions.sort(key=lambda c: c["shap"], reverse=True)
     return risk, contributions
 

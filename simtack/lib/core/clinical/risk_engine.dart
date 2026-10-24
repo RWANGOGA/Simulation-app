@@ -170,7 +170,23 @@ class RiskEngine {
     for (final contribution in contributions) {
       total += contribution.shap;
     }
-    final risk = math.min(1.0, _round2(total));
+    final raw = _round2(total);
+    final risk = math.min(1.0, raw);
+
+    // The cap is itself a factor. Clamping the score while returning the
+    // unclamped weights made the breakdown fail to add up to the number it
+    // explains - 1.30 of factors beside `risk_score: 1.00` - which is roughly one
+    // triage in five. Recorded rather than dropped, because the 0..1 range is what
+    // the bands, the bars and every stored row assume, and because how much was
+    // discarded is clinically meaningful pressure.
+    if (risk < raw) {
+      contributions.add(RiskContribution(
+        factor:
+            'Score capped at 1.00 (findings summed to ${raw.toStringAsFixed(2)})',
+        shap: _round2(risk - raw),
+        impact: '-',
+      ));
+    }
 
     // Python sorts with reverse=True on a stable sort, so equal weights keep
     // the order they were added in. List.sort is not stable in Dart, hence the

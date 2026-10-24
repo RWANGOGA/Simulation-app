@@ -64,7 +64,7 @@ void main() {
 
     expect(golden['risk_cases'], isA<List>());
     expect((golden['risk_cases'] as List).length, greaterThan(400));
-    expect((golden['anatomy_cases'] as List).length, 38);
+    expect((golden['anatomy_cases'] as List).length, 42);
   });
 
   group('risk scoring', () {
@@ -128,6 +128,43 @@ void main() {
         reason: '${mismatches.length} of ${cases.length} cases diverged:\n'
             '${mismatches.take(10).join('\n')}',
       );
+    });
+
+    test('the offline breakdown adds up to the score it explains', () {
+      // Parity with the server is not the point of this test - the arithmetic is.
+      // A device that reports 1.30 of factors beside `risk_score: 1.00` shows the
+      // clinician a breakdown that contradicts its own headline, and offline triage
+      // is where nobody is around to notice the numbers do not add up.
+      final engine = RiskEngine(data);
+      final cases = (golden['risk_cases'] as List).cast<Map<String, dynamic>>();
+      var capped = 0;
+
+      for (final recorded in cases) {
+        final input = TriageInput.fromJson(
+          recorded['input'] as Map<String, dynamic>,
+        );
+        final assessment = engine.compute(input);
+        final total = assessment.contributions.fold<double>(
+          0.0,
+          (sum, contribution) => sum + contribution.shap,
+        );
+
+        expect(
+          total,
+          closeTo(assessment.risk, 1e-9),
+          reason:
+              '${input.bodyRegion} / ${input.painType} / sev ${input.severity}: '
+              'factors sum to $total but risk is ${assessment.risk}',
+        );
+        expect(
+          assessment.risk,
+          lessThanOrEqualTo(1.0),
+          reason: 'risk escaped the 0..1 range the bands assume',
+        );
+        if (assessment.contributions.any((c) => c.shap < 0)) capped++;
+      }
+
+      expect(capped, greaterThan(0), reason: 'no case ever reached the cap');
     });
 
     test('reproduces every recorded red-flag verdict', () {
@@ -253,6 +290,22 @@ void main() {
             reason: '$label: score of ${hits[i].chunk.id} at rank $i',
           );
         }
+
+        // p5: when the narrative takes a side away from the tap, the sentence
+        // saying so is part of the answer, so it is compared as recorded output
+        // rather than re-derived here - a paraphrase offline would otherwise pass
+        // every retrieval assertion and still tell the clinician something the
+        // server did not.
+        final answer = engine.ask(
+          region: region,
+          complaint: query,
+          topK: topK,
+        );
+        expect(
+          answer['laterality_note'],
+          recorded['laterality_note'],
+          reason: '$label: laterality note differs from the server\'s wording',
+        );
       }
     });
 

@@ -299,6 +299,7 @@ class AnatomyAskResponse(BaseModel):
     region: Optional[str]
     complaint: str
     answered: bool
+    laterality_note: Optional[str] = None
     llm_used: bool
     cached: bool
     summary: str
@@ -361,6 +362,12 @@ def _run_ask(
     conversation_id: Optional[str] = None,
     history: Optional[List[Dict[str, str]]] = None,
 ) -> Dict[str, Any]:
+    # Said out loud because the retriever may answer for a different side than the
+    # one that was tapped: content about the left arm under a right-arm selection
+    # looks like a bug to whoever is reading it. Wording comes from the retriever, so
+    # the server, the offline engine and the golden vectors cannot drift apart.
+    laterality_note = anatomy_retriever.laterality_note(region, complaint)
+
     hits = anatomy_retriever.retrieve(region=region, query=complaint, top_k=top_k * 2)
     
     # Rerank with LLM if configured and we have enough chunks
@@ -379,6 +386,7 @@ def _run_ask(
             "region": region,
             "complaint": complaint,
             "answered": False,
+            "laterality_note": laterality_note,
             "llm_used": False,
             "cached": False,  # set by caller before returning
             "summary": (
@@ -456,6 +464,7 @@ def _run_ask(
         "region": region,
         "complaint": complaint,
         "answered": True,
+        "laterality_note": laterality_note,
         "llm_used": llm_used,
         "cached": False,  # set by caller before returning
         **summary,

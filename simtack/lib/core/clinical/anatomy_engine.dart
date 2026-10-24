@@ -130,7 +130,10 @@ class AnatomyEngine {
     final queryTokens = AnatomyTokenizer.tokenize(query.trim().toLowerCase());
     final queryVector = _vectorize(queryTokens, _idf);
     final queryTerms = queryTokens.toSet();
-    final regionKey = _regionKey(region ?? '');
+    final regionKey = _governingRegionKey(
+      region ?? '',
+      AnatomyTokenizer.surfaceTokens(query.trim().toLowerCase()),
+    );
 
     final bm25 = <_Scored>[];
     final tfidf = <_Scored>[];
@@ -232,6 +235,7 @@ class AnatomyEngine {
       'region': regionOrNull,
       'complaint': trimmedComplaint,
       'answered': answered,
+      'laterality_note': _lateralityNote(regionOrNull, trimmedComplaint),
       'llm_used': false,
       'cached': false,
       'summary': answered
@@ -460,6 +464,69 @@ class AnatomyEngine {
     final b = chunk.side;
     if (a == null || b == null) return true;
     return a == b;
+  }
+
+  /// Port of `_narrative_side`: the side the complaint itself states, or null.
+  /// Only an unambiguous statement counts, so a sentence naming both sides defers
+  /// to the tap instead of silently picking whichever word came first.
+  static String? _narrativeSide(List<String> surface) {
+    final named = surface.where(_sideWords.contains).toSet();
+    return named.length == 1 ? named.first : null;
+  }
+
+  /// Port of `_governing_region_key`: the tap's parts, the narrative's side.
+  ///
+  /// The body map and the sentence are two statements about the same body and the
+  /// tap is the coarser one. A patient who taps "Right Arm / Shoulder" and writes
+  /// "pain in my left arm and jaw" has contradicted themselves, and the written
+  /// side is the more specific, deliberate act - and the one matching a cardiac
+  /// referral pattern. Reading laterality from the tap alone made the left-arm
+  /// monograph unreachable for that complaint.
+  ///
+  /// The parts still come from the tap, so prose cannot drag retrieval to an
+  /// unrelated body part; only the mirror image of the tapped part is switched.
+  /// The locator carrying the old side is replaced rather than kept, so the tapped
+  /// part on the stated side is the *same* region (tier 0). Because the side is a
+  /// filter, overriding it also withdraws the tapped side's own monograph.
+  static _RegionKey _governingRegionKey(String region, List<String> surface) {
+    final base = _regionKey(region);
+    final side = _narrativeSide(surface);
+    if (side == null || side == base.side) return base;
+    return _RegionKey(
+      side,
+      base.parts,
+      {...base.locators.where((word) => !_sideWords.contains(word)), side},
+    );
+  }
+
+  /// Port of `side_override`: `(tap's side, side actually used)` when the
+  /// complaint's own words took laterality away from the tap, else null.
+  ///
+  /// Reconciling a contradiction silently is still a contradiction: the screen
+  /// would show left-arm content under a right-arm selection, which reads like a
+  /// bug unless it says what it did. Exposed from the retriever itself so a caller
+  /// cannot disagree with it about which side was used.
+  static (String, String)? sideOverride(String? region, String? query) {
+    final base = _regionKey(region ?? '');
+    final side = _narrativeSide(
+      AnatomyTokenizer.surfaceTokens((query ?? '').trim().toLowerCase()),
+    );
+    if (side == null || base.side == null || side == base.side) return null;
+    return (base.side!, side);
+  }
+
+  /// The clinician-facing sentence for [sideOverride], mirroring the server's
+  /// `laterality_note`. The golden fixture records the server's own wording for
+  /// every probe, so this sentence is checked character-for-character against it
+  /// rather than trusted to have been copied correctly.
+  static String? _lateralityNote(String? region, String? query) {
+    final override = sideOverride(region, query);
+    if (override == null) return null;
+    final tapped = override.$1;
+    final used = override.$2;
+    return 'The body map was set to the $tapped side, but this complaint describes '
+        'the $used side. The information below follows the $used side, because what '
+        'the patient wrote is the more specific statement.';
   }
 
   /// Port of `_region_tier`.

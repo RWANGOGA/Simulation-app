@@ -4,7 +4,7 @@
       "expected": [
         {
           "id": "chest_heart",
-          "score": 1.0
+          "score": 0.565470793938609
         },
         {
           "id": "left_arm_shoulder",
@@ -15,6 +15,7 @@
           "score": 0.5016210170982868
         }
       ],
+      "laterality_note": null,
       "query": "crushing chest pain spreading to left arm",
       "region": "Chest / Heart",
       "top_k": 3
@@ -23,7 +24,7 @@
       "expected": [
         {
           "id": "chest_heart",
-          "score": 1.0
+          "score": 0.565470793938609
         },
         {
           "id": "left_arm_shoulder",
@@ -34,16 +35,113 @@
           "score": 0.5016210170982868
         },
         {
-          "id": "right_arm_shoulder",
+          "id": "left_armpit",
           "score": 0.4937831887061261
         },
         {
+          "id": "abdomen_lower_left",
+          "score": 0.4825032930200654
+        }
+      ],
+      "laterality_note": null,
+      "query": "crushing chest pain spreading to left arm",
+      "region": "Chest / Heart",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "left_arm_shoulder",
+          "score": 1.0
+        },
+        {
+          "id": "left_shoulder",
+          "score": 0.5411863748219142
+        },
+        {
+          "id": "chest_heart",
+          "score": 0.5097116786643882
+        }
+      ],
+      "laterality_note": "The body map was set to the right side, but this complaint describes the left side. The information below follows the left side, because what the patient wrote is the more specific statement.",
+      "query": "pain in my left arm and jaw",
+      "region": "Right Arm / Shoulder",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "left_arm_shoulder",
+          "score": 1.0
+        },
+        {
+          "id": "left_shoulder",
+          "score": 0.5411863748219142
+        },
+        {
+          "id": "chest_heart",
+          "score": 0.5097116786643882
+        },
+        {
+          "id": "neck",
+          "score": 0.5016210170982868
+        },
+        {
+          "id": "hips_groin",
+          "score": 0.4825032930200654
+        }
+      ],
+      "laterality_note": "The body map was set to the right side, but this complaint describes the left side. The information below follows the left side, because what the patient wrote is the more specific statement.",
+      "query": "pain in my left arm and jaw",
+      "region": "Right Arm / Shoulder",
+      "top_k": 5
+    },
+    {
+      "expected": [
+        {
+          "id": "right_arm_shoulder",
+          "score": 1.0
+        },
+        {
           "id": "right_shoulder",
+          "score": 0.5571148647801764
+        },
+        {
+          "id": "abdomen_upper",
+          "score": 0.5016210170982868
+        }
+      ],
+      "laterality_note": null,
+      "query": "pain in my left and right arm",
+      "region": "Right Arm / Shoulder",
+      "top_k": 3
+    },
+    {
+      "expected": [
+        {
+          "id": "right_arm_shoulder",
+          "score": 1.0
+        },
+        {
+          "id": "right_shoulder",
+          "score": 0.5571148647801764
+        },
+        {
+          "id": "abdomen_upper",
+          "score": 0.5016210170982868
+        },
+        {
+          "id": "right_leg_knee",
+          "score": 0.4937831887061261
+        },
+        {
+          "id": "abdomen_lower_right",
           "score": 0.4861865242644934
         }
       ],
-      "query": "crushing chest pain spreading to left arm",
-      "region": "Chest / Heart",
+      "laterality_note": null,
+      "query": "pain in my left and right arm",
+      "region": "Right Arm / Shoulder",
       "top_k": 5
     },
     {
@@ -61,6 +159,7 @@
           "score": 0.5016210170982868
         }
       ],
+      "laterality_note": null,
       "query": "chest pain",
       "region": "Chest / Heart",
       "top_k": 3
@@ -80,6 +179,7 @@
           "score": 0.5016210170982868
         }
       ],
+      "laterality_note": null,
       "query": "chest pain",
       "region": "Chest / Heart",
       "top_k": 5
@@ -99,6 +199,7 @@
           "score": 0.5016210170982868
         }
       ],
+      "laterality_note": null,
       "query": "chest pain",
       "region": "",
       "top_k": 3
@@ -118,6 +219,7 @@
           "score": 0.5016210170982868
         }
       ],
+      "laterality_note": null,
       "query": "chest pain",
       "region": "",
       "top_k": 5
@@ -133,6 +235,7 @@
           "score": 0.5097116786643882
         }
       ],
+      "laterality_note": null,
       "query": "severe headache with light sensitivity",
       "region": "Headache / Cranial",
       "top_k": 3
@@ -148,6 +251,7 @@
           "score": 0.5097116786643882
         }
       ],
+      "laterality_note": null,
       "query": "severe headache with light sensitivity",
       "region": "Headache / Cranial",
       "top_k": 5
@@ -167,6 +271,7 @@
           "score": 0.549024203214075
         }
       ],
+      "laterality_note": null,
       "query": "burning stomach pain after eating",
       "region": "Abdomen (Upper)",
       "top_k": 3
@@ -186,6 +291,7 @@
           "score": 0.549024203214075
         }
       ],
+      "laterality_note": null,
       "query": "burning stomach pain after eating",
       "region": "Abdomen (Upper)",
       "top_k": 5
@@ -205,6 +311,7 @@
           "score": 0.5016210170982868
         }
       ],
+      "laterality_note": null,
       "query": "backache after lifting",
       "region": "Back Pain (Lower)",
       "top_k": 3
@@ -228,6 +335,7 @@
           "score": 0.4937831887061261
         }
       ],
+      "laterality_note": null,
       "query": "backache after lifting",
       "region": "Back Pain (Lower)",
       "top_k": 5
@@ -243,6 +351,7 @@
           "score": 0.5612928293593927
         }
       ],
+      "laterality_note": null,
       "query": "shoulder pain when lifting the arm",
       "region": "Left Arm / Shoulder",
       "top_k": 3
@@ -258,6 +367,7 @@
           "score": 0.5612928293593927
         }
       ],
+      "laterality_note": null,
       "query": "shoulder pain when lifting the arm",
       "region": "Left Arm / Shoulder",
       "top_k": 5
@@ -273,6 +383,7 @@
           "score": 0.5180676078228208
         }
       ],
+      "laterality_note": null,
       "query": "calf pain when walking",
       "region": "Right Leg",
       "top_k": 3
@@ -288,6 +399,7 @@
           "score": 0.5180676078228208
         }
       ],
+      "laterality_note": null,
       "query": "calf pain when walking",
       "region": "Right Leg",
       "top_k": 5
@@ -307,6 +419,7 @@
           "score": 0.5056663478813375
         }
       ],
+      "laterality_note": null,
       "query": "stiff neck with arm tingling",
       "region": "Neck",
       "top_k": 3
@@ -334,6 +447,7 @@
           "score": 0.48998485648530976
         }
       ],
+      "laterality_note": null,
       "query": "stiff neck with arm tingling",
       "region": "Neck",
       "top_k": 5
@@ -353,6 +467,7 @@
           "score": 0.5016210170982868
         }
       ],
+      "laterality_note": null,
       "query": "tummy ache",
       "region": "",
       "top_k": 3
@@ -372,6 +487,7 @@
           "score": 0.5016210170982868
         }
       ],
+      "laterality_note": null,
       "query": "tummy ache",
       "region": "",
       "top_k": 5
@@ -391,6 +507,7 @@
           "score": 0.49770210290220646
         }
       ],
+      "laterality_note": null,
       "query": "breathless",
       "region": "",
       "top_k": 3
@@ -414,6 +531,7 @@
           "score": 0.49770210290220646
         }
       ],
+      "laterality_note": null,
       "query": "breathless",
       "region": "",
       "top_k": 5
@@ -433,6 +551,7 @@
           "score": 0.5056663478813375
         }
       ],
+      "laterality_note": null,
       "query": "groin pain on one side",
       "region": "Pelvis / Groin",
       "top_k": 3
@@ -460,6 +579,7 @@
           "score": 0.4861865242644934
         }
       ],
+      "laterality_note": null,
       "query": "groin pain on one side",
       "region": "Pelvis / Groin",
       "top_k": 5
@@ -475,6 +595,7 @@
           "score": 0.04740318611578811
         }
       ],
+      "laterality_note": null,
       "query": "",
       "region": "Knee (Left)",
       "top_k": 3
@@ -490,18 +611,21 @@
           "score": 0.04740318611578811
         }
       ],
+      "laterality_note": null,
       "query": "",
       "region": "Knee (Left)",
       "top_k": 5
     },
     {
       "expected": [],
+      "laterality_note": null,
       "query": "",
       "region": "",
       "top_k": 3
     },
     {
       "expected": [],
+      "laterality_note": null,
       "query": "",
       "region": "",
       "top_k": 5
@@ -521,6 +645,7 @@
           "score": 0.5335897103802816
         }
       ],
+      "laterality_note": null,
       "query": "sprained ankle swelling",
       "region": "Ankle / Foot",
       "top_k": 3
@@ -548,54 +673,63 @@
           "score": 0.5180676078228208
         }
       ],
+      "laterality_note": null,
       "query": "sprained ankle swelling",
       "region": "Ankle / Foot",
       "top_k": 5
     },
     {
       "expected": [],
+      "laterality_note": null,
       "query": "how many days of antibiotics for a sinus infection",
       "region": "",
       "top_k": 3
     },
     {
       "expected": [],
+      "laterality_note": null,
       "query": "how many days of antibiotics for a sinus infection",
       "region": "",
       "top_k": 5
     },
     {
       "expected": [],
+      "laterality_note": null,
       "query": "anxious and cannot sleep at night",
       "region": "",
       "top_k": 3
     },
     {
       "expected": [],
+      "laterality_note": null,
       "query": "anxious and cannot sleep at night",
       "region": "",
       "top_k": 5
     },
     {
       "expected": [],
+      "laterality_note": null,
       "query": "ear itches and drains fluid",
       "region": "",
       "top_k": 3
     },
     {
       "expected": [],
+      "laterality_note": null,
       "query": "ear itches and drains fluid",
       "region": "",
       "top_k": 5
     },
     {
       "expected": [],
+      "laterality_note": null,
       "query": "refill my blood pressure prescription",
       "region": "",
       "top_k": 3
     },
     {
       "expected": [],
+      "laterality_note": null,
       "query": "refill my blood pressure prescription",
       "region": "",
       "top_k": 5
@@ -4283,6 +4417,16 @@
           "foot",
           "plantar",
           "steps"
+        ]
+      },
+      {
+        "query": "pain in my left and right arm",
+        "tokens": [
+          "pain",
+          "left",
+          "right",
+          "arm",
+          "shoulder"
         ]
       },
       {
@@ -9442,6 +9586,11 @@
             "factor": "Pain type: Crushing",
             "impact": "+",
             "shap": 0.2
+          },
+          {
+            "factor": "Score capped at 1.00 (findings summed to 1.05)",
+            "impact": "-",
+            "shap": -0.05
           }
         ],
         "escalation": {
@@ -9698,6 +9847,11 @@
             "factor": "Pain type: Crushing",
             "impact": "+",
             "shap": 0.2
+          },
+          {
+            "factor": "Score capped at 1.00 (findings summed to 1.10)",
+            "impact": "-",
+            "shap": -0.1
           }
         ],
         "escalation": {
@@ -9792,6 +9946,11 @@
             "factor": "Pain type: Crushing",
             "impact": "+",
             "shap": 0.2
+          },
+          {
+            "factor": "Score capped at 1.00 (findings summed to 1.05)",
+            "impact": "-",
+            "shap": -0.05
           }
         ],
         "escalation": {
@@ -11217,6 +11376,11 @@
             "factor": "Pain type: Sharp",
             "impact": "+",
             "shap": 0.12
+          },
+          {
+            "factor": "Score capped at 1.00 (findings summed to 1.02)",
+            "impact": "-",
+            "shap": -0.02
           }
         ],
         "escalation": {
@@ -11261,6 +11425,11 @@
             "factor": "Pain type: Sharp",
             "impact": "+",
             "shap": 0.12
+          },
+          {
+            "factor": "Score capped at 1.00 (findings summed to 1.02)",
+            "impact": "-",
+            "shap": -0.02
           }
         ],
         "escalation": {
@@ -11305,6 +11474,11 @@
             "factor": "Pain type: Sharp",
             "impact": "+",
             "shap": 0.12
+          },
+          {
+            "factor": "Score capped at 1.00 (findings summed to 1.02)",
+            "impact": "-",
+            "shap": -0.02
           }
         ],
         "escalation": {
@@ -11349,6 +11523,11 @@
             "factor": "Pain type: Sharp",
             "impact": "+",
             "shap": 0.12
+          },
+          {
+            "factor": "Score capped at 1.00 (findings summed to 1.02)",
+            "impact": "-",
+            "shap": -0.02
           }
         ],
         "escalation": {
@@ -11393,6 +11572,11 @@
             "factor": "Pain type: Sharp",
             "impact": "+",
             "shap": 0.12
+          },
+          {
+            "factor": "Score capped at 1.00 (findings summed to 1.02)",
+            "impact": "-",
+            "shap": -0.02
           }
         ],
         "escalation": {
@@ -22333,6 +22517,11 @@
             "factor": "Pain type: Crushing",
             "impact": "+",
             "shap": 0.2
+          },
+          {
+            "factor": "Score capped at 1.00 (findings summed to 1.05)",
+            "impact": "-",
+            "shap": -0.05
           }
         ],
         "escalation": {

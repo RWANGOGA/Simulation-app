@@ -16,6 +16,17 @@ class ShapFactor {
   });
 
   bool get raisesRisk => impact == '+';
+
+  /// A negative factor is the score being capped, not a protective finding.
+  ///
+  /// Every weight in the scoring model is non-negative - severity, region, pain
+  /// type, heart rate, connectivity and BMI all only ever add - so nothing a
+  /// patient reports can *lower* risk. The one factor that is ever negative is
+  /// the arithmetic adjustment that keeps the breakdown summing to the reported
+  /// score ("Score capped at 1.00 ..."). Painting that in the same green the
+  /// interface uses for reassuring clinical findings told clinicians the opposite
+  /// of what it meant: a cap is reached *because* findings stacked up.
+  bool get isScoreAdjustment => impact == '-';
   double get magnitude => shap.abs();
 }
 
@@ -25,6 +36,12 @@ class ShapExplanationWidget extends StatelessWidget {
   final bool initiallyExpanded;
   final Color? positiveColor;
   final Color? negativeColor;
+
+  /// Colour of an arithmetic adjustment (the score being capped). Deliberately
+  /// neither the red of a raising finding nor the green of a reassuring one: it is
+  /// neither, it is the total being brought back into the 0..1 range the score
+  /// occupies. Shared with the legend so the swatch always matches the row it names.
+  static const Color adjustmentColor = Color(0xFF475569);
 
   const ShapExplanationWidget({
     super.key,
@@ -139,13 +156,34 @@ class ShapExplanationWidget extends StatelessWidget {
               negativeColor: negColor,
             )),
         const SizedBox(height: 8),
-        _buildLegend(context, posColor, negColor),
+        _buildLegend(context, factors, posColor, negColor),
       ],
     );
   }
 
-  Widget _buildLegend(BuildContext context, Color posColor, Color negColor) {
+  Widget _buildLegend(
+    BuildContext context,
+    List<ShapFactor> factors,
+    Color posColor,
+    Color negColor,
+  ) {
     final t = AppLocalizations.of(context)!;
+    // Only advertise a colour the list actually draws. The legend used to show
+    // "Lowers Risk" in green unconditionally, describing a state the scoring
+    // model cannot produce - which taught clinicians to read green as meaningful
+    // reassurance in a panel that would never honestly display it.
+    final items = <Widget>[];
+    if (factors.any((f) => f.raisesRisk)) {
+      items.add(_legendItem(t.legendRaisesRiskLabel, posColor));
+    }
+    if (factors.any((f) => f.isScoreAdjustment && !f.raisesRisk)) {
+      // Slate, matching the row it describes - never the green of a reassuring
+      // finding. The sign on the value is what distinguishes it from a small
+      // raising factor drawn in the same family of grey.
+      items.add(_legendItem(t.legendLowersRiskLabel, adjustmentColor));
+    }
+    if (items.isEmpty) return const SizedBox.shrink();
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -156,9 +194,10 @@ class ShapExplanationWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _legendItem(t.legendRaisesRiskLabel, posColor),
-          const SizedBox(width: 24),
-          _legendItem(t.legendLowersRiskLabel, negColor),
+          for (var i = 0; i < items.length; i++) ...[
+            if (i > 0) const SizedBox(width: 24),
+            items[i],
+          ],
         ],
       ),
     );
@@ -203,13 +242,15 @@ class _ShapFactorRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final raises = factor.raisesRisk;
     final magnitude = factor.magnitude;
-    final barColor = !raises
-        ? negativeColor
-        : magnitude >= 0.25
-            ? positiveColor
-            : magnitude >= 0.10
-                ? const Color(0xFFF59E0B)
-                : const Color(0xFF64748B);
+    final barColor = factor.isScoreAdjustment
+        ? ShapExplanationWidget.adjustmentColor
+        : !raises
+            ? negativeColor
+            : magnitude >= 0.25
+                ? positiveColor
+                : magnitude >= 0.10
+                    ? const Color(0xFFF59E0B)
+                    : const Color(0xFF64748B);
     final fraction =
         maxShap > 0 ? (magnitude / maxShap).clamp(0.04, 1.0) : 0.04;
     final valueLabel = '${raises ? '+' : '-'}${(magnitude * 100).toInt()}%';
@@ -389,13 +430,15 @@ class _CompactFactorRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final raises = factor.raisesRisk;
     final magnitude = factor.magnitude;
-    final barColor = !raises
-        ? negativeColor
-        : magnitude >= 0.25
-            ? positiveColor
-            : magnitude >= 0.10
-                ? const Color(0xFFF59E0B)
-                : const Color(0xFF64748B);
+    final barColor = factor.isScoreAdjustment
+        ? ShapExplanationWidget.adjustmentColor
+        : !raises
+            ? negativeColor
+            : magnitude >= 0.25
+                ? positiveColor
+                : magnitude >= 0.10
+                    ? const Color(0xFFF59E0B)
+                    : const Color(0xFF64748B);
     final fraction =
         maxShap > 0 ? (magnitude / maxShap).clamp(0.04, 1.0) : 0.04;
     final valueLabel = '${raises ? '+' : '-'}${(magnitude * 100).toInt()}%';

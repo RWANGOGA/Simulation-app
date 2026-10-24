@@ -115,15 +115,34 @@ from scripts.eval_retrieval import DEFAULT_K, DEFAULT_WINDOW, evaluate, load_cas
 # through a P0-9 synonym bridge ("breathless" -> "dyspnea"'s corpus words) counts
 # as evidence-free by that definition while being grounded by the gate. The metric
 # measures the eval's own word-overlap notion, not correctness.
+#
+# After P0-6's successor p5 (laterality read from the narrative, not only the tap:
+# the body map still supplies the *parts*, the complaint supplies the *side* when
+# it states one unambiguously, so "tapped right arm, wrote left arm and jaw" reaches
+# the left-arm cardiac monograph instead of being filtered out by the tap - see
+# _governing_region_key): pass 0.9524, top1 0.9825, mrr 0.9883, recall@3 0.9094,
+# recall@6 0.9415, nDCG@3 0.935, referral 0.9091, abstention 1.000, still zero
+# safety violations, 3 failing cases. `laterality_and_precision` is now 5/5 and
+# referral coverage jumped by five points, because a complaint that says "left" now
+# has its laterality enforced *for* it rather than the tap's laterality enforced
+# against it. recall@6 recovered to its pre-P0-6 value: the side filter stopped
+# admitting the wrong limb's monographs into windows that only word overlap opened.
+# `text-side-contradicts-tap` passes and is deleted from the debt below; the three
+# that remain are all ordering or referral-graph work, none of them laterality.
+# The override is also *reported* (`laterality_note`), because answering about the
+# left arm under a selection labelled "Right Arm / Shoulder" looks like a broken
+# body map unless the panel says which side it followed and why; its wording is
+# recorded in the golden fixture, so the offline engine is pinned to the server's
+# sentence rather than to a paraphrase someone typed into a Dart test.
 # ---------------------------------------------------------------------------
 FLOORS = {
-    "pass_rate": 0.92,
-    "top1_accuracy": 0.95,
-    "mrr": 0.96,
-    "recall_at_k": 0.88,
-    "recall_at_window": 0.92,
-    "ndcg_at_k": 0.91,
-    "referral_coverage": 0.84,
+    "pass_rate": 0.94,
+    "top1_accuracy": 0.97,
+    "mrr": 0.98,
+    "recall_at_k": 0.89,
+    "recall_at_window": 0.93,
+    "ndcg_at_k": 0.92,
+    "referral_coverage": 0.89,
 }
 
 # Cases that must NEVER be allowed to fail: the complaints whose whole purpose is
@@ -158,18 +177,15 @@ KNOWN_SAFETY_DEBT: dict[str, list[str]] = {}
 #
 # P0-6 removed the abstention debt: the four `scope-*` complaints and
 # `toes-not-cardiac` no longer fail (they abstain correctly, which is a pass for an
-# expect_no_match case). What remains is two things, both about *ordering plausible
-# candidates* or reading laterality from prose, never about serving the wrong part:
-#
-#   * no evidence to order *plausible* candidates. When several monographs all
-#     genuinely match, the tie is broken by document length or by which family
-#     fills the served slots, so a real referral target can be pushed to rank 4.
-#   * laterality read from the tap only, never from the sentence.
+# expect_no_match case), and p5 removed `text-side-contradicts-tap` by reading the
+# side from the narrative. What remains is one thing: there is no evidence to order
+# *plausible* candidates. When several monographs all genuinely match, the tie is
+# broken by document length or by which family fills the served slots, so a real
+# referral target can be pushed to rank 4 or lose the top slot.
 KNOWN_RANKING_DEBT = {
     "jargon-dyspnea-exertion": "both arm monographs bridge to breath/shortness/chest as well as the cardiac one, and win on length; 'dyspnea on exertion' with nothing tapped should still lead with the chest",
     "lay-fatty-food-upper-abdomen": "biliary referral to the right shoulder is unreachable: the link lives in the abdomen chunk's prose and no word in the complaint names the shoulder, so only a referral graph can follow it",
     "refer-renal-to-left-leg": "the back monograph is in the window but at rank 4: the tapped leg/knee family fills all three served slots, so referral content needs a slot reservation, not better matching",
-    "text-side-contradicts-tap": "laterality is read from the tapped region only, so a patient who taps the right arm and describes the left cannot reach the left-arm monograph - which for the upper limb is the cardiac one. Needs the side in the free text reconciled with the side of the tap.",
 }
 
 
@@ -350,6 +366,12 @@ TEXT_PROBES = [
     "can't breathe when walking upstairs",
     "pain after eating fatty food radiating to my back",
     "crushing pressure going down my arm",
+    # p5 added these: laterality can now arrive from the sentence as well as the
+    # tap, so the sweep has to test a sentence that overrides the tap, one that
+    # agrees with it, and one that names both sides and so states no laterality.
+    "pain in my left arm and jaw",
+    "sharp right knee pain after a fall",
+    "pain in my left and right arm",
 ]
 
 
@@ -366,6 +388,12 @@ def test_no_contralateral_chunk_is_ever_served():
 
     Taps are derived from the knowledge base's own labels, so renaming or adding a
     sided region extends the sweep automatically rather than silently narrowing it.
+
+    Since p5 the side may be stated by the narrative instead of the tap, so the
+    expected side is read from the same function the retriever uses - asking "is
+    this chunk on the tap's side" would now fail for the very complaint the change
+    exists to serve, and the useful invariant is that whichever source wins, the
+    other side never appears.
     """
     from app.services import anatomy_retriever as ar
 
@@ -377,8 +405,8 @@ def test_no_contralateral_chunk_is_ever_served():
     )
     leaks = []
     for tap in sided_taps:
-        want = ar._region_key(tap).side
         for text in TEXT_PROBES:
+            want = ar._governing_region_key(tap, ar._surface_tokens(text)).side
             for hit in ar.retrieve(tap, text, DEFAULT_WINDOW):
                 other = side_of[hit.chunk.id]
                 if other and other != want:
@@ -387,6 +415,66 @@ def test_no_contralateral_chunk_is_ever_served():
         f"contralateral content served for a sided region: {leaks}. The two sides "
         "of the body carry different clinical meaning in this knowledge base."
     )
+
+
+def test_narrative_side_governs_laterality_and_tap_governs_the_part():
+    """p5: a complaint that says "left" means left, even when the tap said right.
+
+    Four behaviours, each ruling out one tempting wrong implementation:
+
+    1. the stated side reaches its own monograph and *leads* with it - so this is
+       not merely admitting the right side's family at a low rank;
+    2. the tapped side's monograph disappears from the window entirely - a
+       patient who writes left is not describing their right shoulder, and a
+       "reconciled" reading that kept both is the contralateral leak P0-1 closed;
+    3. the narrative cannot move the complaint to another body *part*. Tapping the
+       right knee and writing "left arm hurts" yields the LEFT KNEE monograph
+       first: the tap owns which part, the sentence owns which side. That
+       precedence is a decision, not an accident - a stray word in prose must not
+       drag retrieval to an unrelated limb, and the mirror-image half of the same
+       limb is what the sentence is actually correcting;
+    4. a sentence that names both sides states no laterality and defers to the tap,
+       rather than picking whichever word appears first. Note what does *not* fall
+       here: "both arms, worse on the left" names one side, so the left governs and
+       the tapped right monograph is withdrawn. That is a judgement - the patient
+       both asserted bilaterality and identified the dominant side, and the side
+       they singled out is the more specific fact (and here the cardiovascular
+       half of the pair), so it is taken. A phrase naming no side at all ("both
+       arms equally") leaves the tap in charge, exactly as before p5.
+    """
+    from app.services import anatomy_retriever as ar
+
+    tap = "Right Arm / Shoulder"
+    left_arm = "pain in my left arm and jaw"
+    served = [hit.chunk.id for hit in ar.retrieve(tap, left_arm, DEFAULT_WINDOW)]
+    assert served[0] == "left_arm_shoulder", served
+    assert not [cid for cid in served if cid.startswith("right_")], served
+
+    # Tap owns the part, sentence owns the side.
+    knee = "Right Leg / Knee"
+    crossed = [hit.chunk.id for hit in ar.retrieve(knee, "left arm hurts", DEFAULT_WINDOW)]
+    assert crossed[0] == "left_leg_knee", crossed
+    assert not [cid for cid in crossed if cid.startswith("right_")], crossed
+
+    both = "pain in my left and right arm"
+    assert ar._narrative_side(ar._surface_tokens(both)) is None
+    still_right = [hit.chunk.id for hit in ar.retrieve(tap, both, DEFAULT_WINDOW)]
+    assert still_right[0] == "right_arm_shoulder", still_right
+
+    # One named side wins even inside a bilateral sentence, because naming a side
+    # is the more specific statement the patient made.
+    dominant = "pain in both arms, worse on the left"
+    assert ar._narrative_side(ar._surface_tokens(dominant)) == "left"
+    led_left = [hit.chunk.id for hit in ar.retrieve(tap, dominant, DEFAULT_WINDOW)]
+    assert led_left[0] == "left_arm_shoulder", led_left
+    assert not [cid for cid in led_left if cid.startswith("right_")], led_left
+
+    # A narrative that agrees with the tap changes nothing - the common case must
+    # not be perturbed by the new reading.
+    agree = "pain in my right shoulder and arm"
+    agreed = [hit.chunk.id for hit in ar.retrieve(tap, agree, DEFAULT_WINDOW)]
+    assert agreed[0] == "right_arm_shoulder", agreed
+    assert "left_arm_shoulder" not in agreed, agreed
 
 
 def test_reported_score_never_contradicts_its_own_ranking(report):

@@ -1159,6 +1159,11 @@ class AnatomyInsight {
   final String? region;
   final String complaint;
   final bool answered;
+
+  /// Set when the complaint described a different side than the region that was
+  /// tapped, so the answer below is about that other side. Null when the two agree
+  /// or neither states a side; also absent from insights cached before this existed.
+  final String? lateralityNote;
   final bool llmUsed;
   final bool cached;
   final String summary;
@@ -1174,6 +1179,7 @@ class AnatomyInsight {
     required this.region,
     required this.complaint,
     required this.answered,
+    this.lateralityNote,
     required this.llmUsed,
     required this.cached,
     required this.summary,
@@ -1199,6 +1205,7 @@ class AnatomyInsight {
       region: json['region'] as String?,
       complaint: (json['complaint'] as String?) ?? '',
       answered: (json['answered'] as bool?) ?? true,
+      lateralityNote: json['laterality_note'] as String?,
       llmUsed: (json['llm_used'] as bool?) ?? false,
       cached: (json['cached'] as bool?) ?? false,
       summary: (json['summary'] as String?) ?? '',

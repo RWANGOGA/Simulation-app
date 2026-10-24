@@ -285,6 +285,12 @@ def _build_risk_cases() -> List[Dict[str, Any]]:
 
 ANATOMY_QUERIES = [
     ("Chest / Heart", "crushing chest pain spreading to left arm"),
+    # p5: the tap and the sentence disagree about the side. These two pin that the
+    # offline engine reconciles them the same way the server does - the stated side
+    # governs, the tapped side's monograph disappears - and that a sentence naming
+    # both sides leaves the tap in charge.
+    ("Right Arm / Shoulder", "pain in my left arm and jaw"),
+    ("Right Arm / Shoulder", "pain in my left and right arm"),
     ("Chest / Heart", "chest pain"),
     ("", "chest pain"),
     ("Headache / Cranial", "severe headache with light sensitivity"),
@@ -321,6 +327,11 @@ def _build_anatomy_cases() -> List[Dict[str, Any]]:
                     "region": region,
                     "query": query,
                     "top_k": top_k,
+                    # Recorded, not recomputed in Dart: the offline engine has to say
+                    # the same thing about a side the narrative took over, and a
+                    # hand-copied sentence in a test drifts the first time someone
+                    # reworded the server.
+                    "laterality_note": anatomy_retriever.laterality_note(region, query),
                     "expected": [
                         {"id": hit.chunk.id, "score": hit.score} for hit in hits
                     ],

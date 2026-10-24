@@ -94,11 +94,18 @@ class ShapExplanationCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    '+${(shap * 100).toInt()}%',
-                    style: const TextStyle(
+                    // The sign follows the number. This used to prepend '+'
+                    // unconditionally, which was harmless while every weight in
+                    // the model was non-negative and became visible the moment the
+                    // score cap was recorded as its own negative factor: the row
+                    // read "+-30%".
+                    '${shap >= 0 ? '+' : '-'}${(shap.abs() * 100).round()}%',
+                    style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF64748B)),
+                        color: shap >= 0
+                            ? const Color(0xFF64748B)
+                            : const Color(0xFF475569)),
                   ),
                 ],
               ),

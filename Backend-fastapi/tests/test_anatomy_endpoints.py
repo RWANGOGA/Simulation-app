@@ -256,3 +256,41 @@ def test_llm_reranking_actually_runs(monkeypatch):
     reranked = anatomy._rerank_with_llm("pain radiating to left arm", hits, 2)
 
     assert [hit.chunk.id for hit in reranked] == [hits[2].chunk.id, hits[0].chunk.id]
+
+
+def test_contradictory_side_is_reported_not_just_acted_on(offline_llm):
+    """p5: answering for the other side has to say so on the response.
+
+    The retriever now lets the narrative override the tap's laterality, which is
+    clinically right and visually alarming: content about the left arm appears under
+    a selection labelled "Right Arm / Shoulder". A clinician who does not know the
+    sentence said "left" will conclude the body map is broken and stop trusting the
+    panel - so the discrepancy is returned as a sentence, and only when there is one.
+    """
+    contradictory = client.post(
+        ASK_URL,
+        json={
+            "region": "Right Arm / Shoulder",
+            "complaint": "pain in my left arm and jaw",
+            "top_k": 3,
+        },
+    )
+    assert contradictory.status_code == 200
+    data = contradictory.json()
+    assert data["answered"] is True
+    assert [s["id"] for s in data["sources"]][0] == "left_arm_shoulder"
+    note = data["laterality_note"]
+    assert note is not None
+    assert "right side" in note and "left side" in note, note
+
+    # Agreeing taps and sideless narratives stay quiet: a note on every answer is a
+    # note on no answer.
+    for region, complaint in (
+        ("Right Arm / Shoulder", "pain in my right shoulder and arm"),
+        ("Right Arm / Shoulder", "pain after lifting something heavy"),
+        ("Chest / Heart", "crushing chest pain spreading to left arm"),
+    ):
+        body = client.post(
+            ASK_URL, json={"region": region, "complaint": complaint, "top_k": 3}
+        ).json()
+        assert body["laterality_note"] is None, (region, complaint, body["laterality_note"])

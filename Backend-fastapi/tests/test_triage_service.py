@@ -34,6 +34,80 @@ class TestTriageService(unittest.TestCase):
         self.assertTrue(any(c["factor"] == "Severity 10/10" for c in contributions))
         self.assertTrue(any(c["factor"] == "Region: Chest" for c in contributions))
 
+    def test_contributions_always_sum_to_the_reported_score(self):
+        """The breakdown must add up to the number it explains.
+
+        Before this, `compute_risk` clamped the score to 1.0 and returned the
+        unclamped factors, so a chest pain at severity 10 with a heart rate of 135
+        reported `risk_score: 1.0` beside an explanation whose factors summed to 1.30.
+        That is not a rounding curiosity: a sweep over the full region / pain /
+        severity / heart-rate / BMI / sibling grid found the cap biting in 3,446 of
+        18,000 combinations - about one triage in five - and the factor list is
+        exactly what the clinician is shown as *why*.
+
+        Swept rather than sampled, because the invariant is arithmetic and a single
+        hand-picked case would pass while the cap silently stayed broken elsewhere.
+        """
+        regions = [
+            "Chest / Heart", "Headache / Cranial", "Left Arm / Shoulder",
+            "Left Leg", "Abdomen (Upper)", "Neck", "",
+        ]
+        pain_types = ["Crushing", "Stabbing", "Sharp", "Dull", "Burning"]
+        heart_rates = [None, 95.0, 110.0, 135.0, 45.0]
+        bodies = [(None, None), (90.0, 170.0), (120.0, 160.0)]
+        sibling_sets = [[], ["Chest / Heart"], ["Left Arm / Shoulder", "Neck"]]
+
+        capped_cases = 0
+        for region in regions:
+            for pain_type in pain_types:
+                for severity in range(1, 11):
+                    for heart_rate in heart_rates:
+                        for weight, height in bodies:
+                            for siblings in sibling_sets:
+                                data = TriageCreate(
+                                    body_region=region,
+                                    pain_type=pain_type,
+                                    severity=severity,
+                                    heart_rate=heart_rate,
+                                )
+                                risk, contributions = compute_risk(
+                                    data,
+                                    sibling_regions=siblings,
+                                    patient_weight=weight,
+                                    patient_height=height,
+                                )
+                                total = round(
+                                    sum(c["shap"] for c in contributions), 10
+                                )
+                                self.assertAlmostEqual(
+                                    total, risk, places=6,
+                                    msg=(
+                                        f"factors sum to {total} but score is {risk} "
+                                        f"for {region}/{pain_type}/{severity}"
+                                    ),
+                                )
+                                self.assertLessEqual(risk, 1.0)
+                                if any(c["shap"] < 0 for c in contributions):
+                                    capped_cases += 1
+
+        self.assertGreater(capped_cases, 0, "no case ever reached the cap")
+
+    def test_cap_is_named_as_a_factor_so_the_discard_is_visible(self):
+        data = TriageCreate(
+            body_region="Chest / Heart", pain_type="crushing", severity=10,
+            heart_rate=135.0,
+        )
+        risk, contributions = compute_risk(
+            data, patient_weight=120.0, patient_height=160.0
+        )
+        caps = [c for c in contributions if c["shap"] < 0]
+        self.assertEqual(len(caps), 1)
+        self.assertEqual(caps[0]["impact"], "-")
+        self.assertIn("capped", caps[0]["factor"])
+        # 0.50 severity + 0.40 chest + 0.20 crushing + 0.15 heart rate + 0.05 BMI
+        self.assertIn("1.30", caps[0]["factor"])
+        self.assertEqual(caps[0]["shap"], -0.30)
+
     def test_compute_risk_low_risk(self):
         triage_data = TriageCreate(
             body_region="Right Leg",
