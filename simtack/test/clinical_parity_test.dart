@@ -64,7 +64,7 @@ void main() {
 
     expect(golden['risk_cases'], isA<List>());
     expect((golden['risk_cases'] as List).length, greaterThan(400));
-    expect((golden['anatomy_cases'] as List).length, 30);
+    expect((golden['anatomy_cases'] as List).length, 38);
   });
 
   group('risk scoring', () {
@@ -329,9 +329,45 @@ void main() {
     test('an empty question degrades instead of throwing', () {
       final engine = AnatomyEngine.fromData(data);
       final payload = engine.ask(region: '', complaint: '');
-      expect(payload['summary'], 'No matching anatomy context was found.');
+      expect(payload['answered'], isFalse);
+      expect(payload['summary'], contains('not covered'));
       expect(payload['sources'], isEmpty);
       expect(AnatomyInsight.fromJson(payload).sources, isEmpty);
+      expect(AnatomyInsight.fromJson(payload).answered, isFalse);
+    });
+
+    test('abstains on the same complaints the server abstains on', () {
+      final engine = AnatomyEngine.fromData(data);
+      final cases =
+          (golden['anatomy_cases'] as List).cast<Map<String, dynamic>>();
+      // Every recorded abstention (the server kept nothing) must also be empty in
+      // the offline engine. Parity here is a shared refusal, not a shared ranking:
+      // a rule drift that let an out-of-scope complaint back in would surface as a
+      // non-empty result against an empty expected list.
+      var abstentions = 0;
+      for (final recorded in cases) {
+        final expected =
+            (recorded['expected'] as List).cast<Map<String, dynamic>>();
+        if (expected.isNotEmpty) continue;
+        abstentions++;
+        final hits = engine.retrieve(
+          region: recorded['region'] as String,
+          query: recorded['query'] as String,
+          topK: recorded['top_k'] as int,
+        );
+        expect(hits, isEmpty,
+            reason: '${recorded['query']} should abstain but returned '
+                '${hits.map((h) => h.chunk.id).toList()}');
+      }
+      expect(abstentions, greaterThanOrEqualTo(8),
+          reason: 'the golden set must carry the P0-6 abstention probes');
+
+      final payload = engine.ask(
+        region: '',
+        complaint: 'how many days of antibiotics for a sinus infection',
+      );
+      expect(payload['answered'], isFalse);
+      expect(payload['sources'], isEmpty);
     });
   });
 

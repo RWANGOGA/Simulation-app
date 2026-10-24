@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -52,6 +52,33 @@ class TestAnatomyOffline(unittest.TestCase):
             self.assertIn("disclaimer", data)
             self.assertTrue(len(data["sources"]) > 0)
             self.assertTrue(len(data["citations"]) > 0)
+
+    def test_ask_endpoint_abstains_without_reaching_the_llm(self):
+        """P0-6: a complaint the knowledge base is not grounded in must be refused,
+        not answered from an accidental word overlap. The load-bearing part is that
+        the LLM is never called with an empty context - `summarize_with_llm` has no
+        empty-hits guard, so if control reached it with nothing, Groq would invent an
+        answer. Forcing `is_configured` true proves the abstention is the retriever's
+        decision, not an absent API key."""
+        llm = MagicMock(return_value=None)
+        with patch("app.api.v1.endpoints.anatomy.summarize_with_llm", llm), \
+                patch("app.api.v1.endpoints.anatomy.is_configured", lambda: True):
+            payload = {
+                "region": "",
+                "complaint": "how many days of antibiotics for a sinus infection",
+                "top_k": 3,
+            }
+            response = self.client.post("/api/v1/anatomy/ask", json=payload)
+            self.assertEqual(response.status_code, 200)
+            data = response.json()
+
+        self.assertFalse(data["answered"])
+        self.assertFalse(data["llm_used"])
+        self.assertEqual(data["sources"], [])
+        self.assertEqual(data["citations"], [])
+        self.assertIn("not covered", data["summary"])
+        # The guarantee: an out-of-scope complaint never spends a model call.
+        llm.assert_not_called()
 
     def test_ask_endpoint_missing_region_and_complaint(self):
         response = self.client.post("/api/v1/anatomy/ask", json={})

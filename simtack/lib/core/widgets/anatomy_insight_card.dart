@@ -418,13 +418,22 @@ class _SourceBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (label, textColor, bgColor) = insight.cached
-        ? ('Cached reference', const Color(0xFF0F766E), const Color(0xFFE6F4F1))
-        : (
-            'Clinical reference',
-            const Color(0xFF334155),
-            const Color(0xFFF1F5F9)
-          );
+    // An abstention is not a degraded answer - it is the system declining to
+    // invent context. Say so plainly rather than labelling it a clinical
+    // reference the clinician might then trust.
+    final (label, textColor, bgColor) = !insight.answered
+        ? ('Not covered', const Color(0xFF991B1B), const Color(0xFFFEF2F2))
+        : insight.cached
+            ? (
+                'Cached reference',
+                const Color(0xFF0F766E),
+                const Color(0xFFE6F4F1)
+              )
+            : (
+                'Clinical reference',
+                const Color(0xFF334155),
+                const Color(0xFFF1F5F9)
+              );
     return Row(
       children: [
         Container(

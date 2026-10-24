@@ -299,6 +299,15 @@ ANATOMY_QUERIES = [
     ("Knee (Left)", ""),
     ("", ""),
     ("Ankle / Foot", "sprained ankle swelling"),
+    # Minimum-evidence abstentions (P0-6). These complaints name nothing the
+    # knowledge base is about, so the retriever keeps nothing and the endpoint
+    # declines to answer. Recorded here so the offline engine is checked to abstain
+    # on the *same* complaints - empty results, not just matching scores - rather
+    # than quietly serving the closest accidental word overlap like it used to.
+    ("", "how many days of antibiotics for a sinus infection"),
+    ("", "anxious and cannot sleep at night"),
+    ("", "ear itches and drains fluid"),
+    ("", "refill my blood pressure prescription"),
 ]
 
 

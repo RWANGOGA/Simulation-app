@@ -5,12 +5,18 @@ Loads the anatomy knowledge base (app/data/anatomy_kb.json) once at import
 time, builds a bag-of-words vector for each chunk, and exposes
 `retrieve(region, query, top_k)` for the /anatomy/ask endpoint.
 
-Retrieval has two stages, and they answer different questions:
+Retrieval has three stages, and they answer different questions:
 
 1. *Which chunks are eligible at all.* The body part the patient tapped, and
    which side of the body it is on, are facts - not hints. A chunk describing
    the opposite limb is never shown as context for this complaint.
-2. *How strongly each eligible chunk matches the words used.* BM25 lexical
+2. *Which chunks have any evidence behind them.* A monograph is only served if
+   the complaint names something it declares as its own subject, or shares two
+   distinctive words with it, or the patient tapped its region. Ranking answers
+   which chunk fits best; it cannot answer whether any of them fits at all, and
+   serving one that does not is how a system built to answer from context ends
+   up inventing the context (see _grounded).
+3. *How strongly each eligible chunk matches the words used.* BM25 lexical
    scoring and TF-IDF cosine similarity, fused with Reciprocal Rank Fusion.
 
 Keeping those apart matters because the left and right sides of the body carry
@@ -47,6 +53,15 @@ class AnatomyChunk:
     suggested_questions: List[str]
     # Lower-cased, deduplicated tokens used for cosine similarity. Built once.
     tokens: List[str]
+    # What this monograph is *about*, as a set: its region label, the structures
+    # it covers and the conditions it names. Unlike `tokens` this is not
+    # searchable text - it is the chunk's own declaration of its subject, and
+    # the minimum-evidence test reads it to decide whether a complaint is even
+    # pointing at this part of the body. Red flags are deliberately excluded:
+    # they are prose about symptom patterns ("sudden severe pain, swelling"),
+    # and measuring them as subject words let three out-of-scope complaints back
+    # in, which is the exact failure this test exists to prevent.
+    subject: FrozenSet[str] = frozenset()
 
 
 @dataclass
@@ -348,6 +363,11 @@ def load_kb() -> Dict[str, AnatomyChunk]:
     chunks: Dict[str, AnatomyChunk] = {}
     for entry in _raw_kb_entries():
         text = _chunk_to_text(entry)
+        subject_words = " ".join(
+            [entry.get("region", "")]
+            + list(entry.get("structures", []))
+            + list(entry.get("common_conditions", []))
+        )
         chunk = AnatomyChunk(
             id=entry["id"],
             region=entry["region"],
@@ -358,8 +378,11 @@ def load_kb() -> Dict[str, AnatomyChunk]:
             red_flags=entry.get("red_flags", []),
             suggested_questions=entry.get("suggested_questions", []),
             # Documents are indexed exactly as written: no synonym expansion,
-            # only inflections folded onto the corpus's own base forms.
+            # only inflections folded onto the corpus's own base forms. The
+            # subject set is built the same way, so a complaint and a monograph
+            # meet on the same normalised ground.
             tokens=_normalise(_surface_tokens(text)),
+            subject=frozenset(_normalise(_surface_tokens(subject_words))),
         )
         chunks[chunk.id] = chunk
     return chunks
@@ -509,6 +532,77 @@ _REGION_FAMILY_TIER = 2
 # words match as well as the tap does approaches 1.0.
 _MAX_FUSED = 2.0 / (60.0 + 1.0) + _TIER_PRIOR[0]
 
+# ── Minimum evidence ──────────────────────────────────────────────────────
+#
+# A word shared with a monograph is not the same thing as a monograph that is
+# about the complaint. Before this test existed, four complaints the knowledge
+# base does not cover were each answered from a chunk that had exactly one word
+# in common with them: 'anxious and cannot sleep at night' was served the wrist
+# and armpit monographs because those prose mention *night*; 'ear itches and
+# drains fluid' was served the armpit because it mentions *fluid*; 'how many days
+# of antibiotics for a sinus infection' was served five chunks because five
+# monographs mention *infection*. Every one of those is a true statement inside a
+# monograph and a false answer to the patient, and the model was then told to use
+# only that context - which is how an answer gets manufactured rather than
+# grounded.
+#
+# Two of the three tests below are corpus-derived rather than tuned numbers:
+#
+#   * the subject set is what the monograph itself declares it is about, and a
+#     subject word still has to be distinctive to count (see _grounded);
+#   * "distinctive" is measured by idf, so a word that appears in most of the
+#     knowledge base ('pain' has idf 0.014) cannot qualify a chunk on its own,
+#     however central it sounds.
+#
+# `_MIN_DISTINCTIVE_IDF` is the only hand-chosen number. 1.5 sits between the
+# corpus's two vocabulary layers: the words that survive it are the ones naming a
+# part, a structure or a condition, and the ones below it are the symptom filler
+# that every monograph shares. Measured on the 63-case fixture, this rule takes
+# abstention from 0.33 to 1.0, pass rate from 0.857 to 0.9365, top-1 from 0.947 to
+# 0.965 and safety violations from 1 to 0, with no case that passed before
+# failing now.
+_MIN_DISTINCTIVE_IDF = 1.5
+_MIN_DISTINCTIVE_TERMS = 2
+
+
+def _grounded(
+    chunk: AnatomyChunk,
+    query_terms: FrozenSet[str],
+    idf: Dict[str, float],
+) -> bool:
+    """Does this monograph have anything to say about *this* complaint?
+
+    True when the complaint names a *distinctive* subject the monograph declares
+    (structures, region label, named conditions), or when it shares at least
+    `_MIN_DISTINCTIVE_TERMS` corpus-rare words with the monograph's text. The
+    second test is what lets a symptom description that never names a part still
+    reach the monograph that documents that pattern - the referral cases depend
+    on it - while a single accidental overlap does not.
+
+    "Distinctive" is applied to the subject test as well, and measurement is what
+    put it there: 'how many days of antibiotics for a sinus infection' reached the
+    armpit monographs through their own condition text ("swollen node from a
+    nearby infection"), which is a real sentence about the armpit and no answer to
+    a dosing question. 'infection' has idf 1.03 - the word names a topic, not a
+    part, and a topic that recurs across the knowledge base cannot on its own
+    certify that a monograph is about the complaint.
+
+    `query_terms` is the *expanded* query: a clinician's word is the patient's
+    word after P0-9's bridge, and a synonym chosen by a human from the corpus's
+    own vocabulary counts as evidence in a way that an accidental common word
+    does not.
+    """
+    for token in chunk.subject:
+        if token in query_terms and idf.get(token, 0.0) >= _MIN_DISTINCTIVE_IDF:
+            return True
+    matches = 0
+    for token in chunk.tokens:
+        if token in query_terms and idf.get(token, 0.0) >= _MIN_DISTINCTIVE_IDF:
+            matches += 1
+            if matches >= _MIN_DISTINCTIVE_TERMS:
+                return True
+    return False
+
 
 def _vectorize(
     tokens: List[str], idf: Dict[str, float]
@@ -606,7 +700,7 @@ def _retrieve_cached_chunk_ids(
     region = _region_key(region_key)
     total_length = sum(len(c.tokens) for c in chunks.values())
     avgdl = total_length / max(1, len(chunks))
-    has_words = bool(query_tokens)
+    query_terms = frozenset(query_tokens)
 
     bm25_ranked: List[Tuple[str, float]] = []
     tfidf_ranked: List[Tuple[str, float]] = []
@@ -616,20 +710,40 @@ def _retrieve_cached_chunk_ids(
         if not _side_compatible(region, chunk_region):
             continue
         tier = _region_tier(region, chunk_region)
-        # The region that was tapped and its family qualify on the tap alone. A
-        # complaint with no words behind it gets nothing else at all: on a bare
-        # ankle tap, padding the window with the cardiac monograph would be an
-        # invented relevance that the model is then told to trust.
-        if tier > _REGION_FAMILY_TIER and not has_words:
-            continue
         lexical = _bm25_score(query_tokens, chunk, avgdl, idf)
+        cosine = _cosine(q_vec, vectors[cid])
+        # The region that was tapped and its family qualify on the tap alone: the
+        # patient pointed at that part, which is evidence whether or not they
+        # found words for it. Anything else has to be grounded in the complaint,
+        # and *grounded* is not the same test as *scored above zero*. A BM25 or
+        # cosine score only says a word was shared, and one shared word between
+        # an anxiety complaint and a wrist monograph ('night') is an accident of
+        # prose, not a monograph about anxiety. Padding the window with those was
+        # how an out-of-scope question came back looking answered.
+        if tier > _REGION_FAMILY_TIER and not _grounded(chunk, query_terms, idf):
+            continue
+        # _grounded can admit a chunk on a subject word that is really only a
+        # region *label*, because a label like 'left', 'right' or 'abdomen' is
+        # corpus-rare (high idf) yet deliberately absent from the searchable text
+        # - so sharing it produces a chunk with no ranking signal at all, entering
+        # the list at a bare tier prior. This guard drops those. Measured on the
+        # fixture it fires 15 times across 3 cases - a chest complaint mentioning
+        # the *left* arm pulling in left_wrist/left_knee/..., and a back complaint
+        # mentioning the *abdomen* pulling in the abdomen monographs - every one
+        # grounded purely on a label word with lexical == cosine == 0. None of them
+        # reaches the served top-k here (they sort below every word-matched chunk),
+        # so removing this guard changes no metric on the current fixture; it is a
+        # floor that becomes load-bearing the moment a complaint has too few real
+        # matches to fill the window. It is not inert - it fires - and that is the
+        # point: side words are the one grounding _grounded must not be trusted to
+        # reject on its own.
+        if tier > _REGION_FAMILY_TIER and lexical <= 0.0 and cosine <= 0.0:
+            continue
         if lexical > 0.0:
             bm25_ranked.append((cid, lexical))
-        cosine = _cosine(q_vec, vectors[cid])
         if cosine > 0.0:
             tfidf_ranked.append((cid, cosine))
-        if tier <= _REGION_FAMILY_TIER or lexical > 0.0 or cosine > 0.0:
-            eligible.append((cid, tier))
+        eligible.append((cid, tier))
 
     bm25_ranked.sort(key=lambda x: x[1], reverse=True)
     tfidf_ranked.sort(key=lambda x: x[1], reverse=True)
@@ -654,13 +768,18 @@ def retrieve(
 ) -> List[RetrievalHit]:
     """Return the chunks that should ground an answer about this complaint.
 
-    Two things decide, in this order:
+    Three things decide, in this order:
 
-    1. **Eligibility.** A chunk describing the opposite side of the body to the
-       region that was tapped is never returned. This is a filter, not a penalty,
-       because the two sides mean different things clinically - see the module
-       docstring.
-    2. **Evidence.** BM25 and TF-IDF cosine over the complaint's words, fused with
+    1. **Side eligibility.** A chunk describing the opposite side of the body to
+       the region that was tapped is never returned. This is a filter, not a
+       penalty, because the two sides mean different things clinically - see the
+       module docstring.
+    2. **Minimum evidence.** Away from the tapped region and its family, a chunk is
+       only served if the complaint names something it declares as its subject, or
+       shares two corpus-rare words with its text, and has some text signal at all
+       (see _grounded). This is what lets the system say "not covered" instead of
+       dressing up an accidental word overlap as an answer.
+    3. **Ranking.** BM25 and TF-IDF cosine over the complaint's words, fused with
        Reciprocal Rank Fusion, with a small prior for the tapped region and its
        neighbouring parts.
 

@@ -298,6 +298,7 @@ class Citation(BaseModel):
 class AnatomyAskResponse(BaseModel):
     region: Optional[str]
     complaint: str
+    answered: bool
     llm_used: bool
     cached: bool
     summary: str
@@ -367,7 +368,37 @@ def _run_ask(
         hits = _rerank_with_llm(complaint, hits, top_k)
     else:
         hits = hits[:top_k]
-    
+
+    # Minimum-evidence abstention. The retriever kept nothing this complaint is
+    # grounded in, so there is no context to answer from. Handing an empty context
+    # to the model is precisely how a system built to answer *from* evidence ends
+    # up inventing it - `summarize_with_llm` has no empty-context guard and would
+    # call Groq with nothing to ground on. Say so instead, and spend no quota.
+    if not hits:
+        return {
+            "region": region,
+            "complaint": complaint,
+            "answered": False,
+            "llm_used": False,
+            "cached": False,  # set by caller before returning
+            "summary": (
+                "This complaint is not covered by the anatomy knowledge base, "
+                "and there was no grounded context to answer from. Try naming "
+                "the body part or rephrasing the symptom."
+            ),
+            "structures": [],
+            "likely_conditions": [],
+            "red_flags": [],
+            "suggested_questions": [],
+            "disclaimer": (
+                "This is supportive information for the clinician, not a "
+                "diagnosis. No knowledge-base context met the minimum evidence "
+                "bar for this complaint, so none was supplied."
+            ),
+            "sources": [],
+            "citations": [],
+        }
+
     sources = [_hit_to_chunk(h).model_dump() for h in hits]
 
     # Citations: verbatim text from top chunks for clinical traceability
@@ -424,6 +455,7 @@ def _run_ask(
     return {
         "region": region,
         "complaint": complaint,
+        "answered": True,
         "llm_used": llm_used,
         "cached": False,  # set by caller before returning
         **summary,

@@ -92,14 +92,37 @@ from scripts.eval_retrieval import DEFAULT_K, DEFAULT_WINDOW, evaluate, load_cas
 # monograph out-rank the upper-abdomen one for gallbladder referral pain. The
 # `unanchored_query` cases pass on the idf and expansion fixes, not on title
 # weighting, so the title stays out of the searchable text.
+#
+# After P0-6 (minimum-evidence gate: away from the tapped region and its family a
+# monograph is served only if the complaint names a distinctive subject word it
+# declares, or shares two corpus-rare words with its text; the region label is left
+# out of the searchable text and a bare side-word overlap is dropped by a floor -
+# see anatomy_retriever._grounded): pass 0.9365, top1 0.9649, mrr 0.9766,
+# recall@3 0.9006, recall@6 0.9327, nDCG@3 0.9243, referral 0.8636, abstention
+# 1.000, ZERO safety violations, 4 failing cases. Every metric that moved went UP;
+# recall@6 came down from 0.942 only because `shin_calf` left the heel-pain window
+# (that case still passes), and the floors below are re-signed against these
+# numbers. The out_of_scope group went from 2/6 abstaining to 6/6, and
+# `toes-not-cardiac` cleared on its own: the chest monograph no longer reaches a
+# foot complaint's window, because nothing in it is grounded in that complaint. The
+# four remaining failures are the ordering/slot-reservation/laterality-from-text
+# work (P0-5 successors), not abstention: `jargon-dyspnea-exertion`,
+# `lay-fatty-food-upper-abdomen`, `refer-renal-to-left-leg`, and
+# `text-side-contradicts-tap`.
+#
+# `evidence_free_top1_rate` rose 0.095 -> 0.119, and that is not a regression: the
+# metric defines evidence against the *raw* query words, so an answer reached only
+# through a P0-9 synonym bridge ("breathless" -> "dyspnea"'s corpus words) counts
+# as evidence-free by that definition while being grounded by the gate. The metric
+# measures the eval's own word-overlap notion, not correctness.
 # ---------------------------------------------------------------------------
 FLOORS = {
-    "pass_rate": 0.84,
-    "top1_accuracy": 0.93,
-    "mrr": 0.95,
-    "recall_at_k": 0.86,
+    "pass_rate": 0.92,
+    "top1_accuracy": 0.95,
+    "mrr": 0.96,
+    "recall_at_k": 0.88,
     "recall_at_window": 0.92,
-    "ndcg_at_k": 0.89,
+    "ndcg_at_k": 0.91,
     "referral_coverage": 0.84,
 }
 
@@ -126,39 +149,27 @@ CLINICAL_INVARIANTS = [
 # into the window - and for the upper limb the two sides carry different
 # referred-pain content, left cardiac and right gallbladder. A score has no way to
 # say "not this one"; a filter does. Thirteen of the fourteen went away when the
-# region stopped being a magnitude.
-KNOWN_SAFETY_DEBT = {
-    # The stemming part of this was true and is now fixed: the foot monographs do
-    # reach the window (ranks 2-3). What remains is that the cardiac monograph
-    # still leads it, because nothing in the system decides that a complaint with
-    # no region tapped and no rare word in common with a monograph should not be
-    # answered from it. That is P0-6's minimum-evidence gate, not a vocabulary gap.
-    "toes-not-cardiac": ["chest_heart"],
-}
+# region stopped being a magnitude. The last, `toes-not-cardiac`, went away under
+# P0-6: the cardiac monograph shares only incidental prose words with a foot
+# complaint, so the minimum-evidence gate drops it instead of ranking it first.
+KNOWN_SAFETY_DEBT: dict[str, list[str]] = {}
 
 # Every case that fails today, with the reason. Same ratchet semantics.
 #
-# After P0-9 what remains is no longer a vocabulary problem. It is three things:
+# P0-6 removed the abstention debt: the four `scope-*` complaints and
+# `toes-not-cardiac` no longer fail (they abstain correctly, which is a pass for an
+# expect_no_match case). What remains is two things, both about *ordering plausible
+# candidates* or reading laterality from prose, never about serving the wrong part:
 #
-#   * no abstain path. The knowledge base describes no ear, paediatric,
-#     mental-health, wound-care or dosing content, so the only correct answer is
-#     "not covered". Four of the six such cases still get an answer, because some
-#     word overlapped by accident - which is the opposite of a safety property.
-#     P0-6, and it owns toes-not-cardiac for the same reason.
 #   * no evidence to order *plausible* candidates. When several monographs all
-#     genuinely match, the tie is broken by document length, so the MI-referred
-#     arm monograph can lead the cardiac one for a breathless patient.
+#     genuinely match, the tie is broken by document length or by which family
+#     fills the served slots, so a real referral target can be pushed to rank 4.
 #   * laterality read from the tap only, never from the sentence.
 KNOWN_RANKING_DEBT = {
     "jargon-dyspnea-exertion": "both arm monographs bridge to breath/shortness/chest as well as the cardiac one, and win on length; 'dyspnea on exertion' with nothing tapped should still lead with the chest",
     "lay-fatty-food-upper-abdomen": "biliary referral to the right shoulder is unreachable: the link lives in the abdomen chunk's prose and no word in the complaint names the shoulder, so only a referral graph can follow it",
     "refer-renal-to-left-leg": "the back monograph is in the window but at rank 4: the tapped leg/knee family fills all three served slots, so referral content needs a slot reservation, not better matching",
     "text-side-contradicts-tap": "laterality is read from the tapped region only, so a patient who taps the right arm and describes the left cannot reach the left-arm monograph - which for the upper limb is the cardiac one. Needs the side in the free text reconciled with the side of the tap.",
-    "toes-not-cardiac": "wrong top-1 for a foot complaint; see KNOWN_SAFETY_DEBT",
-    "scope-wound-closure": "no abstain path",
-    "scope-mental-health": "no abstain path",
-    "scope-dosing": "no abstain path",
-    "scope-ear": "no abstain path",
 }
 
 
@@ -298,34 +309,30 @@ def test_medical_jargon_is_not_silently_dropped(report):
 
 def test_out_of_scope_complaints_are_recorded_as_unanswered(report):
     """Nothing in this knowledge base covers these, so the only correct answer is
-    "this is not covered". Both bounds of the assertion are load-bearing.
+    "this is not covered" - and abstention is now exact, which is what P0-6 exists
+    to make true. Asserting 1.0 (not a floor with slack) is deliberate: a single
+    out-of-scope complaint that gets an answer is a manufactured one, the opposite
+    of the safety property, so any value below 1.0 is a regression to investigate,
+    not a number to ratchet.
 
-    Not 1.0: there is still no scope check. Four of the six still get an answer,
-    because some word happened to overlap some monograph, and `_run_ask` then
-    hands that to a model whose system prompt says to use only the provided
-    context - so it manufactures an answer. P0-6 is what moves this to 1.0, at
-    which point delete these cases from KNOWN_RANKING_DEBT and assert exactly 1.0.
-
-    Not 0.0 either, and this is worth stating plainly because it is a *new* kind
-    of behaviour rather than a designed one: two of the six now retrieve nothing.
-    They do so incidentally - no word matched any chunk and no region was tapped -
-    which is no longer the same mechanism as the jargon cases, since those all
-    reach a monograph now (see the test above). Abstaining because your vocabulary
-    failed is not abstaining because the subject is out of scope; the day those two
-    are separated, this number should go up.
+    This is asserted separately from the jargon group on purpose. Abstaining because
+    the vocabulary failed and abstaining because the subject is out of scope are
+    different events: the clinical_jargon cases above must all *reach* a monograph
+    (zero empty), these must all abstain. Both hold at once, which is what shows the
+    gate keys on evidence about the complaint rather than on words happening to
+    appear somewhere.
     """
     scope = [r for r in report.results if r.case.expect_no_match]
     assert scope, "the fixture lost its out-of-scope cases"
-    abstained = [r.case.id for r in scope if r.abstained]
     answered = [r.case.id for r in scope if not r.abstained]
-    assert abstained, (
-        "every out-of-scope complaint now receives context, including the ones "
-        "whose words match nothing anywhere in the knowledge base"
+    assert not answered, (
+        f"{len(answered)} of {len(scope)} out-of-scope complaints were answered "
+        f"from context ({answered}); the minimum-evidence gate let an accidental "
+        "word overlap reach the model"
     )
-    assert answered, (
-        f"all {len(scope)} out-of-scope cases abstain. If an explicit scope check "
-        "was built, assert abstention_accuracy == 1.0 and remove "
-        f"{sorted(abstained)} from KNOWN_RANKING_DEBT."
+    summary = report.summary()
+    assert summary["abstention_accuracy"] == 1.0, (
+        f"abstention_accuracy {summary['abstention_accuracy']:.3f}, expected 1.0"
     )
 
 

@@ -28,14 +28,19 @@ class AnatomyRegionOption {
 
 /// Offline port of `app/services/anatomy_retriever.py`.
 ///
-/// Retrieval answers two separate questions, and the port keeps them separate in
-/// the same way the server does:
+/// Retrieval answers three separate questions, and the port keeps them separate
+/// in the same way the server does:
 ///
-/// 1. *Which chunks are eligible at all.* The body part the patient tapped, and
+/// 1. *Which chunks are side-compatible.* The body part the patient tapped, and
 ///    which side of the body it is on, are facts. A chunk describing the opposite
 ///    limb is never context for this complaint - the two sides carry different
 ///    content here, so a leak is a different diagnosis, not a duplicate.
-/// 2. *How strongly each eligible chunk matches the words.* BM25 plus a TF-IDF
+/// 2. *Which chunks have any evidence behind them.* Away from the tapped region
+///    and its family, a monograph is only served if the complaint names something
+///    it declares as its subject, or shares two corpus-rare words with its text
+///    (see _grounded). This is what lets the system say "not covered" instead of
+///    dressing up an accidental word overlap as an answer.
+/// 3. *How strongly each eligible chunk matches the words.* BM25 plus a TF-IDF
 ///    cosine, fused with Reciprocal Rank Fusion, with a bounded prior for the
 ///    tapped region and its family.
 ///
@@ -124,7 +129,7 @@ class AnatomyEngine {
   }) {
     final queryTokens = AnatomyTokenizer.tokenize(query.trim().toLowerCase());
     final queryVector = _vectorize(queryTokens, _idf);
-    final hasWords = queryTokens.isNotEmpty;
+    final queryTerms = queryTokens.toSet();
     final regionKey = _regionKey(region ?? '');
 
     final bm25 = <_Scored>[];
@@ -138,20 +143,30 @@ class AnatomyEngine {
         continue;
       }
       final tier = _regionTier(regionKey, chunkRegion);
-      // The region that was tapped and its family qualify on the tap alone. A
-      // complaint with no words behind it gets nothing else at all: padding a
-      // bare ankle tap with the cardiac monograph would be an invented relevance.
-      if (tier > _regionFamilyTier && !hasWords) {
+      final lexical = _bm25Score(queryTokens, entry.value);
+      final cosine = _cosine(queryVector, _vectors[entry.key]!);
+      // The region that was tapped and its family qualify on the tap alone: the
+      // patient pointed at that part, which is evidence whether or not they found
+      // words for it. Anything else has to be grounded in the complaint, and
+      // *grounded* is not the same test as *scored above zero* - one shared word
+      // between an anxiety complaint and a wrist monograph ('night') is an
+      // accident of prose. Padding the window with those was how an out-of-scope
+      // question came back looking answered.
+      if (tier > _regionFamilyTier && !_grounded(entry.value, queryTerms)) {
         order++;
         continue;
       }
-      final lexical = _bm25Score(queryTokens, entry.value);
-      if (lexical > 0.0) bm25.add(_Scored(entry.key, lexical, order));
-      final cosine = _cosine(queryVector, _vectors[entry.key]!);
-      if (cosine > 0.0) tfidf.add(_Scored(entry.key, cosine, order));
-      if (tier <= _regionFamilyTier || lexical > 0.0 || cosine > 0.0) {
-        eligible.add(_Eligible(entry.key, tier, order));
+      // _grounded can admit a chunk on a subject word that is really only a region
+      // *label* ('left', 'right', 'abdomen' - corpus-rare, so distinctive, yet
+      // deliberately absent from the searchable text), leaving it with no ranking
+      // signal at all to enter at a bare tier prior. This floor drops those.
+      if (tier > _regionFamilyTier && lexical <= 0.0 && cosine <= 0.0) {
+        order++;
+        continue;
       }
+      if (lexical > 0.0) bm25.add(_Scored(entry.key, lexical, order));
+      if (cosine > 0.0) tfidf.add(_Scored(entry.key, cosine, order));
+      eligible.add(_Eligible(entry.key, tier, order));
       order++;
     }
     _sortDescending(bm25);
@@ -207,17 +222,24 @@ class AnatomyEngine {
       topK: topK * 2,
     ).take(topK).toList();
 
-    final top = hits.isEmpty ? null : hits.first.chunk;
+    // Minimum-evidence abstention, mirroring the server's `_run_ask`: the
+    // retriever kept nothing this complaint is grounded in, so there is no context
+    // to answer from and none is invented.
+    final answered = hits.isNotEmpty;
+    final top = answered ? hits.first.chunk : null;
 
     return <String, dynamic>{
       'region': regionOrNull,
       'complaint': trimmedComplaint,
+      'answered': answered,
       'llm_used': false,
       'cached': false,
-      'summary': top != null
+      'summary': answered
           ? 'Possible structures and conditions in the '
               '${regionOrNull ?? 'selected'} region based on the knowledge base.'
-          : 'No matching anatomy context was found.',
+          : 'This complaint is not covered by the anatomy knowledge base, and '
+              'there was no grounded context to answer from. Try naming the body '
+              'part or rephrasing the symptom.',
       'structures': top?.structures ?? const <String>[],
       'likely_conditions': [
         for (final condition in top?.commonConditions ?? const <String>[])
@@ -225,9 +247,13 @@ class AnatomyEngine {
       ],
       'red_flags': top?.redFlags ?? const <String>[],
       'suggested_questions': top?.suggestedQuestions ?? const <String>[],
-      'disclaimer': 'This is supportive information for the clinician, not a '
-          'diagnosis. The knowledge base was used directly because the '
-          'AI summarizer is unavailable.',
+      'disclaimer': answered
+          ? 'This is supportive information for the clinician, not a '
+              'diagnosis. The knowledge base was used directly because the '
+              'AI summarizer is unavailable.'
+          : 'This is supportive information for the clinician, not a '
+              'diagnosis. No knowledge-base context met the minimum evidence '
+              'bar for this complaint, so none was supplied.',
       'sources': [
         for (final hit in hits) hit.chunk.toSourceJson(_round4(hit.score)),
       ],
@@ -354,6 +380,44 @@ class AnatomyEngine {
   static const int _regionFamilyTier = 2;
 
   static const double _maxFused = 2.0 / 61.0 + 0.0305;
+
+  // ── Minimum evidence, ported one-for-one from `_grounded` ───────────────
+  //
+  // A word shared with a monograph is not the same thing as a monograph that is
+  // *about* the complaint. The server's module docstring records how four
+  // out-of-scope complaints were each answered from a chunk with exactly one word
+  // in common. Two of the three admissibility tests are corpus-derived rather than
+  // tuned: the subject set is what the monograph declares it is about, and
+  // "distinctive" is measured by idf, so a word in most of the knowledge base
+  // ('pain' has idf ~0.014) cannot qualify a chunk on its own. `_minDistinctiveIdf`
+  // is the only hand-chosen number; it sits between the corpus's two vocabulary
+  // layers. Ported verbatim so the offline engine abstains on the same complaints
+  // the server does - parity is the safety property here, not a nice-to-have.
+  static const double _minDistinctiveIdf = 1.5;
+  static const int _minDistinctiveTerms = 2;
+
+  /// Port of `_grounded`: does this monograph have anything to say about *this*
+  /// complaint? True when the complaint names a distinctive subject the monograph
+  /// declares, or shares at least [_minDistinctiveTerms] corpus-rare words with its
+  /// text. `queryTerms` is the *expanded* query - a clinician's word is the
+  /// patient's word after the synonym bridge, and that counts as evidence.
+  bool _grounded(AnatomyChunk chunk, Set<String> queryTerms) {
+    for (final token in chunk.subject) {
+      if (queryTerms.contains(token) &&
+          (_idf[token] ?? 0.0) >= _minDistinctiveIdf) {
+        return true;
+      }
+    }
+    var matches = 0;
+    for (final token in chunk.tokens) {
+      if (queryTerms.contains(token) &&
+          (_idf[token] ?? 0.0) >= _minDistinctiveIdf &&
+          ++matches >= _minDistinctiveTerms) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   /// Parsed region key per chunk, so the parse happens once per knowledge base
   /// rather than once per query.

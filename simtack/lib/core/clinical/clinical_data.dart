@@ -262,6 +262,7 @@ class AnatomyChunk {
     required this.redFlags,
     required this.suggestedQuestions,
     required this.tokens,
+    required this.subject,
   });
 
   final String id;
@@ -274,6 +275,15 @@ class AnatomyChunk {
   final List<String> suggestedQuestions;
   final List<String> tokens;
 
+  /// What this monograph is *about*: its region label, the structures it covers
+  /// and the conditions it names, folded to base form. Not searchable text - the
+  /// chunk's own declaration of its subject, read by the minimum-evidence test
+  /// (`AnatomyEngine._grounded`) to decide whether a complaint is even pointing at
+  /// this part. Red flags are excluded: they are prose about symptom patterns, and
+  /// counting them let out-of-scope complaints back in. Mirrors `AnatomyChunk.subject`
+  /// on the server.
+  final Set<String> subject;
+
   factory AnatomyChunk.fromEntry(Map<String, dynamic> entry) {
     List<String> list(String key) =>
         ((entry[key] as List?) ?? const []).map((e) => e.toString()).toList();
@@ -283,10 +293,11 @@ class AnatomyChunk {
     final conditions = list('common_conditions');
     final redFlags = list('red_flags');
     final questions = list('suggested_questions');
+    final region = entry['region'] as String;
 
     return AnatomyChunk(
       id: entry['id'] as String,
-      region: entry['region'] as String,
+      region: region,
       system: entry['system'] as String? ?? '',
       text: text,
       structures: structures,
@@ -297,6 +308,12 @@ class AnatomyChunk {
       // expansion, inflections folded onto the corpus's own base forms.
       tokens:
           AnatomyTokenizer.indexTokens(AnatomyTokenizer.searchableText(entry)),
+      // Port of `load_kb`'s subject build: the region label plus the structures
+      // and named conditions, over the raw entry, folded the same way documents
+      // are (no query-side expansion).
+      subject: AnatomyTokenizer.indexTokens(
+        [region, ...structures, ...conditions].join(' '),
+      ).toSet(),
     );
   }
 

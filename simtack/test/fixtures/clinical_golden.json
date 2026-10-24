@@ -78,14 +78,6 @@
         {
           "id": "left_shoulder",
           "score": 0.5016210170982868
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 0.4937831887061261
-        },
-        {
-          "id": "back_upper",
-          "score": 0.4861865242644934
         }
       ],
       "query": "chest pain",
@@ -124,14 +116,6 @@
         {
           "id": "left_shoulder",
           "score": 0.5016210170982868
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 0.4937831887061261
-        },
-        {
-          "id": "back_upper",
-          "score": 0.4861865242644934
         }
       ],
       "query": "chest pain",
@@ -147,10 +131,6 @@
         {
           "id": "hips_groin",
           "score": 0.5097116786643882
-        },
-        {
-          "id": "right_shoulder",
-          "score": 0.5016210170982868
         }
       ],
       "query": "severe headache with light sensitivity",
@@ -166,18 +146,6 @@
         {
           "id": "hips_groin",
           "score": 0.5097116786643882
-        },
-        {
-          "id": "right_shoulder",
-          "score": 0.5016210170982868
-        },
-        {
-          "id": "left_shoulder",
-          "score": 0.4937831887061261
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 0.47524677773253565
         }
       ],
       "query": "severe headache with light sensitivity",
@@ -196,7 +164,7 @@
         },
         {
           "id": "abdomen_lower_left",
-          "score": 0.5335897103802816
+          "score": 0.549024203214075
         }
       ],
       "query": "burning stomach pain after eating",
@@ -215,15 +183,7 @@
         },
         {
           "id": "abdomen_lower_left",
-          "score": 0.5335897103802816
-        },
-        {
-          "id": "left_leg_knee",
-          "score": 0.5016210170982868
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 0.4937831887061261
+          "score": 0.549024203214075
         }
       ],
       "query": "burning stomach pain after eating",
@@ -241,7 +201,7 @@
           "score": 0.6677222990503486
         },
         {
-          "id": "neck",
+          "id": "right_thigh",
           "score": 0.5016210170982868
         }
       ],
@@ -260,16 +220,12 @@
           "score": 0.6677222990503486
         },
         {
-          "id": "neck",
+          "id": "right_thigh",
           "score": 0.5016210170982868
         },
         {
-          "id": "right_elbow",
+          "id": "left_thigh",
           "score": 0.4937831887061261
-        },
-        {
-          "id": "left_elbow",
-          "score": 0.4861865242644934
         }
       ],
       "query": "backache after lifting",
@@ -280,15 +236,11 @@
       "expected": [
         {
           "id": "left_arm_shoulder",
-          "score": 0.9836798258624362
+          "score": 0.9958220354207836
         },
         {
           "id": "left_shoulder",
-          "score": 0.5491506198010453
-        },
-        {
-          "id": "left_elbow",
-          "score": 0.5180676078228208
+          "score": 0.5612928293593927
         }
       ],
       "query": "shoulder pain when lifting the arm",
@@ -299,23 +251,11 @@
       "expected": [
         {
           "id": "left_arm_shoulder",
-          "score": 0.9836798258624362
+          "score": 0.9958220354207836
         },
         {
           "id": "left_shoulder",
-          "score": 0.5491506198010453
-        },
-        {
-          "id": "left_elbow",
-          "score": 0.5180676078228208
-        },
-        {
-          "id": "neck",
-          "score": 0.5016210170982868
-        },
-        {
-          "id": "abdomen_upper",
-          "score": 0.4861865242644934
+          "score": 0.5612928293593927
         }
       ],
       "query": "shoulder pain when lifting the arm",
@@ -326,15 +266,11 @@
       "expected": [
         {
           "id": "right_leg_knee",
-          "score": 0.5530695339971257
+          "score": 0.5571148647801764
         },
         {
           "id": "right_shin_calf",
           "score": 0.5180676078228208
-        },
-        {
-          "id": "thighs",
-          "score": 0.5056663478813375
         }
       ],
       "query": "calf pain when walking",
@@ -345,23 +281,11 @@
       "expected": [
         {
           "id": "right_leg_knee",
-          "score": 0.5530695339971257
+          "score": 0.5571148647801764
         },
         {
           "id": "right_shin_calf",
           "score": 0.5180676078228208
-        },
-        {
-          "id": "thighs",
-          "score": 0.5056663478813375
-        },
-        {
-          "id": "hips_groin",
-          "score": 0.48998485648530976
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 0.4863016252408818
         }
       ],
       "query": "calf pain when walking",
@@ -372,15 +296,15 @@
       "expected": [
         {
           "id": "neck",
-          "score": 0.9836798258624362
+          "score": 0.9875987400585166
         },
         {
           "id": "right_arm_shoulder",
           "score": 0.5180676078228208
         },
         {
-          "id": "chest_heart",
-          "score": 0.5017474336852571
+          "id": "left_arm_shoulder",
+          "score": 0.5056663478813375
         }
       ],
       "query": "stiff neck with arm tingling",
@@ -391,23 +315,23 @@
       "expected": [
         {
           "id": "neck",
-          "score": 0.9836798258624362
+          "score": 0.9875987400585166
         },
         {
           "id": "right_arm_shoulder",
           "score": 0.5180676078228208
         },
         {
-          "id": "chest_heart",
-          "score": 0.5017474336852571
-        },
-        {
           "id": "left_arm_shoulder",
-          "score": 0.5016210170982868
+          "score": 0.5056663478813375
         },
         {
           "id": "right_shoulder",
-          "score": 0.4825032930200654
+          "score": 0.48998485648530976
+        },
+        {
+          "id": "left_shoulder",
+          "score": 0.48998485648530976
         }
       ],
       "query": "stiff neck with arm tingling",
@@ -425,7 +349,7 @@
           "score": 0.5097116786643882
         },
         {
-          "id": "left_leg_knee",
+          "id": "abdomen_lower_left",
           "score": 0.5016210170982868
         }
       ],
@@ -444,16 +368,8 @@
           "score": 0.5097116786643882
         },
         {
-          "id": "left_leg_knee",
-          "score": 0.5016210170982868
-        },
-        {
           "id": "abdomen_lower_left",
-          "score": 0.48998485648530976
-        },
-        {
-          "id": "right_arm_shoulder",
-          "score": 0.48998485648530976
+          "score": 0.5016210170982868
         }
       ],
       "query": "tummy ache",
@@ -496,10 +412,6 @@
         {
           "id": "left_shoulder",
           "score": 0.49770210290220646
-        },
-        {
-          "id": "back_upper",
-          "score": 0.4861865242644934
         }
       ],
       "query": "breathless",
@@ -540,11 +452,11 @@
           "score": 0.5056663478813375
         },
         {
-          "id": "back_lower",
+          "id": "abdomen_lower_right",
           "score": 0.4937831887061261
         },
         {
-          "id": "abdomen_lower_right",
+          "id": "abdomen_lower_left",
           "score": 0.4861865242644934
         }
       ],
@@ -638,6 +550,54 @@
       ],
       "query": "sprained ankle swelling",
       "region": "Ankle / Foot",
+      "top_k": 5
+    },
+    {
+      "expected": [],
+      "query": "how many days of antibiotics for a sinus infection",
+      "region": "",
+      "top_k": 3
+    },
+    {
+      "expected": [],
+      "query": "how many days of antibiotics for a sinus infection",
+      "region": "",
+      "top_k": 5
+    },
+    {
+      "expected": [],
+      "query": "anxious and cannot sleep at night",
+      "region": "",
+      "top_k": 3
+    },
+    {
+      "expected": [],
+      "query": "anxious and cannot sleep at night",
+      "region": "",
+      "top_k": 5
+    },
+    {
+      "expected": [],
+      "query": "ear itches and drains fluid",
+      "region": "",
+      "top_k": 3
+    },
+    {
+      "expected": [],
+      "query": "ear itches and drains fluid",
+      "region": "",
+      "top_k": 5
+    },
+    {
+      "expected": [],
+      "query": "refill my blood pressure prescription",
+      "region": "",
+      "top_k": 3
+    },
+    {
+      "expected": [],
+      "query": "refill my blood pressure prescription",
+      "region": "",
       "top_k": 5
     }
   ],
@@ -2353,6 +2313,10 @@
         "word": "pregnancy"
       },
       {
+        "canonical": "prescription",
+        "word": "prescription"
+      },
+      {
         "canonical": "pressure",
         "word": "pressure"
       },
@@ -2487,6 +2451,10 @@
       {
         "canonical": "referred",
         "word": "referred"
+      },
+      {
+        "canonical": "refill",
+        "word": "refill"
       },
       {
         "canonical": "region",
@@ -3831,6 +3799,14 @@
         ]
       },
       {
+        "query": "anxious and cannot sleep at night",
+        "tokens": [
+          "anxious",
+          "sleep",
+          "night"
+        ]
+      },
+      {
         "query": "appendix pain",
         "tokens": [
           "appendix",
@@ -4044,6 +4020,15 @@
         ]
       },
       {
+        "query": "ear itches and drains fluid",
+        "tokens": [
+          "ear",
+          "itches",
+          "drains",
+          "fluid"
+        ]
+      },
+      {
         "query": "flank pain radiating to the groin with hematuria",
         "tokens": [
           "flank",
@@ -4107,6 +4092,16 @@
       },
       {
         "query": "how many days of antibiotics do I need for a sinus infection",
+        "tokens": [
+          "many",
+          "days",
+          "antibiotics",
+          "sinus",
+          "infection"
+        ]
+      },
+      {
+        "query": "how many days of antibiotics for a sinus infection",
         "tokens": [
           "many",
           "days",
@@ -4362,6 +4357,18 @@
           "one",
           "sided",
           "pain"
+        ]
+      },
+      {
+        "query": "refill my blood pressure prescription",
+        "tokens": [
+          "refill",
+          "blood",
+          "pressure",
+          "prescription",
+          "hematemesis",
+          "hematochezia",
+          "melena"
         ]
       },
       {

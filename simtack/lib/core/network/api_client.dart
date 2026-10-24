@@ -1158,6 +1158,7 @@ class AnatomyCitation {
 class AnatomyInsight {
   final String? region;
   final String complaint;
+  final bool answered;
   final bool llmUsed;
   final bool cached;
   final String summary;
@@ -1172,6 +1173,7 @@ class AnatomyInsight {
   const AnatomyInsight({
     required this.region,
     required this.complaint,
+    required this.answered,
     required this.llmUsed,
     required this.cached,
     required this.summary,
@@ -1196,6 +1198,7 @@ class AnatomyInsight {
     return AnatomyInsight(
       region: json['region'] as String?,
       complaint: (json['complaint'] as String?) ?? '',
+      answered: (json['answered'] as bool?) ?? true,
       llmUsed: (json['llm_used'] as bool?) ?? false,
       cached: (json['cached'] as bool?) ?? false,
       summary: (json['summary'] as String?) ?? '',
