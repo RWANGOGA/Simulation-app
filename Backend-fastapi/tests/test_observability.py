@@ -13,6 +13,7 @@ Three things are being pinned here:
 import io
 import json
 import logging
+import pathlib
 import re
 import sys
 
@@ -252,13 +253,30 @@ def test_readiness_reports_a_schema_behind_the_code(monkeypatch, access_log):
 
 def test_the_expected_head_is_found_from_the_migration_scripts():
     """Guards the head-detection parser: if it silently returned None the
-    up_to_date check above would always be trivially satisfied."""
+    up_to_date check above would always be trivially satisfied.
+
+    This used to assert that the head was `0006_...`, which broke the moment a
+    later migration was added — a test that fails on correct work teaches no
+    one anything. Alembic's own script directory is the authoritative answer,
+    so the app's cheap regex parser is now required to agree with it: nothing
+    has to be re-pinned when a migration lands, and a parser that quietly picks
+    the wrong file still fails.
+    """
+    from alembic.config import Config
+    from alembic.script import ScriptDirectory
+
     from app.api.v1.endpoints.health import _expected_head
 
     _expected_head.cache_clear()
     head = _expected_head()
     assert head is not None
-    assert head.startswith("0006"), head
+
+    config = Config()
+    config.set_main_option(
+        "script_location",
+        str(pathlib.Path(__file__).resolve().parents[1] / "alembic"),
+    )
+    assert head == ScriptDirectory.from_config(config).get_current_head()
 
 
 # --------------------------------------------------------------------------
