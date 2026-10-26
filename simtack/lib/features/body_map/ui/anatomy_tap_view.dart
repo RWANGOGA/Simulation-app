@@ -48,7 +48,8 @@ class _AnatomyTapViewState extends State<AnatomyTapView> {
   @override
   void didUpdateWidget(covariant AnatomyTapView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.idmapAsset != widget.idmapAsset || oldWidget.colorsAsset != widget.colorsAsset) {
+    if (oldWidget.idmapAsset != widget.idmapAsset ||
+        oldWidget.colorsAsset != widget.colorsAsset) {
       _load();
     }
   }
@@ -61,12 +62,14 @@ class _AnatomyTapViewState extends State<AnatomyTapView> {
     try {
       final colorsJson = await rootBundle.loadString(widget.colorsAsset);
       final decoded = jsonDecode(colorsJson) as Map<String, dynamic>;
-      final colors = decoded.map((k, v) => MapEntry(k, (v as List).map((e) => (e as num).toInt()).toList()));
+      final colors = decoded.map((k, v) =>
+          MapEntry(k, (v as List).map((e) => (e as num).toInt()).toList()));
 
       final bytes = await rootBundle.load(widget.idmapAsset);
       final codec = await ui.instantiateImageCodec(bytes.buffer.asUint8List());
       final frame = await codec.getNextFrame();
-      final pixels = await frame.image.toByteData(format: ui.ImageByteFormat.rawRgba);
+      final pixels =
+          await frame.image.toByteData(format: ui.ImageByteFormat.rawRgba);
 
       if (!mounted) return;
       setState(() {
@@ -106,7 +109,10 @@ class _AnatomyTapViewState extends State<AnatomyTapView> {
 
     final localX = localPosition.dx;
     final localY = localPosition.dy;
-    if (localX < 0 || localY < 0 || localX > constraints.maxWidth || localY > constraints.maxHeight) {
+    if (localX < 0 ||
+        localY < 0 ||
+        localX > constraints.maxWidth ||
+        localY > constraints.maxHeight) {
       return;
     }
 
@@ -138,13 +144,21 @@ class _AnatomyTapViewState extends State<AnatomyTapView> {
 
     final imgLocalX = localX - offsetX;
     final imgLocalY = localY - offsetY;
-    if (imgLocalX < 0 || imgLocalY < 0 || imgLocalX > renderW || imgLocalY > renderH) {
-      widget.onMiss?.call('That spot is outside the image, not part of the body.');
+    if (imgLocalX < 0 ||
+        imgLocalY < 0 ||
+        imgLocalX > renderW ||
+        imgLocalY > renderH) {
+      widget.onMiss
+          ?.call('That spot is outside the image, not part of the body.');
       return;
     }
 
-    final imgX = (imgLocalX / renderW * _idmapImage!.width).floor().clamp(0, _idmapImage!.width - 1);
-    final imgY = (imgLocalY / renderH * _idmapImage!.height).floor().clamp(0, _idmapImage!.height - 1);
+    final imgX = (imgLocalX / renderW * _idmapImage!.width)
+        .floor()
+        .clamp(0, _idmapImage!.width - 1);
+    final imgY = (imgLocalY / renderH * _idmapImage!.height)
+        .floor()
+        .clamp(0, _idmapImage!.height - 1);
     final pixelIndex = (imgY * _idmapImage!.width + imgX) * 4;
 
     final r = _idmapPixels!.getUint8(pixelIndex);
@@ -165,7 +179,8 @@ class _AnatomyTapViewState extends State<AnatomyTapView> {
     // space (matches the tolerance already proven out in the tested HTML
     // pages) — squared here since we skip the sqrt for speed.
     if (match == null || match.dist > 3600) {
-      widget.onMiss?.call('Could not confidently match that spot — try tapping more centrally on a region.');
+      widget.onMiss?.call(
+          'Could not confidently match that spot — try tapping more centrally on a region.');
       return;
     }
 
@@ -178,7 +193,9 @@ class _AnatomyTapViewState extends State<AnatomyTapView> {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
-          child: Text(_error!, style: const TextStyle(color: Colors.redAccent), textAlign: TextAlign.center),
+          child: Text(_error!,
+              style: const TextStyle(color: Colors.redAccent),
+              textAlign: TextAlign.center),
         ),
       );
     }
@@ -196,7 +213,8 @@ class _AnatomyTapViewState extends State<AnatomyTapView> {
         // nothing to lose an arena contest against.
         return Listener(
           behavior: HitTestBehavior.opaque,
-          onPointerDown: (event) => _handleTapUp(event.localPosition, constraints),
+          onPointerDown: (event) =>
+              _handleTapUp(event.localPosition, constraints),
           child: SizedBox(
             width: constraints.maxWidth,
             height: constraints.maxHeight,

@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -20,15 +22,15 @@ import 'practitioner_dashboard_screen.dart';
 /// console needs more than the six semantic hues, so these stay a fixed ramp
 /// rather than resolving against brightness — a slice must stay the same
 /// colour when the practitioner flips the theme.
-const List<Color> _chartPalette = [
-  Color(0xFF0969DA), // accent.emphasis (blue)
-  Color(0xFF1A7F37), // success.emphasis (green)
-  Color(0xFF9A6700), // attention.emphasis (yellow)
-  Color(0xFFCF222E), // danger.emphasis (red)
-  Color(0xFF8250DF), // done.emphasis (purple)
-  Color(0xFF0550AE), // accent.muted
-  Color(0xFF6E7681), // fg.subtle (grey)
-];
+List<Color> _chartPalette(BuildContext context) => [
+      AppAccent.info(context), // accent.emphasis (blue)
+      AppAccent.success(context), // success.emphasis (green)
+      AppAccent.warning(context), // attention.emphasis (yellow)
+      AppAccent.danger(context), // danger.emphasis (red)
+      AppAccent.primary(context), // done.emphasis (purple)
+      AppAccent.info(context), // accent.muted
+      AppPalette.textDisabled(context), // fg.subtle (grey)
+    ];
 
 class ReportsScreen extends StatefulWidget {
   const ReportsScreen({super.key});
@@ -344,7 +346,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                   {'label': t.statusOpenLabel, 'count': openCount},
                   {'label': t.statusClosedLabel, 'count': closedCount},
                 ],
-                colors: const [Color(0xFF0969DA), Color(0xFF8250DF)],
+                colors: [AppAccent.info(context), AppAccent.primary(context)],
               ),
               const SizedBox(height: 32),
             ],
@@ -358,7 +360,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           'count': r['count'] as int
                         })
                     .toList(),
-                colors: _chartPalette,
+                colors: _chartPalette(context),
               ),
               const SizedBox(height: 32),
             ],
@@ -372,7 +374,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
                           'count': r['count'] as int
                         })
                     .toList(),
-                colors: _chartPalette,
+                colors: _chartPalette(context),
               ),
             ],
           ],

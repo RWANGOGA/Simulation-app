@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// Small, shared design tokens — spacing/radius/shadow scale plus a second
-/// accent color — so new UI work pulls from the same handful of values
-/// instead of every screen picking its own padding numbers and shadow
-/// blurs. Not a full design system, just enough consistency that things
-/// built at different times read as one product.
+/// Small, shared design tokens — the spacing, radius and shadow scales.
+///
+/// Colour lives in two neighbours, split by what they resolve against:
+/// [AppPalette] for slate surfaces and text, [AppAccent] for the clinical and
+/// brand accents. The teal pair that used to be a class of its own in this file
+/// moved into [AppAccent] as `info` and `infoSurface`: an accent scale carrying
+/// only `info` is how every screen ended up hardcoding the other eleven.
 class AppSpacing {
   static const double xs = 4;
   static const double sm = 8;
@@ -44,22 +46,4 @@ class AppShadow {
           offset: const Offset(0, 6),
         ),
       ];
-}
-
-/// A calm secondary accent, distinct from the purple brand/action color —
-/// for informational surfaces (hints, tips, non-urgent status) so not
-/// every piece of UI in the app reads as "purple button." Chosen as a
-/// soft teal: reads as calm/reassuring (a common cue in health-adjacent
-/// products) without competing with the purple for attention on actual
-/// calls to action, and passes contrast on both light and dark surfaces.
-class AppAccent {
-  static Color info(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF5EEAD4)
-          : const Color(0xFF0D9488);
-
-  static Color infoSurface(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark
-          ? const Color(0xFF134E4A)
-          : const Color(0xFFF0FDFA);
 }

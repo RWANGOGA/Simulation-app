@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
 import '../../../core/models/patient_profile.dart';
 import '../../../core/offline/offline_repository.dart';
@@ -88,21 +90,21 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
       InputDecoration(
         labelText: label,
         prefixIcon:
-            icon != null ? Icon(icon, color: const Color(0xFF6D28D9)) : null,
+            icon != null ? Icon(icon, color: AppAccent.primary(context)) : null,
         helperText: helper,
         filled: true,
         fillColor: AppPalette.inputFill(context),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: BorderSide(color: AppPalette.border(context)),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: BorderSide(color: AppPalette.border(context)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Color(0xFF6D28D9), width: 2),
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          borderSide: BorderSide(color: AppAccent.primary(context), width: 2),
         ),
       );
 
@@ -115,7 +117,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
+          icon: Icon(Icons.arrow_back, color: AppAccent.primary(context)),
           onPressed: () => Navigator.of(context).pop(),
         ),
         bottom: const PreferredSize(
@@ -275,20 +277,20 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFEE2E2),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFFEF4444)),
+                      color: AppAccent.dangerTint(context),
+                      borderRadius: BorderRadius.circular(AppRadius.sm),
+                      border: Border.all(color: AppAccent.fieldError(context)),
                     ),
                     child: Row(
                       children: [
-                        const Icon(Icons.error_outline,
-                            color: Color(0xFFEF4444), size: 20),
+                        Icon(Icons.error_outline,
+                            color: AppAccent.fieldError(context), size: 20),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             _submitError!,
-                            style: const TextStyle(
-                                color: Color(0xFFB91C1C), fontSize: 14),
+                            style: TextStyle(
+                                color: AppAccent.danger(context), fontSize: 14),
                           ),
                         ),
                       ],
@@ -302,9 +304,9 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                   child: ElevatedButton(
                     onPressed: _isSubmitting ? null : _onContinue,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6D28D9),
+                      backgroundColor: AppAccent.primary(context),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(AppRadius.md),
                       ),
                     ),
                     child: _isSubmitting
@@ -353,11 +355,11 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF6D28D9) : Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          color: isSelected ? AppAccent.primary(context) : Colors.white,
+          borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF6D28D9)
+                ? AppAccent.primary(context)
                 : AppPalette.border(context),
             width: 2,
           ),
@@ -392,7 +394,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         filled: true,
         fillColor: AppPalette.inputFill(context),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           borderSide: BorderSide(color: AppPalette.border(context)),
         ),
       ),
@@ -401,8 +403,9 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         if (value == null || value.isEmpty) return t.fieldRequiredError(label);
         final parsed = num.tryParse(value);
         if (parsed == null) return t.enterValidNumberError;
-        if (parsed < min || parsed > max)
+        if (parsed < min || parsed > max) {
           return t.fieldRangeError(label, '$min', '$max');
+        }
         return null;
       },
     );

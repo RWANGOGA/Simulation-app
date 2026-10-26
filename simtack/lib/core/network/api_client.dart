@@ -986,17 +986,21 @@ class ApiClient {
     final body = <String, dynamic>{};
     if (fullName != null) body['full_name'] = fullName.trim();
     if (role != null) body['role'] = role.trim().isEmpty ? null : role.trim();
-    if (licenseNumber != null)
+    if (licenseNumber != null) {
       body['license_number'] =
           licenseNumber.trim().isEmpty ? null : licenseNumber.trim();
-    if (phone != null)
+    }
+    if (phone != null) {
       body['phone'] = phone.trim().isEmpty ? null : phone.trim();
-    if (hospitalName != null)
+    }
+    if (hospitalName != null) {
       body['hospital_name'] =
           hospitalName.trim().isEmpty ? null : hospitalName.trim();
-    if (dateOfBirth != null)
+    }
+    if (dateOfBirth != null) {
       body['date_of_birth'] =
           '${dateOfBirth.year.toString().padLeft(4, '0')}-${dateOfBirth.month.toString().padLeft(2, '0')}-${dateOfBirth.day.toString().padLeft(2, '0')}';
+    }
 
     final response = await _send(
       'PATCH',

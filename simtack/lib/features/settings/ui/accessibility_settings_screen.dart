@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 
 import '../../../core/accessibility/accessibility_controller.dart';
-import '../../../core/theme/app_palette.dart';
 import '../../../core/locale/locale_controller.dart';
 import '../../../l10n/app_localizations.dart';
 import 'language_picker_sheet.dart';
@@ -18,7 +20,8 @@ class A11yScope extends InheritedNotifier<AccessibilityController> {
 
   static AccessibilityController of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<A11yScope>();
-    assert(scope != null, 'A11yScope missing — wrap the MaterialApp in A11yScope');
+    assert(
+        scope != null, 'A11yScope missing — wrap the MaterialApp in A11yScope');
     return scope!.notifier!;
   }
 }
@@ -109,7 +112,7 @@ class AccessibilitySettingsScreen extends StatelessWidget {
                                 ),
                               ),
                               selected: controller.fontScale == scale,
-                              selectedColor: const Color(0xFF6D28D9),
+                              selectedColor: AppAccent.primary(context),
                               backgroundColor: AppPalette.subtleFill(context),
                               onSelected: (_) => controller.setFontScale(scale),
                             ))
@@ -118,7 +121,8 @@ class AccessibilitySettingsScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Changes the size of text everywhere in the app.',
-                    style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context)),
+                    style: TextStyle(
+                        fontSize: 12, color: AppPalette.textMuted(context)),
                   ),
                 ],
               ),
@@ -164,9 +168,13 @@ class AccessibilitySettingsScreen extends StatelessWidget {
                 future: Future.value(localeController),
                 builder: (context, snapshot) {
                   final lc = snapshot.data ?? localeController;
-                  final currentCode = lc.locale?.languageCode ?? (lc.isSignLanguage ? LocaleController.signLanguageCode : 'en');
+                  final currentCode = lc.locale?.languageCode ??
+                      (lc.isSignLanguage
+                          ? LocaleController.signLanguageCode
+                          : 'en');
                   return ListTile(
-                    leading: const Icon(Icons.translate, color: Color(0xFF6D28D9)),
+                    leading: Icon(Icons.translate,
+                        color: AppAccent.primary(context)),
                     title: Text(
                       'App Language',
                       style: TextStyle(
@@ -177,14 +185,18 @@ class AccessibilitySettingsScreen extends StatelessWidget {
                     ),
                     subtitle: Text(
                       _languageName(context, currentCode),
-                      style: TextStyle(fontSize: 13, color: AppPalette.textMuted(context)),
+                      style: TextStyle(
+                          fontSize: 13, color: AppPalette.textMuted(context)),
                     ),
-                    trailing: const Icon(Icons.chevron_right, color: Color(0xFF6D28D9)),
+                    trailing: Icon(Icons.chevron_right,
+                        color: AppAccent.primary(context)),
                     onTap: () {
                       showModalBottomSheet(
                         context: context,
                         backgroundColor: Colors.white,
-                        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(20))),
                         builder: (ctx) => LanguagePickerSheet(
                           currentCode: currentCode,
                           onChanged: (code) async {
@@ -224,7 +236,7 @@ class AccessibilitySettingsScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppPalette.surface(context),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(color: AppPalette.border(context)),
       ),
       // A RadioListTile (see _themeTile) paints its background and ink
@@ -277,10 +289,12 @@ class AccessibilitySettingsScreen extends StatelessWidget {
       onChanged: (value) {
         if (value != null) controller.setThemeMode(value);
       },
-      activeColor: const Color(0xFF6D28D9),
+      activeColor: AppAccent.primary(context),
       secondary: Icon(
         icon,
-        color: selected ? const Color(0xFF6D28D9) : AppPalette.textMuted(context),
+        color: selected
+            ? AppAccent.primary(context)
+            : AppPalette.textMuted(context),
       ),
       title: Text(
         title,
@@ -291,7 +305,7 @@ class AccessibilitySettingsScreen extends StatelessWidget {
         ),
       ),
       subtitle: Text(
-         subtitle,
+        subtitle,
         style: TextStyle(fontSize: 12, color: AppPalette.textMuted(context)),
       ),
     );

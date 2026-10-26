@@ -1,9 +1,11 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:async';
-import '../../../core/theme/app_palette.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
 import 'package:intl/intl.dart';
 import '../../../core/storage/draft_storage.dart';
@@ -83,7 +85,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           SnackBar(
             content: Text(AppLocalizations.of(context)!
                 .draftsSyncedSnackbar(totalSynced)),
-            backgroundColor: const Color(0xFF16A34A),
+            backgroundColor: AppAccent.success(context),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -161,8 +163,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                     final draft = _drafts[index];
                     return ListTile(
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8),
-                      leading: const Icon(Icons.history_edu_outlined,
-                          color: Color(0xFF6D28D9)),
+                      leading: Icon(Icons.history_edu_outlined,
+                          color: AppAccent.primary(context)),
                       title: Text(
                         _draftSubtitle(draft),
                         style: TextStyle(
@@ -237,7 +239,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               ),
               TextSpan(
                 text: t.welcomeHeadlineHighlight,
-                style: const TextStyle(color: Color(0xFF6D28D9)),
+                style: TextStyle(color: AppAccent.primary(context)),
               ),
             ],
           ),
@@ -307,13 +309,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF6D28D9).withOpacity(0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.3)),
+        color: AppAccent.primary(context).withOpacity(0.08),
+        borderRadius: BorderRadius.circular(AppRadius.md),
+        border: Border.all(color: AppAccent.primary(context).withOpacity(0.3)),
       ),
       child: Row(
         children: [
-          const Icon(Icons.history_edu_outlined, color: Color(0xFF6D28D9)),
+          Icon(Icons.history_edu_outlined, color: AppAccent.primary(context)),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -401,15 +403,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.lock_outline,
-                        size: 16, color: Color(0xFF6D28D9)),
+                    Icon(Icons.lock_outline,
+                        size: 16, color: AppAccent.primary(context)),
                     const SizedBox(width: 4),
                     Text(
                       t.practitionerLogin,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Color(0xFF6D28D9),
+                        color: AppAccent.primary(context),
                       ),
                     ),
                   ],
@@ -435,7 +437,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               children: [
                 _welcomeHeader(context, t),
                 const SizedBox(height: 24),
-                SizedBox(
+                const SizedBox(
                   height: 220,
                   child: _ThreeDPlaceholder(
                     web: SizedBox.expand(
@@ -475,10 +477,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           child: ElevatedButton(
             onPressed: () => _navigateToPatientInfo(),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF6D28D9),
-              disabledBackgroundColor: const Color(0xFFCBD5E1),
+              backgroundColor: AppAccent.primary(context),
+              disabledBackgroundColor: AppPalette.border(context),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.md),
               ),
             ),
             child: Text(
@@ -547,15 +549,15 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.lock_outline,
-                              size: 16, color: Color(0xFF6D28D9)),
+                          Icon(Icons.lock_outline,
+                              size: 16, color: AppAccent.primary(context)),
                           const SizedBox(width: 4),
                           Text(
                             t.practitionerLogin,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF6D28D9),
+                              color: AppAccent.primary(context),
                             ),
                           ),
                         ],
@@ -590,10 +592,10 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 child: ElevatedButton(
                   onPressed: () => _navigateToPatientInfo(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6D28D9),
-                    disabledBackgroundColor: const Color(0xFFCBD5E1),
+                    backgroundColor: AppAccent.primary(context),
+                    disabledBackgroundColor: AppPalette.border(context),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppRadius.md),
                     ),
                   ),
                   child: Text(
@@ -622,7 +624,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           ),
         ),
         const SizedBox(width: 32),
-        Expanded(
+        const Expanded(
           child: _ThreeDPlaceholder(
             web: SizedBox.expand(
               child: ModelViewer(
@@ -676,30 +678,32 @@ class _ThreeDPlaceholder extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            const Color(0xFF6D28D9).withOpacity(0.10),
-            const Color(0xFF8B5CF6).withOpacity(0.05),
+            AppAccent.primary(context).withOpacity(0.10),
+            AppAccent.primary(context).withOpacity(0.05),
           ],
         ),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: const Color(0xFF6D28D9).withOpacity(0.2)),
+        borderRadius: BorderRadius.circular(AppRadius.lg),
+        border: Border.all(color: AppAccent.primary(context).withOpacity(0.2)),
       ),
-      child: const Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.medical_services, size: 48, color: Color(0xFF6D28D9)),
-            SizedBox(height: 8),
+            Icon(Icons.medical_services,
+                size: 48, color: AppAccent.primary(context)),
+            const SizedBox(height: 8),
             Text(
               '3D body model',
               style: TextStyle(
-                color: Color(0xFF6D28D9),
+                color: AppAccent.primary(context),
                 fontWeight: FontWeight.w600,
               ),
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 4),
             Text(
               'Tap below to start triage',
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 12),
+              style:
+                  TextStyle(color: AppPalette.textMuted(context), fontSize: 12),
             ),
           ],
         ),

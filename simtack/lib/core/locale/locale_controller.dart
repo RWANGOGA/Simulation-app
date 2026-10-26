@@ -47,7 +47,8 @@ class LocaleController extends ChangeNotifier {
 
   /// Records the patient's language choice and consent together — they're
   /// accepted from the same screen, in the same action.
-  Future<void> setLanguageAndConsent({required String languageCode, required bool consented}) async {
+  Future<void> setLanguageAndConsent(
+      {required String languageCode, required bool consented}) async {
     _isSignLanguage = languageCode == signLanguageCode;
     _locale = _isSignLanguage ? null : Locale(languageCode);
     _hasConsented = consented;
@@ -81,7 +82,8 @@ class LocaleScope extends InheritedNotifier<LocaleController> {
 
   static LocaleController of(BuildContext context) {
     final scope = context.dependOnInheritedWidgetOfExactType<LocaleScope>();
-    assert(scope != null, 'LocaleScope missing — wrap the MaterialApp in LocaleScope');
+    assert(scope != null,
+        'LocaleScope missing — wrap the MaterialApp in LocaleScope');
     return scope!.notifier!;
   }
 }

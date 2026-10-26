@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import '../../../core/locale/app_languages.dart';
 import '../../../core/locale/locale_controller.dart';
-import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/widgets/flow_progress_bar.dart';
 import '../../../l10n/app_localizations.dart';
@@ -110,15 +112,18 @@ class _LanguageScreenState extends State<LanguageScreen>
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
+                      gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [Color(0xFF6D28D9), Color(0xFF8B5CF6)],
+                        colors: [
+                          AppAccent.primary(context),
+                          AppAccent.primary(context)
+                        ],
                       ),
-                      borderRadius: BorderRadius.circular(24),
+                      borderRadius: BorderRadius.circular(AppRadius.xl),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF6D28D9).withOpacity(0.25),
+                          color: AppAccent.primary(context).withOpacity(0.25),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),
@@ -133,7 +138,7 @@ class _LanguageScreenState extends State<LanguageScreen>
                           alignment: Alignment.center,
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.18),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(AppRadius.lg),
                           ),
                           child: const Icon(Icons.medical_services_rounded,
                               size: 30, color: Colors.white),
@@ -191,9 +196,9 @@ class _LanguageScreenState extends State<LanguageScreen>
                 child: ElevatedButton(
                   onPressed: _continue,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6D28D9),
+                    backgroundColor: AppAccent.primary(context),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                        borderRadius: BorderRadius.circular(AppRadius.md)),
                   ),
                   child: Text(
                     t.continueButton,
@@ -221,12 +226,12 @@ class _LanguageScreenState extends State<LanguageScreen>
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF6D28D9)
+              ? AppAccent.primary(context)
               : AppPalette.surface(context),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF6D28D9)
+                ? AppAccent.primary(context)
                 : AppPalette.border(context),
             width: 2,
           ),
@@ -275,7 +280,7 @@ class _LanguageScreenState extends State<LanguageScreen>
               children: [
                 Checkbox(
                   value: _consented,
-                  activeColor: const Color(0xFF6D28D9),
+                  activeColor: AppAccent.primary(context),
                   onChanged: (value) => setState(() {
                     _consented = value ?? false;
                     if (_consented) _showConsentError = false;
@@ -301,7 +306,7 @@ class _LanguageScreenState extends State<LanguageScreen>
             padding: const EdgeInsets.only(left: 12),
             child: Text(
               t.consentRequiredError,
-              style: const TextStyle(fontSize: 12, color: Color(0xFFDC2626)),
+              style: TextStyle(fontSize: 12, color: AppAccent.danger(context)),
             ),
           ),
       ],

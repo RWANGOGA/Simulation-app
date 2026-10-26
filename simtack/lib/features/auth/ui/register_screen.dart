@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/auth_service.dart';
 import '../../../core/theme/app_page_route.dart';
@@ -67,18 +69,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
           {required String label, required IconData icon}) =>
       InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon, color: const Color(0xFF6D28D9)),
+        prefixIcon: Icon(icon, color: AppAccent.primary(context)),
         filled: true,
         fillColor: AppPalette.inputFill(context),
         border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadius.md),
             borderSide: BorderSide.none),
         enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadius.md),
             borderSide: BorderSide(color: AppPalette.border(context))),
         focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF6D28D9), width: 2)),
+            borderRadius: BorderRadius.circular(AppRadius.md),
+            borderSide:
+                BorderSide(color: AppAccent.primary(context), width: 2)),
       );
 
   Future<void> _pickDateOfBirth() async {
@@ -123,13 +126,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // say so rather than letting someone believe it exists elsewhere.
       if (doctor.id < 0) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
+          SnackBar(
+            content: const Text(
               'Account created on this device. Everything works offline; '
               'register again while connected to also create a server account.',
             ),
-            backgroundColor: Color(0xFF6D28D9),
-            duration: Duration(seconds: 6),
+            backgroundColor: AppAccent.primary(context),
+            duration: const Duration(seconds: 6),
           ),
         );
         Navigator.of(context).pushReplacement(
@@ -143,13 +146,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       // every request 401s, so send them back to sign-in with the reason.
       if (!doctor.isApproved) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
+          SnackBar(
+            content: const Text(
               'Account created. An administrator must approve it before you '
               'can sign in.',
             ),
-            backgroundColor: Color(0xFF6D28D9),
-            duration: Duration(seconds: 6),
+            backgroundColor: AppAccent.primary(context),
+            duration: const Duration(seconds: 6),
           ),
         );
         Navigator.of(context).pop();
@@ -207,8 +210,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(Icons.medical_services_rounded,
-                        size: 56, color: Color(0xFF6D28D9)),
+                    Icon(Icons.medical_services_rounded,
+                        size: 56, color: AppAccent.primary(context)),
                     const SizedBox(height: 12),
                     Text(
                       'Join Simtack Care',
@@ -223,19 +226,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFEE2E2),
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: const Color(0xFFEF4444)),
+                          color: AppAccent.dangerTint(context),
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                          border:
+                              Border.all(color: AppAccent.fieldError(context)),
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.error_outline,
-                                color: Color(0xFFEF4444), size: 20),
+                            Icon(Icons.error_outline,
+                                color: AppAccent.fieldError(context), size: 20),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(_errorMessage!,
-                                  style: const TextStyle(
-                                      color: Color(0xFFB91C1C), fontSize: 14)),
+                                  style: TextStyle(
+                                      color: AppAccent.danger(context),
+                                      fontSize: 14)),
                             ),
                           ],
                         ),
@@ -377,10 +382,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _register,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6D28D9),
-                          disabledBackgroundColor: const Color(0xFFA78BFA),
+                          backgroundColor: AppAccent.primary(context),
+                          disabledBackgroundColor: AppAccent.primary(context),
                           shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12)),
+                              borderRadius:
+                                  BorderRadius.circular(AppRadius.md)),
                           elevation: 0,
                         ),
                         child: _isLoading
@@ -400,10 +406,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     TextButton(
                       onPressed:
                           _isLoading ? null : () => Navigator.of(context).pop(),
-                      child: const Text(
+                      child: Text(
                         'Already have an account? Sign in',
                         style: TextStyle(
-                            color: Color(0xFF6D28D9),
+                            color: AppAccent.primary(context),
                             fontWeight: FontWeight.w600),
                       ),
                     ),

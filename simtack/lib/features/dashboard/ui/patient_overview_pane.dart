@@ -2,6 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import 'package:intl/intl.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -73,21 +76,28 @@ Offset _positionForRegion(String region) {
       return entry.value;
     }
   }
-  if (r.contains('chest') || r.contains('heart'))
+  if (r.contains('chest') || r.contains('heart')) {
     return const Offset(0.50, 0.27);
-  if (r.contains('head') || r.contains('cranial'))
+  }
+  if (r.contains('head') || r.contains('cranial')) {
     return const Offset(0.50, 0.08);
-  if (r.contains('abdomen') || r.contains('stomach'))
+  }
+  if (r.contains('abdomen') || r.contains('stomach')) {
     return const Offset(0.50, 0.41);
+  }
   if (r.contains('back')) return const Offset(0.50, 0.35);
-  if (r.contains('left arm') || r.contains('left shoulder'))
+  if (r.contains('left arm') || r.contains('left shoulder')) {
     return const Offset(0.22, 0.27);
-  if (r.contains('right arm') || r.contains('right shoulder'))
+  }
+  if (r.contains('right arm') || r.contains('right shoulder')) {
     return const Offset(0.78, 0.27);
-  if (r.contains('left leg') || r.contains('left knee'))
+  }
+  if (r.contains('left leg') || r.contains('left knee')) {
     return const Offset(0.38, 0.70);
-  if (r.contains('right leg') || r.contains('right knee'))
+  }
+  if (r.contains('right leg') || r.contains('right knee')) {
     return const Offset(0.62, 0.70);
+  }
   return const Offset(0.50, 0.40);
 }
 
@@ -334,11 +344,12 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                   version: QrVersions.auto,
                   size: 160,
                   backgroundColor: Colors.white,
-                  eyeStyle: const QrEyeStyle(
-                      eyeShape: QrEyeShape.square, color: Color(0xFF0969DA)),
-                  dataModuleStyle: const QrDataModuleStyle(
+                  eyeStyle: QrEyeStyle(
+                      eyeShape: QrEyeShape.square,
+                      color: AppAccent.info(context)),
+                  dataModuleStyle: QrDataModuleStyle(
                       dataModuleShape: QrDataModuleShape.square,
-                      color: Color(0xFF1F2328)),
+                      color: AppPalette.textPrimary(context)),
                 ),
               ),
             ),
@@ -483,7 +494,8 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                     color: Colors.black.withOpacity(0.40),
-                                    borderRadius: BorderRadius.circular(8)),
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.sm)),
                                 child: Text(
                                   _loading
                                       ? t.loadingEllipsis

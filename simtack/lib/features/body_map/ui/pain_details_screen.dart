@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -102,7 +104,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
         backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
+          icon: Icon(Icons.arrow_back, color: AppAccent.primary(context)),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -119,7 +121,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
         centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.help_outline, color: Color(0xFF6D28D9)),
+            icon: Icon(Icons.help_outline, color: AppAccent.primary(context)),
             onPressed: _showHelp,
           ),
         ],
@@ -151,9 +153,9 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                       height: 8,
                       decoration: BoxDecoration(
                         color: isActive
-                            ? const Color(0xFF6D28D9)
+                            ? AppAccent.primary(context)
                             : (isDone
-                                ? const Color(0xFF6D28D9).withOpacity(0.4)
+                                ? AppAccent.primary(context).withOpacity(0.4)
                                 : AppPalette.border(context)),
                         borderRadius: BorderRadius.circular(4),
                       ),
@@ -183,11 +185,11 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: const Color(0xFF6D28D9).withOpacity(0.1),
+                            color: AppAccent.primary(context).withOpacity(0.1),
                             shape: BoxShape.circle,
                           ),
-                          child: const Icon(Icons.location_on,
-                              color: Color(0xFF6D28D9), size: 20),
+                          child: Icon(Icons.location_on,
+                              color: AppAccent.primary(context), size: 20),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
@@ -281,14 +283,15 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                                         _pulseController.value),
                                                 decoration: BoxDecoration(
                                                   shape: BoxShape.circle,
-                                                  color: const Color(0xFFEF4444)
+                                                  color: AppAccent.fieldError(
+                                                          context)
                                                       .withOpacity(0.35 *
                                                           (1 -
                                                               _pulseController
                                                                   .value)),
                                                   border: Border.all(
-                                                    color:
-                                                        const Color(0xFFEF4444),
+                                                    color: AppAccent.fieldError(
+                                                        context),
                                                     width: 2,
                                                   ),
                                                 ),
@@ -296,10 +299,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                                   child: Container(
                                                     width: 14,
                                                     height: 14,
-                                                    decoration:
-                                                        const BoxDecoration(
+                                                    decoration: BoxDecoration(
                                                       shape: BoxShape.circle,
-                                                      color: Color(0xFFDC2626),
+                                                      color: AppAccent.danger(
+                                                          context),
                                                     ),
                                                   ),
                                                 ),
@@ -311,10 +314,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                             height: 18,
                                             decoration: BoxDecoration(
                                               shape: BoxShape.circle,
-                                              color: const Color(0xFFDC2626)
+                                              color: AppAccent.danger(context)
                                                   .withOpacity(0.35),
                                               border: Border.all(
-                                                color: const Color(0xFFDC2626)
+                                                color: AppAccent.danger(context)
                                                     .withOpacity(0.5),
                                                 width: 1.5,
                                               ),
@@ -340,9 +343,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                         horizontal: 12, vertical: 8),
                                     decoration: BoxDecoration(
                                       color: Colors.white.withOpacity(0.95),
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius:
+                                          BorderRadius.circular(AppRadius.md),
                                       border: Border.all(
-                                          color: const Color(0xFF6D28D9)
+                                          color: AppAccent.primary(context)
                                               .withOpacity(0.3)),
                                       boxShadow: [
                                         BoxShadow(
@@ -358,17 +362,18 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(
-                                                Icons.north_east_outlined,
+                                            Icon(Icons.north_east_outlined,
                                                 size: 16,
-                                                color: Color(0xFF6D28D9)),
+                                                color:
+                                                    AppAccent.primary(context)),
                                             const SizedBox(width: 4),
                                             Text(
                                               t.directionLabel,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.bold,
-                                                color: Color(0xFF6D28D9),
+                                                color:
+                                                    AppAccent.primary(context),
                                               ),
                                             ),
                                           ],
@@ -378,9 +383,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                           value: point.direction,
                                           isDense: true,
                                           underline: const SizedBox(),
-                                          icon: const Icon(
-                                              Icons.arrow_drop_down,
-                                              color: Color(0xFF6D28D9),
+                                          icon: Icon(Icons.arrow_drop_down,
+                                              color: AppAccent.primary(context),
                                               size: 18),
                                           style: TextStyle(
                                               fontSize: 12,
@@ -415,9 +419,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                         horizontal: 12, vertical: 8),
                                     decoration: BoxDecoration(
                                       color: Colors.white.withOpacity(0.95),
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius:
+                                          BorderRadius.circular(AppRadius.md),
                                       border: Border.all(
-                                          color: const Color(0xFF6D28D9)
+                                          color: AppAccent.primary(context)
                                               .withOpacity(0.3)),
                                       boxShadow: [
                                         BoxShadow(
@@ -433,16 +438,18 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                         Row(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
-                                            const Icon(Icons.layers_outlined,
+                                            Icon(Icons.layers_outlined,
                                                 size: 16,
-                                                color: Color(0xFF6D28D9)),
+                                                color:
+                                                    AppAccent.primary(context)),
                                             const SizedBox(width: 4),
                                             Text(
                                               t.depthLabel,
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 11,
                                                 fontWeight: FontWeight.bold,
-                                                color: Color(0xFF6D28D9),
+                                                color:
+                                                    AppAccent.primary(context),
                                               ),
                                             ),
                                           ],
@@ -452,9 +459,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                           value: point.depth,
                                           isDense: true,
                                           underline: const SizedBox(),
-                                          icon: const Icon(
-                                              Icons.arrow_drop_down,
-                                              color: Color(0xFF6D28D9),
+                                          icon: Icon(Icons.arrow_drop_down,
+                                              color: AppAccent.primary(context),
                                               size: 18),
                                           style: TextStyle(
                                               fontSize: 12,
@@ -511,7 +517,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                 style: TextStyle(
                                   color: isSelected
                                       ? Colors.white
-                                      : const Color(0xFF475569),
+                                      : AppPalette.textSecondary(context),
                                   fontWeight: isSelected
                                       ? FontWeight.bold
                                       : FontWeight.w600,
@@ -526,12 +532,12 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                 setState(() => point.painType = type);
                               }
                             },
-                            selectedColor: const Color(0xFF6D28D9),
+                            selectedColor: AppAccent.primary(context),
                             backgroundColor: AppPalette.surface(context),
                             side: BorderSide(
                               color: isSelected
-                                  ? const Color(0xFF6D28D9)
-                                  : const Color(0xFFCBD5E1),
+                                  ? AppAccent.primary(context)
+                                  : AppPalette.border(context),
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
@@ -562,11 +568,12 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                         padding: const EdgeInsets.symmetric(
                             horizontal: 14, vertical: 6),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF6D28D9),
-                          borderRadius: BorderRadius.circular(12),
+                          color: AppAccent.primary(context),
+                          borderRadius: BorderRadius.circular(AppRadius.md),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF6D28D9).withOpacity(0.25),
+                              color:
+                                  AppAccent.primary(context).withOpacity(0.25),
                               blurRadius: 6,
                               offset: const Offset(0, 2),
                             ),
@@ -589,15 +596,16 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
                     decoration: BoxDecoration(
                       color: AppPalette.surface(context),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
                       border: Border.all(color: AppPalette.border(context)),
                     ),
                     child: SliderTheme(
                       data: SliderThemeData(
-                        activeTrackColor: const Color(0xFF6D28D9),
+                        activeTrackColor: AppAccent.primary(context),
                         inactiveTrackColor: AppPalette.border(context),
-                        thumbColor: const Color(0xFF6D28D9),
-                        overlayColor: const Color(0xFF6D28D9).withOpacity(0.15),
+                        thumbColor: AppAccent.primary(context),
+                        overlayColor:
+                            AppAccent.primary(context).withOpacity(0.15),
                         thumbShape:
                             const RoundSliderThumbShape(enabledThumbRadius: 10),
                         trackHeight: 6,
@@ -667,8 +675,8 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                         style: OutlinedButton.styleFrom(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 20)),
-                        child: const Icon(Icons.arrow_back,
-                            color: Color(0xFF6D28D9)),
+                        child: Icon(Icons.arrow_back,
+                            color: AppAccent.primary(context)),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -679,9 +687,10 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                       child: ElevatedButton(
                         onPressed: _goToNextPointOrVitals,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF6D28D9),
+                          backgroundColor: AppAccent.primary(context),
                           elevation: 3,
-                          shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
+                          shadowColor:
+                              AppAccent.primary(context).withOpacity(0.4),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14),
                           ),
@@ -721,10 +730,11 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.lg)),
         title: Row(
           children: [
-            const Icon(Icons.help_outline, color: Color(0xFF6D28D9)),
+            Icon(Icons.help_outline, color: AppAccent.primary(context)),
             const SizedBox(width: 8),
             Text(t.painDetailsHelpTitle),
           ],
@@ -748,8 +758,9 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: Text(t.gotItButton,
-                style: const TextStyle(
-                    color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    color: AppAccent.primary(context),
+                    fontWeight: FontWeight.bold)),
           ),
         ],
       ),

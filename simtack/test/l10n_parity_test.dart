@@ -33,10 +33,15 @@ const _englishCeiling = <String, int>{
   // long offline access lasts, so a guessed Luganda/Kiswahili/Lusoga wording is
   // a wrong security claim rather than a missing translation. Translating all
   // three with a reviewer and lowering these numbers is the follow-up.
-  'lg': 35,
-  'nyn': 271,
+  //
+  // 37 = 35 + the two pager chevrons (Previous / Next). Kiswahili got real
+  // translations (Iliyotangulia / Inayofuata) and did not move; the other three
+  // are bare navigation words that no reviewer has confirmed, and an unlabeled
+  // icon button is worse for a screen-reader user than a familiar English word.
+  'lg': 37,
+  'nyn': 273,
   'sw': 257,
-  'xog': 271,
+  'xog': 273,
 };
 
 Map<String, dynamic> _read(String path) =>

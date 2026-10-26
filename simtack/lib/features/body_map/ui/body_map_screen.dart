@@ -4,7 +4,9 @@ import 'dart:math';
 import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'anatomy_3d_tap_view.dart';
@@ -298,7 +300,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
         backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
+          icon: Icon(Icons.arrow_back, color: AppAccent.primary(context)),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -323,9 +325,9 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
           Badge(
             label: Text('${_painPoints.length}'),
             isLabelVisible: _painPoints.isNotEmpty,
-            backgroundColor: const Color(0xFFE85D6B),
+            backgroundColor: AppAccent.danger(context),
             child: IconButton(
-              icon: const Icon(Icons.location_on, color: Color(0xFF6D28D9)),
+              icon: Icon(Icons.location_on, color: AppAccent.primary(context)),
               tooltip: _painPoints.isEmpty
                   ? t.tapABodyPartLabel
                   : t.locationsSelectedLabel(_painPoints.length),
@@ -333,7 +335,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.help_outline, color: Color(0xFF6D28D9)),
+            icon: Icon(Icons.help_outline, color: AppAccent.primary(context)),
             onPressed: _showHelp,
           ),
         ],
@@ -367,7 +369,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                             end: Alignment.bottomCenter,
                             colors: [
                               AppPalette.subtleFill(context),
-                              const Color(0xFF6D28D9).withOpacity(0.06),
+                              AppAccent.primary(context).withOpacity(0.06),
                             ],
                           ),
                         ),
@@ -428,9 +430,10 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                                       child: Row(
                                         mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          const Icon(Icons.threed_rotation,
+                                          Icon(Icons.threed_rotation,
                                               size: 16,
-                                              color: Color(0xFF6D28D9)),
+                                              color:
+                                                  AppAccent.primary(context)),
                                           const SizedBox(width: 8),
                                           Text(
                                             'Rotate to look around, tap where it hurts',
@@ -469,7 +472,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                                           horizontal: 10, vertical: 6),
                                       alignment: Alignment.center,
                                       decoration: BoxDecoration(
-                                        color: const Color(0xFF1E293B)
+                                        color: AppPalette.textPrimary(context)
                                             .withOpacity(0.92),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
@@ -516,10 +519,10 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                           _navigateToPainDetails();
                         },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF6D28D9),
-                    disabledBackgroundColor: const Color(0xFFCBD5E1),
+                    backgroundColor: AppAccent.primary(context),
+                    disabledBackgroundColor: AppPalette.border(context),
                     elevation: 3,
-                    shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
+                    shadowColor: AppAccent.primary(context).withOpacity(0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -591,11 +594,11 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
       context: context,
       builder: (dialogContext) => PointerInterceptor(
         child: AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(AppRadius.lg)),
           title: Row(
             children: [
-              const Icon(Icons.help_outline, color: Color(0xFF6D28D9)),
+              Icon(Icons.help_outline, color: AppAccent.primary(context)),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -631,8 +634,8 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
               onPressed: () => Navigator.of(dialogContext).pop(),
               child: Text(
                 t.gotItButton,
-                style: const TextStyle(
-                  color: Color(0xFF6D28D9),
+                style: TextStyle(
+                  color: AppAccent.primary(context),
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
                 ),
@@ -755,7 +758,7 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
                               ? Icons.check_circle
                               : Icons.location_on_outlined,
                           color: alreadyAdded
-                              ? const Color(0xFF6D28D9)
+                              ? AppAccent.primary(context)
                               : AppPalette.textMuted(context),
                         ),
                         title: Text(
@@ -765,7 +768,7 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
                                 ? FontWeight.bold
                                 : FontWeight.normal,
                             color: alreadyAdded
-                                ? const Color(0xFF6D28D9)
+                                ? AppAccent.primary(context)
                                 : AppPalette.textSecondary(context),
                           ),
                         ),
@@ -797,7 +800,7 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
         backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
+          icon: Icon(Icons.arrow_back, color: AppAccent.primary(context)),
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -827,7 +830,7 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
                   return Container(
                     decoration: BoxDecoration(
                       color: AppPalette.scaffold(context),
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
                       border: Border.all(color: AppPalette.border(context)),
                     ),
                     clipBehavior: Clip.antiAlias,
@@ -835,7 +838,8 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Container(width: 4, color: const Color(0xFF6D28D9)),
+                          Container(
+                              width: 4, color: AppAccent.primary(context)),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -849,9 +853,9 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
                                         width: 24,
                                         height: 24,
                                         alignment: Alignment.center,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
                                           shape: BoxShape.circle,
-                                          color: Color(0xFF6D28D9),
+                                          color: AppAccent.primary(context),
                                         ),
                                         child: Text(
                                           '${index + 1}',
@@ -922,12 +926,13 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
           padding: const EdgeInsets.all(16),
           child: OutlinedButton.icon(
             onPressed: _openRegionPicker,
-            icon:
-                const Icon(Icons.add_circle_outline, color: Color(0xFF6D28D9)),
+            icon: Icon(Icons.add_circle_outline,
+                color: AppAccent.primary(context)),
             label: Text(
               t.addAnotherLocationLabel,
-              style: const TextStyle(
-                  fontWeight: FontWeight.w600, color: Color(0xFF6D28D9)),
+              style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: AppAccent.primary(context)),
             ),
           ),
         ),

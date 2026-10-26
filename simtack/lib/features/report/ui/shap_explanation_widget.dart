@@ -1,6 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import '../../../../core/clinical/retired_factors.dart';
 import '../../../../core/clinical/risk_engine.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -46,7 +49,8 @@ class ShapExplanationWidget extends StatelessWidget {
   /// neither the red of a raising finding nor the green of a reassuring one: it is
   /// neither, it is the total being brought back into the 0..1 range the score
   /// occupies. Shared with the legend so the swatch always matches the row it names.
-  static const Color adjustmentColor = Color(0xFF475569);
+  static Color adjustmentColor(BuildContext context) =>
+      AppPalette.textSecondary(context);
 
   const ShapExplanationWidget({
     super.key,
@@ -93,8 +97,8 @@ class ShapExplanationWidget extends StatelessWidget {
 
     final maxShap =
         factors.fold<double>(0.0, (m, f) => f.magnitude > m ? f.magnitude : m);
-    final posColor = positiveColor ?? const Color(0xFFDC2626);
-    final negColor = negativeColor ?? const Color(0xFF16A34A);
+    final posColor = positiveColor ?? AppAccent.danger(context);
+    final negColor = negativeColor ?? AppAccent.success(context);
 
     if (!expandable) {
       return _buildFactorList(context, factors, maxShap, posColor, negColor);
@@ -105,15 +109,15 @@ class ShapExplanationWidget extends StatelessWidget {
       tilePadding: EdgeInsets.zero,
       title: Row(
         children: [
-          const Icon(Icons.analytics_outlined,
-              size: 20, color: Color(0xFF0284C7)),
+          Icon(Icons.analytics_outlined,
+              size: 20, color: AppAccent.info(context)),
           const SizedBox(width: 12),
           Text(
             t.whyThisScoreTitle,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF1E293B),
+              color: AppPalette.textPrimary(context),
             ),
           ),
           const Spacer(),
@@ -178,22 +182,23 @@ class ShapExplanationWidget extends StatelessWidget {
     // reassurance in a panel that would never honestly display it.
     final items = <Widget>[];
     if (factors.any((f) => f.raisesRisk)) {
-      items.add(_legendItem(t.legendRaisesRiskLabel, posColor));
+      items.add(_legendItem(t.legendRaisesRiskLabel, posColor, context));
     }
     if (factors.any((f) => f.isScoreAdjustment && !f.raisesRisk)) {
       // Slate, matching the row it describes - never the green of a reassuring
       // finding. The sign on the value is what distinguishes it from a small
       // raising factor drawn in the same family of grey.
-      items.add(_legendItem(t.legendLowersRiskLabel, adjustmentColor));
+      items.add(_legendItem(
+          t.legendLowersRiskLabel, adjustmentColor(context), context));
     }
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        color: AppPalette.inputFill(context),
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+        border: Border.all(color: AppPalette.border(context)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -207,7 +212,7 @@ class ShapExplanationWidget extends StatelessWidget {
     );
   }
 
-  Widget _legendItem(String label, Color color) {
+  Widget _legendItem(String label, Color color, BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -222,7 +227,8 @@ class ShapExplanationWidget extends StatelessWidget {
         const SizedBox(width: 8),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: Color(0xFF475569)),
+          style:
+              TextStyle(fontSize: 12, color: AppPalette.textSecondary(context)),
         ),
       ],
     );
@@ -247,14 +253,14 @@ class _ShapFactorRow extends StatelessWidget {
     final raises = factor.raisesRisk;
     final magnitude = factor.magnitude;
     final barColor = factor.isScoreAdjustment
-        ? ShapExplanationWidget.adjustmentColor
+        ? ShapExplanationWidget.adjustmentColor(context)
         : !raises
             ? negativeColor
             : magnitude >= 0.25
                 ? positiveColor
                 : magnitude >= 0.10
-                    ? const Color(0xFFF59E0B)
-                    : const Color(0xFF64748B);
+                    ? AppAccent.warning(context)
+                    : AppPalette.textMuted(context);
     final fraction =
         maxShap > 0 ? (magnitude / maxShap).clamp(0.04, 1.0) : 0.04;
     final valueLabel = '${raises ? '+' : '-'}${(magnitude * 100).toInt()}%';
@@ -269,8 +275,8 @@ class _ShapFactorRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   factor.label,
-                  style:
-                      const TextStyle(fontSize: 13, color: Color(0xFF1E293B)),
+                  style: TextStyle(
+                      fontSize: 13, color: AppPalette.textPrimary(context)),
                 ),
               ),
               Text(
@@ -288,7 +294,7 @@ class _ShapFactorRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
             child: Stack(
               children: [
-                Container(height: 8, color: const Color(0xFFF1F5F9)),
+                Container(height: 8, color: AppPalette.subtleFill(context)),
                 FractionallySizedBox(
                   alignment: Alignment.centerLeft,
                   widthFactor: fraction,
@@ -362,30 +368,30 @@ class CompactShapExplanationWidget extends StatelessWidget {
     final hasMore = factors.length > maxFactors;
     final maxShap =
         factors.fold<double>(0.0, (m, f) => f.magnitude > m ? f.magnitude : m);
-    final posColor = positiveColor ?? const Color(0xFFDC2626);
-    final negColor = negativeColor ?? const Color(0xFF16A34A);
+    final posColor = positiveColor ?? AppAccent.danger(context);
+    final negColor = negativeColor ?? AppAccent.success(context);
 
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppPalette.border(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.analytics_outlined,
-                  size: 16, color: Color(0xFF0284C7)),
+              Icon(Icons.analytics_outlined,
+                  size: 16, color: AppAccent.info(context)),
               const SizedBox(width: 8),
               Text(
                 t.whyThisScoreTitle,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF64748B),
+                  color: AppPalette.textMuted(context),
                   letterSpacing: 1,
                 ),
               ),
@@ -403,9 +409,9 @@ class CompactShapExplanationWidget extends StatelessWidget {
               padding: const EdgeInsets.only(top: 6),
               child: Text(
                 t.moreFactorsLabel(factors.length - maxFactors),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
-                  color: Color(0xFF94A3B8),
+                  color: AppPalette.textDisabled(context),
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -434,14 +440,14 @@ class _CompactFactorRow extends StatelessWidget {
     final raises = factor.raisesRisk;
     final magnitude = factor.magnitude;
     final barColor = factor.isScoreAdjustment
-        ? ShapExplanationWidget.adjustmentColor
+        ? ShapExplanationWidget.adjustmentColor(context)
         : !raises
             ? negativeColor
             : magnitude >= 0.25
                 ? positiveColor
                 : magnitude >= 0.10
-                    ? const Color(0xFFF59E0B)
-                    : const Color(0xFF64748B);
+                    ? AppAccent.warning(context)
+                    : AppPalette.textMuted(context);
     final fraction =
         maxShap > 0 ? (magnitude / maxShap).clamp(0.04, 1.0) : 0.04;
     final valueLabel = '${raises ? '+' : '-'}${(magnitude * 100).toInt()}%';
@@ -456,8 +462,8 @@ class _CompactFactorRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   factor.label,
-                  style:
-                      const TextStyle(fontSize: 11, color: Color(0xFF334155)),
+                  style: TextStyle(
+                      fontSize: 11, color: AppPalette.textSecondary(context)),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -477,7 +483,7 @@ class _CompactFactorRow extends StatelessWidget {
             borderRadius: BorderRadius.circular(2),
             child: Stack(
               children: [
-                Container(height: 5, color: const Color(0xFFF1F5F9)),
+                Container(height: 5, color: AppPalette.subtleFill(context)),
                 FractionallySizedBox(
                   alignment: Alignment.centerLeft,
                   widthFactor: fraction,

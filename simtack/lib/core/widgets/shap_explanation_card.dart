@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import '../clinical/retired_factors.dart';
 import '../clinical/risk_engine.dart';
 
@@ -47,19 +49,19 @@ class ShapExplanationCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
+        color: AppPalette.inputFill(context),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFFE2E8F0)),
+        border: Border.all(color: AppPalette.border(context)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFF64748B),
+                color: AppPalette.textMuted(context),
                 letterSpacing: 1),
           ),
           const SizedBox(height: 8),
@@ -77,8 +79,8 @@ class ShapExplanationCard extends StatelessWidget {
                     isConnection ? Icons.link : Icons.circle,
                     size: isConnection ? 16 : 6,
                     color: isConnection
-                        ? const Color(0xFF0284C7)
-                        : const Color(0xFF94A3B8),
+                        ? AppAccent.info(context)
+                        : AppPalette.textDisabled(context),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -87,8 +89,8 @@ class ShapExplanationCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13,
                         color: isConnection
-                            ? const Color(0xFF0F172A)
-                            : const Color(0xFF334155),
+                            ? AppPalette.textPrimary(context)
+                            : AppPalette.textSecondary(context),
                         fontWeight:
                             isConnection ? FontWeight.w600 : FontWeight.normal,
                       ),
@@ -105,8 +107,8 @@ class ShapExplanationCard extends StatelessWidget {
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
                         color: shap >= 0
-                            ? const Color(0xFF64748B)
-                            : const Color(0xFF475569)),
+                            ? AppPalette.textMuted(context)
+                            : AppPalette.textSecondary(context)),
                   ),
                 ],
               ),

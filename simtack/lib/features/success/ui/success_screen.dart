@@ -1,7 +1,9 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
 import 'package:qr_flutter/qr_flutter.dart';
@@ -168,7 +170,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     _shareOption(
                       icon: Icons.chat,
                       label: t.whatsappLabel,
-                      color: const Color(0xFF25D366),
+                      color: AppAccent.success(context),
                       onTap: () => _launchAndClose(
                         sheetContext,
                         'https://wa.me/?text=${Uri.encodeComponent(message)}',
@@ -177,7 +179,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     _shareOption(
                       icon: Icons.email,
                       label: t.emailLabel,
-                      color: const Color(0xFF6D28D9),
+                      color: AppAccent.primary(context),
                       onTap: () => _launchAndClose(
                         sheetContext,
                         'mailto:?subject=${Uri.encodeComponent('AtomyBridge Clinical Report')}&body=${Uri.encodeComponent(message)}',
@@ -186,7 +188,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     _shareOption(
                       icon: Icons.sms,
                       label: t.smsLabel,
-                      color: const Color(0xFF0EA5E9),
+                      color: AppAccent.info(context),
                       onTap: () => _launchAndClose(
                         sheetContext,
                         'sms:?body=${Uri.encodeComponent(message)}',
@@ -198,8 +200,9 @@ class _SuccessScreenState extends State<SuccessScreen> {
                       color: AppPalette.textMuted(context),
                       onTap: () async {
                         await Clipboard.setData(ClipboardData(text: message));
-                        if (sheetContext.mounted)
+                        if (sheetContext.mounted) {
                           Navigator.of(sheetContext).pop();
+                        }
                         if (context.mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(content: Text(t.linkCopiedSnackbar)),
@@ -225,7 +228,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.md),
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -237,7 +240,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
             ),
             const SizedBox(height: 6),
             Text(label,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF475569))),
+                style: TextStyle(
+                    fontSize: 12, color: AppPalette.textSecondary(context))),
           ],
         ),
       ),
@@ -288,14 +292,14 @@ class _SuccessScreenState extends State<SuccessScreen> {
   Widget _escalationBanner(AppLocalizations t, TriageEscalation escalation) {
     final isEmergency = escalation.isEmergency;
     final accent =
-        isEmergency ? const Color(0xFFDC2626) : const Color(0xFFD97706);
+        isEmergency ? AppAccent.danger(context) : AppAccent.warning(context);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: accent.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.md),
         // A border, not just a tint: this has to survive a rushed glance at a
         // cheap screen in daylight.
         border: Border.all(color: accent, width: isEmergency ? 2 : 1),
@@ -359,7 +363,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
     final hasScore = riskScore != null;
     final isHighRisk = hasScore && riskScore >= 0.7;
     final riskColor =
-        isHighRisk ? const Color(0xFFDC2626) : const Color(0xFF16A34A);
+        isHighRisk ? AppAccent.danger(context) : AppAccent.success(context);
     // worst.riskLevel already reads "HIGH RISK"/"MEDIUM RISK"/"LOW RISK" —
     // build the localized level word from the same thresholds directly
     // rather than appending another translated "Risk" onto that string.
@@ -387,11 +391,11 @@ class _SuccessScreenState extends State<SuccessScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF16A34A).withOpacity(0.1),
+                  color: AppAccent.success(context).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.check_circle,
-                    color: Color(0xFF16A34A), size: 48),
+                child: Icon(Icons.check_circle,
+                    color: AppAccent.success(context), size: 48),
               ),
 
               const SizedBox(height: 16),
@@ -434,10 +438,10 @@ class _SuccessScreenState extends State<SuccessScreen> {
                                 fontSize: 11,
                                 color: AppPalette.textMuted(context))),
                         Text(DateTime.now().toString().substring(0, 16),
-                            style: const TextStyle(
+                            style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w600,
-                                color: Color(0xFF475569))),
+                                color: AppPalette.textSecondary(context))),
                       ],
                     ),
                   ],
@@ -451,15 +455,15 @@ class _SuccessScreenState extends State<SuccessScreen> {
                 key: _qrKey,
                 child: AppCard(
                   padding: const EdgeInsets.all(20),
-                  borderColor: const Color(0xFF6D28D9),
+                  borderColor: AppAccent.primary(context),
                   borderWidth: 2,
                   child: Column(
                     children: [
                       Text(t.encryptedQrPassportLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
-                              color: Color(0xFF6D28D9),
+                              color: AppAccent.primary(context),
                               letterSpacing: 1)),
                       const SizedBox(height: 12),
                       QrImageView(
@@ -498,7 +502,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                     color: riskColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8)),
+                    borderRadius: BorderRadius.circular(AppRadius.sm)),
                 child: Row(
                   children: [
                     Icon(
@@ -555,11 +559,11 @@ class _SuccessScreenState extends State<SuccessScreen> {
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6D28D9),
+                        backgroundColor: AppAccent.primary(context),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                            borderRadius: BorderRadius.circular(AppRadius.md)),
                       ),
                     ),
                   ),

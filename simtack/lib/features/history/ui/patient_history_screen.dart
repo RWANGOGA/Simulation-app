@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import 'package:intl/intl.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/offline/offline_repository.dart';
@@ -118,11 +120,11 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  const CircleAvatar(
+                  CircleAvatar(
                     radius: 28,
-                    backgroundColor: Color(0xFFEDE9FE),
-                    child:
-                        Icon(Icons.person, size: 30, color: Color(0xFF6D28D9)),
+                    backgroundColor: AppAccent.primaryTint(context),
+                    child: Icon(Icons.person,
+                        size: 30, color: AppAccent.primary(context)),
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -152,10 +154,10 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                         );
                       },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: const Color(0xFFDC2626),
-                        side: const BorderSide(color: Color(0xFFFCA5A5)),
+                        foregroundColor: AppAccent.danger(context),
+                        side: BorderSide(color: AppAccent.danger(context)),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(AppRadius.md),
                         ),
                       ),
                       icon: const Icon(Icons.logout, size: 18),
@@ -175,11 +177,11 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
   Color _getRiskColor(String level) {
     switch (level) {
       case 'HIGH':
-        return const Color(0xFFDC2626);
+        return AppAccent.danger(context);
       case 'MEDIUM':
-        return const Color(0xFFF59E0B);
+        return AppAccent.warning(context);
       case 'LOW':
-        return const Color(0xFF16A34A);
+        return AppAccent.success(context);
       default:
         return AppPalette.textMuted(context);
     }
@@ -199,7 +201,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
         centerTitle: true,
         actions: [
           IconButton(
-              icon: const Icon(Icons.refresh, color: Color(0xFF6D28D9)),
+              icon: Icon(Icons.refresh, color: AppAccent.primary(context)),
               onPressed: _loadHistory),
         ],
       ),
@@ -224,7 +226,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                       margin: const EdgeInsets.only(bottom: 12),
                       elevation: 1,
                       shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12)),
+                          borderRadius: BorderRadius.circular(AppRadius.md)),
                       child: ListTile(
                         contentPadding: const EdgeInsets.all(16),
                         title: Text(
@@ -248,7 +250,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
                               horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
                             color: riskColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(8),
+                            borderRadius: BorderRadius.circular(AppRadius.sm),
                             border:
                                 Border.all(color: riskColor.withOpacity(0.3)),
                           ),
@@ -276,7 +278,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 2, // Highlight the History tab
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: const Color(0xFF6D28D9),
+        selectedItemColor: AppAccent.primary(context),
         unselectedItemColor: AppPalette.textMuted(context),
         items: const [
           BottomNavigationBarItem(

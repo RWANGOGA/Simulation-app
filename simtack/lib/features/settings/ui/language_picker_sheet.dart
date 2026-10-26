@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import '../../../core/locale/app_languages.dart';
 import '../../../l10n/app_localizations.dart';
-import '../../../core/theme/app_palette.dart';
 
 class LanguagePickerSheet extends StatelessWidget {
   final String currentCode;
@@ -52,7 +53,8 @@ class LanguagePickerSheet extends StatelessWidget {
                     },
                   ),
                   trailing: selected
-                      ? Icon(Icons.check_circle, color: const Color(0xFF6D28D9))
+                      ? Icon(Icons.check_circle,
+                          color: AppAccent.primary(context))
                       : null,
                   onTap: () {
                     onChanged(lang.flutterCode);

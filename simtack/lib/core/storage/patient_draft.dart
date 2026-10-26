@@ -5,19 +5,19 @@ import '../models/patient_profile.dart';
 class PatientDraft {
   /// Local identifier (negative = offline-only, positive = synced with server)
   final int localId;
-  
+
   /// Server-assigned patient ID (null if not yet synced)
   final int? patientId;
-  
+
   /// Server-assigned anonymous code (null if not yet synced)
   final String? patientCode;
-  
+
   /// The patient profile data
   final PatientProfile profile;
-  
+
   /// When this draft was saved locally
   final DateTime savedAt;
-  
+
   /// Whether this draft has been successfully synced to the server
   final bool isSynced;
 
@@ -69,7 +69,8 @@ class PatientDraft {
         localId: json['localId'] as int,
         patientId: json['patientId'] as int?,
         patientCode: json['patientCode'] as String?,
-        profile: PatientProfile.fromJson(json['profile'] as Map<String, dynamic>),
+        profile:
+            PatientProfile.fromJson(json['profile'] as Map<String, dynamic>),
         savedAt: DateTime.parse(json['savedAt'] as String),
         isSynced: json['isSynced'] as bool? ?? false,
       );

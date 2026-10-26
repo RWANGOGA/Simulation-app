@@ -18,7 +18,8 @@ import 'app_languages.dart';
 /// passes, then serve English framework strings. Only affects chrome text
 /// Flutter itself owns — every string wired through AppLocalizations still
 /// uses the matching ARB file.
-class LugandaMaterialLocalizationsDelegate extends LocalizationsDelegate<MaterialLocalizations> {
+class LugandaMaterialLocalizationsDelegate
+    extends LocalizationsDelegate<MaterialLocalizations> {
   const LugandaMaterialLocalizationsDelegate();
 
   @override
@@ -33,7 +34,8 @@ class LugandaMaterialLocalizationsDelegate extends LocalizationsDelegate<Materia
   bool shouldReload(LugandaMaterialLocalizationsDelegate old) => false;
 }
 
-class LugandaCupertinoLocalizationsDelegate extends LocalizationsDelegate<CupertinoLocalizations> {
+class LugandaCupertinoLocalizationsDelegate
+    extends LocalizationsDelegate<CupertinoLocalizations> {
   const LugandaCupertinoLocalizationsDelegate();
 
   @override

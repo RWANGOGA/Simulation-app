@@ -723,5 +723,13 @@
   "sessionDeviceAccountNotice": "This account was created on this device and has never been confirmed by a server. It can sign in on this device only.",
   "@sessionDeviceAccountNotice": {
     "description": "Strip at the top of the practitioner console for an account registered while offline, which exists only on this device and can never be uploaded (only a hash of the password is kept)."
+  },
+  "pagerPreviousTooltip": "Previous",
+  "@pagerPreviousTooltip": {
+    "description": "Label on the left chevron that steps back through a read-only sequence of captured items. Announced by screen readers, so it is the accessible name of the control rather than a hover hint."
+  },
+  "pagerNextTooltip": "Next",
+  "@pagerNextTooltip": {
+    "description": "Label on the right chevron that steps forward through a read-only sequence of captured items."
   }
 }

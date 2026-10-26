@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/offline/offline_repository.dart';
@@ -133,7 +134,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         SnackBar(
           content: Text(AppLocalizations.of(context)!
               .submitFailedSavedOfflineSnackbar('$e')),
-          backgroundColor: const Color(0xFFF59E0B),
+          backgroundColor: AppAccent.warning(context),
           duration: const Duration(seconds: 5),
         ),
       );
@@ -158,7 +159,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(AppLocalizations.of(context)!.draftSavedSnackbar),
-          backgroundColor: const Color(0xFF16A34A),
+          backgroundColor: AppAccent.success(context),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -167,7 +168,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content: Text('Could not save draft: $e'),
-            backgroundColor: const Color(0xFFF59E0B)),
+            backgroundColor: AppAccent.warning(context)),
       );
     } finally {
       if (mounted) setState(() => _isSavingDraft = false);
@@ -183,7 +184,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Color(0xFF6D28D9)),
+            icon: Icon(Icons.arrow_back, color: AppAccent.primary(context)),
             onPressed: () => Navigator.of(context).pop()),
         title: Text(t.reviewSubmitTitle,
             style: TextStyle(
@@ -194,11 +195,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
         actions: [
           TextButton.icon(
             onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.edit_outlined,
-                color: Color(0xFF6D28D9), size: 18),
+            icon: Icon(Icons.edit_outlined,
+                color: AppAccent.primary(context), size: 18),
             label: Text(t.editButton,
-                style: const TextStyle(
-                    color: Color(0xFF6D28D9), fontWeight: FontWeight.bold)),
+                style: TextStyle(
+                    color: AppAccent.primary(context),
+                    fontWeight: FontWeight.bold)),
           ),
         ],
         bottom: const PreferredSize(
@@ -223,10 +225,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             fontSize: 11,
                             color: AppPalette.textMuted(context))),
                     Text(t.idGeneratedOnSubmitLabel,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF6D28D9))),
+                            color: AppAccent.primary(context))),
                   ],
                 ),
                 Column(
@@ -237,10 +239,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             fontSize: 11,
                             color: AppPalette.textMuted(context))),
                     Text(_timestamp,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF475569))),
+                            color: AppPalette.textSecondary(context))),
                   ],
                 ),
               ],
@@ -271,10 +273,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           children: [
                             Text(
                               t.painPointNumberLabel(index + 1),
-                              style: const TextStyle(
+                              style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFF6D28D9)),
+                                  color: AppAccent.primary(context)),
                             ),
                             const SizedBox(height: 12),
                             _buildSummaryRow(t.locationLabel, point.region,
@@ -324,8 +326,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const Icon(Icons.question_answer_outlined,
-                                          size: 16, color: Color(0xFF6D28D9)),
+                                      Icon(Icons.question_answer_outlined,
+                                          size: 16,
+                                          color: AppAccent.primary(context)),
                                       const SizedBox(width: 10),
                                       Expanded(
                                         child: Column(
@@ -333,14 +336,17 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Text(entry.key,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                     fontSize: 11,
-                                                    color: Color(0xFF64748B))),
+                                                    color: AppPalette.textMuted(
+                                                        context))),
                                             Text(entry.value,
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.w600,
-                                                    color: Color(0xFF1E293B))),
+                                                    color:
+                                                        AppPalette.textPrimary(
+                                                            context))),
                                           ],
                                         ),
                                       ),
@@ -390,10 +396,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     child: ElevatedButton(
                       onPressed: _isSubmitting ? null : _submitToDoctor,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF6D28D9),
+                        backgroundColor: AppAccent.primary(context),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         elevation: 3,
-                        shadowColor: const Color(0xFF6D28D9).withOpacity(0.4),
+                        shadowColor:
+                            AppAccent.primary(context).withOpacity(0.4),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(14)),
                       ),
@@ -432,9 +439,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
         Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-                color: const Color(0xFF6D28D9).withOpacity(0.1),
+                color: AppAccent.primary(context).withOpacity(0.1),
                 shape: BoxShape.circle),
-            child: Icon(icon, color: const Color(0xFF6D28D9), size: 20)),
+            child: Icon(icon, color: AppAccent.primary(context), size: 20)),
         const SizedBox(width: 12),
         Expanded(
           child: Column(

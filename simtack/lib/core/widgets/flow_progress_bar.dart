@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../theme/app_palette.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 
 /// A slim step indicator for the patient-facing triage flow (Welcome →
 /// Patient Info → Body Map → Pain Details → Review → Success), so a
@@ -38,7 +39,7 @@ class FlowProgressBar extends StatelessWidget {
                 height: 4,
                 decoration: BoxDecoration(
                   color: i <= currentStep
-                      ? const Color(0xFF6D28D9)
+                      ? AppAccent.primary(context)
                       : AppPalette.border(context),
                   borderRadius: BorderRadius.circular(2),
                 ),

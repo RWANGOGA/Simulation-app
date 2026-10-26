@@ -79,6 +79,13 @@ void main() {
       await tester.tap(find.text('Visit 1'));
       await tester.pumpAndSettle();
       expect(find.text('Head'), findsWidgets);
+      // The second point of that visit is one page away. Asserting it is absent
+      // here is what keeps the pager honest: if it ever renders both at once,
+      // this fails too rather than silently going back to a long scroll.
+      expect(find.text('Left Arm'), findsNothing);
+
+      await tester.fling(find.byType(PageView), const Offset(-400, 0), 3000);
+      await tester.pumpAndSettle();
       expect(find.text('Left Arm'), findsWidgets);
       expect(find.text('Chest'), findsNothing);
     });

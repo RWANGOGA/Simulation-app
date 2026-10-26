@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
-import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../review/ui/review_screen.dart';
 import 'pain_point.dart';
@@ -29,12 +31,6 @@ class _PainProfileFunctionalImpactScreenState
   int _currentPointIndex = 0;
 
   // Static constant definitions
-  static const Color primaryPurple = Color(0xFF6C25FF);
-  static const Color primaryPurpleTint = Color(0xFFF3E5FF);
-  static const Color normalBorderColor = Color(0xFFDEE2E6);
-  static const Color alertRed = Color(0xFFDC3545);
-  static const Color alertRedTint = Color(0xFFFDE8E8);
-
   final List<Map<String, dynamic>> _expansionOptions = [
     {
       'id': 'Stays Small',
@@ -57,26 +53,50 @@ class _PainProfileFunctionalImpactScreenState
   ];
 
   final List<Map<String, dynamic>> _triggerOptions = [
-    {'id': 'Walking / Moving', 'label': 'Walking / Moving', 'icon': Icons.directions_walk},
+    {
+      'id': 'Walking / Moving',
+      'label': 'Walking / Moving',
+      'icon': Icons.directions_walk
+    },
     {'id': 'Deep Coughing', 'label': 'Deep Coughing', 'icon': Icons.healing},
     {'id': 'Sitting Down', 'label': 'Sitting Down', 'icon': Icons.chair},
-    {'id': 'Pressing the Spot', 'label': 'Pressing the Spot', 'icon': Icons.touch_app},
+    {
+      'id': 'Pressing the Spot',
+      'label': 'Pressing the Spot',
+      'icon': Icons.touch_app
+    },
   ];
 
   final List<Map<String, dynamic>> _relieverOptions = [
     {'id': 'Resting Flat', 'label': 'Resting Flat', 'icon': Icons.bedtime},
-    {'id': 'Ice / Cold Compact', 'label': 'Ice / Cold Compact', 'icon': Icons.ac_unit},
+    {
+      'id': 'Ice / Cold Compact',
+      'label': 'Ice / Cold Compact',
+      'icon': Icons.ac_unit
+    },
     {'id': 'Heating Pad', 'label': 'Heating Pad', 'icon': Icons.whatshot},
-    {'id': 'Taking Medication', 'label': 'Taking Medication', 'icon': Icons.medication},
+    {
+      'id': 'Taking Medication',
+      'label': 'Taking Medication',
+      'icon': Icons.medication
+    },
   ];
 
   final List<Map<String, dynamic>> _limitationOptions = [
     {'id': 'Cannot Sleep', 'label': 'CANNOT SLEEP', 'icon': Icons.bedtime_off},
-    {'id': 'Cannot Walk', 'label': 'CANNOT WALK', 'icon': Icons.directions_walk},
+    {
+      'id': 'Cannot Walk',
+      'label': 'CANNOT WALK',
+      'icon': Icons.directions_walk
+    },
     {'id': 'Cannot Shower', 'label': 'CANNOT SHOWER', 'icon': Icons.shower},
     {'id': 'Cannot Eat', 'label': 'CANNOT EAT', 'icon': Icons.restaurant},
     {'id': 'Cannot Dress', 'label': 'CANNOT DRESS', 'icon': Icons.checkroom},
-    {'id': 'Cannot Concentrate', 'label': 'CANNOT CONCENTRATE', 'icon': Icons.psychology},
+    {
+      'id': 'Cannot Concentrate',
+      'label': 'CANNOT CONCENTRATE',
+      'icon': Icons.psychology
+    },
   ];
 
   PainPoint get _currentPoint => widget.painPoints.isNotEmpty
@@ -137,22 +157,23 @@ class _PainProfileFunctionalImpactScreenState
         backgroundColor: AppPalette.surface(context),
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: primaryPurple),
+          icon: Icon(Icons.arrow_back, color: AppAccent.primary(context)),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
+        title: Text(
           '4 & 5. PAIN PROFILE & FUNCTIONAL IMPACT',
           style: TextStyle(
-            color: Color(0xFF1E293B),
+            color: AppPalette.textPrimary(context),
             fontWeight: FontWeight.bold,
             fontSize: 15,
           ),
         ),
         centerTitle: true,
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: Icon(Icons.shield_outlined, color: primaryPurple),
+            padding: const EdgeInsets.only(right: 16),
+            child:
+                Icon(Icons.shield_outlined, color: AppAccent.primary(context)),
           ),
         ],
       ),
@@ -165,12 +186,12 @@ class _PainProfileFunctionalImpactScreenState
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Row(
               children: [
-                const Text(
+                Text(
                   'Step Progress: ',
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF64748B),
+                    color: AppPalette.textMuted(context),
                   ),
                 ),
                 Expanded(
@@ -183,8 +204,8 @@ class _PainProfileFunctionalImpactScreenState
                           margin: const EdgeInsets.symmetric(horizontal: 2),
                           decoration: BoxDecoration(
                             color: isCompletedOrCurrent
-                                ? primaryPurple
-                                : normalBorderColor,
+                                ? AppAccent.primary(context)
+                                : AppPalette.border(context),
                             borderRadius: BorderRadius.circular(4),
                           ),
                         ),
@@ -204,7 +225,8 @@ class _PainProfileFunctionalImpactScreenState
               color: AppPalette.surface(context),
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 itemCount: widget.painPoints.length,
                 itemBuilder: (context, i) {
                   final isSelected = i == _currentPointIndex;
@@ -215,15 +237,20 @@ class _PainProfileFunctionalImpactScreenState
                     },
                     child: Container(
                       margin: const EdgeInsets.only(right: 8),
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: isSelected ? primaryPurple : AppPalette.subtleFill(context),
-                        borderRadius: BorderRadius.circular(16),
+                        color: isSelected
+                            ? AppAccent.primary(context)
+                            : AppPalette.subtleFill(context),
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
                       ),
                       child: Text(
                         'Spot ${i + 1}: ${widget.painPoints[i].region}',
                         style: TextStyle(
-                          color: isSelected ? Colors.white : AppPalette.textPrimary(context),
+                          color: isSelected
+                              ? Colors.white
+                              : AppPalette.textPrimary(context),
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
                         ),
@@ -248,30 +275,38 @@ class _PainProfileFunctionalImpactScreenState
                   const SizedBox(height: 12),
                   Row(
                     children: _expansionOptions.map((opt) {
-                      final isSelected = _currentPoint.expansionBehavior == opt['id'];
+                      final isSelected =
+                          _currentPoint.expansionBehavior == opt['id'];
                       return Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
                           child: GestureDetector(
                             onTap: () {
                               HapticFeedback.selectionClick();
-                              setState(() => _currentPoint.expansionBehavior = opt['id']!);
+                              setState(() =>
+                                  _currentPoint.expansionBehavior = opt['id']!);
                             },
                             child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
-                              constraints: const BoxConstraints(minHeight: 110, minWidth: 85),
+                              constraints: const BoxConstraints(
+                                  minHeight: 110, minWidth: 85),
                               padding: const EdgeInsets.all(10),
                               decoration: BoxDecoration(
-                                color: isSelected ? primaryPurpleTint : AppPalette.surface(context),
+                                color: isSelected
+                                    ? AppAccent.primaryTint(context)
+                                    : AppPalette.surface(context),
                                 border: Border.all(
-                                  color: isSelected ? primaryPurple : normalBorderColor,
+                                  color: isSelected
+                                      ? AppAccent.primary(context)
+                                      : AppPalette.border(context),
                                   width: isSelected ? 2 : 1,
                                 ),
                                 borderRadius: BorderRadius.circular(14),
                                 boxShadow: isSelected
                                     ? [
                                         BoxShadow(
-                                          color: primaryPurple.withOpacity(0.15),
+                                          color: AppAccent.primary(context)
+                                              .withOpacity(0.15),
                                           blurRadius: 8,
                                           offset: const Offset(0, 3),
                                         ),
@@ -284,7 +319,9 @@ class _PainProfileFunctionalImpactScreenState
                                   Icon(
                                     opt['icon'] as IconData,
                                     size: 24,
-                                    color: isSelected ? primaryPurple : const Color(0xFF475569),
+                                    color: isSelected
+                                        ? AppAccent.primary(context)
+                                        : AppPalette.textSecondary(context),
                                   ),
                                   const SizedBox(height: 8),
                                   Text(
@@ -292,7 +329,9 @@ class _PainProfileFunctionalImpactScreenState
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.bold,
-                                      color: isSelected ? primaryPurple : const Color(0xFF1E293B),
+                                      color: isSelected
+                                          ? AppAccent.primary(context)
+                                          : AppPalette.textPrimary(context),
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -302,8 +341,9 @@ class _PainProfileFunctionalImpactScreenState
                                     style: TextStyle(
                                       fontSize: 10,
                                       color: isSelected
-                                          ? primaryPurple.withOpacity(0.8)
-                                          : const Color(0xFF64748B),
+                                          ? AppAccent.primary(context)
+                                              .withOpacity(0.8)
+                                          : AppPalette.textMuted(context),
                                     ),
                                     textAlign: TextAlign.center,
                                   ),
@@ -330,53 +370,73 @@ class _PainProfileFunctionalImpactScreenState
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-children: [
-                             const Padding(
-                               padding: EdgeInsets.only(bottom: 8),
-                               child: Row(
-                                 children: [
-                                   Icon(Icons.thumb_down, size: 14, color: alertRed),
-                                   SizedBox(width: 4),
-                                   Text(
-                                     'MAKES IT WORSE (Triggers)',
-                                     style: TextStyle(
-                                       fontSize: 12,
-                                       fontWeight: FontWeight.bold,
-                                       color: alertRed,
-                                     ),
-                                   ),
-                                 ],
-                               ),
-                             ),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.thumb_down,
+                                      size: 14,
+                                      color: AppAccent.danger(context)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'MAKES IT WORSE (Triggers)',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppAccent.danger(context),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             ..._triggerOptions.map((trig) {
-                              final isSelected = _currentPoint.triggers.contains(trig['id']);
+                              final isSelected =
+                                  _currentPoint.triggers.contains(trig['id']);
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: GestureDetector(
                                   onTap: () => _toggleTrigger(trig['id']!),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 150),
-                                    constraints: const BoxConstraints(minHeight: 52, minWidth: 85),
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                                    constraints: const BoxConstraints(
+                                        minHeight: 52, minWidth: 85),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 12),
                                     decoration: BoxDecoration(
-                                      color: isSelected ? alertRedTint : AppPalette.surface(context),
+                                      color: isSelected
+                                          ? AppAccent.dangerTint(context)
+                                          : AppPalette.surface(context),
                                       border: Border.all(
-                                        color: isSelected ? alertRed : normalBorderColor,
+                                        color: isSelected
+                                            ? AppAccent.danger(context)
+                                            : AppPalette.border(context),
                                         width: isSelected ? 2 : 1,
                                       ),
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius:
+                                          BorderRadius.circular(AppRadius.md),
                                     ),
                                     child: Row(
                                       children: [
-                                        Icon(trig['icon'] as IconData, size: 18, color: isSelected ? alertRed : const Color(0xFF64748B)),
+                                        Icon(trig['icon'] as IconData,
+                                            size: 18,
+                                            color: isSelected
+                                                ? AppAccent.danger(context)
+                                                : AppPalette.textMuted(
+                                                    context)),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
                                             trig['label']!,
                                             style: TextStyle(
                                               fontSize: 12,
-                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                              color: isSelected ? alertRed : const Color(0xFF1E293B),
+                                              fontWeight: isSelected
+                                                  ? FontWeight.bold
+                                                  : FontWeight.w600,
+                                              color: isSelected
+                                                  ? AppAccent.danger(context)
+                                                  : AppPalette.textPrimary(
+                                                      context),
                                             ),
                                           ),
                                         ),
@@ -395,53 +455,72 @@ children: [
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-children: [
-                             const Padding(
-                               padding: EdgeInsets.only(bottom: 8),
-                               child: Row(
-                                 children: [
-                                   Icon(Icons.thumb_up, size: 14, color: primaryPurple),
-                                   SizedBox(width: 4),
-                                   Text(
-                                     'MAKES IT BETTER (Relievers)',
-                                     style: TextStyle(
-                                       fontSize: 12,
-                                       fontWeight: FontWeight.bold,
-                                       color: primaryPurple,
-                                     ),
-                                   ),
-                                 ],
-                               ),
-                             ),
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                children: [
+                                  Icon(Icons.thumb_up,
+                                      size: 14,
+                                      color: AppAccent.primary(context)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'MAKES IT BETTER (Relievers)',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppAccent.primary(context),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             ..._relieverOptions.map((rel) {
-                              final isSelected = _currentPoint.relievers.contains(rel['id']);
+                              final isSelected =
+                                  _currentPoint.relievers.contains(rel['id']);
                               return Padding(
                                 padding: const EdgeInsets.only(bottom: 8),
                                 child: GestureDetector(
                                   onTap: () => _toggleReliever(rel['id']!),
                                   child: AnimatedContainer(
                                     duration: const Duration(milliseconds: 150),
-                                    constraints: const BoxConstraints(minHeight: 52, minWidth: 85),
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                                    constraints: const BoxConstraints(
+                                        minHeight: 52, minWidth: 85),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 12),
                                     decoration: BoxDecoration(
-                                      color: isSelected ? primaryPurple : AppPalette.surface(context),
+                                      color: isSelected
+                                          ? AppAccent.primary(context)
+                                          : AppPalette.surface(context),
                                       border: Border.all(
-                                        color: isSelected ? primaryPurple : normalBorderColor,
+                                        color: isSelected
+                                            ? AppAccent.primary(context)
+                                            : AppPalette.border(context),
                                         width: isSelected ? 2 : 1,
                                       ),
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius:
+                                          BorderRadius.circular(AppRadius.md),
                                     ),
                                     child: Row(
                                       children: [
-                                        Icon(rel['icon'] as IconData, size: 18, color: isSelected ? Colors.white : primaryPurple),
+                                        Icon(rel['icon'] as IconData,
+                                            size: 18,
+                                            color: isSelected
+                                                ? Colors.white
+                                                : AppAccent.primary(context)),
                                         const SizedBox(width: 8),
                                         Expanded(
                                           child: Text(
                                             rel['label']!,
                                             style: TextStyle(
                                               fontSize: 12,
-                                              fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
-                                              color: isSelected ? Colors.white : const Color(0xFF1E293B),
+                                              fontWeight: isSelected
+                                                  ? FontWeight.bold
+                                                  : FontWeight.w600,
+                                              color: isSelected
+                                                  ? Colors.white
+                                                  : AppPalette.textPrimary(
+                                                      context),
                                             ),
                                           ),
                                         ),
@@ -467,7 +546,8 @@ children: [
                   GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisExtent: 90,
                       crossAxisSpacing: 10,
@@ -476,16 +556,21 @@ children: [
                     itemCount: _limitationOptions.length,
                     itemBuilder: (context, idx) {
                       final item = _limitationOptions[idx];
-                      final isSelected = _currentPoint.dailyLimitations.contains(item['id']);
+                      final isSelected =
+                          _currentPoint.dailyLimitations.contains(item['id']);
                       return GestureDetector(
                         onTap: () => _toggleLimitation(item['id']!),
                         child: AnimatedContainer(
                           duration: const Duration(milliseconds: 150),
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: isSelected ? alertRedTint : AppPalette.surface(context),
+                            color: isSelected
+                                ? AppAccent.dangerTint(context)
+                                : AppPalette.surface(context),
                             border: Border.all(
-                              color: isSelected ? alertRed : normalBorderColor,
+                              color: isSelected
+                                  ? AppAccent.danger(context)
+                                  : AppPalette.border(context),
                               width: isSelected ? 2 : 1,
                             ),
                             borderRadius: BorderRadius.circular(14),
@@ -497,11 +582,17 @@ children: [
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   if (isSelected)
-                                    const Padding(
-                                      padding: EdgeInsets.only(right: 4),
-                                      child: Icon(Icons.block, size: 14, color: alertRed),
+                                    Padding(
+                                      padding: const EdgeInsets.only(right: 4),
+                                      child: Icon(Icons.block,
+                                          size: 14,
+                                          color: AppAccent.danger(context)),
                                     ),
-                                  Icon(item['icon'] as IconData, size: 24, color: isSelected ? alertRed : const Color(0xFF475569)),
+                                  Icon(item['icon'] as IconData,
+                                      size: 24,
+                                      color: isSelected
+                                          ? AppAccent.danger(context)
+                                          : AppPalette.textSecondary(context)),
                                 ],
                               ),
                               const SizedBox(height: 6),
@@ -510,7 +601,9 @@ children: [
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: isSelected ? alertRed : const Color(0xFF1E293B),
+                                  color: isSelected
+                                      ? AppAccent.danger(context)
+                                      : AppPalette.textPrimary(context),
                                 ),
                                 textAlign: TextAlign.center,
                               ),
@@ -526,20 +619,22 @@ children: [
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: primaryPurpleTint.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: primaryPurple.withOpacity(0.2)),
+                      color: AppAccent.primaryTint(context).withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(AppRadius.md),
+                      border: Border.all(
+                          color: AppAccent.primary(context).withOpacity(0.2)),
                     ),
                     child: Row(
                       children: [
-                        Icon(Icons.lightbulb_outline, size: 16, color: Color(0xFF4C1D95)),
+                        Icon(Icons.lightbulb_outline,
+                            size: 16, color: AppAccent.primary(context)),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             'Touch Target Optimization: Every action bar and card uses a minimum size of 85dp x 85dp to ensure effortless touch feedback',
                             style: TextStyle(
                               fontSize: 11,
-                              color: Color(0xFF4C1D95),
+                              color: AppAccent.primary(context),
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -563,9 +658,9 @@ children: [
                 child: ElevatedButton(
                   onPressed: _proceedToReview,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryPurple,
+                    backgroundColor: AppAccent.primary(context),
                     elevation: 3,
-                    shadowColor: primaryPurple.withOpacity(0.4),
+                    shadowColor: AppAccent.primary(context).withOpacity(0.4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
@@ -601,15 +696,18 @@ children: [
       children: [
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.bold,
-            color: primaryPurple,
+            color: AppAccent.primary(context),
             letterSpacing: 0.5,
           ),
         ),
         const SizedBox(height: 2),
-        Container(height: 2, width: double.infinity, color: primaryPurple.withOpacity(0.2)),
+        Container(
+            height: 2,
+            width: double.infinity,
+            color: AppAccent.primary(context).withOpacity(0.2)),
         const SizedBox(height: 6),
         Text(
           subtitle,

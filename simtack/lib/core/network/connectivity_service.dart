@@ -27,7 +27,9 @@ class ConnectivityService {
   Stream<ConnectivityResult> get onConnectivityChanged =>
       _connectivity.onConnectivityChanged.map((results) {
         final hasOnline = results.any((r) => r != ConnectivityResult.none);
-        return hasOnline ? results.firstWhere((r) => r != ConnectivityResult.none) : ConnectivityResult.none;
+        return hasOnline
+            ? results.firstWhere((r) => r != ConnectivityResult.none)
+            : ConnectivityResult.none;
       });
 
   /// Initialize the service — fetches initial state and starts listening.
@@ -51,7 +53,7 @@ class ConnectivityService {
     _latestResult = results.any((r) => r != ConnectivityResult.none)
         ? results.firstWhere((r) => r != ConnectivityResult.none)
         : ConnectivityResult.none;
-    
+
     // Also verify actual internet connectivity (not just network interface)
     await _verifyActualConnectivity();
     return _lastActualOnline;
@@ -61,7 +63,7 @@ class ConnectivityService {
   /// Caches result for 30 seconds to avoid excessive requests.
   Future<void> _verifyActualConnectivity() async {
     final now = DateTime.now();
-    if (_lastActualCheck != null && 
+    if (_lastActualCheck != null &&
         now.difference(_lastActualCheck!) < const Duration(seconds: 30)) {
       return; // Use cached result
     }
@@ -71,18 +73,22 @@ class ConnectivityService {
       // Try to reach the API health endpoint or a simple public endpoint
       // Using a short timeout to fail fast when offline
       final client = ApiClient.httpClient;
-      final response = await client.get(
-        Uri.parse('${ApiClient.baseUrl}/health'),
-      ).timeout(const Duration(seconds: 5));
-      
+      final response = await client
+          .get(
+            Uri.parse('${ApiClient.baseUrl}/health'),
+          )
+          .timeout(const Duration(seconds: 5));
+
       _lastActualOnline = response.statusCode == 200;
       if (kDebugMode) {
-        debugPrint('[ConnectivityService] Actual connectivity check: $_lastActualOnline');
+        debugPrint(
+            '[ConnectivityService] Actual connectivity check: $_lastActualOnline');
       }
     } catch (_) {
       _lastActualOnline = false;
       if (kDebugMode) {
-        debugPrint('[ConnectivityService] Actual connectivity check: false (offline)');
+        debugPrint(
+            '[ConnectivityService] Actual connectivity check: false (offline)');
       }
     }
   }

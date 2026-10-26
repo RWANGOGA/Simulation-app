@@ -100,7 +100,10 @@ void main() {
         return null;
       }
 
-      expect(colourOf('-30%'), ShapExplanationWidget.adjustmentColor);
+      // Resolved through the widget's own context, because the accent scale is
+      // brightness-aware and a hardcoded hex here would test one theme only.
+      final context = tester.element(find.byType(ShapExplanationWidget));
+      expect(colourOf('-30%'), ShapExplanationWidget.adjustmentColor(context));
       expect(
         colourOf('-30%'),
         isNot(const Color(0xFF16A34A)),

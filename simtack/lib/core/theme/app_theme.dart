@@ -29,8 +29,9 @@ class AppTheme {
         seedColor: const Color(0xFF6D28D9),
         brightness: brightness,
       ),
-      scaffoldBackgroundColor:
-          brightness == Brightness.dark ? const Color(0xFF0F172A) : const Color(0xFFF8FAFC),
+      scaffoldBackgroundColor: brightness == Brightness.dark
+          ? const Color(0xFF0F172A)
+          : const Color(0xFFF8FAFC),
       textTheme: _textTheme,
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -38,7 +39,8 @@ class AppTheme {
           foregroundColor: Colors.white,
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
       // Shared style for secondary actions (Save Draft, Share, View
@@ -49,7 +51,8 @@ class AppTheme {
           side: const BorderSide(color: Color(0xFF6D28D9), width: 1.5),
           padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
           textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
     );

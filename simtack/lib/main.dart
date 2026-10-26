@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_palette.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'core/accessibility/accessibility_controller.dart';
@@ -91,8 +93,8 @@ class ClinicalAssetsUnavailableApp extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.report_problem_outlined,
-                      size: 56, color: Color(0xFFB91C1C)),
+                  Icon(Icons.report_problem_outlined,
+                      size: 56, color: AppAccent.danger(context)),
                   const SizedBox(height: 16),
                   const Text(
                     'Clinical data failed to load',
@@ -112,8 +114,8 @@ class ClinicalAssetsUnavailableApp extends StatelessWidget {
                   Text(
                     reason,
                     textAlign: TextAlign.center,
-                    style:
-                        const TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                    style: TextStyle(
+                        fontSize: 12, color: AppPalette.textMuted(context)),
                   ),
                 ],
               ),
