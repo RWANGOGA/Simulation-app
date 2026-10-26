@@ -1,12 +1,20 @@
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simtack/core/storage/doctor_draft.dart';
 import 'package:simtack/core/storage/doctor_draft_storage.dart';
 import 'package:simtack/core/network/api_client.dart';
 
+import 'support/in_memory_credential_vault.dart';
+
 void main() {
+  late InMemoryCredentialVault vault;
+
   setUp(() {
     SharedPreferences.setMockInitialValues({});
+    vault = InMemoryCredentialVault();
+    DoctorDraftStorage.vault = vault;
   });
 
   group('DoctorDraftStorage', () {
@@ -127,7 +135,8 @@ void main() {
     });
 
     test('findByEmail returns null for non-existent email', () async {
-      final found = await DoctorDraftStorage.findByEmail('nonexistent@example.com');
+      final found =
+          await DoctorDraftStorage.findByEmail('nonexistent@example.com');
       expect(found, isNull);
     });
 
@@ -152,13 +161,15 @@ void main() {
     test('clear removes all drafts', () async {
       await DoctorDraftStorage.save(DoctorDraft(
         localId: -1,
-        profile: Doctor(id: -1, email: 'a@example.com', fullName: 'A', isActive: true),
+        profile: Doctor(
+            id: -1, email: 'a@example.com', fullName: 'A', isActive: true),
         passwordHash: 'hash',
         savedAt: DateTime(2024, 1, 1),
       ));
       await DoctorDraftStorage.save(DoctorDraft(
         localId: -2,
-        profile: Doctor(id: -2, email: 'b@example.com', fullName: 'B', isActive: true),
+        profile: Doctor(
+            id: -2, email: 'b@example.com', fullName: 'B', isActive: true),
         passwordHash: 'hash',
         savedAt: DateTime(2024, 1, 2),
       ));
@@ -172,14 +183,16 @@ void main() {
     test('loadAll returns drafts sorted newest first', () async {
       final oldDraft = DoctorDraft(
         localId: -1,
-        profile: Doctor(id: -1, email: 'old@example.com', fullName: 'Old', isActive: true),
+        profile: Doctor(
+            id: -1, email: 'old@example.com', fullName: 'Old', isActive: true),
         passwordHash: 'hash',
         savedAt: DateTime(2024, 1, 1),
       );
 
       final newDraft = DoctorDraft(
         localId: -2,
-        profile: Doctor(id: -2, email: 'new@example.com', fullName: 'New', isActive: true),
+        profile: Doctor(
+            id: -2, email: 'new@example.com', fullName: 'New', isActive: true),
         passwordHash: 'hash',
         savedAt: DateTime(2024, 1, 2),
       );
@@ -195,14 +208,16 @@ void main() {
     test('loadLatest returns most recent draft', () async {
       await DoctorDraftStorage.save(DoctorDraft(
         localId: -1,
-        profile: Doctor(id: -1, email: 'old@example.com', fullName: 'Old', isActive: true),
+        profile: Doctor(
+            id: -1, email: 'old@example.com', fullName: 'Old', isActive: true),
         passwordHash: 'hash',
         savedAt: DateTime(2024, 1, 1),
       ));
 
       await DoctorDraftStorage.save(DoctorDraft(
         localId: -2,
-        profile: Doctor(id: -2, email: 'new@example.com', fullName: 'New', isActive: true),
+        profile: Doctor(
+            id: -2, email: 'new@example.com', fullName: 'New', isActive: true),
         passwordHash: 'hash',
         savedAt: DateTime(2024, 1, 2),
       ));
@@ -210,6 +225,79 @@ void main() {
       final latest = await DoctorDraftStorage.loadLatest();
       expect(latest, isNotNull);
       expect(latest!.profile.fullName, 'New');
+    });
+  });
+
+  group('credential vault', () {
+    DoctorDraft draftWith(String password) => DoctorDraft.createOffline(
+          profile: Doctor(
+            id: -1,
+            email: 'test@example.com',
+            fullName: 'Test Doctor',
+            isActive: true,
+          ),
+          passwordHash: DoctorDraft.hash(password),
+        );
+
+    test('the digest never reaches the stored document', () async {
+      await DoctorDraftStorage.save(draftWith('password123'));
+
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getString('doctor_drafts')!;
+
+      // The document is not protected: readable by anything that can read app
+      // storage. The digest must not be in it.
+      expect(stored.contains('pbkdf2-sha256'), isFalse);
+      expect(stored.contains('passwordHash'), isFalse);
+      expect(vault.digests['test@example.com'], startsWith('pbkdf2-sha256'));
+    });
+
+    test('the account still verifies once the digest comes back from the vault',
+        () async {
+      await DoctorDraftStorage.save(draftWith('password123'));
+
+      final loaded = await DoctorDraftStorage.loadLatest();
+
+      expect(loaded!.verifyPassword('password123'), isTrue);
+      expect(loaded.verifyPassword('wrong'), isFalse);
+    });
+
+    test('a digest left inline by an older build is moved out on first load',
+        () async {
+      // Exactly what the previous build wrote: the whole draft, digest included.
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(
+          'doctor_drafts', jsonEncode([draftWith('password123').toJson()]));
+
+      final loaded = await DoctorDraftStorage.loadAll();
+
+      expect(loaded.single.verifyPassword('password123'), isTrue);
+      expect(vault.digests['test@example.com'], startsWith('pbkdf2-sha256'));
+      // And the document no longer carries it, without waiting for a sign-in.
+      expect(
+          prefs.getString('doctor_drafts')!.contains('pbkdf2-sha256'), isFalse);
+    });
+
+    test('an unavailable keystore costs offline sign-in, not the account',
+        () async {
+      vault.failing = true;
+
+      await DoctorDraftStorage.save(draftWith('password123'));
+      final loaded = await DoctorDraftStorage.loadLatest();
+
+      // The record survives so a connected sign-in can repair it, but no
+      // password verifies against it in the meantime.
+      expect(loaded, isNotNull);
+      expect(loaded!.verifyPassword('password123'), isFalse);
+    });
+
+    test('clearing the accounts clears their digests too', () async {
+      await DoctorDraftStorage.save(draftWith('password123'));
+
+      await DoctorDraftStorage.clear();
+
+      expect(vault.digests, isEmpty);
+      expect(await DoctorDraftStorage.loadAll(), isEmpty);
     });
   });
 }

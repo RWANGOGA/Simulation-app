@@ -4,6 +4,56 @@ import 'api_client.dart';
 import '../storage/doctor_draft_storage.dart';
 import '../storage/doctor_draft.dart';
 
+/// How the session on this device was established.
+///
+/// Sign-in from the local cache hands back the same [Doctor] a server sign-in
+/// hands back, so nothing downstream could tell that no server had confirmed
+/// the account. That is not a cosmetic gap: a revoked account that has not been
+/// seen online for six days, and an account the server checked ten seconds ago,
+/// were indistinguishable in the UI. The practitioner area states which of these
+/// it is on every screen it shows.
+enum SessionSource {
+  /// No practitioner is signed in.
+  none,
+
+  /// The server answered for this account on this device.
+  server,
+
+  /// A copy of a server account, verified against a locally stored hash while
+  /// the network was out, still inside [AuthService.offlineTrustWindow].
+  cachedCopy,
+
+  /// Registered on this device with no server. Never confirmed by one, and not
+  /// eligible for confirmation: only a hash of the password is kept.
+  deviceAccount,
+}
+
+/// What may honestly be said about the current session's trust in the server.
+///
+/// [daysSinceConfirmed] is null for a device account because there is no
+/// confirmation to count from, which is a different claim from "confirmed
+/// today" and must not be collapsed into zero.
+class SessionTrust {
+  const SessionTrust({
+    required this.source,
+    required this.windowDays,
+    this.daysSinceConfirmed,
+  });
+
+  final SessionSource source;
+
+  /// How long offline access lasts once the server has confirmed the account.
+  final int windowDays;
+
+  /// Days since a server last answered for this account.
+  final int? daysSinceConfirmed;
+
+  /// Whether anything needs to be said at all.
+  bool get needsNotice =>
+      source == SessionSource.cachedCopy ||
+      source == SessionSource.deviceAccount;
+}
+
 /// Thin service layer over [ApiClient] that adds user-friendly error
 /// messages for network-level failures (unreachable server, timeout).
 /// UI code should depend on this rather than calling [ApiClient] directly
@@ -25,6 +75,38 @@ class AuthService {
   /// cannot keep going indefinitely.
   static const Duration offlineTrustWindow = Duration(days: 7);
 
+  SessionSource _sessionSource = SessionSource.none;
+
+  /// How the session now on this device was obtained.
+  SessionSource get sessionSource => _sessionSource;
+
+  /// What to tell a practitioner about how current their access is.
+  ///
+  /// Reads the cached account rather than trusting a timestamp kept in memory,
+  /// so the answer is the same whether the session started this launch or was
+  /// restored from disk.
+  Future<SessionTrust> sessionTrust({DateTime? now}) async {
+    final moment = now ?? DateTime.now();
+    final window = offlineTrustWindow.inDays;
+    switch (_sessionSource) {
+      case SessionSource.server:
+      case SessionSource.none:
+        return SessionTrust(source: _sessionSource, windowDays: window);
+      case SessionSource.deviceAccount:
+        return SessionTrust(
+            source: SessionSource.deviceAccount, windowDays: window);
+      case SessionSource.cachedCopy:
+        final draft = await _findDraft(null);
+        return SessionTrust(
+          source: SessionSource.cachedCopy,
+          windowDays: window,
+          daysSinceConfirmed: draft == null
+              ? null
+              : moment.difference(draft.trustAnchor).inDays,
+        );
+    }
+  }
+
   /// Whether a practitioner is signed in on this device right now.
   ///
   /// This exists so an expired token can be told apart from a 401 that has
@@ -41,7 +123,10 @@ class AuthService {
 
   /// Called once the app has acted on an expiry, so the second 401 from the same
   /// dead session does not send the user to the login screen twice.
-  void noteSessionEnded() => _hasActiveSession = false;
+  void noteSessionEnded() {
+    _hasActiveSession = false;
+    _noteSource(SessionSource.none);
+  }
 
   Future<Doctor> login(
       {required String email, required String password}) async {
@@ -49,6 +134,10 @@ class AuthService {
     _hasActiveSession = true;
     return doctor;
   }
+
+  /// Set once the outcome of a sign-in is known, before the caller is handed a
+  /// doctor, so a screen cannot render a session whose source it has not seen.
+  void _noteSource(SessionSource source) => _sessionSource = source;
 
   Future<Doctor> _login(
       {required String email, required String password}) async {
@@ -63,14 +152,20 @@ class AuthService {
       // its platform channel is not answering, and awaiting it here would
       // leave the Sign In button spinning forever).
       unawaited(_cacheDoctor(doctor, password));
+      _noteSource(SessionSource.server);
       return doctor;
     } on ApiException catch (error) {
       // Only a transport failure may fall back to the local cache. If the
       // server actively rejected the credentials, honouring a stale local
       // hash would let a changed or revoked password keep working.
       if (!error.isNetworkError) rethrow;
-      final cached = await _cachedDoctor(email, password);
-      if (cached != null) return cached;
+      final cached = await _cachedAccount(email, password);
+      if (cached != null) {
+        _noteSource(cached.isDeviceAccount
+            ? SessionSource.deviceAccount
+            : SessionSource.cachedCopy);
+        return cached.profile;
+      }
       // Nothing cached for this account — surface the real reason (offline
       // or timed out) instead of a vague "invalid credentials" message.
       rethrow;
@@ -127,6 +222,7 @@ class AuthService {
         inviteCode: inviteCode,
       );
       unawaited(_cacheDoctor(doctor, password));
+      _noteSource(SessionSource.server);
       return doctor;
     } on ApiException catch (error) {
       // Registration is only safe to do on the device while the network is the
@@ -168,6 +264,7 @@ class AuthService {
       passwordHash: DoctorDraft.hash(password),
     );
     await DoctorDraftStorage.save(draft);
+    _noteSource(SessionSource.deviceAccount);
 
     return doctor;
   }
@@ -198,7 +295,11 @@ class AuthService {
   /// Storage failures (fresh install, corrupt preferences, unit tests with no
   /// platform channels) are treated as "no cache" rather than an error, so a
   /// broken cache can never block sign-in.
-  Future<Doctor?> _cachedDoctor(String email, String password) async {
+  ///
+  /// Hands back the whole draft rather than just the profile: whether this is a
+  /// copy of a server account or an account the device made itself changes what
+  /// may be claimed about it on screen.
+  Future<DoctorDraft?> _cachedAccount(String email, String password) async {
     final draft = await _findDraft(email);
     if (draft == null || !draft.verifyPassword(password)) return null;
 
@@ -215,7 +316,7 @@ class AuthService {
               'This account has been deactivated. Contact an administrator.',
         );
       }
-      return draft.profile;
+      return draft;
     }
 
     // The cache records what the server last said about this account. A
@@ -245,7 +346,7 @@ class AuthService {
     }
 
     await _upgradeHashIfNeeded(draft, password);
-    return draft.profile;
+    return draft;
   }
 
   /// What the app should open with, re-checking the stored session against the
@@ -266,6 +367,7 @@ class AuthService {
       try {
         final doctor = await ApiClient.getCurrentDoctor();
         await _refreshCachedProfile(doctor);
+        _noteSource(SessionSource.server);
         return true;
       } on ApiException catch (error) {
         final status = error.statusCode;
@@ -275,11 +377,15 @@ class AuthService {
         if (status == 401 || status == 403) {
           await ApiClient.logout();
           await _revokeCachedTrust();
+          _noteSource(SessionSource.none);
           return false;
         }
         if (!error.isNetworkError) {
           // A 5xx is the server's problem, not the account's — keep the session
-          // and let the next call decide.
+          // and let the next call decide. It is kept on the strength of a token
+          // on this device, which is not a confirmation, so it is reported the
+          // same way a cached sign-in is.
+          _noteSource(SessionSource.cachedCopy);
           return true;
         }
 
@@ -287,15 +393,22 @@ class AuthService {
         // device that has not reached the server in a week asks for a sign-in
         // instead of silently trusting a stale copy.
         final draft = await _findDraft(null);
-        if (draft == null) return true;
-        return !draft.isTrustExpired(DateTime.now(), offlineTrustWindow);
+        if (draft != null &&
+            draft.isTrustExpired(DateTime.now(), offlineTrustWindow)) {
+          return false;
+        }
+        _noteSource(SessionSource.cachedCopy);
+        return true;
       }
     }
 
     // No server session. An account created on this device still has to open
     // its dashboard: asking the server about it would make the app unusable on
     // a device that has never had a connection, which is the point of it.
-    return await _deviceAccount() != null;
+    final device = await _deviceAccount();
+    if (device == null) return false;
+    _noteSource(SessionSource.deviceAccount);
+    return true;
   }
 
   /// The signed-in-by-default account on a device with no server: an active
@@ -521,6 +634,7 @@ class AuthService {
 
   Future<void> logout() async {
     _hasActiveSession = false;
+    _noteSource(SessionSource.none);
     await ApiClient.logout();
   }
 }

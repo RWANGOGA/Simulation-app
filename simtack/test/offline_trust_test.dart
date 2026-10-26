@@ -10,6 +10,8 @@ import 'package:simtack/core/network/auth_service.dart';
 import 'package:simtack/core/storage/doctor_draft.dart';
 import 'package:simtack/core/storage/doctor_draft_storage.dart';
 
+import 'support/in_memory_credential_vault.dart';
+
 /// In-memory token storage so tests never touch platform secure storage.
 class FakeTokenStorage implements TokenStorage {
   String? _token;
@@ -106,6 +108,12 @@ void main() {
     tokens = FakeTokenStorage();
     ApiClient.tokenStorage = tokens;
     SharedPreferences.setMockInitialValues({});
+    // The digest lives in the platform keystore, which a unit test has no access
+    // to; the in-memory vault keeps the same contract.
+    DoctorDraftStorage.vault = InMemoryCredentialVault();
+    // AuthService is a singleton, so the source one test leaves behind would
+    // otherwise be read by the next one.
+    AuthService.instance.noteSessionEnded();
   });
 
   tearDown(() {
@@ -451,6 +459,158 @@ void main() {
       expect(
           draft.isTrustExpired(DateTime.now(), AuthService.offlineTrustWindow),
           isFalse);
+    });
+  });
+
+  group('offline registration', () {
+    test('creates an account the device can sign in to with no network',
+        () async {
+      ApiClient.httpClient = _offline();
+
+      final doctor = await AuthService.instance.register(
+        email: 'clinic@example.com',
+        password: 'Secret123',
+        fullName: 'Dr Offline',
+      );
+
+      // Negative id and an unsynced row are what stop this account ever being
+      // treated as a server account: it can sign in here, and nowhere else.
+      expect(doctor.id, isNegative);
+      expect(AuthService.instance.sessionSource, SessionSource.deviceAccount);
+
+      final stored = await DoctorDraftStorage.findByEmail('clinic@example.com');
+      expect(stored, isNotNull);
+      expect(stored!.isSynced, isFalse);
+      expect(stored.verifyPassword('Secret123'), isTrue);
+
+      await AuthService.instance.logout();
+      final again = await AuthService.instance
+          .login(email: 'clinic@example.com', password: 'Secret123');
+      expect(again.email, 'clinic@example.com');
+      expect(AuthService.instance.sessionSource, SessionSource.deviceAccount);
+    });
+
+    test('a wrong password is still refused with no network', () async {
+      ApiClient.httpClient = _offline();
+      await AuthService.instance.register(
+          email: 'clinic@example.com',
+          password: 'Secret123',
+          fullName: 'Dr Offline');
+      await AuthService.instance.logout();
+
+      await expectLater(
+        AuthService.instance
+            .login(email: 'clinic@example.com', password: 'WrongPass'),
+        throwsA(isA<ApiException>()
+            .having((e) => e.isNetworkError, 'isNetworkError', isTrue)),
+      );
+    });
+
+    test('a device account is not held to the server trust window', () async {
+      ApiClient.httpClient = _offline();
+      await AuthService.instance.register(
+          email: 'clinic@example.com',
+          password: 'Secret123',
+          fullName: 'Dr Offline');
+
+      final stored = await DoctorDraftStorage.findByEmail('clinic@example.com');
+      // Far longer offline than the window allows a cached *server* account.
+      await DoctorDraftStorage.save(stored!.copyWith(
+          lastVerifiedAt: DateTime.now().subtract(const Duration(days: 90))));
+      await AuthService.instance.logout();
+
+      final doctor = await AuthService.instance
+          .login(email: 'clinic@example.com', password: 'Secret123');
+
+      // Expiring this would strand a clinic that has no backend at all, which
+      // is the entire reason the account can be made on the device.
+      expect(doctor.email, 'clinic@example.com');
+    });
+  });
+
+  group('what the app may say about the session', () {
+    test('a sign-in the server answered needs no notice', () async {
+      ApiClient.httpClient = MockClient((request) async {
+        if (request.url.path.endsWith('/auth/login')) {
+          return http.Response(
+              jsonEncode({'access_token': 'token', 'refresh_token': 'refresh'}),
+              200);
+        }
+        if (request.url.path.endsWith('/auth/me')) {
+          return http.Response(jsonEncode(_doctorJson()), 200);
+        }
+        return http.Response('{}', 404);
+      });
+
+      await AuthService.instance
+          .login(email: 'doctor@example.com', password: 'Secret123');
+
+      final trust = await AuthService.instance.sessionTrust();
+      expect(trust.source, SessionSource.server);
+      expect(trust.needsNotice, isFalse);
+    });
+
+    test('a cached sign-in dates the last time the server answered', () async {
+      await _cacheSignedIn(
+        password: 'Secret123',
+        verifiedAt: DateTime.now().subtract(const Duration(days: 3)),
+      );
+      ApiClient.httpClient = _offline();
+
+      await AuthService.instance
+          .login(email: 'doctor@example.com', password: 'Secret123');
+
+      final trust = await AuthService.instance.sessionTrust();
+      expect(trust.source, SessionSource.cachedCopy);
+      expect(trust.needsNotice, isTrue);
+      expect(trust.daysSinceConfirmed, 3);
+      expect(trust.windowDays, AuthService.offlineTrustWindow.inDays);
+    });
+
+    test('a device account has no confirmation date rather than today',
+        () async {
+      ApiClient.httpClient = _offline();
+      await AuthService.instance.register(
+          email: 'clinic@example.com',
+          password: 'Secret123',
+          fullName: 'Dr Offline');
+
+      final trust = await AuthService.instance.sessionTrust();
+
+      // Null, not zero: "confirmed today" is a claim nobody can make here.
+      expect(trust.daysSinceConfirmed, isNull);
+      expect(trust.needsNotice, isTrue);
+    });
+
+    test('signing out drops the claim', () async {
+      await _cacheSignedIn(password: 'Secret123');
+      ApiClient.httpClient = _offline();
+      await AuthService.instance
+          .login(email: 'doctor@example.com', password: 'Secret123');
+
+      await AuthService.instance.logout();
+
+      final trust = await AuthService.instance.sessionTrust();
+      expect(trust.source, SessionSource.none);
+      expect(trust.needsNotice, isFalse);
+    });
+  });
+
+  group('transport failure', () {
+    test('the cache is reached through the client classification, not a probe',
+        () async {
+      await _cacheSignedIn(password: 'Secret123');
+      // No connectivity check is consulted anywhere on this path: the client
+      // classifies its own failure, which is what makes the behaviour identical
+      // on Android and on the web build.
+      ApiClient.httpClient = MockClient(
+          (_) async => throw http.ClientException('connection refused'));
+
+      final doctor = await AuthService.instance
+          .login(email: 'doctor@example.com', password: 'Secret123');
+
+      expect(doctor.email, 'doctor@example.com');
+      expect(AuthService.instance.sessionSource, SessionSource.cachedCopy);
     });
   });
 }

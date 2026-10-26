@@ -1724,6 +1724,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'+{count, plural, =1{1 more} other{{count} more}}'**
   String moreFactorsLabel(int count);
+
+  /// Strip at the top of the practitioner console when sign-in was answered from the credential cache instead of the server, naming how long ago the server last confirmed the account and how long offline access then lasts.
+  ///
+  /// In en, this message translates to:
+  /// **'{days, plural, =0{Signed in from the local copy of this account. The server confirmed it today; offline sign-in keeps working for {window} days after that.} =1{Signed in from the local copy of this account. The server confirmed it 1 day ago; offline sign-in keeps working for {window} days after that.} other{Signed in from the local copy of this account. The server confirmed it {days} days ago; offline sign-in keeps working for {window} days after that.}}'**
+  String sessionCachedCopyNotice(int days, int window);
+
+  /// Same strip when there is no recorded confirmation date to quote. Used instead of claiming the account was confirmed today.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in from the local copy of this account, which no server has confirmed from this device. Offline sign-in keeps working for {window} days after the last confirmation.'**
+  String sessionCachedCopyUndatedNotice(int window);
+
+  /// Strip at the top of the practitioner console for an account registered while offline, which exists only on this device and can never be uploaded (only a hash of the password is kept).
+  ///
+  /// In en, this message translates to:
+  /// **'This account was created on this device and has never been confirmed by a server. It can sign in on this device only.'**
+  String get sessionDeviceAccountNotice;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

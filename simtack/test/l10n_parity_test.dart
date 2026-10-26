@@ -27,16 +27,16 @@ const _templatePath = '$_arbDir/app_$_templateLocale.arb';
 /// the ceiling on purpose (a reviewed "ship English for now" decision) or
 /// supplies the translation. Whenever a locale improves, lower its number.
 const _englishCeiling = <String, int>{
-  // 32 = 26 + the five red-flag escalation strings (emergency and urgent
-  // banner title/body, plus the "what triggered this" heading) + the
-  // practitioner "Red flag" chip. English was shipped rather than guessing at
-  // Luganda/Runyankole/Lusoga for text a patient acts on. Kiswahili did get a
-  // real translation, which is why its number did not move. Translating these
-  // three and lowering the number is the follow-up.
-  'lg': 32,
-  'nyn': 268,
-  'sw': 254,
-  'xog': 268,
+  // 35 = 32 + the three session-trust notices (cached copy with a date, cached
+  // copy with no date, device-only account). They ship as English on purpose:
+  // the sentence states whether a server vouched for this account and for how
+  // long offline access lasts, so a guessed Luganda/Kiswahili/Lusoga wording is
+  // a wrong security claim rather than a missing translation. Translating all
+  // three with a reviewer and lowering these numbers is the follow-up.
+  'lg': 35,
+  'nyn': 271,
+  'sw': 257,
+  'xog': 271,
 };
 
 Map<String, dynamic> _read(String path) =>

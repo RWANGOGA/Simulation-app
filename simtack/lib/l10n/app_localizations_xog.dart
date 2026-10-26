@@ -900,4 +900,24 @@ class AppLocalizationsXog extends AppLocalizations {
     );
     return '+$_temp0';
   }
+
+  @override
+  String sessionCachedCopyNotice(int days, int window) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'Signed in from the local copy of this account. The server confirmed it $days days ago; offline sign-in keeps working for $window days after that.',
+      one: 'Signed in from the local copy of this account. The server confirmed it 1 day ago; offline sign-in keeps working for $window days after that.',
+      zero: 'Signed in from the local copy of this account. The server confirmed it today; offline sign-in keeps working for $window days after that.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sessionCachedCopyUndatedNotice(int window) {
+    return 'Signed in from the local copy of this account, which no server has confirmed from this device. Offline sign-in keeps working for $window days after the last confirmation.';
+  }
+
+  @override
+  String get sessionDeviceAccountNotice => 'This account was created on this device and has never been confirmed by a server. It can sign in on this device only.';
 }

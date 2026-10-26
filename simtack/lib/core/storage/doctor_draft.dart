@@ -127,7 +127,11 @@ class DoctorDraft {
       localId: json['localId'] as int,
       doctorId: json['doctorId'] as int?,
       profile: Doctor.fromJson(rawProfile),
-      passwordHash: json['passwordHash'] as String,
+      // The digest is stored in the credential vault, not in this record, so
+      // a missing one is normal and means the account cannot sign in offline
+      // until it is restored. An empty value never verifies against a
+      // password, which is the intended outcome.
+      passwordHash: (json['passwordHash'] as String?) ?? '',
       savedAt: DateTime.parse(json['savedAt'] as String),
       isSynced: json['isSynced'] as bool? ?? false,
       lastVerifiedAt: json['lastVerifiedAt'] == null

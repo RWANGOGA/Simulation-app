@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/github_palette.dart';
 import 'practitioner_sidebar.dart';
+import 'session_trust_strip.dart';
 
 /// The practitioner area's page frame: a GitHub-style canvas with the
 /// navigation rail on the left at wide sizes, and behind a drawer at narrow
@@ -44,6 +45,9 @@ class PractitionerScaffold extends StatelessWidget {
             builder: (scaffoldContext) {
               return Column(
                 children: [
+                  // Above the sidebar split, because how current the session is
+                  // applies to the whole console, not to one screen in it.
+                  const SessionTrustStrip(),
                   Expanded(
                     child: Row(
                       children: [
