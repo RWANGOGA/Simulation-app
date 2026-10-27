@@ -67,6 +67,15 @@ it was enforced.**
    the sequence works with a screen reader and with one thumb. It is not used on
    the body map, where a tap *is* the data, and not used in intake, where paging
    would hide the question being answered.
+6. **The clinical store is encrypted at rest wherever the platform can keep a
+   key apart from the data.** `test/local_envelope_test.dart` and
+   `test/local_database_encryption_test.dart` fail the build if the document is
+   ever written as plaintext once a keystore is configured, if a legacy plaintext
+   store survives migration, or if an envelope that will not authenticate is
+   handed back as a partly readable record. Where there is no keystore — web, and
+   every widget test — the store stays plaintext and the app says so, rather than
+   encrypting with a key stored beside the ciphertext and calling that a
+   protection. The full asset/adversary reasoning lives in `docs/threat-model.md`.
 
 ## Known gaps, stated rather than implied
 
@@ -82,7 +91,11 @@ it was enforced.**
 - **Web has no keystore.** Device-bound credentials use `flutter_secure_storage`
   on Android and iOS; on web it degrades to browser storage, which is why the
   7-day trust window and the PBKDF2 cost are not optional there, and why the
-  trust strip is mandatory rather than decorative.
+  trust strip is mandatory rather than decorative. The same limit reaches the
+  clinical store: `main()` opts it into at-rest encryption only on platforms that
+  can hold the data key apart from the data, so on web the document is stored in
+  plaintext by that same honest decision, not by omission (see
+  `docs/threat-model.md`).
 - **Colour is still a channel for risk.** The bands carry a text label too, which
   is what keeps this WCAG-compliant; the label is not asserted by a test yet.
 - **No usability evidence.** Nothing here is a claim that the interface is easy
@@ -100,3 +113,4 @@ it was enforced.**
 | `test/l10n_parity_test.dart` | a key is missing in a locale, or the English-verbatim count for a locale exceeds its recorded ceiling |
 | `test/offline_trust_test.dart`, `test/offline_auth_test.dart` | offline sign-in, registration, the wrong-password rejection, the HTTP-401 rejection, or the 7-day window changes behaviour |
 | `test/story_pager_test.dart` | the pager gains an auto-advance timer or an invisible tap zone, an item becomes unreachable, or the end chevrons wrap instead of disabling |
+| `test/local_envelope_test.dart`, `test/local_database_encryption_test.dart` | the at-rest envelope stops round-tripping or authenticating, the store writes a configured-keystore document as plaintext, migration leaves the plaintext behind, or an unreadable envelope is opened instead of quarantined |

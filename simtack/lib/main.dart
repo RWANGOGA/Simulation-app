@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:simtack/core/theme/app_accent.dart';
 import 'package:simtack/core/theme/app_palette.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -9,6 +10,8 @@ import 'core/locale/locale_controller.dart';
 import 'core/locale/luganda_fallback_delegates.dart';
 import 'core/network/api_client.dart';
 import 'core/network/auth_service.dart';
+import 'core/offline/local_database.dart';
+import 'core/offline/local_envelope.dart';
 import 'core/offline/sync_service.dart';
 
 import 'core/theme/app_page_route.dart';
@@ -24,6 +27,16 @@ import 'l10n/app_localizations.dart';
 void main() async {
   // 1. We MUST initialize Flutter bindings before calling async functions in main()
   WidgetsFlutterBinding.ensureInitialized();
+
+  // 1b. Opt the clinical store into at-rest encryption before any screen opens
+  // it, wherever this platform can keep a key apart from the data. Web is
+  // excluded: flutter_secure_storage there writes the key into the same browser
+  // storage as the document, so encrypting would protect nothing while claiming
+  // to — the honest answer on web is plaintext. Where no keystore is configured
+  // the store stays plaintext (see LocalDatabase).
+  if (!kIsWeb) {
+    LocalDatabase.configureKeyStore(const SecureDataKeyStore());
+  }
 
   // 2. Restore accessibility preferences (text size, light/dark) before the
   // first frame so the app never flashes in the wrong theme or scale.

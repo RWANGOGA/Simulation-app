@@ -199,14 +199,17 @@ void main() {
 
     test('nothing on the passport path claims the word "encrypted"', () {
       // The cipher exists now, but the caption names what the code is rather
-      // than advertising a primitive a reader cannot verify from a card.
+      // than advertising a primitive a reader cannot verify from a card. This
+      // matches the standalone word only, so a display string is caught while
+      // internal identifiers on the encryption path (`_openEncrypted`,
+      // `notEncrypted`) are not mistaken for a claim.
       final offenders = Directory('lib')
           .listSync(recursive: true)
           .whereType<File>()
           .where((f) => f.path.endsWith('.dart'))
           .where((f) => !f.path.contains('/l10n/'))
           .where((f) => f.readAsLinesSync().any((line) =>
-              RegExp('encrypted', caseSensitive: false).hasMatch(line) &&
+              RegExp(r'\bencrypted\b', caseSensitive: false).hasMatch(line) &&
               !line.trimLeft().startsWith('//')))
           .map((f) => f.path)
           .toList();
