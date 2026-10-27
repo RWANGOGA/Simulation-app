@@ -90,12 +90,19 @@ def _factor(factor: str, contribution: float) -> Dict[str, Any]:
 
 
 def _connectivity_contributions(region: str, sibling_regions: List[str]) -> List[Dict[str, Any]]:
-    """Checks the current region against every other region already
-    reported in the same visit. Each real anatomical connection found
-    adds its own contribution, scaled by how concerning that specific
-    connection is (see CONCERN_RISK_BUMP) — e.g. chest pain + left arm
-    pain in the same visit is a much bigger deal than lower back pain +
-    leg pain, even though both are "connected" in the graph."""
+    """The direct-edge (one-hop) co-report bump — a fixed weight, not propagation.
+
+    For each other region reported in the same visit, look up whether this
+    region lists it as a connection and add that edge's fixed concern weight
+    (see CONCERN_RISK_BUMP). Two regions must be *adjacent in the hand-authored
+    graph* for this to fire; if neither lists the other, nothing is added even
+    when both are reported.
+
+    Named "connectivity" and not "propagation" on purpose: this term ignores the
+    neighbour's own severity and never travels more than one edge. It is a fixed
+    per-edge weight over hand-authored adjacency — not a weighted message pass,
+    and not a learned edge.
+    """
     contributions: List[Dict[str, Any]] = []
     seen = set()
     for other_region in sibling_regions:

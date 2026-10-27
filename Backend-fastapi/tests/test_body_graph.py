@@ -63,6 +63,27 @@ class TestBodyGraph(unittest.TestCase):
         self.assertIsNotNone(node)
         self.assertEqual(node["system"], "musculoskeletal")
 
+    def test_find_connection_is_one_hop_only(self):
+        """Pins the honesty claim in the module docstring: this is adjacency, not
+        inference. A two-hop pair must not be reachable through find_connection,
+        or every "1-hop lookup" statement about the graph would be false and any
+        report of it as multi-hop reasoning would be unearned.
+
+        Headache connects to Neck; Neck connects to Left Shoulder. So the pair
+        (Headache, Left Shoulder) is exactly two hops apart and must return None -
+        the function reads one adjacency list, it does not walk the graph.
+        """
+        self.assertIsNotNone(find_connection("Headache / Cranial", "Neck"))
+        self.assertIsNotNone(find_connection("Neck", "Left Shoulder"))
+        self.assertIsNone(find_connection("Headache / Cranial", "Left Shoulder"))
+
+    def test_no_region_lists_itself_as_a_connection(self):
+        # A self-edge would make the one-hop bump fire on a region against
+        # itself in any co-report, inflating the score for no clinical reason.
+        for region_a, node in BODY_GRAPH.items():
+            listed = {conn["region"] for conn in node["connects_to"]}
+            self.assertNotIn(region_a, listed)
+
 
 if __name__ == "__main__":
     unittest.main()

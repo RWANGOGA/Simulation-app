@@ -274,6 +274,13 @@ class RiskEngine {
     return _BmiResult(bump, bmi);
   }
 
+  /// The direct-edge (one-hop) co-report bump — a fixed weight, not propagation.
+  ///
+  /// For each other region reported in the same visit, add that edge's fixed
+  /// concern weight if this region lists it in the hand-authored graph. The
+  /// neighbour's own severity is ignored and nothing travels beyond one edge, so
+  /// this is not a message pass and the edge is not learned — mirror of
+  /// `_connectivity_contributions` on the server.
   List<RiskContribution> _connectivityContributions(
     String region,
     List<String> siblingRegions,
