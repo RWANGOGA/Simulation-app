@@ -1,0 +1,182 @@
+{
+  "generated_at": "2026-10-27T10:44:02+00:00",
+  "fixture_version": 1,
+  "scale": "SATS",
+  "n_cases": 150,
+  "counts": {
+    "red": 40,
+    "orange": 41,
+    "yellow": 37,
+    "green": 32
+  },
+  "reference_label": "design_target",
+  "guard": {
+    "clinician_label": false,
+    "second_labeler_id": null,
+    "reference_kind": "design_target",
+    "author_labeler_id": "harness_author_v1",
+    "inter_rater_kappa_available": false,
+    "interpretation": "tool-vs-design-target specification conformance",
+    "note": "intended_tier is the SATS category each vignette was constructed to exercise, assigned by a single non-clinician author. It is a specification-conformance answer key, not a clinician's reference standard. Because there is no clinician label and no second labeler, agreement against it measures whether the rules realise their design intent \u2014 not clinical validity \u2014 and inter-rater reliability is not computed. Replace intended_tier with reviewed clinician labels (and set second_labeler_id) to produce the tool-vs-clinician kappa the paper's title promises."
+  },
+  "agreement": {
+    "n": 150,
+    "confusion": {
+      "red": {
+        "red": 40,
+        "orange": 0,
+        "yellow": 0,
+        "green": 0
+      },
+      "orange": {
+        "red": 0,
+        "orange": 41,
+        "yellow": 0,
+        "green": 0
+      },
+      "yellow": {
+        "red": 0,
+        "orange": 0,
+        "yellow": 37,
+        "green": 0
+      },
+      "green": {
+        "red": 0,
+        "orange": 0,
+        "yellow": 0,
+        "green": 32
+      }
+    },
+    "weighted_kappa": 1.0,
+    "cohen_kappa": 1.0,
+    "red_boundary_kappa": 1.0,
+    "exact": 150,
+    "under": 0,
+    "over": 0,
+    "under_rate": 0.0,
+    "over_rate": 0.0,
+    "agreement_rate": 1.0,
+    "red_sensitivity": {
+      "denominator": 40,
+      "hits": 40,
+      "sensitivity": 1.0,
+      "ci95": [
+        0.9123754607496077,
+        1.0
+      ]
+    }
+  },
+  "inter_rater": {
+    "available": false,
+    "reason": "inter-rater kappa needs a clinician label and a second labeler; fixture has clinician_label=False, second_labeler_id=None"
+  },
+  "conformance_mismatches": [],
+  "worked_cases": [
+    {
+      "label": "red by vital-sign floor",
+      "id": "V025",
+      "summary": "Leg pain with heart rate 125 bpm",
+      "intended_tier": "red",
+      "tool_tier": "red",
+      "risk": 0.45,
+      "decided_by": [
+        "heart_rate_critical"
+      ],
+      "contributions": [
+        {
+          "factor": "Severity 3/10",
+          "contribution": 0.15,
+          "shap": 0.15,
+          "impact": "+"
+        },
+        {
+          "factor": "Heart rate 125.0 bpm",
+          "contribution": 0.15,
+          "shap": 0.15,
+          "impact": "+"
+        },
+        {
+          "factor": "Region: Left Leg",
+          "contribution": 0.1,
+          "shap": 0.1,
+          "impact": "+"
+        },
+        {
+          "factor": "Pain type: Dull",
+          "contribution": 0.05,
+          "shap": 0.05,
+          "impact": "+"
+        }
+      ]
+    },
+    {
+      "label": "orange by score on a concerning region",
+      "id": "V044",
+      "summary": "Chest / Heart pain with heart rate 101 bpm",
+      "intended_tier": "orange",
+      "tool_tier": "orange",
+      "risk": 0.82,
+      "decided_by": [
+        "heart_rate_high",
+        "score_high_in_concerning_region"
+      ],
+      "contributions": [
+        {
+          "factor": "Region: Chest / Heart",
+          "contribution": 0.4,
+          "shap": 0.4,
+          "impact": "+"
+        },
+        {
+          "factor": "Severity 4/10",
+          "contribution": 0.2,
+          "shap": 0.2,
+          "impact": "+"
+        },
+        {
+          "factor": "Pain type: Sharp",
+          "contribution": 0.12,
+          "shap": 0.12,
+          "impact": "+"
+        },
+        {
+          "factor": "Heart rate 101.0 bpm",
+          "contribution": 0.1,
+          "shap": 0.1,
+          "impact": "+"
+        }
+      ]
+    },
+    {
+      "label": "green by below urgent band",
+      "id": "V119",
+      "summary": "Left Leg pain rated 1/10",
+      "intended_tier": "green",
+      "tool_tier": "green",
+      "risk": 0.2,
+      "decided_by": [
+        "score_below_urgent_band"
+      ],
+      "contributions": [
+        {
+          "factor": "Region: Left Leg",
+          "contribution": 0.1,
+          "shap": 0.1,
+          "impact": "+"
+        },
+        {
+          "factor": "Severity 1/10",
+          "contribution": 0.05,
+          "shap": 0.05,
+          "impact": "+"
+        },
+        {
+          "factor": "Pain type: Dull",
+          "contribution": 0.05,
+          "shap": 0.05,
+          "impact": "+"
+        }
+      ]
+    }
+  ]
+}

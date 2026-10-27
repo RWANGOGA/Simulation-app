@@ -1,0 +1,2284 @@
+{
+  "version": 1,
+  "scale": "SATS",
+  "provenance": {
+    "reference_field": "intended_tier",
+    "reference_kind": "design_target",
+    "clinician_label": false,
+    "author_labeler_id": "harness_author_v1",
+    "second_labeler_id": null,
+    "note": "intended_tier is the SATS category each vignette was constructed to exercise, assigned by a single non-clinician author. It is a specification-conformance answer key, not a clinician's reference standard. Because there is no clinician label and no second labeler, agreement against it measures whether the rules realise their design intent \u2014 not clinical validity \u2014 and inter-rater reliability is not computed. Replace intended_tier with reviewed clinician labels (and set second_labeler_id) to produce the tool-vs-clinician kappa the paper's title promises."
+  },
+  "counts": {
+    "red": 40,
+    "orange": 41,
+    "yellow": 37,
+    "green": 32
+  },
+  "cases": [
+    {
+      "id": "V001",
+      "summary": "Crushing central chest pain rated 1/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Crushing",
+        "severity": 1,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V002",
+      "summary": "Stabbing central chest pain rated 1/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Stabbing",
+        "severity": 1,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V003",
+      "summary": "Crushing central chest pain rated 2/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Crushing",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V004",
+      "summary": "Stabbing central chest pain rated 2/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Stabbing",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V005",
+      "summary": "Crushing central chest pain rated 3/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Crushing",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V006",
+      "summary": "Stabbing central chest pain rated 3/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Stabbing",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V007",
+      "summary": "Crushing central chest pain rated 5/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Crushing",
+        "severity": 5,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V008",
+      "summary": "Stabbing central chest pain rated 5/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Stabbing",
+        "severity": 5,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V009",
+      "summary": "Crushing central chest pain rated 6/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Crushing",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V010",
+      "summary": "Stabbing central chest pain rated 6/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Stabbing",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V011",
+      "summary": "Crushing central chest pain rated 7/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Crushing",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V012",
+      "summary": "Stabbing central chest pain rated 7/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Stabbing",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V013",
+      "summary": "Crushing central chest pain rated 9/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Crushing",
+        "severity": 9,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V014",
+      "summary": "Stabbing central chest pain rated 9/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Stabbing",
+        "severity": 9,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V015",
+      "summary": "Chest pain rated 2/10 spreading to the left arm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Pressure",
+        "severity": 2,
+        "direction": "Radiating down left arm",
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": [
+          "Left Arm"
+        ]
+      }
+    },
+    {
+      "id": "V016",
+      "summary": "Chest pain rated 3/10 spreading to the left arm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Pressure",
+        "severity": 3,
+        "direction": "Radiating down left arm",
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": [
+          "Left Arm"
+        ]
+      }
+    },
+    {
+      "id": "V017",
+      "summary": "Chest pain rated 4/10 spreading to the left arm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Pressure",
+        "severity": 4,
+        "direction": "Radiating down left arm",
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": [
+          "Left Arm"
+        ]
+      }
+    },
+    {
+      "id": "V018",
+      "summary": "Chest pain rated 6/10 spreading to the left arm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Pressure",
+        "severity": 6,
+        "direction": "Radiating down left arm",
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": [
+          "Left Arm"
+        ]
+      }
+    },
+    {
+      "id": "V019",
+      "summary": "Chest pain rated 7/10 spreading to the left arm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Pressure",
+        "severity": 7,
+        "direction": "Radiating down left arm",
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": [
+          "Left Arm"
+        ]
+      }
+    },
+    {
+      "id": "V020",
+      "summary": "Chest pain rated 8/10 spreading to the left arm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Pressure",
+        "severity": 8,
+        "direction": "Radiating down left arm",
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": [
+          "Left Arm"
+        ]
+      }
+    },
+    {
+      "id": "V021",
+      "summary": "Chest pain rated 8/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Sharp",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V022",
+      "summary": "Chest pain rated 8/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Burning",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V023",
+      "summary": "Chest pain rated 9/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Sharp",
+        "severity": 9,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V024",
+      "summary": "Chest pain rated 9/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Burning",
+        "severity": 9,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V025",
+      "summary": "Leg pain with heart rate 125 bpm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": 125.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V026",
+      "summary": "Leg pain with heart rate 132 bpm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": 132.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V027",
+      "summary": "Leg pain with heart rate 145 bpm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": 145.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V028",
+      "summary": "Leg pain with heart rate 160 bpm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": 160.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V029",
+      "summary": "Leg pain with heart rate 44 bpm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": 44.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V030",
+      "summary": "Leg pain with heart rate 38 bpm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": 38.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V031",
+      "summary": "Leg pain with heart rate 49 bpm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": 49.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V032",
+      "summary": "Leg pain with heart rate 40 bpm",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": 40.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V033",
+      "summary": "Headache / Cranial pain rated 10/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Headache / Cranial",
+        "pain_type": "Throbbing",
+        "severity": 10,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V034",
+      "summary": "Abdomen (Upper) pain rated 10/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Abdomen (Upper)",
+        "pain_type": "Sharp",
+        "severity": 10,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V035",
+      "summary": "Neck pain rated 10/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Neck",
+        "pain_type": "Cramping",
+        "severity": 10,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V036",
+      "summary": "Headache / Cranial pain rated 10/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Headache / Cranial",
+        "pain_type": "Numb",
+        "severity": 10,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V037",
+      "summary": "Abdomen (Upper) pain rated 10/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Abdomen (Upper)",
+        "pain_type": "Crushing",
+        "severity": 10,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V038",
+      "summary": "Neck pain rated 10/10",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Neck",
+        "pain_type": "Burning",
+        "severity": 10,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V039",
+      "summary": "Crushing chest pain with an abnormal body habitus",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Crushing",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": 110.0,
+        "patient_height": 170.0,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V040",
+      "summary": "Crushing chest pain with an abnormal body habitus",
+      "intended_tier": "red",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Crushing",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": 45.0,
+        "patient_height": 165.0,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V041",
+      "summary": "Left Leg pain with heart rate 101 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Aching",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 101.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V042",
+      "summary": "Right Arm pain with heart rate 101 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Sore",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 101.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V043",
+      "summary": "Back Pain (Lower) pain with heart rate 101 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Dull",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 101.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V044",
+      "summary": "Chest / Heart pain with heart rate 101 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Sharp",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 101.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V045",
+      "summary": "Left Arm pain with heart rate 101 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Left Arm",
+        "pain_type": "Numb",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 101.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V046",
+      "summary": "Left Leg pain with heart rate 108 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Aching",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 108.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V047",
+      "summary": "Right Arm pain with heart rate 108 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Sore",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 108.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V048",
+      "summary": "Back Pain (Lower) pain with heart rate 108 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Dull",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 108.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V049",
+      "summary": "Chest / Heart pain with heart rate 108 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Sharp",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 108.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V050",
+      "summary": "Left Arm pain with heart rate 108 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Left Arm",
+        "pain_type": "Numb",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 108.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V051",
+      "summary": "Left Leg pain with heart rate 115 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Aching",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 115.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V052",
+      "summary": "Right Arm pain with heart rate 115 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Sore",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 115.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V053",
+      "summary": "Back Pain (Lower) pain with heart rate 115 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Dull",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 115.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V054",
+      "summary": "Chest / Heart pain with heart rate 115 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Sharp",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 115.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V055",
+      "summary": "Left Arm pain with heart rate 115 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Left Arm",
+        "pain_type": "Numb",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 115.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V056",
+      "summary": "Left Leg pain with heart rate 120 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Aching",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 120.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V057",
+      "summary": "Right Arm pain with heart rate 120 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Sore",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 120.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V058",
+      "summary": "Back Pain (Lower) pain with heart rate 120 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Dull",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 120.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V059",
+      "summary": "Chest / Heart pain with heart rate 120 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Chest / Heart",
+        "pain_type": "Sharp",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 120.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V060",
+      "summary": "Left Arm pain with heart rate 120 bpm",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Left Arm",
+        "pain_type": "Numb",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": 120.0,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V061",
+      "summary": "Head pain rated 8/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Headache / Cranial",
+        "pain_type": "Throbbing",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V062",
+      "summary": "Head pain rated 8/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Headache / Cranial",
+        "pain_type": "Sharp",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V063",
+      "summary": "Head pain rated 8/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Headache / Cranial",
+        "pain_type": "Burning",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V064",
+      "summary": "Head pain rated 8/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Headache / Cranial",
+        "pain_type": "Numb",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V065",
+      "summary": "Head pain rated 9/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Headache / Cranial",
+        "pain_type": "Throbbing",
+        "severity": 9,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V066",
+      "summary": "Head pain rated 9/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Headache / Cranial",
+        "pain_type": "Sharp",
+        "severity": 9,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V067",
+      "summary": "Head pain rated 9/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Headache / Cranial",
+        "pain_type": "Burning",
+        "severity": 9,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V068",
+      "summary": "Head pain rated 9/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Headache / Cranial",
+        "pain_type": "Numb",
+        "severity": 9,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V069",
+      "summary": "Left Arm pain rated 10/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Left Arm",
+        "pain_type": "Crushing",
+        "severity": 10,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V070",
+      "summary": "Right Arm pain rated 10/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Crushing",
+        "severity": 10,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V071",
+      "summary": "Left Leg pain rated 10/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Crushing",
+        "severity": 10,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V072",
+      "summary": "Back Pain (Lower) pain rated 10/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Crushing",
+        "severity": 10,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V073",
+      "summary": "Headache / Cranial pain rated 7/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Headache / Cranial",
+        "pain_type": "Numb",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V074",
+      "summary": "Abdomen (Upper) pain rated 7/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Abdomen (Upper)",
+        "pain_type": "Sharp",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V075",
+      "summary": "Neck pain rated 7/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Neck",
+        "pain_type": "Cramping",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V076",
+      "summary": "Neck pain rated 6/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Neck",
+        "pain_type": "Burning",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V077",
+      "summary": "Headache / Cranial pain rated 6/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Headache / Cranial",
+        "pain_type": "Throbbing",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V078",
+      "summary": "Abdomen (Upper) pain rated 7/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Abdomen (Upper)",
+        "pain_type": "Burning",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V079",
+      "summary": "Neck pain rated 7/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Neck",
+        "pain_type": "Sharp",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V080",
+      "summary": "Abdomen (Upper) pain rated 8/10",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Abdomen (Upper)",
+        "pain_type": "Cramping",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V081",
+      "summary": "Neck pain alongside chest discomfort",
+      "intended_tier": "orange",
+      "input": {
+        "body_region": "Neck",
+        "pain_type": "Stiff",
+        "severity": 5,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": [
+          "Chest / Heart"
+        ]
+      }
+    },
+    {
+      "id": "V082",
+      "summary": "Back Pain (Lower) pain rated 5/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Sharp",
+        "severity": 5,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V083",
+      "summary": "Right Arm pain rated 6/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Throbbing",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V084",
+      "summary": "Left Leg pain rated 8/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Cramping",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V085",
+      "summary": "Left Arm pain rated 5/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Arm",
+        "pain_type": "Burning",
+        "severity": 5,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V086",
+      "summary": "Back Pain (Lower) pain rated 6/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Numb",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V087",
+      "summary": "Left Leg pain rated 6/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Sharp",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V088",
+      "summary": "Right Arm pain rated 7/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Sharp",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V089",
+      "summary": "Back Pain (Lower) pain rated 7/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Dull",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V090",
+      "summary": "Left Leg pain rated 7/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Throbbing",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V091",
+      "summary": "Left Arm pain rated 6/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Arm",
+        "pain_type": "Cramping",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V092",
+      "summary": "Back Pain (Lower) pain rated 9/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Crushing",
+        "severity": 9,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V093",
+      "summary": "Left Leg pain rated 9/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Stabbing",
+        "severity": 9,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V094",
+      "summary": "Right Arm pain rated 6/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Burning",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V095",
+      "summary": "Back Pain (Lower) pain rated 6/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Throbbing",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V096",
+      "summary": "Left Leg pain rated 8/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Numb",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V097",
+      "summary": "Left Arm pain rated 6/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Arm",
+        "pain_type": "Sharp",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V098",
+      "summary": "Back Pain (Lower) pain rated 8/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Stabbing",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V099",
+      "summary": "Left Leg pain rated 7/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Burning",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V100",
+      "summary": "Right Arm pain rated 8/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Crushing",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V101",
+      "summary": "Back Pain (Lower) pain rated 7/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Cramping",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V102",
+      "summary": "Left Leg pain rated 8/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Sore",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V103",
+      "summary": "Left Arm pain rated 7/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Arm",
+        "pain_type": "Throbbing",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V104",
+      "summary": "Back Pain (Lower) pain rated 6/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Sore",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V105",
+      "summary": "Left Leg pain rated 7/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Aching",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V106",
+      "summary": "Right Arm pain rated 7/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Stabbing",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V107",
+      "summary": "Back Pain (Lower) pain rated 7/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Burning",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V108",
+      "summary": "Left Leg pain rated 8/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Crushing",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V109",
+      "summary": "Left Arm pain rated 7/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Arm",
+        "pain_type": "Dull",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V110",
+      "summary": "Back Pain (Lower) pain rated 7/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Sharp",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V111",
+      "summary": "Left Leg pain rated 9/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 9,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V112",
+      "summary": "Right Arm pain rated 8/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Throbbing",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V113",
+      "summary": "Back Pain (Lower) pain rated 8/10",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Sharp",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V114",
+      "summary": "Back Pain (Lower) pain rated 6/10 with routine vitals",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Sharp",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": 92.0,
+        "patient_weight": 80.0,
+        "patient_height": 175.0,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V115",
+      "summary": "Left Leg pain rated 7/10 with routine vitals",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 7,
+        "direction": null,
+        "heart_rate": 88.0,
+        "patient_weight": 70.0,
+        "patient_height": 182.0,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V116",
+      "summary": "Right Arm pain rated 8/10 with routine vitals",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Aching",
+        "severity": 8,
+        "direction": null,
+        "heart_rate": 96.0,
+        "patient_weight": 60.0,
+        "patient_height": 168.0,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V117",
+      "summary": "Left Leg pain rated 6/10 with routine vitals",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Throbbing",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": 84.0,
+        "patient_weight": 95.0,
+        "patient_height": 160.0,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V118",
+      "summary": "Back Pain (Lower) pain rated 6/10 with routine vitals",
+      "intended_tier": "yellow",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Numb",
+        "severity": 6,
+        "direction": null,
+        "heart_rate": 99.0,
+        "patient_weight": 55.0,
+        "patient_height": 172.0,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V119",
+      "summary": "Left Leg pain rated 1/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 1,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V120",
+      "summary": "Left Leg pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V121",
+      "summary": "Left Leg pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V122",
+      "summary": "Left Leg pain rated 4/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Dull",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V123",
+      "summary": "Left Leg pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Numb",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V124",
+      "summary": "Left Leg pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Numb",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V125",
+      "summary": "Left Leg pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Aching",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V126",
+      "summary": "Left Leg pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Aching",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V127",
+      "summary": "Left Leg pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Sore",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V128",
+      "summary": "Left Leg pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Sore",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V129",
+      "summary": "Left Leg pain rated 4/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Sore",
+        "severity": 4,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V130",
+      "summary": "Left Leg pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Cramping",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V131",
+      "summary": "Left Leg pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Cramping",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V132",
+      "summary": "Left Leg pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Sharp",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V133",
+      "summary": "Left Leg pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Burning",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V134",
+      "summary": "Left Leg pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Throbbing",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V135",
+      "summary": "Left Leg pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Left Leg",
+        "pain_type": "Throbbing",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V136",
+      "summary": "Right Arm pain rated 1/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Dull",
+        "severity": 1,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V137",
+      "summary": "Right Arm pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Dull",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V138",
+      "summary": "Right Arm pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Dull",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V139",
+      "summary": "Right Arm pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Aching",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V140",
+      "summary": "Right Arm pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Aching",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V141",
+      "summary": "Right Arm pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Numb",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V142",
+      "summary": "Right Arm pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Sore",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V143",
+      "summary": "Right Arm pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Sore",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V144",
+      "summary": "Right Arm pain rated 3/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Right Arm",
+        "pain_type": "Throbbing",
+        "severity": 3,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V145",
+      "summary": "Back Pain (Lower) pain rated 1/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Dull",
+        "severity": 1,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V146",
+      "summary": "Back Pain (Lower) pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Dull",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V147",
+      "summary": "Back Pain (Lower) pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Numb",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V148",
+      "summary": "Back Pain (Lower) pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Aching",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V149",
+      "summary": "Back Pain (Lower) pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Sore",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    },
+    {
+      "id": "V150",
+      "summary": "Back Pain (Lower) pain rated 2/10",
+      "intended_tier": "green",
+      "input": {
+        "body_region": "Back Pain (Lower)",
+        "pain_type": "Throbbing",
+        "severity": 2,
+        "direction": null,
+        "heart_rate": null,
+        "patient_weight": null,
+        "patient_height": null,
+        "siblings": []
+      }
+    }
+  ]
+}
