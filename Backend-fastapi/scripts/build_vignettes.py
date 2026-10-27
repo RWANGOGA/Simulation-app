@@ -42,15 +42,19 @@ DART_OUTPUT = (
 )
 
 # Region labels chosen to hit each _region_weight band and, where relevant, to be
-# real BODY_GRAPH keys so referred-pain edges fire in the co-report cases.
+# real BODY_GRAPH keys so referred-pain edges fire in the co-report cases. The
+# limb labels matter: `find_connection` matches region names exactly, so the old
+# "Left Arm" / "Right Arm" / "Left Leg" spelled the same band as
+# "Left Arm / Shoulder" and friends but matched no edge at all, and the co-report
+# cases below were silently scoring as if no neighbour had been reported.
 CHEST = "Chest / Heart"
 HEAD = "Headache / Cranial"
 NECK = "Neck"
 ABDOMEN = "Abdomen (Upper)"
 BACK = "Back Pain (Lower)"
-ARM_LEFT = "Left Arm"
-ARM_RIGHT = "Right Arm"
-LEG_LEFT = "Left Leg"
+ARM_LEFT = "Left Arm / Shoulder"
+ARM_RIGHT = "Right Arm / Shoulder"
+LEG_LEFT = "Left Leg / Knee"
 
 
 def _case(
@@ -66,6 +70,7 @@ def _case(
     weight: float | None = None,
     height: float | None = None,
     siblings: List[str] | None = None,
+    sibling_severities: Dict[str, int] | None = None,
 ) -> Dict[str, Any]:
     return {
         "id": cid,
@@ -80,6 +85,11 @@ def _case(
             "patient_weight": weight,
             "patient_height": height,
             "siblings": siblings or [],
+            # What the other pain point in this same visit was rated. Declared
+            # rather than left empty so the referral (propagation) term has
+            # something to carry; without a severity a neighbour can only say
+            # "I exist", which is the older fixed co-report bump.
+            "sibling_severities": sibling_severities or {},
         },
     }
 
@@ -105,6 +115,10 @@ def _red(cases: List[Dict[str, Any]], start: int) -> int:
             f"Chest pain rated {severity}/10 spreading to the left arm",
             region=CHEST, pain="Pressure", severity=severity,
             direction="Radiating down left arm", siblings=[ARM_LEFT],
+            # The arm is its own pain point in the same visit, and the patient
+            # rates it 7/10 - which is what lets the referral term carry a
+            # signal, not merely the fact that the arm was tapped.
+            sibling_severities={ARM_LEFT: 7},
         ))
         i += 1
     # Severe chest pain by intensity alone (>=8).
@@ -193,6 +207,7 @@ def _orange(cases: List[Dict[str, Any]], start: int) -> int:
     cases.append(_case(
         f"V{i:03d}", "orange", "Neck pain alongside chest discomfort",
         region=NECK, pain="Stiff", severity=5, siblings=[CHEST],
+        sibling_severities={CHEST: 6},
     ))
     i += 1
     return i

@@ -112,4 +112,74 @@ void main() {
     expect(seenCodes, contains('score_high_in_concerning_region'));
     expect(seenCodes, contains('score_below_urgent_band'));
   });
+
+  test('the referral term fires on the multi-region vignettes', () {
+    // The Python ablation reports how much this term is worth; this pins that
+    // the device runs the same term at all. A neighbour that declared a
+    // severity has to produce a named referral row.
+    final cases = (fixture['cases'] as List).cast<Map<String, dynamic>>();
+    final withSeverity = cases.where((case_) {
+      final input = case_['input'] as Map<String, dynamic>;
+      final severities = (input['sibling_severities'] as Map?) ?? const {};
+      return severities.isNotEmpty;
+    }).toList();
+    expect(withSeverity, isNotEmpty,
+        reason: 'fixture lost its co-report cases');
+
+    for (final case_ in withSeverity) {
+      final input =
+          TriageInput.fromJson(case_['input'] as Map<String, dynamic>);
+      final rows = engine
+          .compute(input)
+          .contributions
+          .map((c) => c.factor)
+          .where((f) => f.contains('referral'))
+          .toList();
+      expect(rows, isNotEmpty, reason: '${case_['id']} carried no referral');
+    }
+  });
+
+  test('switching the term off removes exactly the referral rows', () {
+    // The analysis seam the ablation relies on. If it removed more than the
+    // referral row it could not be used to attribute anything to propagation,
+    // and we would be comparing two different engines rather than one.
+    final cases = (fixture['cases'] as List).cast<Map<String, dynamic>>();
+    final case_ = cases.firstWhere((c) {
+      final severities = ((c['input']
+              as Map<String, dynamic>)['sibling_severities'] as Map?) ??
+          const {};
+      return severities.isNotEmpty;
+    });
+    final on = TriageInput.fromJson(case_['input'] as Map<String, dynamic>);
+    final off = TriageInput(
+      bodyRegion: on.bodyRegion,
+      painType: on.painType,
+      severity: on.severity,
+      direction: on.direction,
+      heartRate: on.heartRate,
+      patientWeight: on.patientWeight,
+      patientHeight: on.patientHeight,
+      siblingRegions: on.siblingRegions,
+      siblingSeverities: on.siblingSeverities,
+      includePropagation: false,
+    );
+
+    final onRows = engine.compute(on).contributions;
+    final offRows = engine.compute(off).contributions;
+    final referral = onRows
+        .where((c) => c.factor.contains('referral'))
+        .map((c) => c.factor)
+        .toSet();
+
+    expect(referral, isNotEmpty);
+    expect(
+      offRows.where((c) => c.factor.contains('referral')),
+      isEmpty,
+    );
+    // Everything else survives, including the older fixed co-report bump.
+    expect(
+      offRows.where((c) => c.factor.startsWith('Connected to reported')),
+      isNotEmpty,
+    );
+  });
 }

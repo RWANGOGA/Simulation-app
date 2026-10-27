@@ -139,6 +139,8 @@ class RiskRules {
     required this.highBand,
     required this.mediumBand,
     required this.concernBumps,
+    required this.propagationEdgeWeights,
+    required this.propagationDecay,
     required this.emergencyLevel,
     required this.urgentLevel,
     required this.routineLevel,
@@ -178,6 +180,15 @@ class RiskRules {
   final double mediumBand;
 
   final Map<String, double> concernBumps;
+
+  // ── One-hop propagation (the referral term) ────────────────────────────
+  //
+  // Concern grade -> how much of a neighbour's report reaches this region, and
+  // the decay that keeps the message small next to the patient's own finding.
+  // Both come from the generated rule table, like every other weight.
+
+  final Map<String, double> propagationEdgeWeights;
+  final double propagationDecay;
 
   final String emergencyLevel;
   final String urgentLevel;
@@ -244,6 +255,12 @@ class RiskRules {
       concernBumps: (json['concern_bumps'] as Map<String, dynamic>).map(
         (key, value) => MapEntry(key, (value as num).toDouble()),
       ),
+      propagationEdgeWeights: ((json['propagation']
+              as Map<String, dynamic>)['edge_weights'] as Map<String, dynamic>)
+          .map((key, value) => MapEntry(key, (value as num).toDouble())),
+      propagationDecay:
+          ((json['propagation'] as Map<String, dynamic>)['decay'] as num)
+              .toDouble(),
       emergencyLevel: escalation['emergency'] as String,
       urgentLevel: escalation['urgent'] as String,
       routineLevel: escalation['routine'] as String,

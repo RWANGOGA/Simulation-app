@@ -13,7 +13,7 @@ import 'support/clinical_assets.dart';
 /// answers.
 ///
 /// `test/fixtures/clinical_golden.json` is recorded from the Python services by
-/// `Backend-fastapi/scripts/export_offline_assets.py`: 441 scored reports, 42
+/// `Backend-fastapi/scripts/export_offline_assets.py`: 585 scored reports, 42
 /// retrieval queries and the raw output of the lexical normalisation, each with
 /// the answer the server produced. The app has to reproduce every one of them. If
 /// a rule, a rounding, a tie-break, a stem or a synonym edge changes on either

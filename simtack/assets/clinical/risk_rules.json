@@ -55,6 +55,14 @@
     "stabbing": 0.15,
     "throbbing": 0.08
   },
+  "propagation": {
+    "decay": 0.1,
+    "edge_weights": {
+      "high": 1.0,
+      "low": 0.25,
+      "moderate": 0.5
+    }
+  },
   "region_rules": [
     {
       "keywords": [

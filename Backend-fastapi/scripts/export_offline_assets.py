@@ -30,7 +30,7 @@ import shutil
 from pathlib import Path
 from typing import Any, Dict, List
 
-from app.data.body_graph import BODY_GRAPH, CONCERN_RISK_BUMP
+from app.data.body_graph import BODY_GRAPH, CONCERN_RISK_BUMP, PROPAGATION_EDGE_WEIGHTS
 from app.schemas import TriageCreate
 from app.services import anatomy_retriever, triage_service
 from scripts.eval_retrieval import load_cases
@@ -136,6 +136,13 @@ def _export_runtime_assets() -> Dict[str, Any]:
         "severity": {"max": 10, "weight": 0.50},
         "bands": {"high": 0.7, "medium": 0.4},
         "concern_bumps": CONCERN_RISK_BUMP,
+        # The one-hop propagation parameters, exported for the same reason the
+        # weights are: the device must replay the same arithmetic the server
+        # ran, and a value typed into the Dart engine is a value that can drift.
+        "propagation": {
+            "edge_weights": PROPAGATION_EDGE_WEIGHTS,
+            "decay": triage_service.PROPAGATION_DECAY,
+        },
         # The triage tier's own numbers, exported rather than hardcoded in Dart:
         # a category the device can disagree with the server about is worse than no
         # category, and the sensitivity analysis has to move these, not the code.
@@ -202,6 +209,7 @@ def _risk_case(
     weight: float | None = None,
     height: float | None = None,
     siblings: List[str] | None = None,
+    sibling_severities: Dict[str, int] | None = None,
 ) -> Dict[str, Any]:
     payload = TriageCreate(
         body_region=region,
@@ -216,6 +224,7 @@ def _risk_case(
         sibling_regions=siblings,
         patient_weight=weight,
         patient_height=height,
+        sibling_severities=sibling_severities,
     )
     return {
         "input": {
@@ -227,6 +236,7 @@ def _risk_case(
             "patient_weight": weight,
             "patient_height": height,
             "siblings": siblings,
+            "sibling_severities": sibling_severities or {},
         },
         "expected": {
             "risk": risk,
@@ -306,6 +316,46 @@ def _build_risk_cases() -> List[Dict[str, Any]]:
             cases.append(
                 _risk_case(region=region, siblings=[connection["region"]])
             )
+
+    # Propagation: the same edges again, but now the neighbour also reports a
+    # severity, which is the whole difference between a propagation message and
+    # the fixed bump above. Every edge at 9/10, so the message is at its
+    # strongest, plus a full severity ladder on one high edge and one moderate
+    # edge to pin the two-decimal rounding across the whole range.
+    for region, node in BODY_GRAPH.items():
+        for connection in node["connects_to"]:
+            neighbour = connection["region"]
+            cases.append(
+                _risk_case(
+                    region=region,
+                    siblings=[neighbour],
+                    sibling_severities={neighbour: 9},
+                )
+            )
+    for region, neighbour in (
+        ("Chest / Heart", "Left Arm / Shoulder"),  # high edge
+        ("Neck", "Headache / Cranial"),  # moderate edge
+    ):
+        for severity in range(1, 11):
+            cases.append(
+                _risk_case(
+                    region=region,
+                    siblings=[neighbour],
+                    sibling_severities={neighbour: severity},
+                )
+            )
+
+    # Two neighbours at once, so more than one message can land on one score and
+    # the emitted rows have to keep a stable order.
+    for region, node in list(BODY_GRAPH.items())[:8]:
+        neighbours = [c["region"] for c in node["connects_to"]][:2]
+        cases.append(
+            _risk_case(
+                region=region,
+                siblings=neighbours,
+                sibling_severities={n: 7 for n in neighbours},
+            )
+        )
 
     # A fixed sample of everything at once. Seeded so the fixture is stable.
     random.seed(20261023)

@@ -807,6 +807,21 @@ CONCERN_RISK_BUMP: Dict[str, float] = {
     "low": 0.05,
 }
 
+# How loud an edge is when a neighbour's signal is propagated across it, on a
+# 0..1 scale. Deliberately a different scale from CONCERN_RISK_BUMP above: that
+# table is the fixed score bump for merely *co-reporting* two adjacent regions,
+# while this one multiplies the neighbour's own severity before decaying into the
+# scored region's contribution (see triage_service.propagate). Keeping the two
+# tables separate is what lets the simulation ablate propagation without
+# disturbing the co-report bump it is measured against.
+#
+# These are stated, hand-chosen analysis parameters, not fitted values.
+PROPAGATION_EDGE_WEIGHTS: Dict[str, float] = {
+    "high": 1.00,
+    "moderate": 0.50,
+    "low": 0.25,
+}
+
 
 def get_node(region: str) -> BodyNode | None:
     return BODY_GRAPH.get(region)

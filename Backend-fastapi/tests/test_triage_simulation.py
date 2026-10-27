@@ -52,6 +52,36 @@ def test_provenance_header_stays_honest(fixture_data):
     assert prov["reference_kind"] == "design_target"
 
 
+def test_every_co_reported_region_is_a_real_graph_key(fixture_data):
+    # `find_connection` matches region names exactly while `_region_weight`
+    # matches on keywords, so a label can spell the right weight band and still
+    # match no edge. That is how the multi-region cases silently stopped
+    # bumping: "Left Arm" scored like "Left Arm / Shoulder" but was not a
+    # neighbour of anything.
+    from app.data.body_graph import BODY_GRAPH
+
+    bad = [
+        (case["id"], sibling)
+        for case in fixture_data["cases"]
+        for sibling in case["input"]["siblings"]
+        if sibling not in BODY_GRAPH
+    ]
+    assert bad == [], f"siblings that are not graph keys: {bad}"
+
+
+def test_a_declared_sibling_always_has_a_severity(fixture_data):
+    # The referral term needs the neighbour's report. A sibling with no severity
+    # can only fire the older fixed bump, which is a weaker claim than the case
+    # appears to make.
+    missing = [
+        (case["id"], sibling)
+        for case in fixture_data["cases"]
+        for sibling in case["input"]["siblings"]
+        if not case["input"].get("sibling_severities", {}).get(sibling)
+    ]
+    assert missing == [], f"siblings with no declared severity: {missing}"
+
+
 def test_guard_refuses_inter_rater_kappa(report):
     guard = report["guard"]
     assert guard["clinician_label"] is False
@@ -132,7 +162,37 @@ def test_score_cap_ablation_moves_no_category(report):
     assert cap["capped_cases"] >= 1, "fixture should exercise the cap at least once"
 
 
-def test_graph_propagation_ablation_is_deferred_not_fabricated(report):
+def test_graph_propagation_ablation_measures_the_real_mechanism(report):
     graph = report["sensitivity"]["graph_propagation"]
-    assert graph["available"] is False
-    assert "Unit 2" in graph["reason"]
+    assert graph["available"] is True
+    assert "message passing" in graph["mechanism"]
+
+    # The term has to actually fire on this set, or the ablation is measuring
+    # nothing: the vignettes that declare a neighbour severity must carry a
+    # referral row.
+    assert graph["cases_carrying_a_referral"] > 0
+    assert graph["max_referral_added"] > 0
+
+    # Every referral amount is bounded by the strongest possible message:
+    # high edge 1.00 x severity 10/10 x decay 0.10.
+    assert graph["max_referral_added"] <= 0.10
+    assert graph["total_referral_added"] <= 0.10 * report["n_cases"]
+
+
+def test_graph_propagation_score_moves_are_accounted_for(report):
+    # Each case either moves the displayed score or has its arithmetic absorbed
+    # by the 1.00 clamp — never both, never neither, when a referral exists.
+    graph = report["sensitivity"]["graph_propagation"]
+    assert (
+        graph["cases_where_the_displayed_score_moves"]
+        + graph["cases_absorbed_by_the_cap"]
+        == graph["cases_carrying_a_referral"]
+    )
+
+
+def test_graph_propagation_cannot_make_a_case_less_urgent(report):
+    # The term only ever adds to a score, so ablating it can only produce a tie
+    # or a less-urgent tier. A flip *toward* more urgency without the term would
+    # mean the term had a negative weight somewhere.
+    graph = report["sensitivity"]["graph_propagation"]
+    assert graph["under_triage_flips"] == graph["tier_changes"]

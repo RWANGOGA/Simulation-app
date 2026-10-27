@@ -99,6 +99,7 @@ def run_case(engine, case: Dict[str, Any]) -> Dict[str, Any]:
         sibling_regions=inp["siblings"],
         patient_weight=inp["patient_weight"],
         patient_height=inp["patient_height"],
+        sibling_severities=inp.get("sibling_severities") or {},
     )
     verdict = triage_service.triage_tier(payload, risk)
     return {
@@ -163,7 +164,7 @@ def worked_cases(results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
 
 
 def sensitivity_analysis(engine, fixture: Dict[str, Any]) -> Dict[str, Any]:
-    """How much the tier distribution depends on two score mechanisms.
+    """How much the tier distribution depends on each score mechanism.
 
     These are *counterfactual replays* of the real engine, not a re-tuned model:
 
@@ -176,12 +177,14 @@ def sensitivity_analysis(engine, fixture: Dict[str, Any]) -> Dict[str, Any]:
       re-derives the tier. Because every band is a *lower* bound and the cap
       only ever bites at or above 1.00, no tier can move — a fact worth stating
       plainly rather than implying the cap shapes the category.
-
-    The graph-propagation ablation this harness will eventually report is
-    deliberately *absent*: 1-hop message passing is not built yet (Unit 2), so
-    there is nothing honest to switch off. The connectivity bump that exists
-    today is a fixed per-edge weight, not propagation, and ablating it belongs
-    with the real mechanism.
+    * **Graph-propagation ablation** replays with `include_propagation=False`,
+      which silences the one-hop referral term and leaves the older fixed
+      co-report bump in place. That is the comparison §A.4 asks for: the two
+      graph mechanisms measured against each other rather than one of them
+      quietly deleted. Tier changes are reported *and* score deltas, because a
+      set whose multi-region cases are red by a red flag cannot change category
+      no matter how much the score moves — reporting only "0 tier changes" would
+      read as "the term does nothing", which is a different claim.
     """
     triage_service, TriageCreate = engine
 
@@ -194,23 +197,37 @@ def sensitivity_analysis(engine, fixture: Dict[str, Any]) -> Dict[str, Any]:
             direction=inp["direction"],
         )
 
-    def _tier(inp: Dict[str, Any], *, drop_hr: bool = False, uncap: bool = False):
+    def _run(inp: Dict[str, Any], *, drop_hr: bool = False, drop_propagation: bool = False):
+        """Score one vignette with one mechanism switched off, and split the result.
+
+        `score` is what the bands and the clinician see (clamped at 1.00); `raw`
+        is the weighted sum before that clamp. Both are reported because the cap
+        absorbs the referral term on cases that were already at 1.00, and a
+        clamped-only measure would report "nothing happened" for a term that did
+        every bit of its arithmetic.
+        """
         payload = _payload(inp, drop_hr=drop_hr)
         risk, contributions = triage_service.compute_risk(
             payload,
             sibling_regions=inp["siblings"],
             patient_weight=inp["patient_weight"],
             patient_height=inp["patient_height"],
+            sibling_severities=inp.get("sibling_severities") or {},
+            include_propagation=not drop_propagation,
         )
-        capped = any("capped" in c["factor"].lower() for c in contributions)
-        if uncap and capped:
-            cap_row = next(
-                c for c in contributions if "capped" in c["factor"].lower()
-            )
-            score = round(risk - cap_row["contribution"], 6)
-        else:
-            score = risk
-        return triage_service.triage_tier(payload, score)["tier"], capped
+        cap_row = next(
+            (c for c in contributions if "capped" in c["factor"].lower()), None
+        )
+        return {
+            "tier": triage_service.triage_tier(payload, risk)["tier"],
+            "score": risk,
+            "raw": round(risk - cap_row["contribution"], 6) if cap_row else risk,
+            "capped": cap_row is not None,
+            "referral": round(
+                sum(c["contribution"] for c in contributions if "referral" in c["factor"]),
+                6,
+            ),
+        }
 
     def _distribution(tiers):
         dist = {tier: 0 for tier in TIER_ORDER}
@@ -221,27 +238,57 @@ def sensitivity_analysis(engine, fixture: Dict[str, Any]) -> Dict[str, Any]:
     baseline: List[str] = []
     hr_ablated: List[str] = []
     cap_ablated: List[str] = []
+    prop_ablated: List[str] = []
     hr_transitions: List[Dict[str, Any]] = []
+    prop_transitions: List[Dict[str, Any]] = []
+    prop_referral_amounts: List[float] = []
+    prop_score_moves = 0
+    prop_absorbed_by_cap = 0
     capped_cases = 0
     for case in fixture["cases"]:
         inp = case["input"]
-        base_tier, was_capped = _tier(inp)
-        baseline.append(base_tier)
-        capped_cases += int(was_capped)
-        hr_tier, _ = _tier(inp, drop_hr=True)
-        hr_ablated.append(hr_tier)
-        cap_ablated.append(_tier(inp, uncap=True)[0])
-        if hr_tier != base_tier:
+        scored = _run(inp)
+        baseline.append(scored["tier"])
+        capped_cases += int(scored["capped"])
+
+        hr_scored = _run(inp, drop_hr=True)
+        hr_ablated.append(hr_scored["tier"])
+        # Un-clamping means re-deriving the tier from the pre-cap sum.
+        payload = _payload(inp, drop_hr=False)
+        cap_ablated.append(
+            triage_service.triage_tier(payload, scored["raw"])["tier"]
+        )
+
+        prop_scored = _run(inp, drop_propagation=True)
+        prop_ablated.append(prop_scored["tier"])
+        if scored["referral"] != 0:
+            prop_referral_amounts.append(scored["referral"])
+        if scored["score"] != prop_scored["score"]:
+            prop_score_moves += 1
+        elif scored["raw"] != prop_scored["raw"]:
+            prop_absorbed_by_cap += 1
+        if prop_scored["tier"] != scored["tier"]:
+            prop_transitions.append({
+                "id": case["id"],
+                "intended": case["intended_tier"],
+                "baseline_tier": scored["tier"],
+                "ablated_tier": prop_scored["tier"],
+            })
+        if hr_scored["tier"] != scored["tier"]:
             hr_transitions.append({
                 "id": case["id"],
                 "intended": case["intended_tier"],
-                "baseline_tier": base_tier,
-                "hr_ablated_tier": hr_tier,
+                "baseline_tier": scored["tier"],
+                "hr_ablated_tier": hr_scored["tier"],
             })
 
     under_triage_flips = sum(
         1 for t in hr_transitions
         if TIER_ORDER.index(t["hr_ablated_tier"]) > TIER_ORDER.index(t["baseline_tier"])
+    )
+    prop_under_triage = sum(
+        1 for t in prop_transitions
+        if TIER_ORDER.index(t["ablated_tier"]) > TIER_ORDER.index(t["baseline_tier"])
     )
     return {
         "baseline_distribution": _distribution(baseline),
@@ -259,8 +306,21 @@ def sensitivity_analysis(engine, fixture: Dict[str, Any]) -> Dict[str, Any]:
             ),
         },
         "graph_propagation": {
-            "available": False,
-            "reason": "1-hop message passing is not built yet (Unit 2).",
+            "available": True,
+            "mechanism": (
+                "one round of weighted message passing: edge concern weight "
+                "(high/moderate/low = 1.00/0.50/0.25) x neighbour severity/10 "
+                "x decay 0.10, emitted as its own named referral row"
+            ),
+            "distribution": _distribution(prop_ablated),
+            "tier_changes": len(prop_transitions),
+            "under_triage_flips": prop_under_triage,
+            "transitions": prop_transitions,
+            "cases_carrying_a_referral": len(prop_referral_amounts),
+            "max_referral_added": max(prop_referral_amounts, default=0.0),
+            "total_referral_added": round(sum(prop_referral_amounts), 6),
+            "cases_where_the_displayed_score_moves": prop_score_moves,
+            "cases_absorbed_by_the_cap": prop_absorbed_by_cap,
         },
     }
 
@@ -462,10 +522,25 @@ def format_markdown(report: Dict[str, Any]) -> str:
     )
     graph = sens["graph_propagation"]
     lines.append(
-        f"- **Graph-propagation ablation:** "
-        + ("reported above." if graph["available"]
-           else f"not reported — {graph['reason']}")
+        "- **Graph-propagation ablation** (referral term removed, fixed co-report "
+        "bump kept): "
+        f"{graph['cases_carrying_a_referral']} of {report['n_cases']} case(s) "
+        f"carry a referral, {graph['total_referral_added']:+.2f} raw score in "
+        f"total (max {graph['max_referral_added']:+.2f} on one case); "
+        f"{graph['cases_where_the_displayed_score_moves']} change the displayed "
+        f"score, {graph['cases_absorbed_by_the_cap']} are absorbed by the 1.00 "
+        f"cap, and {graph['tier_changes']} change tier "
+        f"({graph['under_triage_flips']} toward less urgent)."
     )
+    if graph["tier_changes"] == 0 and graph["cases_carrying_a_referral"]:
+        lines.append(
+            "  - Read those numbers together. The term is real and it moves "
+            "scores, but on this set it moves no category: every multi-region "
+            "vignette here is already decided by a red flag, which no score can "
+            "talk it out of. \"0 tier changes\" printed alone would read as "
+            "\"does nothing\", and that is a different claim from the one the "
+            "measurement supports."
+        )
     lines.append("")
     lines.append("## Worked attribution (why the engine chose)")
     lines.append("")

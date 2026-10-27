@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-27T10:58:54+00:00",
+  "generated_at": "2026-10-27T11:37:45+00:00",
   "fixture_version": 1,
   "scale": "SATS",
   "n_cases": 150,
@@ -241,12 +241,26 @@
         "yellow": 37,
         "green": 32
       },
-      "capped_cases": 1,
+      "capped_cases": 4,
       "tier_changes": 0
     },
     "graph_propagation": {
-      "available": false,
-      "reason": "1-hop message passing is not built yet (Unit 2)."
+      "available": true,
+      "mechanism": "one round of weighted message passing: edge concern weight (high/moderate/low = 1.00/0.50/0.25) x neighbour severity/10 x decay 0.10, emitted as its own named referral row",
+      "distribution": {
+        "red": 40,
+        "orange": 41,
+        "yellow": 37,
+        "green": 32
+      },
+      "tier_changes": 0,
+      "under_triage_flips": 0,
+      "transitions": [],
+      "cases_carrying_a_referral": 7,
+      "max_referral_added": 0.07,
+      "total_referral_added": 0.48,
+      "cases_where_the_displayed_score_moves": 4,
+      "cases_absorbed_by_the_cap": 3
     }
   },
   "worked_cases": [
@@ -274,7 +288,7 @@
           "impact": "+"
         },
         {
-          "factor": "Region: Left Leg",
+          "factor": "Region: Left Leg / Knee",
           "contribution": 0.1,
           "shap": 0.1,
           "impact": "+"
@@ -328,7 +342,7 @@
     {
       "label": "green by below urgent band",
       "id": "V119",
-      "summary": "Left Leg pain rated 1/10",
+      "summary": "Left Leg / Knee pain rated 1/10",
       "intended_tier": "green",
       "tool_tier": "green",
       "risk": 0.2,
@@ -337,7 +351,7 @@
       ],
       "contributions": [
         {
-          "factor": "Region: Left Leg",
+          "factor": "Region: Left Leg / Knee",
           "contribution": 0.1,
           "shap": 0.1,
           "impact": "+"

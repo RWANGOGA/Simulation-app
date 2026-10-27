@@ -143,8 +143,17 @@ def create_triage(
     # If this pain point belongs to a multi-region visit, score it aware of
     # whatever other regions the patient already reported in the same visit
     # (e.g. chest pain scored alongside already-reported left arm pain).
+    #
+    # The severities travel with the region names because the propagation term
+    # carries *what the neighbour reported*, not merely that it exists; without
+    # them only the older fixed co-report bump can fire.
     sibling_regions = (
         crud_triage.get_regions_in_visit(db, payload.visit_id) if payload.visit_id else None
+    )
+    sibling_severities = (
+        crud_triage.get_region_severities_in_visit(db, payload.visit_id)
+        if payload.visit_id
+        else None
     )
 
     patient_id = payload.patient_id
@@ -189,6 +198,7 @@ def create_triage(
         sibling_regions=sibling_regions,
         patient_weight=patient_obj.weight if patient_obj else None,
         patient_height=patient_obj.height if patient_obj else None,
+        sibling_severities=sibling_severities,
     )
 
     session_data = payload.model_dump()

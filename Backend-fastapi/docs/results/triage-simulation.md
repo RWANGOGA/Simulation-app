@@ -51,8 +51,9 @@ All 150 vignettes landed on their intended tier — the rules realise their desi
 - **Baseline distribution:** red 40, orange 41, yellow 37, green 32
 - **Heart-rate ablation** (every vignette replayed with no pulse input): 24 of 150 change tier (24 toward less urgent).
   - ablated distribution: red 32, orange 25, yellow 49, green 44
-- **Score-cap ablation** (un-clamp to the raw weighted sum): 0 tier changes across 1 capped case(s) — the cap shapes the displayed number, not the category, because every band is a lower bound.
-- **Graph-propagation ablation:** not reported — 1-hop message passing is not built yet (Unit 2).
+- **Score-cap ablation** (un-clamp to the raw weighted sum): 0 tier changes across 4 capped case(s) — the cap shapes the displayed number, not the category, because every band is a lower bound.
+- **Graph-propagation ablation** (referral term removed, fixed co-report bump kept): 7 of 150 case(s) carry a referral, +0.48 raw score in total (max +0.07 on one case); 4 change the displayed score, 3 are absorbed by the 1.00 cap, and 0 change tier (0 toward less urgent).
+  - Read those numbers together. The term is real and it moves scores, but on this set it moves no category: every multi-region vignette here is already decided by a red flag, which no score can talk it out of. "0 tier changes" printed alone would read as "does nothing", and that is a different claim from the one the measurement supports.
 
 ## Worked attribution (why the engine chose)
 
@@ -72,7 +73,7 @@ All 150 vignettes landed on their intended tier — the rules realise their desi
 
 ### `V119` — green by below urgent band
 
-> Left Leg pain rated 1/10
+> Left Leg / Knee pain rated 1/10
 
 - intended **green**, engine **green**, risk 0.2
 - decided_by: `score_below_urgent_band`

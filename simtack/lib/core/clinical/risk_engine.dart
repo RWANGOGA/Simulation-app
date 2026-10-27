@@ -14,6 +14,8 @@ class TriageInput {
     this.patientWeight,
     this.patientHeight,
     this.siblingRegions = const [],
+    this.siblingSeverities = const {},
+    this.includePropagation = true,
   });
 
   final String bodyRegion;
@@ -28,6 +30,16 @@ class TriageInput {
   /// score can reflect real relationships between them.
   final List<String> siblingRegions;
 
+  /// What each of those regions was rated, 0–10. Without it a neighbour can only
+  /// say "I exist" (the fixed co-report bump); with it the neighbour's own
+  /// severity travels along the edge as a referral message.
+  final Map<String, int> siblingSeverities;
+
+  /// Analysis seam: turn the propagation term off to measure what it is worth.
+  /// The fixed co-report bump stays either way, so the two mechanisms can be
+  /// compared rather than merely swapped.
+  final bool includePropagation;
+
   factory TriageInput.fromJson(Map<String, dynamic> json) => TriageInput(
         bodyRegion: (json['body_region'] as String?) ?? '',
         painType: (json['pain_type'] as String?) ?? '',
@@ -39,6 +51,9 @@ class TriageInput {
         siblingRegions: ((json['siblings'] as List?) ?? const [])
             .map((e) => e.toString())
             .toList(),
+        siblingSeverities: ((json['sibling_severities'] as Map?) ?? const {})
+            .map((key, value) =>
+                MapEntry(key.toString(), (value as num).toInt())),
       );
 
   Map<String, dynamic> toJson() => {
@@ -50,6 +65,7 @@ class TriageInput {
         'patient_weight': patientWeight,
         'patient_height': patientHeight,
         'siblings': siblingRegions,
+        'sibling_severities': siblingSeverities,
       };
 }
 
@@ -178,6 +194,15 @@ class RiskEngine {
       contributions.addAll(
         _connectivityContributions(input.bodyRegion, input.siblingRegions),
       );
+      if (input.includePropagation && input.siblingSeverities.isNotEmpty) {
+        contributions.addAll(
+          _propagationContributions(
+            input.bodyRegion,
+            input.siblingRegions,
+            input.siblingSeverities,
+          ),
+        );
+      }
     }
 
     final bmiResult =
@@ -309,6 +334,66 @@ class RiskEngine {
         // Python signs every row through one helper now, so connectivity rows
         // carry '+' like the rest. A bump is never negative, so the sign is
         // fixed rather than computed.
+        impact: '+',
+      ));
+    }
+    return contributions;
+  }
+
+  /// One round of weighted message passing over the hand-authored graph.
+  ///
+  /// Port of `triage_service.propagate`. Each adjacent, same-visit neighbour
+  /// sends `edge weight (concern) x severity/10 x decay`, rounded to two
+  /// decimals with [_round2] — which is half-away-from-zero, the same rule the
+  /// server spells out in `_round2_half_up`. Every message becomes its own row
+  /// naming the path, so a referral in the score can be pointed at.
+  ///
+  /// Silent when there is nothing to carry: no severity for that neighbour, no
+  /// edge in the graph, or a region two hops away (this walks one adjacency
+  /// list, so one hop is structural, not a tunable depth).
+  List<RiskContribution> _propagationContributions(
+    String region,
+    List<String> siblingRegions,
+    Map<String, int> severityByRegion,
+  ) {
+    final contributions = <RiskContribution>[];
+    final connections = _data.graph[region];
+    if (connections == null) return contributions;
+
+    // Sorted by neighbour name because the server iterates `sorted(co_reported)`.
+    // The final sort is stable only for equal weights, so rows that tie would
+    // otherwise come out in a different order on the two platforms.
+    final neighbours = <String>{
+      for (final other in siblingRegions)
+        if (other != region) other,
+    }.toList()
+      ..sort();
+
+    final rules = _rules;
+    for (final other in neighbours) {
+      BodyConnection? match;
+      for (final connection in connections) {
+        if (connection.region == other) {
+          match = connection;
+          break;
+        }
+      }
+      if (match == null) continue;
+
+      final severity = severityByRegion[other];
+      // Absent or zero severity is "no measurement", not "mild" — adjacency
+      // alone is the fixed bump's job, above.
+      if (severity == null || severity == 0) continue;
+
+      final received = (rules.propagationEdgeWeights[match.concern] ?? 0.0) *
+          (severity / 10.0) *
+          rules.propagationDecay;
+      final amount = _round2(received);
+      if (amount == 0) continue;
+
+      contributions.add(RiskContribution(
+        factor: '$region → $other referral',
+        contribution: amount,
         impact: '+',
       ));
     }

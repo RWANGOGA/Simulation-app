@@ -1,7 +1,12 @@
 import json
+import math
 from typing import Any, Dict, List, Optional, Tuple
 from app.schemas import TriageCreate
-from app.data.body_graph import find_connection, CONCERN_RISK_BUMP
+from app.data.body_graph import (
+    find_connection,
+    CONCERN_RISK_BUMP,
+    PROPAGATION_EDGE_WEIGHTS,
+)
 
 # Kept as the canonical reference table. Real scoring goes through the
 # keyword matchers below because the mobile client sends descriptive labels
@@ -102,6 +107,10 @@ def _connectivity_contributions(region: str, sibling_regions: List[str]) -> List
     neighbour's own severity and never travels more than one edge. It is a fixed
     per-edge weight over hand-authored adjacency — not a weighted message pass,
     and not a learned edge.
+
+    Both this and `propagate` run on every score. This term is the baseline the
+    propagation ablation is measured against, so it is deliberately kept rather
+    than folded into the message pass.
     """
     contributions: List[Dict[str, Any]] = []
     seen = set()
@@ -115,6 +124,86 @@ def _connectivity_contributions(region: str, sibling_regions: List[str]) -> List
         contributions.append(_factor(
             f"Connected to reported {other_region} pain: {conn['note']}",
             CONCERN_RISK_BUMP[conn["concern"]],
+        ))
+    return contributions
+
+
+# How much of the received signal survives into the scored region's contribution.
+# Stated, hand-chosen analysis parameter (not fitted): the message from a
+# neighbour is its severity, scaled by the edge's concern weight, then multiplied
+# by this decay so a referral informs the score without dominating it.
+PROPAGATION_DECAY = 0.10
+
+
+def _round2_half_up(value: float) -> float:
+    """Round to two decimals, half up, matching the Dart port.
+
+    Python's round() is banker's (half-to-even) while Dart's roundToDouble() is
+    half-away-from-zero. The propagation product lands exactly on such ties —
+    0.50 (moderate) x 0.10 (decay) x 5/10 = 0.025 — so inheriting either
+    language's rule would put the two engines on opposite sides of a 0.01 step
+    and break the 1e-6 parity contract. Rounding explicitly here removes that.
+
+    Only ever called with the non-negative propagation values, where half-up and
+    half-away-from-zero are the same rule; a negative argument would round toward
+    zero and disagree with Dart.
+    """
+    return math.floor(value * 100.0 + 0.5) / 100.0
+
+
+def propagate(
+    region: str,
+    co_reported: List[str],
+    severity_by_region: Dict[str, int],
+) -> List[Dict[str, Any]]:
+    """One round of weighted message passing over the hand-authored graph.
+
+    This is genuine graph inference in the weak, explicit sense: a region's score
+    is informed by what its neighbours are *reporting*, not merely by the fact
+    that a neighbour exists. For every other region reported in the same visit
+    that is adjacent to `region`, the neighbour sends a message
+
+        edge weight (concern) x neighbour severity / 10 x PROPAGATION_DECAY
+
+    which becomes its own contribution row naming the path, e.g.
+    ``"Chest / Heart → Left Arm / Shoulder referral"``. A neighbour with no
+    recorded severity sends nothing (severity 0 / absent), and a pair that is
+    two or more edges apart is unreachable — this walks one adjacency list, so it
+    is one hop by construction, not by policy.
+
+    Deliberately *not* a trained model: nothing here is learned, the edge weights
+    are stated constants over a dict someone typed, and the output is fully
+    reproducible from the inputs. It is rule-based propagation, and must be
+    reported as such. See `_connectivity_contributions` for the separate fixed
+    co-report bump that this is ablated against.
+
+    Iteration is over a sorted copy of `co_reported` so the emitted row order is
+    stable; the caller's final sort is stable too, which keeps tie-broken rows in
+    a deterministic order across both engines.
+    """
+    contributions: List[Dict[str, Any]] = []
+    seen = set()
+    for other_region in sorted(co_reported):
+        if other_region == region or other_region in seen:
+            continue
+        seen.add(other_region)
+        conn = find_connection(region, other_region)
+        if conn is None:
+            continue
+        severity = severity_by_region.get(other_region)
+        if not severity:
+            continue
+        received = (
+            PROPAGATION_EDGE_WEIGHTS[conn["concern"]]
+            * (severity / 10.0)
+            * PROPAGATION_DECAY
+        )
+        amount = _round2_half_up(received)
+        if amount == 0.0:
+            continue
+        contributions.append(_factor(
+            f"{region} → {other_region} referral",
+            amount,
         ))
     return contributions
 
@@ -136,11 +225,25 @@ def compute_risk(
     sibling_regions: Optional[List[str]] = None,
     patient_weight: Optional[float] = None,
     patient_height: Optional[float] = None,
+    sibling_severities: Optional[Dict[str, int]] = None,
+    include_propagation: bool = True,
 ) -> Tuple[float, List[Dict[str, Any]]]:
     """sibling_regions: the body_region of every other pain point already
     submitted in this same visit (same visit_id), if any — lets the score
     reflect real relationships between pain locations reported together,
-    not just this one point in isolation."""
+    not just this one point in isolation.
+
+    sibling_severities: those siblings' severities, keyed by body_region. Needed
+    for `propagate` — a neighbour's signal is *what it reported*, so without a
+    severity there is nothing to carry and no propagation row is emitted. A
+    caller that omits this map still gets the fixed co-report bump, which needs
+    only adjacency.
+
+    include_propagation: the ablation seam. False reproduces the score without
+    the message-passing term while leaving every other factor — including the
+    co-report bump — untouched, so the simulation can measure what propagation
+    adds instead of assuming it helps.
+    """
     contributions: List[Dict[str, Any]] = []
     severity_c = round((data.severity / 10.0) * 0.50, 2)
     contributions.append(_factor(f"Severity {data.severity}/10", severity_c))
@@ -153,6 +256,10 @@ def compute_risk(
         contributions.append(_factor(f"Heart rate {data.heart_rate} bpm", hr_c))
     if sibling_regions:
         contributions.extend(_connectivity_contributions(data.body_region, sibling_regions))
+        if include_propagation and sibling_severities:
+            contributions.extend(
+                propagate(data.body_region, sibling_regions, sibling_severities)
+            )
     bmi_c, bmi = _bmi_contribution(patient_weight, patient_height)
     if bmi_c:
         contributions.append(_factor(f"BMI {bmi:.1f} (weight/height)", bmi_c))

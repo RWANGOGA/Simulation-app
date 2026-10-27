@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Dict, List, Optional
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.models import TriageSession
@@ -26,6 +26,27 @@ def get_regions_in_visit(db: Session, visit_id: str) -> List[str]:
     reported in the same visit (see triage_service._connectivity_contributions)."""
     stmt = select(TriageSession.body_region).where(TriageSession.visit_id == visit_id)
     return list(db.execute(stmt).scalars().all())
+
+
+def get_region_severities_in_visit(db: Session, visit_id: str) -> Dict[str, int]:
+    """body_region -> severity for every pain point already in this visit.
+
+    Feeds `triage_service.propagate`: a referral's strength is the neighbouring
+    region's own severity, so the severity has to travel with the region name or
+    the message pass has nothing to carry. Where the same region was reported
+    more than once in a visit the highest severity wins — the loudest report is
+    the one a referral should carry.
+    """
+    stmt = select(TriageSession.body_region, TriageSession.severity).where(
+        TriageSession.visit_id == visit_id
+    )
+    severities: Dict[str, int] = {}
+    for region, severity in db.execute(stmt).all():
+        if region is None or severity is None:
+            continue
+        severities[region] = max(severities.get(region, 0), int(severity))
+    return severities
+
 
 def get_patient_history(db: Session, patient_id: int) -> List[TriageSession]:
     """Every session the patient ever submitted, newest first — powers
