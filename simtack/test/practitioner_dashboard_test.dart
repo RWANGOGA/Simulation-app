@@ -13,7 +13,8 @@ Widget _wrap(Widget child) => MaterialApp(
     );
 
 void main() {
-  testWidgets('PractitionerDashboardScreen renders with sidebar', (tester) async {
+  testWidgets('PractitionerDashboardScreen renders with sidebar',
+      (tester) async {
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -41,7 +42,8 @@ void main() {
     expect(find.text('Dashboard Overview'), findsOneWidget);
   });
 
-  testWidgets('PractitionerDashboardScreen has Row layout with sidebar', (tester) async {
+  testWidgets('PractitionerDashboardScreen has Row layout with sidebar',
+      (tester) async {
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -71,7 +73,8 @@ void main() {
     expect(find.byType(PractitionerSidebar), findsOneWidget);
   });
 
-  testWidgets('narrow layout hamburger opens the practitioner drawer', (tester) async {
+  testWidgets('narrow layout hamburger opens the practitioner drawer',
+      (tester) async {
     tester.view.physicalSize = const Size(400, 800);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -91,18 +94,21 @@ void main() {
     await tester.pump();
 
     expect(find.byIcon(Icons.menu), findsOneWidget);
-    expect(tester.state<ScaffoldState>(find.byType(Scaffold)).isDrawerOpen, isFalse);
+    expect(tester.state<ScaffoldState>(find.byType(Scaffold)).isDrawerOpen,
+        isFalse);
 
     await tester.tap(find.byIcon(Icons.menu));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
-    expect(tester.state<ScaffoldState>(find.byType(Scaffold)).isDrawerOpen, isTrue);
+    expect(tester.state<ScaffoldState>(find.byType(Scaffold)).isDrawerOpen,
+        isTrue);
     expect(find.byType(PractitionerSidebar), findsOneWidget);
     expect(find.text('Patients'), findsOneWidget);
   });
 
-  testWidgets('wide layout keeps the sidebar visible without a hamburger', (tester) async {
+  testWidgets('wide layout keeps the sidebar visible without a hamburger',
+      (tester) async {
     tester.view.physicalSize = const Size(1400, 900);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);

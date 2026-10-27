@@ -12,6 +12,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../core/network/api_client.dart';
 import '../../../core/offline/offline_repository.dart';
+import '../../../core/offline/qr_passport.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/github_kit.dart';
 import '../../../core/theme/github_palette.dart';
@@ -99,16 +100,6 @@ Offset _positionForRegion(String region) {
     return const Offset(0.62, 0.70);
   }
   return const Offset(0.50, 0.40);
-}
-
-String _qrUrl(String patientCode) {
-  if (kIsWeb) {
-    final base = Uri.base;
-    final url = '${base.origin}${base.path}';
-    final cleaned = url.endsWith('/') ? url.substring(0, url.length - 1) : url;
-    return '$cleaned/#/report/$patientCode';
-  }
-  return 'https://rwangoga.github.io/Simulation-app/#/report/$patientCode';
 }
 
 class PatientOverviewScreen extends StatefulWidget {
@@ -340,7 +331,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                   border: Border.all(color: GhColors.border(context)),
                 ),
                 child: QrImageView(
-                  data: _qrUrl(_enteredCode),
+                  data: passportPayload(_enteredCode),
                   version: QrVersions.auto,
                   size: 160,
                   backgroundColor: Colors.white,
@@ -354,7 +345,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            Text(t.encryptedQrPassportLabel,
+            Text(t.qrPassportLabel,
                 textAlign: TextAlign.center,
                 style: GhType.meta.copyWith(
                     color: GhColors.fgMuted(context),

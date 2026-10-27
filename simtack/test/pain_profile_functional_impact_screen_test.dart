@@ -12,7 +12,8 @@ Widget _wrap(Widget child) => MaterialApp(
 
 void main() {
   group('PainProfileFunctionalImpactScreen Widget Tests', () {
-    testWidgets('renders all section headers and initial options', (WidgetTester tester) async {
+    testWidgets('renders all section headers and initial options',
+        (WidgetTester tester) async {
       final points = [
         PainPoint(region: 'Lower Back', x: 0.5, y: 0.5),
       ];
@@ -24,7 +25,8 @@ void main() {
       await tester.pumpAndSettle();
 
       // Verify Header
-      expect(find.text('4 & 5. PAIN PROFILE & FUNCTIONAL IMPACT'), findsOneWidget);
+      expect(
+          find.text('4 & 5. PAIN PROFILE & FUNCTIONAL IMPACT'), findsOneWidget);
 
       // Verify Section A
       expect(find.text('SECTION A: PAIN EXPANSION BEHAVIOR'), findsOneWidget);
@@ -46,7 +48,8 @@ void main() {
       expect(find.text('PROCEED TO REVIEW & SUBMIT'), findsOneWidget);
     });
 
-    testWidgets('toggles triggers, relievers, and daily limitations on tap', (WidgetTester tester) async {
+    testWidgets('toggles triggers, relievers, and daily limitations on tap',
+        (WidgetTester tester) async {
       final point = PainPoint(region: 'Left Shoulder', x: 0.3, y: 0.3);
 
       await tester.pumpWidget(_wrap(PainProfileFunctionalImpactScreen(

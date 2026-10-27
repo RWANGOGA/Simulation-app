@@ -28,7 +28,9 @@ void main() {
       expect(point.isNearby(0.10, 0.10), isFalse);
     });
 
-    test('toJson and fromJson correctly serialize and deserialize all pain profile fields', () {
+    test(
+        'toJson and fromJson correctly serialize and deserialize all pain profile fields',
+        () {
       final original = PainPoint(
         region: 'Abdomen (Lower Right)',
         x: 0.45,
@@ -64,8 +66,10 @@ void main() {
       expect(restored.depth, equals(original.depth));
       expect(restored.expansionBehavior, equals('Spreading'));
       expect(restored.triggers, equals(['Walking / Moving', 'Sitting Down']));
-      expect(restored.relievers, equals(['Resting Flat', 'Ice / Cold Compact']));
-      expect(restored.dailyLimitations, equals(['Cannot Sleep', 'Cannot Walk']));
+      expect(
+          restored.relievers, equals(['Resting Flat', 'Ice / Cold Compact']));
+      expect(
+          restored.dailyLimitations, equals(['Cannot Sleep', 'Cannot Walk']));
     });
 
     test('toJson and fromJson handle symptomDescription and tags', () {
@@ -78,11 +82,13 @@ void main() {
       );
 
       final json = original.toJson();
-      expect(json['symptomDescription'], equals('Sharp throbbing pain behind left eye'));
+      expect(json['symptomDescription'],
+          equals('Sharp throbbing pain behind left eye'));
       expect(json['tags'], equals(['Sharp', 'Throbbing', 'Constant']));
 
       final restored = PainPoint.fromJson(json);
-      expect(restored.symptomDescription, equals('Sharp throbbing pain behind left eye'));
+      expect(restored.symptomDescription,
+          equals('Sharp throbbing pain behind left eye'));
       expect(restored.tags, equals(['Sharp', 'Throbbing', 'Constant']));
     });
   });

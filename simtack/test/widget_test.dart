@@ -21,7 +21,8 @@ void main() {
     addTearDown(tester.view.reset);
   }
 
-  testWidgets('AtomyBridgeApp shows LanguageScreen first when consent has not been given yet',
+  testWidgets(
+      'AtomyBridgeApp shows LanguageScreen first when consent has not been given yet',
       (WidgetTester tester) async {
     await useTallSurface(tester);
 
@@ -33,14 +34,16 @@ void main() {
     expect(find.byType(WelcomeScreen), findsNothing);
   });
 
-  testWidgets('AtomyBridgeApp goes straight to WelcomeScreen once consent was already given',
+  testWidgets(
+      'AtomyBridgeApp goes straight to WelcomeScreen once consent was already given',
       (WidgetTester tester) async {
     await useTallSurface(tester);
 
     final locale = LocaleController();
     await locale.setLanguageAndConsent(languageCode: 'en', consented: true);
 
-    await tester.pumpWidget(AtomyBridgeApp(isDoctorLoggedIn: false, locale: locale));
+    await tester
+        .pumpWidget(AtomyBridgeApp(isDoctorLoggedIn: false, locale: locale));
     await tester.pumpAndSettle();
 
     expect(find.byType(MaterialApp), findsOneWidget);
@@ -48,7 +51,8 @@ void main() {
     expect(find.byType(LanguageScreen), findsNothing);
   });
 
-  testWidgets('running under Luganda, Runyankore, or Lusoga does not crash with "No MaterialLocalizations found"',
+  testWidgets(
+      'running under Luganda, Runyankore, or Lusoga does not crash with "No MaterialLocalizations found"',
       (WidgetTester tester) async {
     // Flutter's own Material/Cupertino localizations don't ship these
     // codes — without the fallback delegates in main.dart, setting the
@@ -64,13 +68,15 @@ void main() {
       final originalOnError = FlutterError.onError;
       FlutterError.onError = (details) => errors.add(details);
 
-      await tester.pumpWidget(AtomyBridgeApp(isDoctorLoggedIn: false, locale: locale));
+      await tester
+          .pumpWidget(AtomyBridgeApp(isDoctorLoggedIn: false, locale: locale));
       await tester.pumpAndSettle();
 
       FlutterError.onError = originalOnError;
 
       expect(errors, isEmpty, reason: 'locale $code');
-      expect(find.byType(WelcomeScreen), findsOneWidget, reason: 'locale $code');
+      expect(find.byType(WelcomeScreen), findsOneWidget,
+          reason: 'locale $code');
     }
   });
 }

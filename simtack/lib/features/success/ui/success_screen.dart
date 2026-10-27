@@ -11,35 +11,13 @@ import 'package:share_plus/share_plus.dart';
 import 'package:universal_html/html.dart' as html; // For web downloads
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/offline/qr_passport.dart';
 import '../../history/ui/patient_history_screen.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode, debugPrint;
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
 import '../../../core/widgets/shap_explanation_card.dart';
 import '../../../l10n/app_localizations.dart';
-
-// --- CONFIGURATION ---
-// Base URL of the Flutter web app that the QR / share links deep-link
-// into (#/report/<patientId>, parsed by main.dart via Uri.base.fragment).
-String get kReportBaseUrl {
-  if (kIsWeb) {
-    // On web, link into the very deployment the patient is already using
-    // (localhost dev server, staging, GitHub Pages, ...) — Uri.base carries
-    // the right origin AND base path (e.g. /Simulation-app/). Fragment and
-    // query are dropped so we never nest the current route into the link.
-    final base = Uri.base;
-    final url = '${base.origin}${base.path}';
-    return url.endsWith('/') ? url.substring(0, url.length - 1) : url;
-  }
-  if (kDebugMode) {
-    // Debug builds on a physical device can't resolve "localhost". To test
-    // QR scanning from a phone during development, temporarily swap in the
-    // dev machine's LAN IP, e.g. 'http://192.168.x.x:5000'.
-    return 'http://localhost:5000';
-  }
-  // Release builds on real devices: point at the public web deployment.
-  return 'https://rwangoga.github.io/Simulation-app';
-}
 
 class SuccessScreen extends StatefulWidget {
   final String patientId;
@@ -65,7 +43,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
   final GlobalKey _qrKey = GlobalKey();
   bool _isProcessing = false;
 
-  String get _reportUrl => '$kReportBaseUrl/#/report/${widget.patientId}';
+  String get _reportUrl => passportPayload(widget.patientId);
 
   Future<void> _captureAndShare({required bool isSave}) async {
     setState(() => _isProcessing = true);
@@ -459,7 +437,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   borderWidth: 2,
                   child: Column(
                     children: [
-                      Text(t.encryptedQrPassportLabel,
+                      Text(t.qrPassportLabel,
                           style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -473,7 +451,13 @@ class _SuccessScreenState extends State<SuccessScreen> {
                         backgroundColor: AppPalette.surface(context),
                       ),
                       const SizedBox(height: 12),
-                      Text(t.noInternetRequiredHint,
+                      // Chosen from the payload, not written here, so the
+                      // sentence cannot outlive what the code actually does.
+                      Text(
+                          passportHint(
+                              payload: _reportUrl,
+                              offlinePassport: t.qrOfflinePassportHint,
+                              needsInternet: t.qrNeedsInternetHint),
                           style: TextStyle(
                               fontSize: 11,
                               color: AppPalette.textMuted(context))),

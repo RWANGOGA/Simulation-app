@@ -14,7 +14,8 @@ void main() {
 
     test('extracts the code from a localhost debug QR', () {
       expect(
-        QrScanScreen.extractPatientCode('http://localhost:5000/#/report/P-BH8TJWGBGBH5'),
+        QrScanScreen.extractPatientCode(
+            'http://localhost:5000/#/report/P-BH8TJWGBGBH5'),
         'P-BH8TJWGBGBH5',
       );
     });
@@ -24,7 +25,8 @@ void main() {
     });
 
     test('returns null for an unrelated QR', () {
-      expect(QrScanScreen.extractPatientCode('https://example.com/menu'), isNull);
+      expect(
+          QrScanScreen.extractPatientCode('https://example.com/menu'), isNull);
       expect(QrScanScreen.extractPatientCode(''), isNull);
     });
   });

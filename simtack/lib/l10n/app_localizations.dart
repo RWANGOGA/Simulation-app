@@ -63,8 +63,7 @@ import 'app_localizations_xog.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale)
-      : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -72,8 +71,7 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -85,8 +83,7 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
-      <LocalizationsDelegate<dynamic>>[
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
     delegate,
     GlobalMaterialLocalizations.delegate,
     GlobalCupertinoLocalizations.delegate,
@@ -564,11 +561,23 @@ abstract class AppLocalizations {
   /// **'PATIENT ANONYMOUS ID'**
   String get patientAnonymousIdLabel;
 
-  /// Caption over the QR code shown after submitting.
+  /// Under the QR code when the payload is a report URL. Must be read with qrOfflinePassportHint, which is only shown when the payload carries the record itself.
   ///
   /// In en, this message translates to:
-  /// **'Encrypted QR Passport'**
-  String get encryptedQrPassportLabel;
+  /// **'Needs internet to open the report'**
+  String get qrNeedsInternetHint;
+
+  /// Shown under the passport QR only when the payload carries the record itself (qr_passport.dart: passportCarriesRecord). It must never be used for a URL payload, and never used while the payload is plaintext.
+  ///
+  /// In en, this message translates to:
+  /// **'The record travels inside this code, so it opens without internet'**
+  String get qrOfflinePassportHint;
+
+  /// Caption under the QR code. States what the code is, never that it is encrypted: until the passport payload is really encrypted, calling it "Encrypted" is a security claim the app does not implement.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient passport code'**
+  String get qrPassportLabel;
 
   /// Button that opens the patient's full clinical report.
   ///
@@ -1302,12 +1311,6 @@ abstract class AppLocalizations {
   /// **'Patient ID'**
   String get patientIdLabel;
 
-  /// Reassurance under the QR code.
-  ///
-  /// In en, this message translates to:
-  /// **'No internet required to view'**
-  String get noInternetRequiredHint;
-
   /// Instruction under the QR code.
   ///
   /// In en, this message translates to:
@@ -1638,6 +1641,42 @@ abstract class AppLocalizations {
   /// **'Suggested Priority'**
   String get suggestedPriorityLabel;
 
+  /// Label before the category the tool derived, in the decision card.
+  ///
+  /// In en, this message translates to:
+  /// **'Triage tier (SATS)'**
+  String get triageTierLabel;
+
+  /// Label before the practitioner's own category choice.
+  ///
+  /// In en, this message translates to:
+  /// **'Your tier'**
+  String get clinicianTierLabel;
+
+  /// SATS category: red. Shown to a clinician, not to a patient.
+  ///
+  /// In en, this message translates to:
+  /// **'Red - Emergency'**
+  String get satsTierRed;
+
+  /// SATS category: orange.
+  ///
+  /// In en, this message translates to:
+  /// **'Orange - Very urgent'**
+  String get satsTierOrange;
+
+  /// SATS category: yellow.
+  ///
+  /// In en, this message translates to:
+  /// **'Yellow - Urgent'**
+  String get satsTierYellow;
+
+  /// SATS category: green.
+  ///
+  /// In en, this message translates to:
+  /// **'Green - Routine'**
+  String get satsTierGreen;
+
   /// Label before the open/closed status chips in the decision card.
   ///
   /// In en, this message translates to:
@@ -1759,8 +1798,7 @@ abstract class AppLocalizations {
   String get pagerNextTooltip;
 }
 
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -1769,31 +1807,28 @@ class _AppLocalizationsDelegate
   }
 
   @override
-  bool isSupported(Locale locale) =>
-      <String>['en', 'lg', 'nyn', 'sw', 'xog'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => <String>['en', 'lg', 'nyn', 'sw', 'xog'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
+
+
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en':
-      return AppLocalizationsEn();
-    case 'lg':
-      return AppLocalizationsLg();
-    case 'nyn':
-      return AppLocalizationsNyn();
-    case 'sw':
-      return AppLocalizationsSw();
-    case 'xog':
-      return AppLocalizationsXog();
+    case 'en': return AppLocalizationsEn();
+    case 'lg': return AppLocalizationsLg();
+    case 'nyn': return AppLocalizationsNyn();
+    case 'sw': return AppLocalizationsSw();
+    case 'xog': return AppLocalizationsXog();
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
-      'an issue with the localizations generation tool. Please file an issue '
-      'on GitHub with a reproducible sample app and the gen-l10n configuration '
-      'that was used.');
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.'
+  );
 }

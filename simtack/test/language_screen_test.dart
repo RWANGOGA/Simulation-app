@@ -23,7 +23,8 @@ void main() {
         home: LanguageScreen(localeController: controller),
       );
 
-  testWidgets('renders every language option and the consent checkbox', (tester) async {
+  testWidgets('renders every language option and the consent checkbox',
+      (tester) async {
     await useTallSurface(tester);
     await tester.pumpWidget(wrap(LocaleController()));
     await tester.pumpAndSettle();
@@ -38,7 +39,9 @@ void main() {
     expect(find.text('Continue', skipOffstage: false), findsOneWidget);
   });
 
-  testWidgets('tapping Continue without consent shows an error and does not navigate', (tester) async {
+  testWidgets(
+      'tapping Continue without consent shows an error and does not navigate',
+      (tester) async {
     await useTallSurface(tester);
     final controller = LocaleController();
     await tester.pumpWidget(wrap(controller));
@@ -52,7 +55,9 @@ void main() {
     expect(find.byType(LanguageScreen), findsOneWidget);
   });
 
-  testWidgets('accepting consent and continuing persists the choice and opens WelcomeScreen', (tester) async {
+  testWidgets(
+      'accepting consent and continuing persists the choice and opens WelcomeScreen',
+      (tester) async {
     await useTallSurface(tester);
     final controller = LocaleController();
     await tester.pumpWidget(wrap(controller));
@@ -71,7 +76,8 @@ void main() {
     expect(find.byType(LanguageScreen), findsNothing);
   });
 
-  testWidgets('choosing Sign Language records it without setting a text locale', (tester) async {
+  testWidgets('choosing Sign Language records it without setting a text locale',
+      (tester) async {
     await useTallSurface(tester);
     final controller = LocaleController();
     await tester.pumpWidget(wrap(controller));

@@ -31,7 +31,6 @@
   "chooseButton": "Londa",
   "savedDraftBanner": "{count, plural, =1{Olina ekiwandiiko ekiterekeddwa} other{Olina ebiwandiiko {count} ebiterekeddwa}}",
   "draftsSyncedSnackbar": "{count, plural, =1{Lipoota 1 etuweereddwa} other{Lipoota {count} ziweereddwa}}",
-
   "loadingEllipsis": "Kulinda...",
   "statHighRiskLabel": "Akabi Kanene",
   "statMediumRiskLabel": "Akabi Ekiriwakati",
@@ -43,7 +42,6 @@
   "refreshTooltip": "Ddamu Otereeze",
   "patientLookupTitle": "Okunoonya Omulwadde",
   "menuTooltip": "Lametaanyi",
-
   "sidebarRoleLabel": "Omusawo",
   "navDashboard": "Endagiriro",
   "navPatients": "Abalwadde",
@@ -53,7 +51,6 @@
   "navHelpSupport": "Obuyambi",
   "comingSoonMessage": "Kijja Mangu",
   "logoutButton": "Fuluma",
-
   "dashboardTitle": "Endagiriro y'Omulimu",
   "dashboardSubtitle": "Lambula emirimu egikyagenda mu maaso n'obungi bw'akabi eri abalwadde.",
   "statTotalLabel": "Omuwendo Gwonna",
@@ -75,13 +72,12 @@
   "clearAllButton": "Sazaamu Byonna",
   "applyFiltersButton": "Kozesa Ensengejja",
   "noSessionsFoundMessage": "Tewali mirundi gizuuliddwa.",
-
   "patientOverviewTitle": "Ebikwata ku Mulwadde",
   "patientOverviewSubtitle": "Lambula ebyafaayo by'omulwadde, ekifaananyi ky'omubiri, n'ebikwata ku kwekenneenya.",
   "patientCodeHint": "Wandiika ekika ky'omulwadde gamba, P-770043",
   "scanPatientQrButton": "Kuba QR y'Omulwadde",
   "patientAnonymousIdLabel": "EKIKA KY'OMULWADDE EKITALINA LINNYA",
-  "encryptedQrPassportLabel": "Paasipoota ya QR Ekusike",
+  "qrPassportLabel": "Paasipoota ya QR",
   "openFullClinicalReportButton": "Sumulula Lipoota Yonna ey'Ebyobusawo",
   "bodyMapTitle": "Ekifaananyi ky'Omubiri mu 3D",
   "bodyMapEmptyHint": "Wandiika ekika ky'omulwadde okulaba w'obulumi buli",
@@ -90,7 +86,6 @@
   "enterCodeForHistoryHint": "Wandiika ekika ky'omulwadde waggulu okulaba ebyafaayo by'okukyala",
   "noVisitsFoundHint": "Tewali kukyala kuzuuliddwa ku {code}",
   "sessionNumberLabel": "Omulundi {number}",
-
   "reportsTitle": "Lipoota",
   "reportsSubtitle": "Okugabanyaamu kw'emirundi gyonna egy'okwekenneenya egyawandiikibwa.",
   "downloadPdfTooltip": "Ssibbawo Lipoota ya PDF",
@@ -106,13 +101,11 @@
   "painTypeBreakdownTitle": "Okugabanyaamu kw'Ebika by'Obulumi",
   "retryButton": "Ddamu Ogezaako",
   "otherLabel": "Ebirala",
-
   "genderFemale": "Omukazi",
   "genderMale": "Omusajja",
   "genderOther": "Ebirala",
   "notSetLabel": "Tekyassibwewo",
   "naLabel": "Tekiriwo",
-
   "patientProfileTitle": "Bbaluwa y'Omulwadde",
   "patientProfileSubtitle": "Kino kitusobozesa okuzimba ekifaananyi ky'omubiri gwo",
   "ageLabel": "Emyaka",
@@ -135,7 +128,6 @@
   "fieldRequiredError": "{label} yeetaagisa",
   "enterValidNumberError": "Wandiika omuwendo omutuufu",
   "fieldRangeError": "{label} kirina okuba wakati wa {min} ne {max}",
-
   "bodyMapSelectPainTitle": "Ekifaananyi ky'Omubiri - Londa Obulumi",
   "resetViewTooltip": "Ddamu Otandike",
   "rotateModelTooltip": "Kyuusa Ekifaananyi",
@@ -161,7 +153,6 @@
   "bodyMapHelpBullet4": "• Kozesa ebyuma ku ludda olwa kkono okusembeza, okuggwayo, oba okuddamu okutandika.",
   "bodyMapHelpBullet5": "• Kyusakyusa wakati wa Ebbali, Emabega, Ekkono, oba Eddyo.",
   "gotItButton": "Ntegedde",
-
   "painDetailsTitle": "3. Ebikwata ku Bulumi",
   "painDetailsTitleWithProgress": "3. Ebikwata ku Bulumi ({current} ku {total})",
   "painLocationLabel": "Ekifo ky'Obulumi",
@@ -177,7 +168,6 @@
   "painDetailsHelpBullet3": "• Kozesa Obuwanvu okulaga obulumi gye buli (Wangi, Bulijjo, Waggulu).",
   "painDetailsHelpBullet4": "• Kuba ku bika by'obulumi (Obwogi, Obukakali, Okwokya, Okukwata).",
   "painDetailsHelpBullet5": "• Seeza okuteekawo amaanyi g'obulumi okuva ku 1 okutuuka ku 10. Buli kifo kiyinza okwawukana.",
-
   "vitalsCaptureTitle": "4. Okupima Obulamu",
   "signalQualityLabel": "Omutindo gw'Akabonero",
   "tapStartMeasurementStatus": "Kuba \"Tandika Okupima\"",
@@ -192,7 +182,6 @@
   "signalExcellent": "Ekisingayo",
   "signalGood": "Kirungi",
   "signalWeak": "Kinafu",
-
   "reviewSubmitTitle": "5. Kebera & Weereza",
   "editButton": "Kyusa",
   "anonymousPatientLabel": "Omulwadde Atamanyiddwa",
@@ -209,11 +198,10 @@
   "submitButton": "Weereza",
   "draftSavedSnackbar": "✓ Ekiwandiiko kiterekeddwa bulungi!",
   "submitFailedSavedOfflineSnackbar": "⚠ Tekiyinzikanga kuweerezebwa, kiterekeddwa, kijja kuddamu kugezaako: {error}",
-
   "reportSubmittedTitle": "Lipoota Eweereddwa!",
   "patientIdLabel": "Ekika ky'Omulwadde",
-  "encryptedQrPassportLabel": "Paasipoota ya QR Ekusike",
-  "noInternetRequiredHint": "Tewetaagisa yintaneeti okulaba",
+  "qrNeedsInternetHint": "Needs internet to open the report",
+  "qrOfflinePassportHint": "The record travels inside this code, so it opens without internet",
   "showQrToHealthWorkerHint": "Laga QR eno eri omukozi w'ebyobulamu",
   "escalationReasonsLabel": "What triggered this",
   "emergencyBannerTitle": "Go to an emergency department now",
@@ -234,7 +222,6 @@
   "smsLabel": "SMS",
   "copyLinkLabel": "Kopa Ekkufulu",
   "linkCopiedSnackbar": "Ekkufulu ekopeddwa",
-
   "clinicalReportTitle": "Lipoota y'Obusawo",
   "practitionerModeChip": "Embeera y'Omusawo",
   "reportNotFoundError": "Lipoota teyazuulibwa",
@@ -270,6 +257,12 @@
   "unknownFactorLabel": "Ensonga Etamanyiddwa",
   "triageDecisionTitle": "EKISALAWO KY'OKWEKENNEENYA",
   "suggestedPriorityLabel": "Obukulu Obuteesebwa",
+  "triageTierLabel": "Triage tier (SATS)",
+  "clinicianTierLabel": "Your tier",
+  "satsTierRed": "Red - Emergency",
+  "satsTierOrange": "Orange - Very urgent",
+  "satsTierYellow": "Yellow - Urgent",
+  "satsTierGreen": "Green - Routine",
   "statusColonLabel": "Embeera:",
   "recommendedActionsLabel": "Ebikolwa Ebiteesebwa",
   "clinicalNotesHint": "Ebiwandiiko by'obusawo...",

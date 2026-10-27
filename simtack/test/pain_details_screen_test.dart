@@ -12,19 +12,23 @@ Widget _wrap(Widget child) => MaterialApp(
       home: child,
     );
 
-class FakeWebViewPlatform extends WebViewPlatform with MockPlatformInterfaceMixin {
+class FakeWebViewPlatform extends WebViewPlatform
+    with MockPlatformInterfaceMixin {
   @override
-  PlatformWebViewController createPlatformWebViewController(PlatformWebViewControllerCreationParams params) {
+  PlatformWebViewController createPlatformWebViewController(
+      PlatformWebViewControllerCreationParams params) {
     return FakeWebViewController(params);
   }
 
   @override
-  PlatformWebViewWidget createPlatformWebViewWidget(PlatformWebViewWidgetCreationParams params) {
+  PlatformWebViewWidget createPlatformWebViewWidget(
+      PlatformWebViewWidgetCreationParams params) {
     return FakeWebViewWidget(params);
   }
 
   @override
-  PlatformNavigationDelegate createPlatformNavigationDelegate(PlatformNavigationDelegateCreationParams params) {
+  PlatformNavigationDelegate createPlatformNavigationDelegate(
+      PlatformNavigationDelegateCreationParams params) {
     return FakeNavigationDelegate(params);
   }
 }
@@ -38,9 +42,11 @@ class FakeWebViewController extends PlatformWebViewController {
   @override
   Future<void> setBackgroundColor(Color color) async {}
   @override
-  Future<void> setPlatformNavigationDelegate(PlatformNavigationDelegate handler) async {}
+  Future<void> setPlatformNavigationDelegate(
+      PlatformNavigationDelegate handler) async {}
   @override
-  Future<void> addJavaScriptChannel(JavaScriptChannelParams javaScriptChannelParams) async {}
+  Future<void> addJavaScriptChannel(
+      JavaScriptChannelParams javaScriptChannelParams) async {}
 }
 
 class FakeWebViewWidget extends PlatformWebViewWidget {
@@ -52,7 +58,8 @@ class FakeWebViewWidget extends PlatformWebViewWidget {
 class FakeNavigationDelegate extends PlatformNavigationDelegate {
   FakeNavigationDelegate(super.params) : super.implementation();
   @override
-  Future<void> setOnNavigationRequest(NavigationRequestCallback onNavigationRequest) async {}
+  Future<void> setOnNavigationRequest(
+      NavigationRequestCallback onNavigationRequest) async {}
   @override
   Future<void> setOnPageStarted(PageEventCallback onPageStarted) async {}
   @override
@@ -60,7 +67,8 @@ class FakeNavigationDelegate extends PlatformNavigationDelegate {
   @override
   Future<void> setOnProgress(ProgressCallback onProgress) async {}
   @override
-  Future<void> setOnWebResourceError(WebResourceErrorCallback onWebResourceError) async {}
+  Future<void> setOnWebResourceError(
+      WebResourceErrorCallback onWebResourceError) async {}
 }
 
 void main() {
@@ -68,16 +76,23 @@ void main() {
   WebViewPlatform.instance = FakeWebViewPlatform();
 
   group('PainDetailsScreen Widget Tests', () {
-    testWidgets('renders pain point location, pain type chips, and intensity slider', (WidgetTester tester) async {
+    testWidgets(
+        'renders pain point location, pain type chips, and intensity slider',
+        (WidgetTester tester) async {
       final points = [
-        PainPoint(region: 'Chest / Heart', x: 0.5, y: 0.4, severity: 8, painType: 'Sharp'),
+        PainPoint(
+            region: 'Chest / Heart',
+            x: 0.5,
+            y: 0.4,
+            severity: 8,
+            painType: 'Sharp'),
       ];
 
       await tester.pumpWidget(_wrap(PainDetailsScreen(
-          painPoints: points,
-          patientId: 1,
-          modelAsset: 'assets/models/human_body_female.glb',
-        )));
+        painPoints: points,
+        patientId: 1,
+        modelAsset: 'assets/models/human_body_female.glb',
+      )));
       await tester.pump();
 
       expect(find.text('Chest / Heart'), findsOneWidget);
@@ -90,17 +105,28 @@ void main() {
       expect(find.text('Next: Measure Vitals'), findsOneWidget);
     });
 
-    testWidgets('wizarded multi-location navigation cycles through points', (WidgetTester tester) async {
+    testWidgets('wizarded multi-location navigation cycles through points',
+        (WidgetTester tester) async {
       final points = [
-        PainPoint(region: 'Chest / Heart', x: 0.5, y: 0.4, severity: 8, painType: 'Sharp'),
-        PainPoint(region: 'Right Leg / Knee', x: 0.7, y: 0.8, severity: 4, painType: 'Dull'),
+        PainPoint(
+            region: 'Chest / Heart',
+            x: 0.5,
+            y: 0.4,
+            severity: 8,
+            painType: 'Sharp'),
+        PainPoint(
+            region: 'Right Leg / Knee',
+            x: 0.7,
+            y: 0.8,
+            severity: 4,
+            painType: 'Dull'),
       ];
 
       await tester.pumpWidget(_wrap(PainDetailsScreen(
-          painPoints: points,
-          patientId: 1,
-          modelAsset: 'assets/models/human_body_female.glb',
-        )));
+        painPoints: points,
+        patientId: 1,
+        modelAsset: 'assets/models/human_body_female.glb',
+      )));
       await tester.pump();
 
       expect(find.text('Chest / Heart'), findsOneWidget);

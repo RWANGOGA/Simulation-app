@@ -38,10 +38,27 @@ const _englishCeiling = <String, int>{
   // translations (Iliyotangulia / Inayofuata) and did not move; the other three
   // are bare navigation words that no reviewer has confirmed, and an unlabeled
   // icon button is worse for a screen-reader user than a familiar English word.
-  'lg': 37,
-  'nyn': 273,
-  'sw': 257,
-  'xog': 273,
+  //
+  // 39 = 37 + the two passport captions. Luganda previously read "Paasipoota ya
+  // QR Ekusike" — a real translation of "Encrypted QR Passport", which was a
+  // false claim, so the wording had to go rather than be re-translated. The two
+  // replacement sentences state what the network is needed for, and a guessed
+  // Luganda rendering of a connectivity promise is the same class of error as
+  // the one being fixed. Retranslate both with a reviewer and lower this number.
+  // Kiswahili, Runyankole and Lusoga did not move: those strings were already
+  // English there.
+  //
+  // 45 / 279 / 263 / 279 = +6 each, the four SATS category names (Red, Orange,
+  // Yellow, Green) and the two labels beside them. A triage category is not a
+  // label to improvise: "Orange" means "very urgent" to whoever reads the chart
+  // after you, and a plausible-sounding Lusoga word for it invented by a
+  // developer is the same class of error as the mistranslated passport caption
+  // above. They ship in English until a reviewer confirms the clinical wording,
+  // then these numbers drop.
+  'lg': 45,
+  'nyn': 279,
+  'sw': 263,
+  'xog': 279,
 };
 
 Map<String, dynamic> _read(String path) =>

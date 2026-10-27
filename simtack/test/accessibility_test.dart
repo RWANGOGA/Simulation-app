@@ -15,7 +15,8 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    test('defaults to normal text and system theme when nothing saved', () async {
+    test('defaults to normal text and system theme when nothing saved',
+        () async {
       final controller = await AccessibilityController.load();
       expect(controller.fontScale, 1.0);
       expect(controller.themeMode, ThemeMode.system);
@@ -96,7 +97,8 @@ void main() {
       SharedPreferences.setMockInitialValues({});
     });
 
-    testWidgets('tapping a text-size chip updates the controller', (tester) async {
+    testWidgets('tapping a text-size chip updates the controller',
+        (tester) async {
       final controller = await AccessibilityController.load();
       await tester.pumpWidget(wrapScreen(controller));
 

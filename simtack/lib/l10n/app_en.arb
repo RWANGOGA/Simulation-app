@@ -226,8 +226,20 @@
   "@scanPatientQrButton": {"description": "Button label for launching the mobile QR scanner."},
   "patientAnonymousIdLabel": "PATIENT ANONYMOUS ID",
   "@patientAnonymousIdLabel": {"description": "Caption above the looked-up patient's anonymous code badge."},
-  "encryptedQrPassportLabel": "Encrypted QR Passport",
-  "@encryptedQrPassportLabel": {"description": "Caption under the patient's QR code image."},
+
+
+  "qrNeedsInternetHint": "Needs internet to open the report",
+  "@qrNeedsInternetHint": {
+    "description": "Under the QR code when the payload is a report URL. Must be read with qrOfflinePassportHint, which is only shown when the payload carries the record itself."
+  },
+  "qrOfflinePassportHint": "The record travels inside this code, so it opens without internet",
+  "@qrOfflinePassportHint": {
+    "description": "Shown under the passport QR only when the payload carries the record itself (qr_passport.dart: passportCarriesRecord). It must never be used for a URL payload, and never used while the payload is plaintext."
+  },
+  "qrPassportLabel": "Patient passport code",
+  "@qrPassportLabel": {
+    "description": "Caption under the QR code. States what the code is, never that it is encrypted: until the passport payload is really encrypted, calling it \"Encrypted\" is a security claim the app does not implement."
+  },
   "openFullClinicalReportButton": "Open Full Clinical Report",
   "@openFullClinicalReportButton": {"description": "Button that opens the patient's full clinical report."},
   "bodyMapTitle": "3D Body Map",
@@ -523,10 +535,10 @@
   "@reportSubmittedTitle": {"description": "Success screen heading."},
   "patientIdLabel": "Patient ID",
   "@patientIdLabel": {"description": "Label above the generated anonymous patient ID on the success screen."},
-  "encryptedQrPassportLabel": "Encrypted QR Passport",
+
   "@encryptedQrPassportLabel": {"description": "Caption over the QR code shown after submitting."},
-  "noInternetRequiredHint": "No internet required to view",
-  "@noInternetRequiredHint": {"description": "Reassurance under the QR code."},
+
+
   "showQrToHealthWorkerHint": "Show this QR code to the health worker",
   "@showQrToHealthWorkerHint": {"description": "Instruction under the QR code."},
   "escalationReasonsLabel": "What triggered this",
@@ -671,6 +683,20 @@
   "@triageDecisionTitle": {"description": "Section header over the practitioner decision card."},
   "suggestedPriorityLabel": "Suggested Priority",
   "@suggestedPriorityLabel": {"description": "Label before the AI-suggested priority in the decision card."},
+  "triageTierLabel": "Triage tier (SATS)",
+  "@triageTierLabel": {
+    "description": "Label before the category the tool derived, in the decision card."
+  },
+  "clinicianTierLabel": "Your tier",
+  "@clinicianTierLabel": {"description": "Label before the practitioner's own category choice."},
+  "satsTierRed": "Red - Emergency",
+  "@satsTierRed": {"description": "SATS category: red. Shown to a clinician, not to a patient."},
+  "satsTierOrange": "Orange - Very urgent",
+  "@satsTierOrange": {"description": "SATS category: orange."},
+  "satsTierYellow": "Yellow - Urgent",
+  "@satsTierYellow": {"description": "SATS category: yellow."},
+  "satsTierGreen": "Green - Routine",
+  "@satsTierGreen": {"description": "SATS category: green."},
   "statusColonLabel": "Status:",
   "@statusColonLabel": {"description": "Label before the open/closed status chips in the decision card."},
   "recommendedActionsLabel": "Recommended Actions",
