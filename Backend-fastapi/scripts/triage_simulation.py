@@ -162,6 +162,109 @@ def worked_cases(results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     return picks
 
 
+def sensitivity_analysis(engine, fixture: Dict[str, Any]) -> Dict[str, Any]:
+    """How much the tier distribution depends on two score mechanisms.
+
+    These are *counterfactual replays* of the real engine, not a re-tuned model:
+
+    * **Heart-rate ablation** re-runs every vignette with `heart_rate=None`, so
+      both the HR score bump and the HR red-flag rules go quiet. It answers
+      "what would this set look like if the device had no pulse input?" — the
+      safety-relevant direction is a case that drops *out* of red/orange.
+    * **Score-cap ablation** un-clamps the total back to the raw weighted sum
+      (the cap row the engine records is exactly the amount discarded) and
+      re-derives the tier. Because every band is a *lower* bound and the cap
+      only ever bites at or above 1.00, no tier can move — a fact worth stating
+      plainly rather than implying the cap shapes the category.
+
+    The graph-propagation ablation this harness will eventually report is
+    deliberately *absent*: 1-hop message passing is not built yet (Unit 2), so
+    there is nothing honest to switch off. The connectivity bump that exists
+    today is a fixed per-edge weight, not propagation, and ablating it belongs
+    with the real mechanism.
+    """
+    triage_service, TriageCreate = engine
+
+    def _payload(inp: Dict[str, Any], *, drop_hr: bool):
+        return TriageCreate(
+            body_region=inp["body_region"],
+            pain_type=inp["pain_type"],
+            severity=inp["severity"],
+            heart_rate=None if drop_hr else inp["heart_rate"],
+            direction=inp["direction"],
+        )
+
+    def _tier(inp: Dict[str, Any], *, drop_hr: bool = False, uncap: bool = False):
+        payload = _payload(inp, drop_hr=drop_hr)
+        risk, contributions = triage_service.compute_risk(
+            payload,
+            sibling_regions=inp["siblings"],
+            patient_weight=inp["patient_weight"],
+            patient_height=inp["patient_height"],
+        )
+        capped = any("capped" in c["factor"].lower() for c in contributions)
+        if uncap and capped:
+            cap_row = next(
+                c for c in contributions if "capped" in c["factor"].lower()
+            )
+            score = round(risk - cap_row["contribution"], 6)
+        else:
+            score = risk
+        return triage_service.triage_tier(payload, score)["tier"], capped
+
+    def _distribution(tiers):
+        dist = {tier: 0 for tier in TIER_ORDER}
+        for tier in tiers:
+            dist[tier] += 1
+        return dist
+
+    baseline: List[str] = []
+    hr_ablated: List[str] = []
+    cap_ablated: List[str] = []
+    hr_transitions: List[Dict[str, Any]] = []
+    capped_cases = 0
+    for case in fixture["cases"]:
+        inp = case["input"]
+        base_tier, was_capped = _tier(inp)
+        baseline.append(base_tier)
+        capped_cases += int(was_capped)
+        hr_tier, _ = _tier(inp, drop_hr=True)
+        hr_ablated.append(hr_tier)
+        cap_ablated.append(_tier(inp, uncap=True)[0])
+        if hr_tier != base_tier:
+            hr_transitions.append({
+                "id": case["id"],
+                "intended": case["intended_tier"],
+                "baseline_tier": base_tier,
+                "hr_ablated_tier": hr_tier,
+            })
+
+    under_triage_flips = sum(
+        1 for t in hr_transitions
+        if TIER_ORDER.index(t["hr_ablated_tier"]) > TIER_ORDER.index(t["baseline_tier"])
+    )
+    return {
+        "baseline_distribution": _distribution(baseline),
+        "heart_rate_ablation": {
+            "distribution": _distribution(hr_ablated),
+            "tier_changes": len(hr_transitions),
+            "under_triage_flips": under_triage_flips,
+            "transitions": hr_transitions,
+        },
+        "score_cap_ablation": {
+            "distribution": _distribution(cap_ablated),
+            "capped_cases": capped_cases,
+            "tier_changes": sum(
+                1 for a, b in zip(cap_ablated, baseline) if a != b
+            ),
+        },
+        "graph_propagation": {
+            "available": False,
+            "reason": "1-hop message passing is not built yet (Unit 2).",
+        },
+    }
+
+
 def build_report(fixture: Dict[str, Any]) -> Dict[str, Any]:
     from app.services import triage_service
     from app.schemas import TriageCreate
@@ -212,6 +315,7 @@ def build_report(fixture: Dict[str, Any]) -> Dict[str, Any]:
         "agreement": agreement,
         "inter_rater": inter_rater,
         "conformance_mismatches": conformance,
+        "sensitivity": sensitivity_analysis(engine, fixture),
         "worked_cases": worked_cases(results),
     }
 
@@ -331,6 +435,37 @@ def format_markdown(report: Dict[str, Any]) -> str:
             "the rules realise their design intent on this set. (This says nothing "
             "about clinical validity; see the reading note above.)"
         )
+    lines.append("")
+    lines.append("## Sensitivity / ablation (counterfactual replays)")
+    lines.append("")
+    sens = report["sensitivity"]
+    lines.append(
+        f"- **Baseline distribution:** "
+        + ", ".join(f"{t} {sens['baseline_distribution'][t]}" for t in TIER_ORDER)
+    )
+    hr = sens["heart_rate_ablation"]
+    lines.append(
+        f"- **Heart-rate ablation** (every vignette replayed with no pulse "
+        f"input): {hr['tier_changes']} of {report['n_cases']} change tier "
+        f"({hr['under_triage_flips']} toward less urgent)."
+    )
+    lines.append(
+        "  - ablated distribution: "
+        + ", ".join(f"{t} {hr['distribution'][t]}" for t in TIER_ORDER)
+    )
+    cap = sens["score_cap_ablation"]
+    lines.append(
+        f"- **Score-cap ablation** (un-clamp to the raw weighted sum): "
+        f"{cap['tier_changes']} tier changes across {cap['capped_cases']} "
+        "capped case(s) — the cap shapes the displayed number, not the category, "
+        "because every band is a lower bound."
+    )
+    graph = sens["graph_propagation"]
+    lines.append(
+        f"- **Graph-propagation ablation:** "
+        + ("reported above." if graph["available"]
+           else f"not reported — {graph['reason']}")
+    )
     lines.append("")
     lines.append("## Worked attribution (why the engine chose)")
     lines.append("")

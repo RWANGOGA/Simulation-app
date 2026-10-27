@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-27T10:44:02+00:00",
+  "generated_at": "2026-10-27T10:58:54+00:00",
   "fixture_version": 1,
   "scale": "SATS",
   "n_cases": 150,
@@ -71,6 +71,184 @@
     "reason": "inter-rater kappa needs a clinician label and a second labeler; fixture has clinician_label=False, second_labeler_id=None"
   },
   "conformance_mismatches": [],
+  "sensitivity": {
+    "baseline_distribution": {
+      "red": 40,
+      "orange": 41,
+      "yellow": 37,
+      "green": 32
+    },
+    "heart_rate_ablation": {
+      "distribution": {
+        "red": 32,
+        "orange": 25,
+        "yellow": 49,
+        "green": 44
+      },
+      "tier_changes": 24,
+      "under_triage_flips": 24,
+      "transitions": [
+        {
+          "id": "V025",
+          "intended": "red",
+          "baseline_tier": "red",
+          "hr_ablated_tier": "green"
+        },
+        {
+          "id": "V026",
+          "intended": "red",
+          "baseline_tier": "red",
+          "hr_ablated_tier": "green"
+        },
+        {
+          "id": "V027",
+          "intended": "red",
+          "baseline_tier": "red",
+          "hr_ablated_tier": "green"
+        },
+        {
+          "id": "V028",
+          "intended": "red",
+          "baseline_tier": "red",
+          "hr_ablated_tier": "green"
+        },
+        {
+          "id": "V029",
+          "intended": "red",
+          "baseline_tier": "red",
+          "hr_ablated_tier": "green"
+        },
+        {
+          "id": "V030",
+          "intended": "red",
+          "baseline_tier": "red",
+          "hr_ablated_tier": "green"
+        },
+        {
+          "id": "V031",
+          "intended": "red",
+          "baseline_tier": "red",
+          "hr_ablated_tier": "green"
+        },
+        {
+          "id": "V032",
+          "intended": "red",
+          "baseline_tier": "red",
+          "hr_ablated_tier": "green"
+        },
+        {
+          "id": "V041",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "green"
+        },
+        {
+          "id": "V042",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "yellow"
+        },
+        {
+          "id": "V043",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "yellow"
+        },
+        {
+          "id": "V045",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "yellow"
+        },
+        {
+          "id": "V046",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "green"
+        },
+        {
+          "id": "V047",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "yellow"
+        },
+        {
+          "id": "V048",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "yellow"
+        },
+        {
+          "id": "V050",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "yellow"
+        },
+        {
+          "id": "V051",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "green"
+        },
+        {
+          "id": "V052",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "yellow"
+        },
+        {
+          "id": "V053",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "yellow"
+        },
+        {
+          "id": "V055",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "yellow"
+        },
+        {
+          "id": "V056",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "green"
+        },
+        {
+          "id": "V057",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "yellow"
+        },
+        {
+          "id": "V058",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "yellow"
+        },
+        {
+          "id": "V060",
+          "intended": "orange",
+          "baseline_tier": "orange",
+          "hr_ablated_tier": "yellow"
+        }
+      ]
+    },
+    "score_cap_ablation": {
+      "distribution": {
+        "red": 40,
+        "orange": 41,
+        "yellow": 37,
+        "green": 32
+      },
+      "capped_cases": 1,
+      "tier_changes": 0
+    },
+    "graph_propagation": {
+      "available": false,
+      "reason": "1-hop message passing is not built yet (Unit 2)."
+    }
+  },
   "worked_cases": [
     {
       "label": "red by vital-sign floor",

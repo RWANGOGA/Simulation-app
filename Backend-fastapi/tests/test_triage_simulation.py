@@ -105,3 +105,34 @@ def test_worked_cases_cover_distinct_deciding_rules(report):
     assert "green by below urgent band" in labels
     for worked in report["worked_cases"]:
         assert worked["intended_tier"] == worked["tool_tier"]
+
+
+def test_sensitivity_baseline_reproduces_the_fixture_counts(report):
+    # The engine's own tier distribution over the set equals the intended counts,
+    # because conformance is perfect — the ablation is measured off a correct base.
+    sens = report["sensitivity"]
+    assert sens["baseline_distribution"] == report["counts"]
+    assert sum(sens["baseline_distribution"].values()) == report["n_cases"]
+
+
+def test_heart_rate_ablation_only_ever_moves_toward_less_urgent(report):
+    hr = report["sensitivity"]["heart_rate_ablation"]
+    # Removing a risk-raising input (the HR bump and the HR red flags) cannot
+    # make any case *more* urgent, so every flip is an under-triage direction.
+    assert hr["tier_changes"] == hr["under_triage_flips"]
+    assert hr["tier_changes"] > 0, "HR should be load-bearing on this set"
+    assert sum(hr["distribution"].values()) == report["n_cases"]
+
+
+def test_score_cap_ablation_moves_no_category(report):
+    cap = report["sensitivity"]["score_cap_ablation"]
+    # Every band is a lower bound and the cap bites only at/above 1.00, so
+    # un-clamping can never cross a threshold downward.
+    assert cap["tier_changes"] == 0
+    assert cap["capped_cases"] >= 1, "fixture should exercise the cap at least once"
+
+
+def test_graph_propagation_ablation_is_deferred_not_fabricated(report):
+    graph = report["sensitivity"]["graph_propagation"]
+    assert graph["available"] is False
+    assert "Unit 2" in graph["reason"]

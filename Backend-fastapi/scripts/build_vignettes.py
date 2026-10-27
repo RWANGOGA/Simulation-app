@@ -23,6 +23,10 @@ extreme severity, heart-rate outliers, and cases with missing attributes.
 
 Regenerate with:
     venv/bin/python -m scripts.build_vignettes
+
+The same set is mirrored to `simtack/test/fixtures/vignettes.json` so the offline
+Dart engine is replayed against the *identical* vignettes the Python harness
+scores (same one-source pattern as `scripts/export_offline_assets.py`).
 """
 from __future__ import annotations
 
@@ -31,6 +35,11 @@ from pathlib import Path
 from typing import Any, Dict, List
 
 OUTPUT = Path(__file__).resolve().parent.parent / "fixtures" / "vignettes.json"
+# Mirror for the on-device parity test; see the module docstring.
+DART_OUTPUT = (
+    Path(__file__).resolve().parent.parent.parent
+    / "simtack" / "test" / "fixtures" / "vignettes.json"
+)
 
 # Region labels chosen to hit each _region_weight band and, where relevant, to be
 # real BODY_GRAPH keys so referred-pain edges fire in the co-report cases.
@@ -305,8 +314,12 @@ def main() -> None:
         assert counts[tier] >= 30, f"{tier} has only {counts[tier]} cases (<30)"
 
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-    OUTPUT.write_text(json.dumps(data, indent=2, sort_keys=False) + "\n")
+    serialized = json.dumps(data, indent=2, sort_keys=False) + "\n"
+    OUTPUT.write_text(serialized)
+    DART_OUTPUT.parent.mkdir(parents=True, exist_ok=True)
+    DART_OUTPUT.write_text(serialized)
     print(f"wrote {OUTPUT} with {total} cases: {counts}")
+    print(f"mirrored to {DART_OUTPUT}")
 
 
 if __name__ == "__main__":
