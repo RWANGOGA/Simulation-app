@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:simtack/core/theme/app_tokens.dart';
 import 'package:simtack/core/theme/app_accent.dart';
 import 'package:simtack/core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_page.dart';
 import 'package:flutter/services.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 import 'anatomy_3d_tap_view.dart';
@@ -505,45 +506,52 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
           // is marked, since there's nothing to carry into Pain Details
           // otherwise.
           Container(
-            padding: const EdgeInsets.all(20),
+            width: double.infinity,
             color: AppPalette.surface(context),
             child: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: ElevatedButton(
-                  onPressed: _painPoints.isEmpty
-                      ? null
-                      : () {
-                          HapticFeedback.selectionClick();
-                          _navigateToPainDetails();
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppAccent.primary(context),
-                    disabledBackgroundColor: AppPalette.border(context),
-                    elevation: 3,
-                    shadowColor: AppAccent.primary(context).withOpacity(0.4),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _painPoints.isEmpty
-                            ? t.tapBodyToMarkPain
-                            : t.continueToPainDetailsButton(_painPoints.length),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+              top: false,
+              child: AppPage.bar(
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: ElevatedButton(
+                    onPressed: _painPoints.isEmpty
+                        ? null
+                        : () {
+                            HapticFeedback.selectionClick();
+                            _navigateToPainDetails();
+                          },
+                    // Flat deep fill instead of elevation 3 plus a violet
+                    // glow, and primaryFill rather than primary so the white
+                    // label clears 7.10:1 in both themes.
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppAccent.primaryFill,
+                      foregroundColor: AppAccent.onPrimary,
+                      disabledBackgroundColor: AppPalette.border(context),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.md),
                       ),
-                      const SizedBox(width: 8),
-                      const Icon(Icons.arrow_forward,
-                          color: Colors.white, size: 20),
-                    ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _painPoints.isEmpty
+                              ? t.tapBodyToMarkPain
+                              : t.continueToPainDetailsButton(
+                                  _painPoints.length),
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppAccent.onPrimary,
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        const Icon(Icons.arrow_forward,
+                            color: AppAccent.onPrimary, size: 20),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -814,117 +822,124 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
       ),
       body: SafeArea(
         child: widget.painPoints.isEmpty
-            ? Padding(
-                padding: const EdgeInsets.all(24),
+            ? AppPage(
                 child: Text(
                   t.noLocationsMarkedHint,
                   style: TextStyle(color: AppPalette.textMuted(context)),
                 ),
               )
-            : ListView.separated(
-                padding: const EdgeInsets.all(16),
-                itemCount: widget.painPoints.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  final point = widget.painPoints[index];
-                  return Container(
-                    decoration: BoxDecoration(
-                      color: AppPalette.scaffold(context),
-                      borderRadius: BorderRadius.circular(AppRadius.lg),
-                      border: Border.all(color: AppPalette.border(context)),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Container(
-                              width: 4, color: AppAccent.primary(context)),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(12, 10, 4, 0),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 24,
-                                        height: 24,
-                                        alignment: Alignment.center,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: AppAccent.primary(context),
-                                        ),
-                                        child: Text(
-                                          '${index + 1}',
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: Text(
-                                          point.region,
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold,
-                                            color:
-                                                AppPalette.textPrimary(context),
-                                          ),
-                                        ),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.close, size: 18),
-                                        color: AppPalette.textMuted(context),
-                                        tooltip: t.removeTooltip,
-                                        onPressed: () {
-                                          widget.onRemove(index);
-                                          setState(() {});
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding:
-                                      const EdgeInsets.fromLTRB(4, 0, 4, 4),
-                                  child: AnatomyInsightCard(
-                                    region: point.region,
-                                    future:
-                                        widget.anatomyFutureFor(point.region),
-                                    initialAnswers:
-                                        widget.initialAnswersFor(point.region),
-                                    onAnswersChanged: (answers) {
-                                      widget.onAnswersChanged(
-                                          point.region, answers);
-                                    },
-                                    selectedCondition: point.symptomDescription,
-                                    onConditionSelected: (condition) {
-                                      setState(() {
-                                        point.symptomDescription = condition;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
+            : AppPage(
+                scrollable: true,
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  padding: EdgeInsets.zero,
+                  itemCount: widget.painPoints.length,
+                  separatorBuilder: (_, __) =>
+                      const SizedBox(height: AppSpacing.md),
+                  itemBuilder: (context, index) {
+                    final point = widget.painPoints[index];
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: AppPalette.scaffold(context),
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                        border: Border.all(color: AppPalette.border(context)),
                       ),
-                    ),
-                  );
-                },
+                      clipBehavior: Clip.antiAlias,
+                      child: IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Container(
+                                width: 4, color: AppAccent.primary(context)),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(12, 10, 4, 0),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 24,
+                                          height: 24,
+                                          alignment: Alignment.center,
+                                          decoration: BoxDecoration(
+                                            shape: BoxShape.circle,
+                                            color: AppAccent.primary(context),
+                                          ),
+                                          child: Text(
+                                            '${index + 1}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            point.region,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                              color: AppPalette.textPrimary(
+                                                  context),
+                                            ),
+                                          ),
+                                        ),
+                                        IconButton(
+                                          icon:
+                                              const Icon(Icons.close, size: 18),
+                                          color: AppPalette.textMuted(context),
+                                          tooltip: t.removeTooltip,
+                                          onPressed: () {
+                                            widget.onRemove(index);
+                                            setState(() {});
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(4, 0, 4, 4),
+                                    child: AnatomyInsightCard(
+                                      region: point.region,
+                                      future:
+                                          widget.anatomyFutureFor(point.region),
+                                      initialAnswers: widget
+                                          .initialAnswersFor(point.region),
+                                      onAnswersChanged: (answers) {
+                                        widget.onAnswersChanged(
+                                            point.region, answers);
+                                      },
+                                      selectedCondition:
+                                          point.symptomDescription,
+                                      onConditionSelected: (condition) {
+                                        setState(() {
+                                          point.symptomDescription = condition;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ),
       ),
       bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: OutlinedButton.icon(
+        top: false,
+        child: AppPage.bar(
+          OutlinedButton.icon(
             onPressed: _openRegionPicker,
             icon: Icon(Icons.add_circle_outline,
                 color: AppAccent.primary(context)),

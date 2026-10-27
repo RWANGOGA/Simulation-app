@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:simtack/core/theme/app_tokens.dart';
 import 'package:simtack/core/theme/app_accent.dart';
 import 'package:simtack/core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_page.dart';
 import 'package:flutter/services.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../review/ui/review_screen.dart';
@@ -183,37 +184,39 @@ class _PainProfileFunctionalImpactScreenState
           Container(
             width: double.infinity,
             color: AppPalette.surface(context),
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Row(
-              children: [
-                Text(
-                  'Step Progress: ',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AppPalette.textMuted(context),
+            child: AppPage(
+              verticalPadding: AppSpacing.md,
+              child: Row(
+                children: [
+                  Text(
+                    'Step Progress: ',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: AppPalette.textMuted(context),
+                    ),
                   ),
-                ),
-                Expanded(
-                  child: Row(
-                    children: List.generate(6, (index) {
-                      final isCompletedOrCurrent = index <= 4;
-                      return Expanded(
-                        child: Container(
-                          height: 8,
-                          margin: const EdgeInsets.symmetric(horizontal: 2),
-                          decoration: BoxDecoration(
-                            color: isCompletedOrCurrent
-                                ? AppAccent.primary(context)
-                                : AppPalette.border(context),
-                            borderRadius: BorderRadius.circular(4),
+                  Expanded(
+                    child: Row(
+                      children: List.generate(6, (index) {
+                        final isCompletedOrCurrent = index <= 4;
+                        return Expanded(
+                          child: Container(
+                            height: 8,
+                            margin: const EdgeInsets.symmetric(horizontal: 2),
+                            decoration: BoxDecoration(
+                              color: isCompletedOrCurrent
+                                  ? AppAccent.primary(context)
+                                  : AppPalette.border(context),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
                           ),
-                        ),
-                      );
-                    }),
+                        );
+                      }),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           const Divider(height: 1),
@@ -240,8 +243,11 @@ class _PainProfileFunctionalImpactScreenState
                       padding: const EdgeInsets.symmetric(
                           horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
+                        // Selected chip is a fill carrying white text, so it is
+                        // primaryFill — primary is the light lavender that
+                        // carries text, and white on it is about 1.9:1.
                         color: isSelected
-                            ? AppAccent.primary(context)
+                            ? AppAccent.primaryFill
                             : AppPalette.subtleFill(context),
                         borderRadius: BorderRadius.circular(AppRadius.lg),
                       ),
@@ -249,7 +255,7 @@ class _PainProfileFunctionalImpactScreenState
                         'Spot ${i + 1}: ${widget.painPoints[i].region}',
                         style: TextStyle(
                           color: isSelected
-                              ? Colors.white
+                              ? AppAccent.onPrimary
                               : AppPalette.textPrimary(context),
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
@@ -263,423 +269,405 @@ class _PainProfileFunctionalImpactScreenState
 
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // SECTION A: PAIN EXPANSION BEHAVIOR
-                  _buildSectionHeader(
-                    'SECTION A: PAIN EXPANSION BEHAVIOR',
-                    'Does your pain stay in one tiny spot, or is it growing larger?',
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: _expansionOptions.map((opt) {
-                      final isSelected =
-                          _currentPoint.expansionBehavior == opt['id'];
-                      return Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          child: GestureDetector(
-                            onTap: () {
-                              HapticFeedback.selectionClick();
-                              setState(() =>
-                                  _currentPoint.expansionBehavior = opt['id']!);
-                            },
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              constraints: const BoxConstraints(
-                                  minHeight: 110, minWidth: 85),
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? AppAccent.primaryTint(context)
-                                    : AppPalette.surface(context),
-                                border: Border.all(
+              child: AppPage(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // SECTION A: PAIN EXPANSION BEHAVIOR
+                    _buildSectionHeader(
+                      'SECTION A: PAIN EXPANSION BEHAVIOR',
+                      'Does your pain stay in one tiny spot, or is it growing larger?',
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: _expansionOptions.map((opt) {
+                        final isSelected =
+                            _currentPoint.expansionBehavior == opt['id'];
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4),
+                            child: GestureDetector(
+                              onTap: () {
+                                HapticFeedback.selectionClick();
+                                setState(() => _currentPoint.expansionBehavior =
+                                    opt['id']!);
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                constraints: const BoxConstraints(
+                                    minHeight: 110, minWidth: 85),
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
                                   color: isSelected
-                                      ? AppAccent.primary(context)
-                                      : AppPalette.border(context),
-                                  width: isSelected ? 2 : 1,
-                                ),
-                                borderRadius: BorderRadius.circular(14),
-                                boxShadow: isSelected
-                                    ? [
-                                        BoxShadow(
-                                          color: AppAccent.primary(context)
-                                              .withOpacity(0.15),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 3),
-                                        ),
-                                      ]
-                                    : [],
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    opt['icon'] as IconData,
-                                    size: 24,
+                                      ? AppAccent.primaryTint(context)
+                                      : AppPalette.surface(context),
+                                  border: Border.all(
                                     color: isSelected
                                         ? AppAccent.primary(context)
-                                        : AppPalette.textSecondary(context),
+                                        : AppPalette.border(context),
+                                    width: isSelected ? 2 : 1,
                                   ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    opt['title']!,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: isSelected
-                                          ? AppAccent.primary(context)
-                                          : AppPalette.textPrimary(context),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    opt['subtitle']!,
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      color: isSelected
-                                          ? AppAccent.primary(context)
-                                              .withOpacity(0.8)
-                                          : AppPalette.textMuted(context),
-                                    ),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // SECTION B: ACTIONS & TRIGGERS
-                  _buildSectionHeader(
-                    'SECTION B: ACTIONS & TRIGGERS',
-                    'What changes your pain? Tap to select.',
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Column 1: MAKES IT WORSE (Triggers)
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.thumb_down,
-                                      size: 14,
-                                      color: AppAccent.danger(context)),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'MAKES IT WORSE (Triggers)',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppAccent.danger(context),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            ..._triggerOptions.map((trig) {
-                              final isSelected =
-                                  _currentPoint.triggers.contains(trig['id']);
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: GestureDetector(
-                                  onTap: () => _toggleTrigger(trig['id']!),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 150),
-                                    constraints: const BoxConstraints(
-                                        minHeight: 52, minWidth: 85),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? AppAccent.dangerTint(context)
-                                          : AppPalette.surface(context),
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? AppAccent.danger(context)
-                                            : AppPalette.border(context),
-                                        width: isSelected ? 2 : 1,
-                                      ),
-                                      borderRadius:
-                                          BorderRadius.circular(AppRadius.md),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(trig['icon'] as IconData,
-                                            size: 18,
-                                            color: isSelected
-                                                ? AppAccent.danger(context)
-                                                : AppPalette.textMuted(
-                                                    context)),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            trig['label']!,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: isSelected
-                                                  ? FontWeight.bold
-                                                  : FontWeight.w600,
-                                              color: isSelected
-                                                  ? AppAccent.danger(context)
-                                                  : AppPalette.textPrimary(
-                                                      context),
-                                            ),
+                                  borderRadius: BorderRadius.circular(14),
+                                  boxShadow: isSelected
+                                      ? [
+                                          BoxShadow(
+                                            color: AppAccent.primary(context)
+                                                .withOpacity(0.15),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 3),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                        ]
+                                      : [],
                                 ),
-                              );
-                            }),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-
-                      // Column 2: MAKES IT BETTER (Relievers)
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.thumb_up,
-                                      size: 14,
-                                      color: AppAccent.primary(context)),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    'MAKES IT BETTER (Relievers)',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppAccent.primary(context),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            ..._relieverOptions.map((rel) {
-                              final isSelected =
-                                  _currentPoint.relievers.contains(rel['id']);
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 8),
-                                child: GestureDetector(
-                                  onTap: () => _toggleReliever(rel['id']!),
-                                  child: AnimatedContainer(
-                                    duration: const Duration(milliseconds: 150),
-                                    constraints: const BoxConstraints(
-                                        minHeight: 52, minWidth: 85),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 10, vertical: 12),
-                                    decoration: BoxDecoration(
-                                      color: isSelected
-                                          ? AppAccent.primary(context)
-                                          : AppPalette.surface(context),
-                                      border: Border.all(
-                                        color: isSelected
-                                            ? AppAccent.primary(context)
-                                            : AppPalette.border(context),
-                                        width: isSelected ? 2 : 1,
-                                      ),
-                                      borderRadius:
-                                          BorderRadius.circular(AppRadius.md),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Icon(rel['icon'] as IconData,
-                                            size: 18,
-                                            color: isSelected
-                                                ? Colors.white
-                                                : AppAccent.primary(context)),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            rel['label']!,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              fontWeight: isSelected
-                                                  ? FontWeight.bold
-                                                  : FontWeight.w600,
-                                              color: isSelected
-                                                  ? Colors.white
-                                                  : AppPalette.textPrimary(
-                                                      context),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // SECTION C: DAILY LIFE LIMITATIONS
-                  _buildSectionHeader(
-                    'SECTION C: DAILY LIFE LIMITATIONS',
-                    'What is this pain completely preventing you from doing right now?',
-                  ),
-                  const SizedBox(height: 12),
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisExtent: 90,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                    ),
-                    itemCount: _limitationOptions.length,
-                    itemBuilder: (context, idx) {
-                      final item = _limitationOptions[idx];
-                      final isSelected =
-                          _currentPoint.dailyLimitations.contains(item['id']);
-                      return GestureDetector(
-                        onTap: () => _toggleLimitation(item['id']!),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 150),
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? AppAccent.dangerTint(context)
-                                : AppPalette.surface(context),
-                            border: Border.all(
-                              color: isSelected
-                                  ? AppAccent.danger(context)
-                                  : AppPalette.border(context),
-                              width: isSelected ? 2 : 1,
-                            ),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  if (isSelected)
-                                    Padding(
-                                      padding: const EdgeInsets.only(right: 4),
-                                      child: Icon(Icons.block,
-                                          size: 14,
-                                          color: AppAccent.danger(context)),
-                                    ),
-                                  Icon(item['icon'] as IconData,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      opt['icon'] as IconData,
                                       size: 24,
                                       color: isSelected
-                                          ? AppAccent.danger(context)
-                                          : AppPalette.textSecondary(context)),
-                                ],
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                item['label']!,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                  color: isSelected
-                                      ? AppAccent.danger(context)
-                                      : AppPalette.textPrimary(context),
+                                          ? AppAccent.primary(context)
+                                          : AppPalette.textSecondary(context),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      opt['title']!,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: isSelected
+                                            ? AppAccent.primary(context)
+                                            : AppPalette.textPrimary(context),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      opt['subtitle']!,
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        color: isSelected
+                                            ? AppAccent.primary(context)
+                                                .withOpacity(0.8)
+                                            : AppPalette.textMuted(context),
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ],
                                 ),
-                                textAlign: TextAlign.center,
                               ),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // SECTION B: ACTIONS & TRIGGERS
+                    _buildSectionHeader(
+                      'SECTION B: ACTIONS & TRIGGERS',
+                      'What changes your pain? Tap to select.',
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Column 1: MAKES IT WORSE (Triggers)
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.thumb_down,
+                                        size: 14,
+                                        color: AppAccent.danger(context)),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'MAKES IT WORSE (Triggers)',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppAccent.danger(context),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              ..._triggerOptions.map((trig) {
+                                final isSelected =
+                                    _currentPoint.triggers.contains(trig['id']);
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: GestureDetector(
+                                    onTap: () => _toggleTrigger(trig['id']!),
+                                    child: AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 150),
+                                      constraints: const BoxConstraints(
+                                          minHeight: 52, minWidth: 85),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 12),
+                                      decoration: BoxDecoration(
+                                        color: isSelected
+                                            ? AppAccent.dangerTint(context)
+                                            : AppPalette.surface(context),
+                                        border: Border.all(
+                                          color: isSelected
+                                              ? AppAccent.danger(context)
+                                              : AppPalette.border(context),
+                                          width: isSelected ? 2 : 1,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(AppRadius.md),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(trig['icon'] as IconData,
+                                              size: 18,
+                                              color: isSelected
+                                                  ? AppAccent.danger(context)
+                                                  : AppPalette.textMuted(
+                                                      context)),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              trig['label']!,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: isSelected
+                                                    ? FontWeight.bold
+                                                    : FontWeight.w600,
+                                                color: isSelected
+                                                    ? AppAccent.danger(context)
+                                                    : AppPalette.textPrimary(
+                                                        context),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
                             ],
                           ),
                         ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 16),
+                        const SizedBox(width: 10),
 
-                  // Touch Target Info Card
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppAccent.primaryTint(context).withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                      border: Border.all(
-                          color: AppAccent.primary(context).withOpacity(0.2)),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.lightbulb_outline,
-                            size: 16, color: AppAccent.primary(context)),
-                        const SizedBox(width: 8),
+                        // Column 2: MAKES IT BETTER (Relievers)
                         Expanded(
-                          child: Text(
-                            'Touch Target Optimization: Every action bar and card uses a minimum size of 85dp x 85dp to ensure effortless touch feedback',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: AppAccent.primary(context),
-                              fontWeight: FontWeight.w500,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.thumb_up,
+                                        size: 14,
+                                        color: AppAccent.primary(context)),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'MAKES IT BETTER (Relievers)',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppAccent.primary(context),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              ..._relieverOptions.map((rel) {
+                                final isSelected =
+                                    _currentPoint.relievers.contains(rel['id']);
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 8),
+                                  child: GestureDetector(
+                                    onTap: () => _toggleReliever(rel['id']!),
+                                    child: AnimatedContainer(
+                                      duration:
+                                          const Duration(milliseconds: 150),
+                                      constraints: const BoxConstraints(
+                                          minHeight: 52, minWidth: 85),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 10, vertical: 12),
+                                      decoration: BoxDecoration(
+                                        color: isSelected
+                                            ? AppAccent.primary(context)
+                                            : AppPalette.surface(context),
+                                        border: Border.all(
+                                          color: isSelected
+                                              ? AppAccent.primary(context)
+                                              : AppPalette.border(context),
+                                          width: isSelected ? 2 : 1,
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(AppRadius.md),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Icon(rel['icon'] as IconData,
+                                              size: 18,
+                                              color: isSelected
+                                                  ? Colors.white
+                                                  : AppAccent.primary(context)),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              rel['label']!,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: isSelected
+                                                    ? FontWeight.bold
+                                                    : FontWeight.w600,
+                                                color: isSelected
+                                                    ? Colors.white
+                                                    : AppPalette.textPrimary(
+                                                        context),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ],
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 24),
+
+                    // SECTION C: DAILY LIFE LIMITATIONS
+                    _buildSectionHeader(
+                      'SECTION C: DAILY LIFE LIMITATIONS',
+                      'What is this pain completely preventing you from doing right now?',
+                    ),
+                    const SizedBox(height: 12),
+                    GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisExtent: 90,
+                        crossAxisSpacing: 10,
+                        mainAxisSpacing: 10,
+                      ),
+                      itemCount: _limitationOptions.length,
+                      itemBuilder: (context, idx) {
+                        final item = _limitationOptions[idx];
+                        final isSelected =
+                            _currentPoint.dailyLimitations.contains(item['id']);
+                        return GestureDetector(
+                          onTap: () => _toggleLimitation(item['id']!),
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 150),
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? AppAccent.dangerTint(context)
+                                  : AppPalette.surface(context),
+                              border: Border.all(
+                                color: isSelected
+                                    ? AppAccent.danger(context)
+                                    : AppPalette.border(context),
+                                width: isSelected ? 2 : 1,
+                              ),
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    if (isSelected)
+                                      Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 4),
+                                        child: Icon(Icons.block,
+                                            size: 14,
+                                            color: AppAccent.danger(context)),
+                                      ),
+                                    Icon(item['icon'] as IconData,
+                                        size: 24,
+                                        color: isSelected
+                                            ? AppAccent.danger(context)
+                                            : AppPalette.textSecondary(
+                                                context)),
+                                  ],
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  item['label']!,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: isSelected
+                                        ? AppAccent.danger(context)
+                                        : AppPalette.textPrimary(context),
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                  ],
+                ),
               ),
             ),
           ),
 
           // Bottom Action Button
           Container(
-            padding: const EdgeInsets.all(16),
+            width: double.infinity,
             color: AppPalette.surface(context),
             child: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _proceedToReview,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppAccent.primary(context),
-                    elevation: 3,
-                    shadowColor: AppAccent.primary(context).withOpacity(0.4),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                  ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'PROCEED TO REVIEW & SUBMIT',
-                        style: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          letterSpacing: 0.5,
-                        ),
+              top: false,
+              child: AppPage.bar(
+                SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _proceedToReview,
+                    // Flat deep fill instead of elevation 3 plus a violet glow.
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppAccent.primaryFill,
+                      foregroundColor: AppAccent.onPrimary,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.md),
                       ),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, color: Colors.white, size: 20),
-                    ],
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'PROCEED TO REVIEW & SUBMIT',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: AppAccent.onPrimary,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                        SizedBox(width: AppSpacing.sm),
+                        Icon(Icons.arrow_forward,
+                            color: AppAccent.onPrimary, size: 20),
+                      ],
+                    ),
                   ),
                 ),
               ),

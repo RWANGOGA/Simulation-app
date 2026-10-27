@@ -2,6 +2,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:simtack/core/theme/app_accent.dart';
 import 'package:simtack/core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_page.dart';
+import 'package:simtack/core/theme/app_tokens.dart';
 import 'package:flutter/services.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/offline/offline_repository.dart';
@@ -212,46 +214,52 @@ class _ReviewScreenState extends State<ReviewScreen> {
         children: [
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
             color: AppPalette.surface(context),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(t.anonymousPatientLabel,
-                        style: TextStyle(
-                            fontSize: 11,
-                            color: AppPalette.textMuted(context))),
-                    Text(t.idGeneratedOnSubmitLabel,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppAccent.primary(context))),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(t.timestampLabel,
-                        style: TextStyle(
-                            fontSize: 11,
-                            color: AppPalette.textMuted(context))),
-                    Text(_timestamp,
-                        style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                            color: AppPalette.textSecondary(context))),
-                  ],
-                ),
-              ],
+            // Full-bleed surface, centred content: the bar's own colour runs
+            // edge to edge, but what sits on it keeps the page measure so it
+            // lines up with the cards below instead of drifting to the window
+            // edge on a wide viewport.
+            child: AppPage(
+              verticalPadding: AppSpacing.lg,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(t.anonymousPatientLabel,
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: AppPalette.textMuted(context))),
+                      Text(t.idGeneratedOnSubmitLabel,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppAccent.primary(context))),
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(t.timestampLabel,
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: AppPalette.textMuted(context))),
+                      Text(_timestamp,
+                          style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                              color: AppPalette.textSecondary(context))),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
           const Divider(height: 1),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+            child: AppPage(
+              scrollable: true,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -374,57 +382,67 @@ class _ReviewScreenState extends State<ReviewScreen> {
             ),
           ),
           Container(
-            padding: const EdgeInsets.all(20),
+            width: double.infinity,
             color: AppPalette.surface(context),
             child: SafeArea(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: _isSavingDraft ? null : _saveDraft,
-                      child: _isSavingDraft
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2))
-                          : Text(t.saveDraftButton),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    flex: 2,
-                    child: ElevatedButton(
-                      onPressed: _isSubmitting ? null : _submitToDoctor,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppAccent.primary(context),
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        elevation: 3,
-                        shadowColor:
-                            AppAccent.primary(context).withOpacity(0.4),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14)),
+              top: false,
+              child: AppPage.bar(
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _isSavingDraft ? null : _saveDraft,
+                        child: _isSavingDraft
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2))
+                            : Text(t.saveDraftButton),
                       ),
-                      child: _isSubmitting
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                  color: Colors.white, strokeWidth: 3))
-                          : Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                  Text(t.submitButton,
-                                      style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white)),
-                                  const SizedBox(width: 8),
-                                  const Icon(Icons.send,
-                                      color: Colors.white, size: 20),
-                                ]),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: AppSpacing.lg),
+                    Expanded(
+                      flex: 2,
+                      child: ElevatedButton(
+                        onPressed: _isSubmitting ? null : _submitToDoctor,
+                        // was: elevation 3 plus a violet shadowColor, which is
+                        // the glow that reads as decorative rather than
+                        // engineered. A flat deep fill carries the emphasis on
+                        // its own, and `primaryFill` is the shade white text
+                        // clears 7.10:1 on in both themes.
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppAccent.primaryFill,
+                          foregroundColor: AppAccent.onPrimary,
+                          elevation: 0,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.lg),
+                          shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(AppRadius.md)),
+                        ),
+                        child: _isSubmitting
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(
+                                    color: AppAccent.onPrimary, strokeWidth: 3))
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                    Text(t.submitButton,
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppAccent.onPrimary)),
+                                    const SizedBox(width: AppSpacing.sm),
+                                    const Icon(Icons.send,
+                                        color: AppAccent.onPrimary, size: 20),
+                                  ]),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

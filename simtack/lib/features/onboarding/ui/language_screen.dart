@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:simtack/core/theme/app_tokens.dart';
 import 'package:simtack/core/theme/app_accent.dart';
 import 'package:simtack/core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_page.dart';
 import '../../../core/locale/app_languages.dart';
 import '../../../core/locale/locale_controller.dart';
 import '../../../core/theme/app_page_route.dart';
@@ -98,119 +99,121 @@ class _LanguageScreenState extends State<LanguageScreen>
     return Scaffold(
       backgroundColor: AppPalette.scaffold(context),
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const FlowProgressBar(totalSteps: 6, currentStep: 1),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-              child: FadeTransition(
-                opacity: _fadeIn,
-                child: SlideTransition(
-                  position: _slideIn,
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppAccent.primary(context),
-                          AppAccent.primary(context)
+        child: AppPage(
+          maxWidth: AppContentWidth.form,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const FlowProgressBar(totalSteps: 6, currentStep: 1),
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.sm),
+                child: FadeTransition(
+                  opacity: _fadeIn,
+                  child: SlideTransition(
+                    position: _slideIn,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      decoration: BoxDecoration(
+                        // The panel used to be a LinearGradient whose two stops
+                        // were the same colour — a gradient that could not
+                        // gradient. A flat fill is what it always rendered as.
+                        //
+                        // The fill is `primaryFill`, not `primary`: on the dark
+                        // theme `primary` resolves to the light lavender
+                        // (#A78BFA) that carries *text*, and white on it is about
+                        // 1.9:1. `primaryFill` is the deep violet that white text
+                        // sits on at 7.10:1 in both themes.
+                        color: AppAccent.primaryFill,
+                        borderRadius: BorderRadius.circular(AppRadius.xl),
+                        boxShadow: AppShadow.soft(context),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 56,
+                            height: 56,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.18),
+                              borderRadius: BorderRadius.circular(AppRadius.lg),
+                            ),
+                            child: const Icon(Icons.medical_services_rounded,
+                                size: 30, color: Colors.white),
+                          ),
+                          const SizedBox(height: 18),
+                          Text(
+                            t.chooseLanguageTitle,
+                            style: const TextStyle(
+                                fontSize: 26,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                                height: 1.2),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            t.chooseLanguageSubtitle,
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.white.withOpacity(0.85)),
+                          ),
                         ],
                       ),
-                      borderRadius: BorderRadius.circular(AppRadius.xl),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppAccent.primary(context).withOpacity(0.25),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
                     ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: AppSpacing.xl),
+                  child: SingleChildScrollView(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: 56,
-                          height: 56,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.18),
-                            borderRadius: BorderRadius.circular(AppRadius.lg),
+                        for (final option in _options)
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: AppSpacing.md),
+                            child: _languageOption(
+                              context,
+                              code: option.flutterCode,
+                              icon: option.icon,
+                              label: _labelFor(t, option.flutterCode),
+                            ),
                           ),
-                          child: const Icon(Icons.medical_services_rounded,
-                              size: 30, color: Colors.white),
-                        ),
-                        const SizedBox(height: 18),
-                        Text(
-                          t.chooseLanguageTitle,
-                          style: const TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                              height: 1.2),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          t.chooseLanguageSubtitle,
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.white.withOpacity(0.85)),
-                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        _consentCheckbox(context, t),
                       ],
                     ),
                   ),
                 ),
               ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      for (final option in _options)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: _languageOption(
-                            context,
-                            code: option.flutterCode,
-                            icon: option.icon,
-                            label: _labelFor(t, option.flutterCode),
-                          ),
-                        ),
-                      const SizedBox(height: 16),
-                      _consentCheckbox(context, t),
-                    ],
+              Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.md),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 56,
+                  child: ElevatedButton(
+                    onPressed: _continue,
+                    // primaryFill, not primary: see the note on the hero panel.
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppAccent.primaryFill,
+                      foregroundColor: AppAccent.onPrimary,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppRadius.md)),
+                    ),
+                    child: Text(
+                      t.continueButton,
+                      style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: AppAccent.onPrimary),
+                    ),
                   ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 0, 24, 24),
-              child: SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _continue,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppAccent.primary(context),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md)),
-                  ),
-                  child: Text(
-                    t.continueButton,
-                    style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -223,16 +226,16 @@ class _LanguageScreenState extends State<LanguageScreen>
       onTap: () => setState(() => _selectedCode = code),
       child: Container(
         width: double.infinity,
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppAccent.primary(context)
-              : AppPalette.surface(context),
+          // Selected rows are a filled surface carrying white text, so they use
+          // primaryFill for the same reason the button does.
+          color:
+              isSelected ? AppAccent.primaryFill : AppPalette.surface(context),
           borderRadius: BorderRadius.circular(AppRadius.md),
           border: Border.all(
-            color: isSelected
-                ? AppAccent.primary(context)
-                : AppPalette.border(context),
+            color:
+                isSelected ? AppAccent.primaryFill : AppPalette.border(context),
             width: 2,
           ),
         ),
@@ -240,8 +243,9 @@ class _LanguageScreenState extends State<LanguageScreen>
           children: [
             Icon(icon,
                 size: 22,
-                color:
-                    isSelected ? Colors.white : AppPalette.textMuted(context)),
+                color: isSelected
+                    ? AppAccent.onPrimary
+                    : AppPalette.textMuted(context)),
             const SizedBox(width: 14),
             Expanded(
               child: Text(
@@ -250,13 +254,14 @@ class _LanguageScreenState extends State<LanguageScreen>
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                   color: isSelected
-                      ? Colors.white
+                      ? AppAccent.onPrimary
                       : AppPalette.textPrimary(context),
                 ),
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle, color: Colors.white, size: 22),
+              const Icon(Icons.check_circle,
+                  color: AppAccent.onPrimary, size: 22),
           ],
         ),
       ),
@@ -280,7 +285,8 @@ class _LanguageScreenState extends State<LanguageScreen>
               children: [
                 Checkbox(
                   value: _consented,
-                  activeColor: AppAccent.primary(context),
+                  // The checkmark is white, so the box must be the deep fill.
+                  activeColor: AppAccent.primaryFill,
                   onChanged: (value) => setState(() {
                     _consented = value ?? false;
                     if (_consented) _showConsentError = false;

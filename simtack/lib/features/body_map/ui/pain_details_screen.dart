@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:simtack/core/theme/app_tokens.dart';
 import 'package:simtack/core/theme/app_accent.dart';
 import 'package:simtack/core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_page.dart';
 import 'package:flutter/services.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -171,490 +172,507 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
               // moving between points, rather than freezing the previous
               // point's scroll offset.
               key: ValueKey('pain-point-scroll-$_currentIndex'),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Selected Region Banner
-                  AppCard(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    child: Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppAccent.primary(context).withOpacity(0.1),
-                            shape: BoxShape.circle,
+              // The scroll view owns the key and the controller; AppPage owns
+              // the gutter and the measure, so the form stays a readable column
+              // instead of stretching across a desktop window.
+              child: AppPage(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Selected Region Banner
+                    AppCard(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color:
+                                  AppAccent.primary(context).withOpacity(0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.location_on,
+                                color: AppAccent.primary(context), size: 20),
                           ),
-                          child: Icon(Icons.location_on,
-                              color: AppAccent.primary(context), size: 20),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                t.painLocationLabel,
-                                style: TextStyle(
-                                    fontSize: 12,
-                                    color: AppPalette.textMuted(context),
-                                    fontWeight: FontWeight.w500),
-                              ),
-                              Text(
-                                point.region,
-                                style: TextStyle(
-                                  fontSize: 17,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppPalette.textPrimary(context),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  t.painLocationLabel,
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      color: AppPalette.textMuted(context),
+                                      fontWeight: FontWeight.w500),
                                 ),
-                              ),
-                            ],
+                                Text(
+                                  point.region,
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppPalette.textPrimary(context),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 20),
 
-                  // 3D Visual Model with Direction / Depth selectors
-                  Container(
-                    height: 260,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: AppPalette.surface(context),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppPalette.border(context)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                      child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          return Stack(
-                            children: [
-                              // Background 3D Body Model
-                              // NOTE: camera-controls is enabled here, so the model already
-                              // owns drag (rotate) and pinch (zoom) gestures. Direction/Depth
-                              // are deliberately plain dropdowns rather than gestures on the
-                              // model itself, to avoid fighting the model's own controls.
-                              Positioned.fill(
-                                child: ModelViewer(
-                                  src: widget.modelAsset,
-                                  alt: '3D pain vector model',
-                                  ar: false,
-                                  autoRotate: false,
-                                  cameraControls: true,
-                                  backgroundColor: AppPalette.scaffold(context),
+                    // 3D Visual Model with Direction / Depth selectors
+                    Container(
+                      height: 260,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: AppPalette.surface(context),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppPalette.border(context)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.04),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return Stack(
+                              children: [
+                                // Background 3D Body Model
+                                // NOTE: camera-controls is enabled here, so the model already
+                                // owns drag (rotate) and pinch (zoom) gestures. Direction/Depth
+                                // are deliberately plain dropdowns rather than gestures on the
+                                // model itself, to avoid fighting the model's own controls.
+                                Positioned.fill(
+                                  child: ModelViewer(
+                                    src: widget.modelAsset,
+                                    alt: '3D pain vector model',
+                                    ar: false,
+                                    autoRotate: false,
+                                    cameraControls: true,
+                                    backgroundColor:
+                                        AppPalette.scaffold(context),
+                                  ),
                                 ),
-                              ),
 
-                              // Every marked location shows here (dimmed for
-                              // the ones not currently being edited), so the
-                              // patient always has visual context for how
-                              // many locations they're working through.
-                              for (int i = 0; i < widget.painPoints.length; i++)
-                                Positioned(
-                                  left: widget.painPoints[i].x *
-                                          constraints.maxWidth -
-                                      22,
-                                  top: widget.painPoints[i].y *
-                                          constraints.maxHeight -
-                                      22,
-                                  child: IgnorePointer(
-                                    child: i == _currentIndex
-                                        ? AnimatedBuilder(
-                                            animation: _pulseController,
-                                            builder: (context, child) {
-                                              return Container(
-                                                width: 32 +
-                                                    (12 *
-                                                        _pulseController.value),
-                                                height: 32 +
-                                                    (12 *
-                                                        _pulseController.value),
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: AppAccent.fieldError(
-                                                          context)
-                                                      .withOpacity(0.35 *
-                                                          (1 -
-                                                              _pulseController
-                                                                  .value)),
-                                                  border: Border.all(
+                                // Every marked location shows here (dimmed for
+                                // the ones not currently being edited), so the
+                                // patient always has visual context for how
+                                // many locations they're working through.
+                                for (int i = 0;
+                                    i < widget.painPoints.length;
+                                    i++)
+                                  Positioned(
+                                    left: widget.painPoints[i].x *
+                                            constraints.maxWidth -
+                                        22,
+                                    top: widget.painPoints[i].y *
+                                            constraints.maxHeight -
+                                        22,
+                                    child: IgnorePointer(
+                                      child: i == _currentIndex
+                                          ? AnimatedBuilder(
+                                              animation: _pulseController,
+                                              builder: (context, child) {
+                                                return Container(
+                                                  width: 32 +
+                                                      (12 *
+                                                          _pulseController
+                                                              .value),
+                                                  height: 32 +
+                                                      (12 *
+                                                          _pulseController
+                                                              .value),
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
                                                     color: AppAccent.fieldError(
-                                                        context),
-                                                    width: 2,
-                                                  ),
-                                                ),
-                                                child: Center(
-                                                  child: Container(
-                                                    width: 14,
-                                                    height: 14,
-                                                    decoration: BoxDecoration(
-                                                      shape: BoxShape.circle,
-                                                      color: AppAccent.danger(
-                                                          context),
+                                                            context)
+                                                        .withOpacity(0.35 *
+                                                            (1 -
+                                                                _pulseController
+                                                                    .value)),
+                                                    border: Border.all(
+                                                      color:
+                                                          AppAccent.fieldError(
+                                                              context),
+                                                      width: 2,
                                                     ),
                                                   ),
-                                                ),
-                                              );
-                                            },
-                                          )
-                                        : Container(
-                                            width: 18,
-                                            height: 18,
-                                            decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
-                                              color: AppAccent.danger(context)
-                                                  .withOpacity(0.35),
-                                              border: Border.all(
+                                                  child: Center(
+                                                    child: Container(
+                                                      width: 14,
+                                                      height: 14,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: AppAccent.danger(
+                                                            context),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                            )
+                                          : Container(
+                                              width: 18,
+                                              height: 18,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
                                                 color: AppAccent.danger(context)
-                                                    .withOpacity(0.5),
-                                                width: 1.5,
+                                                    .withOpacity(0.35),
+                                                border: Border.all(
+                                                  color:
+                                                      AppAccent.danger(context)
+                                                          .withOpacity(0.5),
+                                                  width: 1.5,
+                                                ),
                                               ),
                                             ),
+                                    ),
+                                  ),
+
+                                // Direction Selector (Top Left)
+                                // Wrapped in PointerInterceptor: on Flutter Web,
+                                // model-viewer is a platform view that captures
+                                // pointer events for its own drag-to-rotate
+                                // gesture, which can swallow taps meant for
+                                // Flutter widgets sitting visually on top of it.
+                                // PointerInterceptor claims this region back so
+                                // the dropdown actually opens.
+                                Positioned(
+                                  top: 14,
+                                  left: 14,
+                                  child: PointerInterceptor(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.95),
+                                        borderRadius:
+                                            BorderRadius.circular(AppRadius.md),
+                                        border: Border.all(
+                                            color: AppAccent.primary(context)
+                                                .withOpacity(0.3)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.06),
+                                            blurRadius: 6,
                                           ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.north_east_outlined,
+                                                  size: 16,
+                                                  color: AppAccent.primary(
+                                                      context)),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                t.directionLabel,
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppAccent.primary(
+                                                      context),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          DropdownButton<String>(
+                                            value: point.direction,
+                                            isDense: true,
+                                            underline: const SizedBox(),
+                                            icon: Icon(Icons.arrow_drop_down,
+                                                color:
+                                                    AppAccent.primary(context),
+                                                size: 18),
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: AppPalette.textPrimary(
+                                                    context),
+                                                fontWeight: FontWeight.bold),
+                                            onChanged: (val) {
+                                              if (val != null) {
+                                                HapticFeedback.selectionClick();
+                                                setState(() =>
+                                                    point.direction = val);
+                                              }
+                                            },
+                                            items: _directions.map((d) {
+                                              return DropdownMenuItem(
+                                                  value: d, child: Text(d));
+                                            }).toList(),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
                                   ),
                                 ),
 
-                              // Direction Selector (Top Left)
-                              // Wrapped in PointerInterceptor: on Flutter Web,
-                              // model-viewer is a platform view that captures
-                              // pointer events for its own drag-to-rotate
-                              // gesture, which can swallow taps meant for
-                              // Flutter widgets sitting visually on top of it.
-                              // PointerInterceptor claims this region back so
-                              // the dropdown actually opens.
-                              Positioned(
-                                top: 14,
-                                left: 14,
-                                child: PointerInterceptor(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.95),
-                                      borderRadius:
-                                          BorderRadius.circular(AppRadius.md),
-                                      border: Border.all(
-                                          color: AppAccent.primary(context)
-                                              .withOpacity(0.3)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.06),
-                                          blurRadius: 6,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(Icons.north_east_outlined,
-                                                size: 16,
-                                                color:
-                                                    AppAccent.primary(context)),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              t.directionLabel,
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
+                                // Depth Selector (Bottom Right)
+                                Positioned(
+                                  bottom: 14,
+                                  right: 14,
+                                  child: PointerInterceptor(
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 12, vertical: 8),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white.withOpacity(0.95),
+                                        borderRadius:
+                                            BorderRadius.circular(AppRadius.md),
+                                        border: Border.all(
+                                            color: AppAccent.primary(context)
+                                                .withOpacity(0.3)),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color:
+                                                Colors.black.withOpacity(0.06),
+                                            blurRadius: 6,
+                                          ),
+                                        ],
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Icon(Icons.layers_outlined,
+                                                  size: 16,
+                                                  color: AppAccent.primary(
+                                                      context)),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                t.depthLabel,
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppAccent.primary(
+                                                      context),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 4),
+                                          DropdownButton<String>(
+                                            value: point.depth,
+                                            isDense: true,
+                                            underline: const SizedBox(),
+                                            icon: Icon(Icons.arrow_drop_down,
                                                 color:
                                                     AppAccent.primary(context),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 4),
-                                        DropdownButton<String>(
-                                          value: point.direction,
-                                          isDense: true,
-                                          underline: const SizedBox(),
-                                          icon: Icon(Icons.arrow_drop_down,
-                                              color: AppAccent.primary(context),
-                                              size: 18),
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: AppPalette.textPrimary(
-                                                  context),
-                                              fontWeight: FontWeight.bold),
-                                          onChanged: (val) {
-                                            if (val != null) {
-                                              HapticFeedback.selectionClick();
-                                              setState(
-                                                  () => point.direction = val);
-                                            }
-                                          },
-                                          items: _directions.map((d) {
-                                            return DropdownMenuItem(
-                                                value: d, child: Text(d));
-                                          }).toList(),
-                                        ),
-                                      ],
+                                                size: 18),
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: AppPalette.textPrimary(
+                                                    context),
+                                                fontWeight: FontWeight.bold),
+                                            onChanged: (val) {
+                                              if (val != null) {
+                                                HapticFeedback.selectionClick();
+                                                setState(
+                                                    () => point.depth = val);
+                                              }
+                                            },
+                                            items: _depths.map((dp) {
+                                              return DropdownMenuItem(
+                                                  value: dp, child: Text(dp));
+                                            }).toList(),
+                                          ),
+                                        ],
+                                      ),
                                     ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Pain Type Chips — bound to this point specifically.
+                    Text(
+                      t.painTypeLabel,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppPalette.textPrimary(context),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: _painTypes.map((type) {
+                        final isSelected = point.painType == type;
+                        return Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 3),
+                            child: ChoiceChip(
+                              label: SizedBox(
+                                width: double.infinity,
+                                child: Text(
+                                  type,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: isSelected
+                                        ? Colors.white
+                                        : AppPalette.textSecondary(context),
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.w600,
+                                    fontSize: 13,
                                   ),
                                 ),
                               ),
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                if (selected) {
+                                  HapticFeedback.selectionClick();
+                                  setState(() => point.painType = type);
+                                }
+                              },
+                              selectedColor: AppAccent.primary(context),
+                              backgroundColor: AppPalette.surface(context),
+                              side: BorderSide(
+                                color: isSelected
+                                    ? AppAccent.primary(context)
+                                    : AppPalette.border(context),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 28),
 
-                              // Depth Selector (Bottom Right)
-                              Positioned(
-                                bottom: 14,
-                                right: 14,
-                                child: PointerInterceptor(
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.95),
-                                      borderRadius:
-                                          BorderRadius.circular(AppRadius.md),
-                                      border: Border.all(
-                                          color: AppAccent.primary(context)
-                                              .withOpacity(0.3)),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.06),
-                                          blurRadius: 6,
-                                        ),
-                                      ],
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.end,
-                                      children: [
-                                        Row(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Icon(Icons.layers_outlined,
-                                                size: 16,
-                                                color:
-                                                    AppAccent.primary(context)),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              t.depthLabel,
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.bold,
-                                                color:
-                                                    AppAccent.primary(context),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        const SizedBox(height: 4),
-                                        DropdownButton<String>(
-                                          value: point.depth,
-                                          isDense: true,
-                                          underline: const SizedBox(),
-                                          icon: Icon(Icons.arrow_drop_down,
-                                              color: AppAccent.primary(context),
-                                              size: 18),
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: AppPalette.textPrimary(
-                                                  context),
-                                              fontWeight: FontWeight.bold),
-                                          onChanged: (val) {
-                                            if (val != null) {
-                                              HapticFeedback.selectionClick();
-                                              setState(() => point.depth = val);
-                                            }
-                                          },
-                                          items: _depths.map((dp) {
-                                            return DropdownMenuItem(
-                                                value: dp, child: Text(dp));
-                                          }).toList(),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
+                    // Pain Intensity Slider — this is the "much on the nose,
+                    // low on the knee" part: each point has its own severity,
+                    // set here independently per location.
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          t.painIntensityLabel,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppPalette.textPrimary(context),
+                          ),
+                        ),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: AppAccent.primary(context),
+                            borderRadius: BorderRadius.circular(AppRadius.md),
+                            boxShadow: [
+                              BoxShadow(
+                                color: AppAccent.primary(context)
+                                    .withOpacity(0.25),
+                                blurRadius: 6,
+                                offset: const Offset(0, 2),
                               ),
                             ],
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Pain Type Chips — bound to this point specifically.
-                  Text(
-                    t.painTypeLabel,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppPalette.textPrimary(context),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: _painTypes.map((type) {
-                      final isSelected = point.painType == type;
-                      return Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 3),
-                          child: ChoiceChip(
-                            label: SizedBox(
-                              width: double.infinity,
-                              child: Text(
-                                type,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: isSelected
-                                      ? Colors.white
-                                      : AppPalette.textSecondary(context),
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.w600,
-                                  fontSize: 13,
-                                ),
-                              ),
+                          ),
+                          child: Text(
+                            '${point.severity} / 10',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
                             ),
-                            selected: isSelected,
-                            onSelected: (selected) {
-                              if (selected) {
-                                HapticFeedback.selectionClick();
-                                setState(() => point.painType = type);
-                              }
-                            },
-                            selectedColor: AppAccent.primary(context),
-                            backgroundColor: AppPalette.surface(context),
-                            side: BorderSide(
-                              color: isSelected
-                                  ? AppAccent.primary(context)
-                                  : AppPalette.border(context),
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 10),
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 28),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: AppPalette.surface(context),
+                        borderRadius: BorderRadius.circular(AppRadius.lg),
+                        border: Border.all(color: AppPalette.border(context)),
+                      ),
+                      child: SliderTheme(
+                        data: SliderThemeData(
+                          activeTrackColor: AppAccent.primary(context),
+                          inactiveTrackColor: AppPalette.border(context),
+                          thumbColor: AppAccent.primary(context),
+                          overlayColor:
+                              AppAccent.primary(context).withOpacity(0.15),
+                          thumbShape: const RoundSliderThumbShape(
+                              enabledThumbRadius: 10),
+                          trackHeight: 6,
+                        ),
+                        child: Slider(
+                          value: point.severity.toDouble(),
+                          min: 1,
+                          max: 10,
+                          divisions: 9,
+                          onChanged: (value) {
+                            HapticFeedback.selectionClick();
+                            setState(() => point.severity = value.round());
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
 
-                  // Pain Intensity Slider — this is the "much on the nose,
-                  // low on the knee" part: each point has its own severity,
-                  // set here independently per location.
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        t.painIntensityLabel,
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppPalette.textPrimary(context),
+                    // Symptom Description / Selected Pain Condition field
+                    Text(
+                      'Symptom Description / Notes',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: AppPalette.textPrimary(context),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextFormField(
+                      initialValue: point.symptomDescription,
+                      decoration: InputDecoration(
+                        hintText:
+                            'e.g. Sharp pain when bending, selected from clinical insights...',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide:
+                              BorderSide(color: AppPalette.border(context)),
                         ),
+                        filled: true,
+                        fillColor: AppPalette.surface(context),
+                        contentPadding: const EdgeInsets.all(14),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 6),
-                        decoration: BoxDecoration(
-                          color: AppAccent.primary(context),
-                          borderRadius: BorderRadius.circular(AppRadius.md),
-                          boxShadow: [
-                            BoxShadow(
-                              color:
-                                  AppAccent.primary(context).withOpacity(0.25),
-                              blurRadius: 6,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Text(
-                          '${point.severity} / 10',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: AppPalette.surface(context),
-                      borderRadius: BorderRadius.circular(AppRadius.lg),
-                      border: Border.all(color: AppPalette.border(context)),
+                      maxLines: 2,
+                      onChanged: (val) {
+                        point.symptomDescription = val.trim();
+                      },
                     ),
-                    child: SliderTheme(
-                      data: SliderThemeData(
-                        activeTrackColor: AppAccent.primary(context),
-                        inactiveTrackColor: AppPalette.border(context),
-                        thumbColor: AppAccent.primary(context),
-                        overlayColor:
-                            AppAccent.primary(context).withOpacity(0.15),
-                        thumbShape:
-                            const RoundSliderThumbShape(enabledThumbRadius: 10),
-                        trackHeight: 6,
-                      ),
-                      child: Slider(
-                        value: point.severity.toDouble(),
-                        min: 1,
-                        max: 10,
-                        divisions: 9,
-                        onChanged: (value) {
-                          HapticFeedback.selectionClick();
-                          setState(() => point.severity = value.round());
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Symptom Description / Selected Pain Condition field
-                  Text(
-                    'Symptom Description / Notes',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppPalette.textPrimary(context),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextFormField(
-                    initialValue: point.symptomDescription,
-                    decoration: InputDecoration(
-                      hintText:
-                          'e.g. Sharp pain when bending, selected from clinical insights...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(14),
-                        borderSide:
-                            BorderSide(color: AppPalette.border(context)),
-                      ),
-                      filled: true,
-                      fillColor: AppPalette.surface(context),
-                      contentPadding: const EdgeInsets.all(14),
-                    ),
-                    maxLines: 2,
-                    onChanged: (val) {
-                      point.symptomDescription = val.trim();
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                    const SizedBox(height: AppSpacing.xl),
+                  ],
+                ),
               ),
             ),
           ),
@@ -662,61 +680,66 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
           // Bottom navigation: Back / Next (or Next: Measure Vitals on the
           // final point).
           Container(
-            padding: const EdgeInsets.all(20),
+            width: double.infinity,
             color: AppPalette.surface(context),
             child: SafeArea(
-              child: Row(
-                children: [
-                  if (_currentIndex > 0) ...[
-                    SizedBox(
-                      height: 54,
-                      child: OutlinedButton(
-                        onPressed: _goToPreviousPoint,
-                        style: OutlinedButton.styleFrom(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 20)),
-                        child: Icon(Icons.arrow_back,
-                            color: AppAccent.primary(context)),
+              top: false,
+              child: AppPage.bar(
+                Row(
+                  children: [
+                    if (_currentIndex > 0) ...[
+                      SizedBox(
+                        height: 54,
+                        child: OutlinedButton(
+                          onPressed: _goToPreviousPoint,
+                          style: OutlinedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.xl)),
+                          child: Icon(Icons.arrow_back,
+                              color: AppAccent.primary(context)),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                  ],
-                  Expanded(
-                    child: SizedBox(
-                      height: 54,
-                      child: ElevatedButton(
-                        onPressed: _goToNextPointOrVitals,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppAccent.primary(context),
-                          elevation: 3,
-                          shadowColor:
-                              AppAccent.primary(context).withOpacity(0.4),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                      const SizedBox(width: AppSpacing.md),
+                    ],
+                    Expanded(
+                      child: SizedBox(
+                        height: 54,
+                        child: ElevatedButton(
+                          onPressed: _goToNextPointOrVitals,
+                          // Flat deep fill instead of elevation 3 plus a violet
+                          // glow — see the note in review_screen.dart. Same
+                          // contrast reason for primaryFill.
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppAccent.primaryFill,
+                            foregroundColor: AppAccent.onPrimary,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(AppRadius.md),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                _isLastPoint
+                                    ? t.nextMeasureVitalsButton
+                                    : t.nextLocationButton,
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppAccent.onPrimary,
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.sm),
+                              const Icon(Icons.arrow_forward,
+                                  color: AppAccent.onPrimary, size: 20),
+                            ],
                           ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              _isLastPoint
-                                  ? t.nextMeasureVitalsButton
-                                  : t.nextLocationButton,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            const Icon(Icons.arrow_forward,
-                                color: Colors.white, size: 20),
-                          ],
-                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

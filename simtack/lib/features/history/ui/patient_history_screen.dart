@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:simtack/core/theme/app_tokens.dart';
 import 'package:simtack/core/theme/app_accent.dart';
 import 'package:simtack/core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_page.dart';
 import 'package:intl/intl.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/offline/offline_repository.dart';
@@ -208,71 +209,76 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _history.isEmpty
-              ? Center(
+              ? AppPage(
                   child: Text('No past history found.',
                       style: TextStyle(color: AppPalette.textMuted(context))))
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _history.length,
-                  itemBuilder: (context, index) {
-                    final session = _history[index];
-                    final riskLevel = _getRiskLevel(session['risk_score']);
-                    final riskColor = _getRiskColor(riskLevel);
-                    final date = DateTime.parse(session['created_at']);
-                    final formattedDate =
-                        DateFormat('dd MMM yyyy, HH:mm a').format(date);
+              : AppPage(
+                  scrollable: true,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    padding: EdgeInsets.zero,
+                    itemCount: _history.length,
+                    itemBuilder: (context, index) {
+                      final session = _history[index];
+                      final riskLevel = _getRiskLevel(session['risk_score']);
+                      final riskColor = _getRiskColor(riskLevel);
+                      final date = DateTime.parse(session['created_at']);
+                      final formattedDate =
+                          DateFormat('dd MMM yyyy, HH:mm a').format(date);
 
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      elevation: 1,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.md)),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(16),
-                        title: Text(
-                          session['body_region'] ?? 'Unknown Location',
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
-                              color: AppPalette.textPrimary(context)),
-                        ),
-                        subtitle: Padding(
-                          padding: const EdgeInsets.only(top: 8),
-                          child: Text(
-                            formattedDate,
-                            style: TextStyle(
-                                fontSize: 13,
-                                color: AppPalette.textMuted(context)),
-                          ),
-                        ),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: riskColor.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(AppRadius.sm),
-                            border:
-                                Border.all(color: riskColor.withOpacity(0.3)),
-                          ),
-                          child: Text(
-                            riskLevel,
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        elevation: 1,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(AppRadius.md)),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(16),
+                          title: Text(
+                            session['body_region'] ?? 'Unknown Location',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: riskColor,
-                                fontSize: 12),
+                                fontSize: 16,
+                                color: AppPalette.textPrimary(context)),
                           ),
-                        ),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            AppPageRoute(
-                              builder: (_) => ClinicalReportScreen(
-                                  patientId: widget.patientId),
+                          subtitle: Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              formattedDate,
+                              style: TextStyle(
+                                  fontSize: 13,
+                                  color: AppPalette.textMuted(context)),
                             ),
-                          );
-                        },
-                      ),
-                    );
-                  },
+                          ),
+                          trailing: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: riskColor.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(AppRadius.sm),
+                              border:
+                                  Border.all(color: riskColor.withOpacity(0.3)),
+                            ),
+                            child: Text(
+                              riskLevel,
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: riskColor,
+                                  fontSize: 12),
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.of(context).push(
+                              AppPageRoute(
+                                builder: (_) => ClinicalReportScreen(
+                                    patientId: widget.patientId),
+                              ),
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  ),
                 ),
       // Bottom Navigation Bar (Matching Blueprint)
       bottomNavigationBar: BottomNavigationBar(

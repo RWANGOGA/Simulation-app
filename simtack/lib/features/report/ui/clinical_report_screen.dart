@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:simtack/core/theme/app_tokens.dart';
 import 'package:simtack/core/theme/app_accent.dart';
 import 'package:simtack/core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_page.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/offline/offline_repository.dart';
 import '../../../core/models/patient_profile.dart';
@@ -242,12 +243,16 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                             const SizedBox(height: 24),
                             ElevatedButton(
                               onPressed: _fetchReport,
+                              // A filled surface with white text, so
+                              // primaryFill: `textPrimary` resolves to a light
+                              // slate in dark mode and white on it disappears.
                               style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    AppPalette.textPrimary(context),
+                                backgroundColor: AppAccent.primaryFill,
+                                foregroundColor: AppAccent.onPrimary,
                               ),
                               child: Text(t.retryButton,
-                                  style: const TextStyle(color: Colors.white)),
+                                  style: const TextStyle(
+                                      color: AppAccent.onPrimary)),
                             ),
                           ],
                         ),
@@ -268,8 +273,11 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     final riskColor =
         isHighRisk ? AppAccent.danger(context) : AppAccent.success(context);
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+    return AppPage(
+      scrollable: true,
+      // The report is a clinical document with dense tables beside labels, so
+      // it takes the wide measure rather than the prose one.
+      maxWidth: AppContentWidth.wide,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

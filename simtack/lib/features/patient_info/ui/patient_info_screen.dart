@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:simtack/core/theme/app_tokens.dart';
 import 'package:simtack/core/theme/app_accent.dart';
+import 'package:simtack/core/theme/app_page.dart';
 import 'package:simtack/core/theme/app_palette.dart';
 import 'package:flutter/services.dart';
 import '../../../core/models/patient_profile.dart';
@@ -126,8 +127,7 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
         ),
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
+        child: AppPage(
           child: Form(
             key: _formKey,
             child: Column(

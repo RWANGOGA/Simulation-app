@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:simtack/core/theme/app_tokens.dart';
 import 'package:simtack/core/theme/app_accent.dart';
 import 'package:simtack/core/theme/app_palette.dart';
+import 'package:simtack/core/theme/app_page.dart';
+import 'package:simtack/core/theme/app_breakpoints.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'dart:async';
@@ -246,10 +248,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           style: const TextStyle(
             fontSize: 34,
             fontWeight: FontWeight.bold,
-            height: 1.15,
+            height: 1.12,
+            // Slight negative tracking is what makes a display size read as
+            // set rather than typed at 34px with default spacing.
+            letterSpacing: -0.6,
           ),
         ),
-        const SizedBox(height: 14),
+        const SizedBox(height: AppSpacing.md),
         Text(
           t.welcomeDescription,
           style: TextStyle(
@@ -258,20 +263,41 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             color: AppPalette.textMuted(context),
           ),
         ),
-        const SizedBox(height: 28),
-        Wrap(
-          spacing: 28,
-          runSpacing: 16,
-          children: [
-            _welcomeStat(
-                context, t.welcomeStatRegionsValue, t.welcomeStatRegionsLabel),
-            _welcomeStat(
-                context, t.welcomeStatOfflineValue, t.welcomeStatOfflineLabel),
-            _welcomeStat(
-                context, t.welcomeStatSpeedValue, t.welcomeStatSpeedLabel),
-          ],
-        ),
+        const SizedBox(height: AppSpacing.xl),
+        _statBand(context, t),
       ],
+    );
+  }
+
+  /// The three product facts, set as one divided band.
+  ///
+  /// They used to be a `Wrap(spacing: 28)` whose items sized to their own text,
+  /// so the columns had ragged left edges and the third could wrap onto a line
+  /// of its own. A row of equal thirds with hairline rules between them is both
+  /// tidier and honest about the fact that these are peers.
+  Widget _statBand(BuildContext context, AppLocalizations t) {
+    final stats = <(String, String)>[
+      (t.welcomeStatRegionsValue, t.welcomeStatRegionsLabel),
+      (t.welcomeStatOfflineValue, t.welcomeStatOfflineLabel),
+      (t.welcomeStatSpeedValue, t.welcomeStatSpeedLabel),
+    ];
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          for (var i = 0; i < stats.length; i++) ...[
+            if (i > 0)
+              VerticalDivider(
+                width: AppSpacing.xl + AppSpacing.sm,
+                thickness: 1,
+                color: AppPalette.border(context),
+              ),
+            Expanded(
+              child: _welcomeStat(context, stats[i].$1, stats[i].$2),
+            ),
+          ],
+        ],
+      ),
     );
   }
 
@@ -348,136 +374,91 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final t = AppLocalizations.of(context)!;
-    return Scaffold(
-      backgroundColor: AppPalette.scaffold(context),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final isWide = constraints.maxWidth > 700;
-            return Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: isWide
-                  ? _buildWideLayout(context, t)
-                  : _buildNarrowLayout(context, t),
+  /// The live 3D model, shared by both layouts.
+  ///
+  /// It used to be pasted into each layout with the same twenty-line block of
+  /// comments, so the two copies could drift. Default lighting/shadow on the
+  /// raw viewer is flat — no ground shadow at all (`shadowIntensity` defaults
+  /// to 0) and no environment reflections, which is why the model read as a
+  /// dull grey silhouette. A neutral environment, a touch more exposure and a
+  /// soft grounding shadow give it real form.
+  static const Widget _modelViewer = SizedBox.expand(
+    child: ModelViewer(
+      src: kIsWeb
+          ? 'models/human_body_male.glb'
+          : 'assets/models/human_body_male.glb',
+      alt: '3D Human Body Model',
+      autoRotate: true,
+      cameraControls: true,
+      backgroundColor: Colors.transparent,
+      environmentImage: 'neutral',
+      exposure: 1.15,
+      shadowIntensity: 0.8,
+      shadowSoftness: 0.9,
+    ),
+  );
+
+  /// The two things a patient might want before starting: bigger type, or the
+  /// clinician side of the app.
+  ///
+  /// These used to be an `IconButton` stacked *above* a `TextButton` in an
+  /// end-aligned `Column`, which read as two unrelated controls competing in
+  /// the corner. They are one row now, vertically centred, with the more
+  /// consequential action first and the utility last — the order an app bar
+  /// uses.
+  Widget _topActions(BuildContext context, AppLocalizations t) {
+    return Row(
+      children: [
+        const Spacer(),
+        TextButton.icon(
+          onPressed: () {
+            Navigator.of(context).push(
+              AppPageRoute(builder: (_) => const LoginScreen()),
+            );
+          },
+          icon: const Icon(Icons.lock_outline, size: 16),
+          label: Text(t.practitionerLogin),
+          style: TextButton.styleFrom(
+            foregroundColor: AppAccent.primary(context),
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+            textStyle:
+                const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+          ),
+        ),
+        IconButton(
+          tooltip: t.displayAccessibilityTooltip,
+          icon: Icon(Icons.tune, color: AppPalette.textMuted(context)),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const AccessibilitySettingsScreen(),
+              ),
             );
           },
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildNarrowLayout(BuildContext context, AppLocalizations t) {
+  /// The call to action and the privacy caption, which are identical in both
+  /// layouts and were previously written out twice.
+  Widget _footer(BuildContext context, AppLocalizations t) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Align(
-          alignment: Alignment.centerRight,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              IconButton(
-                tooltip: t.displayAccessibilityTooltip,
-                icon: Icon(Icons.tune, color: AppPalette.textMuted(context)),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => const AccessibilitySettingsScreen(),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).push(
-                    AppPageRoute(builder: (_) => const LoginScreen()),
-                  );
-                },
-                style: TextButton.styleFrom(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.lock_outline,
-                        size: 16, color: AppAccent.primary(context)),
-                    const SizedBox(width: 4),
-                    Text(
-                      t.practitionerLogin,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: AppAccent.primary(context),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 24),
-        // The header grew substantially taller (badge + multi-line
-        // headline + a full paragraph, versus the old two short lines),
-        // and only the resume-draft banner used to be scrollable — on a
-        // shorter viewport (a laptop browser window, or this exact 800x600
-        // default test surface) the fixed-height header now genuinely
-        // doesn't always fit above the fixed-height button/caption at the
-        // bottom. Pulling the header and 3D model into the same scrollable
-        // region as the banner fixes that generally, not just for this one
-        // new header.
-        Expanded(
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _welcomeHeader(context, t),
-                const SizedBox(height: 24),
-                const SizedBox(
-                  height: 220,
-                  child: _ThreeDPlaceholder(
-                    web: SizedBox.expand(
-                      child: ModelViewer(
-                        src: kIsWeb
-                            ? 'models/human_body_male.glb'
-                            : 'assets/models/human_body_male.glb',
-                        alt: '3D Human Body Model',
-                        autoRotate: true,
-                        cameraControls: true,
-                        backgroundColor: Colors.transparent,
-                        // Default lighting/shadow was flat and boring — no
-                        // ground shadow at all (shadowIntensity defaults to
-                        // 0) and no environment reflections, which is why
-                        // the model read as a dull gray silhouette. This
-                        // gives it real form: an evenly-lit neutral
-                        // environment, a touch more exposure, and a soft
-                        // grounding shadow.
-                        environmentImage: 'neutral',
-                        exposure: 1.15,
-                        shadowIntensity: 0.8,
-                        shadowSoftness: 0.9,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                _buildResumeDraftBanner(),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
         SizedBox(
           width: double.infinity,
           height: 56,
           child: ElevatedButton(
-            onPressed: () => _navigateToPatientInfo(),
+            onPressed: _navigateToPatientInfo,
+            // primaryFill, not primary: this is a filled surface carrying
+            // white text. In the dark theme `primary` resolves to the light
+            // lavender that carries *text* (#A78BFA), and white on it is
+            // about 1.9:1. primaryFill is the deep violet that white sits on
+            // at 7.10:1.
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppAccent.primary(context),
+              backgroundColor: AppAccent.primaryFill,
+              foregroundColor: AppAccent.onPrimary,
               disabledBackgroundColor: AppPalette.border(context),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(AppRadius.md),
@@ -488,13 +469,14 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: AppAccent.onPrimary,
               ),
             ),
           ),
         ),
-        const SizedBox(height: 12),
-        Center(
+        const SizedBox(height: AppSpacing.md),
+        SizedBox(
+          width: double.infinity,
           child: Text(
             t.privacyCaption,
             textAlign: TextAlign.center,
@@ -504,149 +486,114 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 8),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return Scaffold(
+      backgroundColor: AppPalette.scaffold(context),
+      body: SafeArea(
+        child: AppPage(
+          maxWidth: AppContentWidth.wide,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Material 3's medium window class, not the old private 700:
+              // below it there is no honest second column, and at 700 there
+              // was not one either — two 340px columns with the model making
+              // a postage stamp of the headline.
+              final twoColumn = AppBreakpoints.hasRoomForSecondColumn(
+                constraints.maxWidth,
+              );
+              return twoColumn
+                  ? _buildWideLayout(context, t)
+                  : _buildNarrowLayout(context, t);
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNarrowLayout(BuildContext context, AppLocalizations t) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _topActions(context, t),
+        const SizedBox(height: AppSpacing.xl),
+        // The header, model and banner all share one scroll region. An earlier
+        // version had a fixed-height header above a fixed-height button and
+        // genuinely overflowed on a short viewport; the fix still holds, it
+        // just lives inside the shared page frame now instead of a 24px
+        // hand-rolled padding.
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _welcomeHeader(context, t),
+                const SizedBox(height: AppSpacing.xl),
+                const SizedBox(
+                  height: 220,
+                  child: _ThreeDPlaceholder(web: _modelViewer),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                _buildResumeDraftBanner(),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        _footer(context, t),
       ],
     );
   }
 
   Widget _buildWideLayout(BuildContext context, AppLocalizations t) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        _topActions(context, t),
+        const SizedBox(height: AppSpacing.xl),
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
+            // stretch, not start: the model panel is a panel, so it should
+            // fill the column beside it rather than collapse to the height of
+            // its own children.
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: Wrap(
-                  alignment: WrapAlignment.end,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  spacing: 4,
+              Expanded(
+                // Text column is wider than the visual column: a 34px
+                // headline needs more measure than a 3D viewer does.
+                flex: 5,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    IconButton(
-                      tooltip: t.displayAccessibilityTooltip,
-                      icon: Icon(Icons.tune,
-                          color: AppPalette.textMuted(context)),
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => const AccessibilitySettingsScreen(),
-                          ),
-                        );
-                      },
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          AppPageRoute(builder: (_) => const LoginScreen()),
-                        );
-                      },
-                      style: TextButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 4),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.lock_outline,
-                              size: 16, color: AppAccent.primary(context)),
-                          const SizedBox(width: 4),
-                          Text(
-                            t.practitionerLogin,
-                            style: TextStyle(
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                              color: AppAccent.primary(context),
-                            ),
-                          ),
-                        ],
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _welcomeHeader(context, t),
+                            const SizedBox(height: AppSpacing.xl),
+                            _buildResumeDraftBanner(),
+                          ],
+                        ),
                       ),
                     ),
+                    const SizedBox(height: AppSpacing.lg),
+                    _footer(context, t),
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
-              // Same reasoning as the narrow layout: the header grew
-              // substantially taller, and a fixed-height header above a
-              // fixed-height button/caption can overflow on a shorter
-              // viewport — this is genuinely where that happened (a plain
-              // 800x600 window). Scrolling the header along with the
-              // banner fixes it generally.
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _welcomeHeader(context, t),
-                      const SizedBox(height: 24),
-                      _buildResumeDraftBanner(),
-                    ],
-                  ),
-                ),
+              const SizedBox(width: AppSpacing.xxl),
+              const Expanded(
+                flex: 4,
+                child: _ThreeDPlaceholder(web: _modelViewer),
               ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () => _navigateToPatientInfo(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppAccent.primary(context),
-                    disabledBackgroundColor: AppPalette.border(context),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                    ),
-                  ),
-                  child: Text(
-                    t.continueButton,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Center(
-                child: Text(
-                  t.privacyCaption,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppPalette.textMuted(context),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 8),
             ],
-          ),
-        ),
-        const SizedBox(width: 32),
-        const Expanded(
-          child: _ThreeDPlaceholder(
-            web: SizedBox.expand(
-              child: ModelViewer(
-                src: kIsWeb
-                    ? 'models/human_body_male.glb'
-                    : 'assets/models/human_body_male.glb',
-                alt: '3D Human Body Model',
-                autoRotate: true,
-                cameraControls: true,
-                backgroundColor: Colors.transparent,
-                // Default lighting/shadow was flat and boring — no ground
-                // shadow at all (shadowIntensity defaults to 0) and no
-                // environment reflections, which is why the model read as
-                // a dull gray silhouette. This gives it real form: an
-                // evenly-lit neutral environment, a touch more exposure,
-                // and a soft grounding shadow.
-                environmentImage: 'neutral',
-                exposure: 1.15,
-                shadowIntensity: 0.8,
-                shadowSoftness: 0.9,
-              ),
-            ),
           ),
         ),
       ],
@@ -674,14 +621,11 @@ class _ThreeDPlaceholder extends StatelessWidget {
     if (kIsWeb) return web;
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppAccent.primary(context).withOpacity(0.10),
-            AppAccent.primary(context).withOpacity(0.05),
-          ],
-        ),
+        // Flat tint, not a two-stop gradient: the old one ran 0.10 to 0.05 of
+        // the same violet, which is a gradient that cannot gradient — it
+        // rendered as a barely-there wash. A flat surface from the one tint
+        // ramp is what the panel actually is.
+        color: AppAccent.primaryTint(context),
         borderRadius: BorderRadius.circular(AppRadius.lg),
         border: Border.all(color: AppAccent.primary(context).withOpacity(0.2)),
       ),
@@ -691,7 +635,7 @@ class _ThreeDPlaceholder extends StatelessWidget {
           children: [
             Icon(Icons.medical_services,
                 size: 48, color: AppAccent.primary(context)),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               '3D body model',
               style: TextStyle(
