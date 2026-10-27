@@ -11,6 +11,8 @@ import 'package:share_plus/share_plus.dart';
 import 'package:universal_html/html.dart' as html; // For web downloads
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/network/api_client.dart';
+import '../../../core/offline/passport_cipher.dart';
+import '../../../core/offline/passport_record.dart';
 import '../../../core/offline/qr_passport.dart';
 import '../../history/ui/patient_history_screen.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
@@ -43,7 +45,27 @@ class _SuccessScreenState extends State<SuccessScreen> {
   final GlobalKey _qrKey = GlobalKey();
   bool _isProcessing = false;
 
+  /// The encrypted passport printed as the QR, and the phrase that opens it.
+  ///
+  /// Built once, in [initState]: sealing runs PBKDF2 at 20 000 rounds, which
+  /// measures around half a second on a debug VM and is not something to repeat
+  /// on every rebuild. The phrase is generated here and printed below the code
+  /// and goes nowhere else — not to the server, not into the shared link, not
+  /// into local storage. A station reads it off the card.
+  late final String _passportPhrase;
+  late final String _passportData;
+
   String get _reportUrl => passportPayload(widget.patientId);
+
+  @override
+  void initState() {
+    super.initState();
+    _passportPhrase = generatePassportPhrase();
+    _passportData = PassportRecord.fromResults(
+      patientCode: widget.patientId,
+      results: widget.allResults,
+    ).seal(_passportPhrase);
+  }
 
   Future<void> _captureAndShare({required bool isSave}) async {
     setState(() => _isProcessing = true);
@@ -445,17 +467,55 @@ class _SuccessScreenState extends State<SuccessScreen> {
                               letterSpacing: 1)),
                       const SizedBox(height: 12),
                       QrImageView(
-                        data: _reportUrl,
+                        data: _passportData,
                         version: QrVersions.auto,
                         size: 180.0,
                         backgroundColor: AppPalette.surface(context),
                       ),
                       const SizedBox(height: 12),
+                      // The printed key phrase, shown only when the bytes above
+                      // really are a passport. Deriving both the sentence and the
+                      // sentence's absence from the payload is what stops the
+                      // "encrypted" caption coming back on a plain URL.
+                      if (passportCarriesRecord(_passportData)) ...[
+                        SelectableText.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: '${t.qrPassportKeyLabel}: ',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
+                                        color: AppPalette.textMuted(context)),
+                              ),
+                              TextSpan(
+                                text: _passportPhrase,
+                                style: const TextStyle(
+                                  letterSpacing: 3,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          t.qrPassportKeyHint,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: AppPalette.textMuted(context)),
+                        ),
+                        const SizedBox(height: 8),
+                      ],
                       // Chosen from the payload, not written here, so the
                       // sentence cannot outlive what the code actually does.
                       Text(
                           passportHint(
-                              payload: _reportUrl,
+                              payload: _passportData,
                               offlinePassport: t.qrOfflinePassportHint,
                               needsInternet: t.qrNeedsInternetHint),
                           style: TextStyle(

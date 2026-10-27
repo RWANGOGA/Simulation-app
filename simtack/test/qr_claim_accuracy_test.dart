@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import 'package:simtack/core/network/api_client.dart';
+import 'package:simtack/core/offline/passport_cipher.dart';
+import 'package:simtack/core/offline/passport_record.dart';
 import 'package:simtack/core/offline/qr_passport.dart';
 import 'package:simtack/features/success/ui/success_screen.dart';
 import 'package:simtack/l10n/app_localizations.dart';
@@ -22,10 +24,12 @@ import 'package:simtack/l10n/app_localizations.dart';
 /// [passportHint], and the sentence level is policed here, because a string that
 /// promises encryption is a security claim no reviewer will re-check by hand.
 ///
-/// When Unit 3 lands the encrypted payload, test 4 flips: the printed data
-/// starts with `ABP1`, the offline sentence becomes the true one, and the
-/// encryption ban in test 5 is lifted in the same commit that implements the
-/// cipher — not before.
+/// Unit 3 sealed the passport, so there are now two payload families and this
+/// file checks both: a `ABP1:` blob that carries the record and may claim it
+/// opens offline, and the `https://…/#/report/…` link that carries nothing and
+/// must not. What decides the sentence is still the bytes, never the wish — the
+/// screen falls back to the URL family whenever a visit is too large to fit a
+/// readable symbol (see [passportByteCeiling]), so both branches stay live.
 
 Widget _wrap(Widget child) => MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -34,20 +38,47 @@ Widget _wrap(Widget child) => MaterialApp(
       home: child,
     );
 
-TriageResult _result() => TriageResult(
+TriageResult _result({int severity = 4}) => TriageResult(
       id: 1,
       bodyRegion: 'Head',
       painType: 'Throbbing',
-      severity: 4,
+      severity: severity,
       riskScore: 0.4,
       createdAt: DateTime.utc(2026, 1, 1),
     );
 
+/// An over-sized visit: enough points that sealing would exceed the byte
+/// ceiling, forcing the URL fallback the app must still caption honestly.
+List<TriageResult> _tooBigToSeal() => [
+      for (var i = 0; i < 40; i++)
+        TriageResult(
+          id: i,
+          bodyRegion: 'A long body region name used to bloat the payload $i',
+          painType: 'a long pain descriptor that keeps growing the record',
+          severity: 10,
+          riskScore: 0.9,
+          createdAt: DateTime.utc(2026, 1, 1),
+        ),
+    ];
+
 void main() {
   group('what a passport payload carries', () {
-    test('the printed passport is a link, and a link carries no record', () {
+    test('the report link is the fallback, and a link carries no record', () {
       expect(passportPayload('P-TEST1234'), contains('#/report/P-TEST1234'));
       expect(passportCarriesRecord(passportPayload('P-TEST1234')), isFalse);
+    });
+
+    test('a sealed record is a passport and carries the record', () {
+      final phrase = generatePassportPhrase();
+      final sealed = PassportRecord.fromResults(
+        patientCode: 'P-TEST1234',
+        results: [_result()],
+      ).seal(phrase);
+
+      expect(sealed, startsWith(passportPayloadPrefix));
+      expect(passportCarriesRecord(sealed), isTrue);
+      // The offline sentence is only lawful for bytes that actually hold it.
+      expect(openPassport(sealed, phrase).record?['c'], 'P-TEST1234');
     });
 
     test('only qr_passport.dart builds a passport link', () {
@@ -72,11 +103,20 @@ void main() {
               'passportPayload() so a passport has one shape everywhere.');
     });
 
-    test('a prefixed passport blob does', () {
-      // Positive case, so the gate above is a real decision and not a function
-      // that always answers "no" — which would pass every other test here
-      // while telling patients nothing about their own record.
-      expect(passportCarriesRecord('ABP1dGVzdA'), isTrue);
+    test('a visit too large to seal falls back to the link, not a broken blob',
+        () {
+      // The seal must never print a symbol a camera cannot resolve; over the
+      // ceiling it hands back the URL family, which passportCarriesRecord then
+      // reads as "no record" so the screen says it needs the internet.
+      final payload = PassportRecord.fromResults(
+        patientCode: 'P-TEST1234',
+        results: _tooBigToSeal(),
+      ).seal(generatePassportPhrase());
+
+      expect(passportCarriesRecord(payload), isFalse);
+      // The fallback is the report link family (http/https), whose exact host
+      // differs between the debug and deployment base URL.
+      expect(payload, startsWith('http'));
     });
 
     test('the caption follows the payload, never the other way round', () {
@@ -101,8 +141,18 @@ void main() {
   });
 
   group('the success screen says what the code does', () {
-    testWidgets('a URL payload is described as needing the network',
+    testWidgets('a sealed visit claims the record travels inside the code',
         (tester) async {
+      // One pain point seals to well under passportByteCeiling, so the printed
+      // bytes carry the record and the offline sentence is the true one.
+      final sealed = PassportRecord.fromResults(
+        patientCode: 'P-TEST1234',
+        results: [_result()],
+      ).seal(generatePassportPhrase());
+      expect(passportCarriesRecord(sealed), isTrue,
+          reason: 'a one-point record must seal for this widget test to mean '
+              'anything; if the shape grew, this is the line to re-measure.');
+
       await tester.pumpWidget(_wrap(SuccessScreen(
         patientId: 'P-TEST1234',
         allResults: [_result()],
@@ -110,27 +160,57 @@ void main() {
       await tester.pump();
 
       expect(find.byType(QrImageView), findsWidgets);
-
-      // Invariant rather than a snapshot: whatever passportPayload says about
-      // these bytes, that is the caption the screen is allowed to show. When
-      // the encrypted passport lands, nothing here has to be edited for it to
-      // keep catching a screen that claims the wrong thing.
-      final carriesRecord =
-          passportCarriesRecord(passportPayload('P-TEST1234'));
       expect(
-        find.text('Needs internet to open the report'),
-        carriesRecord ? findsNothing : findsOneWidget,
+        find.text('The record travels inside this code, so it opens without '
+            'internet'),
+        findsOneWidget,
       );
+      expect(find.text('Needs internet to open the report'), findsNothing);
+
+      // The unlock phrase is printed only because the bytes are sealed. It sits
+      // in a SelectableText.rich so a patient can copy it, so the label and the
+      // six letters are reached through that span, not a Text.data field.
+      final rendered = _selectableText(tester);
+      expect(rendered, contains('Unlock phrase'));
+      expect(
+        RegExp(r'[ACDEFGHJKMNPQRTUWXY]{6}').hasMatch(rendered),
+        isTrue,
+        reason: 'a sealed card must print its six-character unlock phrase',
+      );
+    });
+
+    testWidgets('a visit that cannot seal is described as needing the network',
+        (tester) async {
+      await tester.pumpWidget(_wrap(SuccessScreen(
+        patientId: 'P-TEST1234',
+        allResults: _tooBigToSeal(),
+      )));
+      await tester.pump();
+
+      // The URL fallback is honest: no offline claim, no printed key.
+      expect(find.text('Needs internet to open the report'), findsOneWidget);
       expect(
         find.textContaining('opens without internet'),
-        carriesRecord ? findsWidgets : findsNothing,
+        findsNothing,
       );
+      // The URL family prints no key, so the phrase block never appears.
+      expect(_selectableText(tester), isNot(contains('Unlock phrase')));
+    });
 
-      // Named as what it is: a code identifying the patient's passport.
-      expect(find.text('Patient passport code'), findsWidgets);
-      // And nothing on the screen may claim the code is encrypted.
-      expect(find.textContaining(RegExp('encrypted', caseSensitive: false)),
-          findsNothing);
+    test('nothing on the passport path claims the word "encrypted"', () {
+      // The cipher exists now, but the caption names what the code is rather
+      // than advertising a primitive a reader cannot verify from a card.
+      final offenders = Directory('lib')
+          .listSync(recursive: true)
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.dart'))
+          .where((f) => !f.path.contains('/l10n/'))
+          .where((f) => f.readAsLinesSync().any((line) =>
+              RegExp('encrypted', caseSensitive: false).hasMatch(line) &&
+              !line.trimLeft().startsWith('//')))
+          .map((f) => f.path)
+          .toList();
+      expect(offenders, isEmpty, reason: 'claims on screen: $offenders');
     });
   });
 
@@ -158,10 +238,17 @@ void main() {
       }
 
       expect(offenders, isEmpty,
-          reason: 'These messages claim the passport is encrypted or offline '
-              'while the payload is a plain URL: ${offenders.values}. The '
-              'claim belongs in the paper only after the AES-GCM payload '
-              'exists.');
+          reason: 'These messages claim the passport is encrypted in words no '
+              'caption uses: ${offenders.values}. The offline sentence is now '
+              'lawful for a sealed payload, but the word "encrypted" is still '
+              'not something a printed card can prove to its reader.');
     });
   });
 }
+
+/// The seal's salt and IV are random per call, so two seals of one record
+/// differ; the phrase is what makes the bytes readable, never the shape.
+String _selectableText(WidgetTester tester) => tester
+    .widgetList<SelectableText>(find.byType(SelectableText))
+    .map((s) => s.textSpan?.toPlainText() ?? s.data ?? '')
+    .join('\n');

@@ -202,6 +202,8 @@
   "patientIdLabel": "Patient ID",
   "qrNeedsInternetHint": "Needs internet to open the report",
   "qrOfflinePassportHint": "The record travels inside this code, so it opens without internet",
+  "qrPassportKeyLabel": "Unlock phrase",
+  "qrPassportKeyHint": "Give this phrase to the health worker so they can read the record on this card.",
   "showQrToHealthWorkerHint": "Show this QR code to the health worker",
   "escalationReasonsLabel": "Kilichosababisha",
   "emergencyBannerTitle": "Nenda hospitalini kwa dharura sasa",

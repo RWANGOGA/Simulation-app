@@ -55,10 +55,17 @@ const _englishCeiling = <String, int>{
   // developer is the same class of error as the mistranslated passport caption
   // above. They ship in English until a reviewer confirms the clinical wording,
   // then these numbers drop.
-  'lg': 45,
-  'nyn': 279,
-  'sw': 263,
-  'xog': 279,
+  //
+  // 47 / 281 / 265 / 281 = +2 each, the two unlock-phrase sentences printed on
+  // the sealed passport (qrPassportKeyLabel / qrPassportKeyHint). They tell a
+  // patient to hand a key to a health worker; a guessed rendering of that
+  // instruction is the same class of error as the mistranslated connectivity
+  // promise above, so they ship in English until a reviewer confirms the
+  // wording, then these numbers drop.
+  'lg': 47,
+  'nyn': 281,
+  'sw': 265,
+  'xog': 281,
 };
 
 Map<String, dynamic> _read(String path) =>

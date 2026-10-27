@@ -263,6 +263,12 @@ class AppLocalizationsSw extends AppLocalizations {
   String get qrPassportLabel => 'Patient passport code';
 
   @override
+  String get qrPassportKeyLabel => 'Unlock phrase';
+
+  @override
+  String get qrPassportKeyHint => 'Give this phrase to the health worker so they can read the record on this card.';
+
+  @override
   String get openFullClinicalReportButton => 'Open Full Clinical Report';
 
   @override

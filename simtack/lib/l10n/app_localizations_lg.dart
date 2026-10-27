@@ -263,6 +263,12 @@ class AppLocalizationsLg extends AppLocalizations {
   String get qrPassportLabel => 'Paasipoota ya QR';
 
   @override
+  String get qrPassportKeyLabel => 'Unlock phrase';
+
+  @override
+  String get qrPassportKeyHint => 'Give this phrase to the health worker so they can read the record on this card.';
+
+  @override
   String get openFullClinicalReportButton => 'Sumulula Lipoota Yonna ey\'Ebyobusawo';
 
   @override

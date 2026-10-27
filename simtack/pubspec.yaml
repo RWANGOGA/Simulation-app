@@ -38,6 +38,7 @@ dependencies:
   # .github/workflows/build.yml) both resolve 0.19.0; the upper bound leaves
   # room to bump the SDK without editing this line.
   intl: ">=0.19.0 <0.21.0"
+  pointycastle: ^4.0.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

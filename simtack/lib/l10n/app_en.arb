@@ -240,6 +240,14 @@
   "@qrPassportLabel": {
     "description": "Caption under the QR code. States what the code is, never that it is encrypted: until the passport payload is really encrypted, calling it \"Encrypted\" is a security claim the app does not implement."
   },
+  "qrPassportKeyLabel": "Unlock phrase",
+  "@qrPassportKeyLabel": {
+    "description": "Label printed above the six-character phrase on the success screen. Only shown when the QR payload is a sealed passport (passportCarriesRecord), never for a URL code."
+  },
+  "qrPassportKeyHint": "Give this phrase to the health worker so they can read the record on this card.",
+  "@qrPassportKeyHint": {
+    "description": "Explains what the printed unlock phrase is for. Only shown alongside qrPassportKeyLabel for a sealed passport payload."
+  },
   "openFullClinicalReportButton": "Open Full Clinical Report",
   "@openFullClinicalReportButton": {"description": "Button that opens the patient's full clinical report."},
   "bodyMapTitle": "3D Body Map",

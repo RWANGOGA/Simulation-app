@@ -579,6 +579,18 @@ abstract class AppLocalizations {
   /// **'Patient passport code'**
   String get qrPassportLabel;
 
+  /// Label printed above the six-character phrase on the success screen. Only shown when the QR payload is a sealed passport (passportCarriesRecord), never for a URL code.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock phrase'**
+  String get qrPassportKeyLabel;
+
+  /// Explains what the printed unlock phrase is for. Only shown alongside qrPassportKeyLabel for a sealed passport payload.
+  ///
+  /// In en, this message translates to:
+  /// **'Give this phrase to the health worker so they can read the record on this card.'**
+  String get qrPassportKeyHint;
+
   /// Button that opens the patient's full clinical report.
   ///
   /// In en, this message translates to:
