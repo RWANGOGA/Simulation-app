@@ -33,6 +33,22 @@ def _check_triage_rate_limit(request: Request, db: Session) -> None:
             headers={"Retry-After": str(throttle.TRIAGE_RATE_WINDOW_SECONDS)},
         )
 
+def triage_tier_for(session: TriageSession) -> dict:
+    """The SATS category for a stored session, from its own score.
+
+    `risk_score` is read rather than recomputed on purpose. It was computed at
+    submission from the whole visit - sibling regions, and the patient's weight
+    and height for the BMI factor - none of which a single row carries. Deriving a
+    tier from a score reconstructed out of one row would silently disagree with the
+    number printed above it, which is the opposite of what a category is for.
+
+    A row with no score (nothing scored it, or a pre-scoring import) is triaged on
+    its findings alone: a red flag still reads Red, and the score simply gets no
+    vote rather than a fabricated zero that could not have been earned.
+    """
+    return triage_service.triage_tier(session, session.risk_score)
+
+
 def _session_payload(session: TriageSession, patient) -> dict:
     """Single source of truth for the triage response shape — every
     endpoint returns this so new fields (decision workflow, ...)
@@ -56,9 +72,15 @@ def _session_payload(session: TriageSession, patient) -> dict:
         # from the stored columns on every read, so every endpoint (create,
         # history, QR lookup, practitioner view) reports the same verdict.
         "escalation": triage_service.escalation_for(session),
+        # The triage category, derived the same way from the same columns. It is
+        # not stored and not a re-reading of `risk_level`: the band a historical row
+        # was filed under stays what it was, and this says which SATS category the
+        # findings map onto today, naming the rules that decided it.
+        "tier": triage_tier_for(session),
         "qr_payload_hash": session.qr_payload_hash, "created_at": session.created_at,
         "status": session.status or "open",
         "priority": session.priority,
+        "clinician_tier": session.clinician_tier,
         "actions_taken": session.actions_taken,
         "clinical_notes": session.clinical_notes,
         "question_answers": session.question_answers,
@@ -671,6 +693,8 @@ def update_triage_decision(
         session.status = payload.status
     if payload.priority is not None:
         session.priority = payload.priority
+    if payload.clinician_tier is not None:
+        session.clinician_tier = payload.clinician_tier
     if payload.actions_taken is not None:
         session.actions_taken = json.dumps(payload.actions_taken)
     if payload.clinical_notes is not None:

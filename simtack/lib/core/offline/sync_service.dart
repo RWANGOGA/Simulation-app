@@ -284,6 +284,7 @@ class SyncService {
       remoteId,
       status: payload['status'] as String?,
       priority: payload['priority'] as String?,
+      clinicianTier: payload['clinician_tier'] as String?,
       actionsTaken: payload['actions_taken'] is List
           ? (payload['actions_taken'] as List).map((e) => e.toString()).toList()
           : null,

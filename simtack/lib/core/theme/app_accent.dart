@@ -45,6 +45,14 @@ class AppAccent {
   static const Color _warningDark = Color(0xFFFBBF24);
   static const Color _infoLight = Color(0xFF0F766E);
   static const Color _infoDark = Color(0xFF2DD4BF);
+  static const Color _tierRedLight = Color(0xFFB91C1C);
+  static const Color _tierRedDark = Color(0xFFF87171);
+  static const Color _tierOrangeLight = Color(0xFFC2410C);
+  static const Color _tierOrangeDark = Color(0xFFFDBA74);
+  static const Color _tierYellowLight = Color(0xFFA16207);
+  static const Color _tierYellowDark = Color(0xFFFDE047);
+  static const Color _tierGreenLight = Color(0xFF15803D);
+  static const Color _tierGreenDark = Color(0xFF4ADE80);
 
   /// Brand violet. Light 0xFF6D28D9 = 7.10:1, dark 0xFFA78BFA = 5.38:1.
   static Color primaryOn(Brightness brightness) =>
@@ -111,6 +119,40 @@ class AppAccent {
 
   /// Teal behind white text. 5.47:1.
   static const Color infoFill = _infoLight;
+
+  /// The four SATS triage categories, in the colours the scale publishes.
+  ///
+  /// This is the one place in the app where a colour is the clinical answer
+  /// rather than decoration: a Red patient means "resuscitation", and the hue is
+  /// how a triage officer reads that across a room. So the four are named by tier
+  /// instead of being borrowed from [danger]/[warning]/[success], whose shades
+  /// serve the score bands, and each resolves per brightness because the
+  /// practitioner console is brightness-aware.
+  ///
+  /// Measured, on white / on the dark surface: red 6.47 / 5.29, orange 5.18 /
+  /// 8.67, yellow 4.92 / 11.10, green 5.02 / 8.40. All four clear the 4.5:1 an
+  /// AA label needs, which is what test/app_theme_test.dart pins.
+  ///
+  /// An unknown tier resolves to null in both forms: a payload from an older
+  /// backend that names a fifth category must not be given a colour, because the
+  /// colour would read as a clinical decision the scale never made.
+  static Color? triageTierOn(Brightness brightness, String tier) {
+    final pair = switch (tier) {
+      'red' => (_tierRedLight, _tierRedDark),
+      'orange' => (_tierOrangeLight, _tierOrangeDark),
+      'yellow' => (_tierYellowLight, _tierYellowDark),
+      'green' => (_tierGreenLight, _tierGreenDark),
+      _ => null,
+    };
+    if (pair == null) return null;
+    return brightness == Brightness.dark ? pair.$2 : pair.$1;
+  }
+
+  /// The SATS colour for [tier] against the ambient brightness, or null when the
+  /// tier is not one of the four. Callers fall back to a muted slate tone rather
+  /// than guessing a colour for a category they did not receive.
+  static Color? triageTier(BuildContext context, String tier) =>
+      triageTierOn(Theme.of(context).brightness, tier);
 
   /// The calm informational panel this class was originally written for: a
   /// surface, not a colour for text. Kept under the name the screens already

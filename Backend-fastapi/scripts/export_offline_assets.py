@@ -13,7 +13,7 @@ writes two kinds of artefact into the Flutter project.
     anatomy_kb.json     a byte-identical copy of app/data/anatomy_kb.json.
 
 ``simtack/test/fixtures/clinical_golden.json`` — parity vectors. Every case
-records what `triage_service.compute_risk` / `escalation_for` and
+records what `triage_service.compute_risk` / `escalation_for` / `triage_tier` and
 `anatomy_retriever.retrieve` answer today, plus the raw output of the lexical
 normalisation (`lexical_vectors`) that decides which words a query is made of.
 The Dart ports are tested against these, so a transcription slip in either
@@ -136,6 +136,24 @@ def _export_runtime_assets() -> Dict[str, Any]:
         "severity": {"max": 10, "weight": 0.50},
         "bands": {"high": 0.7, "medium": 0.4},
         "concern_bumps": CONCERN_RISK_BUMP,
+        # The triage tier's own numbers, exported rather than hardcoded in Dart:
+        # a category the device can disagree with the server about is worse than no
+        # category, and the sensitivity analysis has to move these, not the code.
+        "tiers": {
+            "scale": triage_service.TRIAGE_SCALE,
+            "order": list(triage_service.TIERS),
+            "categories": dict(triage_service.TIER_CATEGORIES),
+            "orange_score_min": triage_service.TIER_ORANGE_SCORE_MIN,
+            "yellow_score_min": triage_service.TIER_YELLOW_SCORE_MIN,
+            # Codes, so `decided_by` is byte-identical on both platforms and a
+            # client can localise the reason without parsing English.
+            "rule_codes": {
+                "score_concerning_region": triage_service.TIER_RULE_SCORE_CONCERNING_REGION,
+                "score_urgent_band": triage_service.TIER_RULE_SCORE_URGENT_BAND,
+                "score_below_urgent_band": triage_service.TIER_RULE_SCORE_BELOW_URGENT_BAND,
+                "heart_rate_critical": "heart_rate_critical",
+            },
+        },
         "escalation": {
             "emergency": triage_service.ESCALATION_EMERGENCY,
             "urgent": triage_service.ESCALATION_URGENT,
@@ -215,12 +233,42 @@ def _risk_case(
             "level": triage_service.risk_level(risk),
             "contributions": contributions,
             "escalation": triage_service.escalation_for(payload),
+            "tier": triage_service.triage_tier(payload, risk),
         },
     }
 
 
 def _build_risk_cases() -> List[Dict[str, Any]]:
     cases: List[Dict[str, Any]] = []
+
+    # Tier anchors, paired either side of each threshold. Every weight here is a
+    # multiple of 0.05, so these combinations land exactly on 0.40 and 0.70, which
+    # is where an inclusive/exclusive slip between the two engines would hide.
+    # Each pair also shows what the tier is for: a red flag reads a category the
+    # score band cannot.
+    for region, pain_type, severity, heart_rate in [
+        ("Left Leg", "Dull", 4, None),    # 0.35 -> green
+        ("Left Leg", "Dull", 5, None),    # 0.40 -> yellow, on the boundary
+        ("Left Leg", "Dull", 6, None),    # 0.45 -> yellow
+        ("Headache / Cranial", "Dull", 5, None),  # 0.65 -> yellow
+        ("Headache / Cranial", "Dull", 6, None),  # 0.70 -> orange, boundary + concern
+        ("Left Leg", "Dull", 1, 45.0),    # 0.35 band, red on the rate alone
+        ("Left Leg", "Dull", 10, None),   # 0.65 band, orange on pain_maximum
+        ("Chest / Heart", "Crushing", 1, None),  # 0.65 band, red on the finding
+    ]:
+        cases.append(
+            _risk_case(
+                region=region,
+                pain_type=pain_type,
+                severity=severity,
+                heart_rate=heart_rate,
+            )
+        )
+
+    # Heart-rate floor boundaries: the rate decides a category on its own, so the
+    # exact threshold matters more here than anywhere in the score.
+    for heart_rate in (49.0, 50.0, 51.0, 119.0, 120.0, 121.0, 0.0, None):
+        cases.append(_risk_case(region="Left Leg", heart_rate=heart_rate))
 
     # Every region label, everything else held constant.
     for region in UI_REGION_LABELS + sorted(BODY_GRAPH):

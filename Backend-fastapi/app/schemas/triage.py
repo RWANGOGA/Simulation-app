@@ -1,6 +1,6 @@
 from datetime import datetime, date
 from typing import List, Optional, Any
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 class TriageBase(BaseModel):
     body_region: str = Field(..., description="e.g., Head, Chest, Left Arm")
@@ -40,12 +40,38 @@ class TriageEscalation(BaseModel):
     triggers: List[TriageEscalationTrigger] = Field(default_factory=list)
 
 
+class TriageTier(BaseModel):
+    """The pain point mapped onto a published four-category triage scale.
+
+    `tier` is the colour a station acts on, `category` is that colour's name in
+    the scale's own vocabulary, and `decided_by` lists the stable rule codes that
+    put it there — so the answer is auditable, and a clinician who disagrees can
+    say which rule they disagree with rather than which number.
+
+    Derived from stored fields on every read, exactly like `escalation`. Nothing
+    here is stored, which is what lets a threshold move without re-triaging
+    history, and what keeps this from being presented as a validated model: see
+    the honesty boundary in triage_service.triage_tier.
+    """
+    tier: str = Field(..., description="red | orange | yellow | green")
+    scale: str = Field(..., description='The scale these categories come from ("SATS")')
+    category: str = Field(
+        ...,
+        description="emergency | very_urgent | urgent | routine",
+    )
+    decided_by: List[str] = Field(
+        default_factory=list,
+        description="Stable codes of the rules that set this tier",
+    )
+
+
 class TriageResponse(TriageBase):
     id: int
     patient_id: Optional[int] = None
     anonymous_code: Optional[str] = None
     risk_score: Optional[float] = None
     escalation: Optional[TriageEscalation] = None
+    tier: Optional[TriageTier] = None
     shap_explanation: Optional[str] = None
     qr_payload_hash: Optional[str] = None
     created_at: datetime
@@ -62,6 +88,7 @@ class TriageResponse(TriageBase):
     patient_hospital_name: Optional[str] = None
     status: Optional[str] = "open"
     priority: Optional[str] = None
+    clinician_tier: Optional[str] = None
     actions_taken: Optional[str] = None
     clinical_notes: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
@@ -70,5 +97,30 @@ class TriageDecisionUpdate(BaseModel):
     """PATCH /triage/{id}/decision — practitioner saves the review outcome."""
     status: Optional[str] = Field(None, pattern="^(open|closed)$")
     priority: Optional[str] = None
+    # The reference standard the tool is measured against. `priority` was never
+    # it: free text like "Review Immediately" is a worklist instruction, not a
+    # triage category, so agreement with a clinician could not be computed from
+    # anything the product recorded. Kept writable for the worklist, and this
+    # added beside it as a closed set matching the tool's own output.
+    clinician_tier: Optional[str] = None
     actions_taken: Optional[List[str]] = None
     clinical_notes: Optional[str] = None
+
+    @field_validator("clinician_tier")
+    @classmethod
+    def _tier_is_on_the_scale(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return value
+        # Imported here rather than at the top: `app.services.triage_service`
+        # imports `app.schemas`, so a module-level import is a cycle. The cost is
+        # one lookup per validated request; the gain is that the scale's tiers
+        # exist in exactly one place, so the API cannot accept a category the
+        # engine cannot emit.
+        from app.services import triage_service
+
+        if value not in triage_service.TIERS:
+            raise ValueError(
+                "clinician_tier must be one of "
+                + ", ".join(triage_service.TIERS)
+            )
+        return value

@@ -4673,6 +4673,855 @@
       "expected": {
         "contributions": [
           {
+            "contribution": 0.2,
+            "factor": "Severity 4/10",
+            "impact": "+",
+            "shap": 0.2
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          },
+          {
+            "contribution": 0.05,
+            "factor": "Pain type: Dull",
+            "impact": "+",
+            "shap": 0.05
+          }
+        ],
+        "escalation": {
+          "action": "routine_review",
+          "level": "routine",
+          "triggers": []
+        },
+        "level": "low",
+        "risk": 0.35,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": null,
+        "pain_type": "Dull",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 4,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.25,
+            "factor": "Severity 5/10",
+            "impact": "+",
+            "shap": 0.25
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          },
+          {
+            "contribution": 0.05,
+            "factor": "Pain type: Dull",
+            "impact": "+",
+            "shap": 0.05
+          }
+        ],
+        "escalation": {
+          "action": "routine_review",
+          "level": "routine",
+          "triggers": []
+        },
+        "level": "medium",
+        "risk": 0.4,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": null,
+        "pain_type": "Dull",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 5,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.3,
+            "factor": "Severity 6/10",
+            "impact": "+",
+            "shap": 0.3
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          },
+          {
+            "contribution": 0.05,
+            "factor": "Pain type: Dull",
+            "impact": "+",
+            "shap": 0.05
+          }
+        ],
+        "escalation": {
+          "action": "routine_review",
+          "level": "routine",
+          "triggers": []
+        },
+        "level": "medium",
+        "risk": 0.45,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": null,
+        "pain_type": "Dull",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 6,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.35,
+            "factor": "Region: Headache / Cranial",
+            "impact": "+",
+            "shap": 0.35
+          },
+          {
+            "contribution": 0.25,
+            "factor": "Severity 5/10",
+            "impact": "+",
+            "shap": 0.25
+          },
+          {
+            "contribution": 0.05,
+            "factor": "Pain type: Dull",
+            "impact": "+",
+            "shap": 0.05
+          }
+        ],
+        "escalation": {
+          "action": "routine_review",
+          "level": "routine",
+          "triggers": []
+        },
+        "level": "medium",
+        "risk": 0.65,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
+      },
+      "input": {
+        "body_region": "Headache / Cranial",
+        "direction": null,
+        "heart_rate": null,
+        "pain_type": "Dull",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 5,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.35,
+            "factor": "Region: Headache / Cranial",
+            "impact": "+",
+            "shap": 0.35
+          },
+          {
+            "contribution": 0.3,
+            "factor": "Severity 6/10",
+            "impact": "+",
+            "shap": 0.3
+          },
+          {
+            "contribution": 0.05,
+            "factor": "Pain type: Dull",
+            "impact": "+",
+            "shap": 0.05
+          }
+        ],
+        "escalation": {
+          "action": "routine_review",
+          "level": "routine",
+          "triggers": []
+        },
+        "level": "high",
+        "risk": 0.7,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
+      },
+      "input": {
+        "body_region": "Headache / Cranial",
+        "direction": null,
+        "heart_rate": null,
+        "pain_type": "Dull",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 6,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.15,
+            "factor": "Heart rate 45.0 bpm",
+            "impact": "+",
+            "shap": 0.15
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          },
+          {
+            "contribution": 0.05,
+            "factor": "Severity 1/10",
+            "impact": "+",
+            "shap": 0.05
+          },
+          {
+            "contribution": 0.05,
+            "factor": "Pain type: Dull",
+            "impact": "+",
+            "shap": 0.05
+          }
+        ],
+        "escalation": {
+          "action": "seek_emergency_care",
+          "level": "emergency",
+          "triggers": [
+            {
+              "code": "heart_rate_critical",
+              "detail": "Heart rate 45 bpm"
+            }
+          ]
+        },
+        "level": "low",
+        "risk": 0.35,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": 45.0,
+        "pain_type": "Dull",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 1,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.5,
+            "factor": "Severity 10/10",
+            "impact": "+",
+            "shap": 0.5
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          },
+          {
+            "contribution": 0.05,
+            "factor": "Pain type: Dull",
+            "impact": "+",
+            "shap": 0.05
+          }
+        ],
+        "escalation": {
+          "action": "seek_urgent_care",
+          "level": "urgent",
+          "triggers": [
+            {
+              "code": "pain_maximum",
+              "detail": "Pain rated 10/10"
+            }
+          ]
+        },
+        "level": "medium",
+        "risk": 0.65,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "pain_maximum"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": null,
+        "pain_type": "Dull",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 10,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.4,
+            "factor": "Region: Chest / Heart",
+            "impact": "+",
+            "shap": 0.4
+          },
+          {
+            "contribution": 0.2,
+            "factor": "Pain type: Crushing",
+            "impact": "+",
+            "shap": 0.2
+          },
+          {
+            "contribution": 0.05,
+            "factor": "Severity 1/10",
+            "impact": "+",
+            "shap": 0.05
+          }
+        ],
+        "escalation": {
+          "action": "seek_emergency_care",
+          "level": "emergency",
+          "triggers": [
+            {
+              "code": "chest_pain_crushing",
+              "detail": "Crushing chest pain"
+            }
+          ]
+        },
+        "level": "medium",
+        "risk": 0.65,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
+      },
+      "input": {
+        "body_region": "Chest / Heart",
+        "direction": null,
+        "heart_rate": null,
+        "pain_type": "Crushing",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 1,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.25,
+            "factor": "Severity 5/10",
+            "impact": "+",
+            "shap": 0.25
+          },
+          {
+            "contribution": 0.15,
+            "factor": "Heart rate 49.0 bpm",
+            "impact": "+",
+            "shap": 0.15
+          },
+          {
+            "contribution": 0.12,
+            "factor": "Pain type: Sharp",
+            "impact": "+",
+            "shap": 0.12
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          }
+        ],
+        "escalation": {
+          "action": "seek_emergency_care",
+          "level": "emergency",
+          "triggers": [
+            {
+              "code": "heart_rate_critical",
+              "detail": "Heart rate 49 bpm"
+            }
+          ]
+        },
+        "level": "medium",
+        "risk": 0.62,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": 49.0,
+        "pain_type": "Sharp",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 5,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.25,
+            "factor": "Severity 5/10",
+            "impact": "+",
+            "shap": 0.25
+          },
+          {
+            "contribution": 0.12,
+            "factor": "Pain type: Sharp",
+            "impact": "+",
+            "shap": 0.12
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          }
+        ],
+        "escalation": {
+          "action": "routine_review",
+          "level": "routine",
+          "triggers": []
+        },
+        "level": "medium",
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": 50.0,
+        "pain_type": "Sharp",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 5,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.25,
+            "factor": "Severity 5/10",
+            "impact": "+",
+            "shap": 0.25
+          },
+          {
+            "contribution": 0.12,
+            "factor": "Pain type: Sharp",
+            "impact": "+",
+            "shap": 0.12
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          }
+        ],
+        "escalation": {
+          "action": "routine_review",
+          "level": "routine",
+          "triggers": []
+        },
+        "level": "medium",
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": 51.0,
+        "pain_type": "Sharp",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 5,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.25,
+            "factor": "Severity 5/10",
+            "impact": "+",
+            "shap": 0.25
+          },
+          {
+            "contribution": 0.12,
+            "factor": "Pain type: Sharp",
+            "impact": "+",
+            "shap": 0.12
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Heart rate 119.0 bpm",
+            "impact": "+",
+            "shap": 0.1
+          }
+        ],
+        "escalation": {
+          "action": "seek_urgent_care",
+          "level": "urgent",
+          "triggers": [
+            {
+              "code": "heart_rate_high",
+              "detail": "Heart rate 119 bpm"
+            }
+          ]
+        },
+        "level": "medium",
+        "risk": 0.57,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": 119.0,
+        "pain_type": "Sharp",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 5,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.25,
+            "factor": "Severity 5/10",
+            "impact": "+",
+            "shap": 0.25
+          },
+          {
+            "contribution": 0.12,
+            "factor": "Pain type: Sharp",
+            "impact": "+",
+            "shap": 0.12
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Heart rate 120.0 bpm",
+            "impact": "+",
+            "shap": 0.1
+          }
+        ],
+        "escalation": {
+          "action": "seek_urgent_care",
+          "level": "urgent",
+          "triggers": [
+            {
+              "code": "heart_rate_high",
+              "detail": "Heart rate 120 bpm"
+            }
+          ]
+        },
+        "level": "medium",
+        "risk": 0.57,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": 120.0,
+        "pain_type": "Sharp",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 5,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.25,
+            "factor": "Severity 5/10",
+            "impact": "+",
+            "shap": 0.25
+          },
+          {
+            "contribution": 0.15,
+            "factor": "Heart rate 121.0 bpm",
+            "impact": "+",
+            "shap": 0.15
+          },
+          {
+            "contribution": 0.12,
+            "factor": "Pain type: Sharp",
+            "impact": "+",
+            "shap": 0.12
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          }
+        ],
+        "escalation": {
+          "action": "seek_emergency_care",
+          "level": "emergency",
+          "triggers": [
+            {
+              "code": "heart_rate_critical",
+              "detail": "Heart rate 121 bpm"
+            }
+          ]
+        },
+        "level": "medium",
+        "risk": 0.62,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": 121.0,
+        "pain_type": "Sharp",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 5,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.25,
+            "factor": "Severity 5/10",
+            "impact": "+",
+            "shap": 0.25
+          },
+          {
+            "contribution": 0.12,
+            "factor": "Pain type: Sharp",
+            "impact": "+",
+            "shap": 0.12
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          }
+        ],
+        "escalation": {
+          "action": "routine_review",
+          "level": "routine",
+          "triggers": []
+        },
+        "level": "medium",
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": 0.0,
+        "pain_type": "Sharp",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 5,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
+            "contribution": 0.25,
+            "factor": "Severity 5/10",
+            "impact": "+",
+            "shap": 0.25
+          },
+          {
+            "contribution": 0.12,
+            "factor": "Pain type: Sharp",
+            "impact": "+",
+            "shap": 0.12
+          },
+          {
+            "contribution": 0.1,
+            "factor": "Region: Left Leg",
+            "impact": "+",
+            "shap": 0.1
+          }
+        ],
+        "escalation": {
+          "action": "routine_review",
+          "level": "routine",
+          "triggers": []
+        },
+        "level": "medium",
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
+      },
+      "input": {
+        "body_region": "Left Leg",
+        "direction": null,
+        "heart_rate": null,
+        "pain_type": "Sharp",
+        "patient_height": null,
+        "patient_weight": null,
+        "severity": 5,
+        "siblings": []
+      }
+    },
+    {
+      "expected": {
+        "contributions": [
+          {
             "contribution": 0.4,
             "factor": "Region: Chest / Heart",
             "impact": "+",
@@ -4697,7 +5546,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.77
+        "risk": 0.77,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -4738,7 +5595,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.72
+        "risk": 0.72,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -4779,7 +5644,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -4820,7 +5693,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower)",
@@ -4861,7 +5742,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Upper)",
@@ -4902,7 +5791,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -4943,7 +5840,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.67
+        "risk": 0.67,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -4984,7 +5889,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -5025,7 +5938,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -5066,7 +5987,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -5107,7 +6036,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Leg",
@@ -5148,7 +6085,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Pelvis / Groin",
@@ -5189,7 +6134,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Hip",
@@ -5230,7 +6183,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Knee (Left)",
@@ -5271,7 +6232,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Knee (Right)",
@@ -5312,7 +6281,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Ankle / Foot",
@@ -5353,7 +6330,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Hand / Wrist",
@@ -5394,7 +6379,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Elbow",
@@ -5435,7 +6428,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Shoulder Blade",
@@ -5476,7 +6477,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Stomach",
@@ -5517,7 +6526,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Unmapped Region",
@@ -5558,7 +6575,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "",
@@ -5599,7 +6624,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Left)",
@@ -5640,7 +6673,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Right)",
@@ -5681,7 +6722,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -5722,7 +6771,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -5763,7 +6820,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Upper)",
@@ -5804,7 +6869,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.77
+        "risk": 0.77,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -5845,7 +6918,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.72
+        "risk": 0.72,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -5886,7 +6967,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Hips / Groin",
@@ -5927,7 +7016,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Ankle",
@@ -5968,7 +7065,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -6009,7 +7114,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Armpit",
@@ -6050,7 +7163,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Elbow",
@@ -6091,7 +7212,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Foot",
@@ -6132,7 +7261,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Hand",
@@ -6173,7 +7310,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Knee",
@@ -6214,7 +7359,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg / Knee",
@@ -6255,7 +7408,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Shin / Calf",
@@ -6296,7 +7457,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Shoulder",
@@ -6337,7 +7506,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Thigh",
@@ -6378,7 +7555,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Wrist",
@@ -6419,7 +7604,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.67
+        "risk": 0.67,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -6460,7 +7653,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Ankle",
@@ -6501,7 +7702,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -6542,7 +7751,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Armpit",
@@ -6583,7 +7800,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Elbow",
@@ -6624,7 +7849,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Foot",
@@ -6665,7 +7898,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Hand",
@@ -6706,7 +7947,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Knee",
@@ -6747,7 +7996,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Leg / Knee",
@@ -6788,7 +8045,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Shin / Calf",
@@ -6829,7 +8094,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Shoulder",
@@ -6870,7 +8143,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Thigh",
@@ -6911,7 +8192,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Wrist",
@@ -6952,7 +8241,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Thighs",
@@ -6998,7 +8295,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7039,7 +8344,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -7085,7 +8398,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.8
+        "risk": 0.8,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7126,7 +8447,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -7167,7 +8496,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.77
+        "risk": 0.77,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7208,7 +8545,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -7249,7 +8594,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7290,7 +8643,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.45
+        "risk": 0.45,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -7331,7 +8692,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.74
+        "risk": 0.74,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7372,7 +8741,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.44
+        "risk": 0.44,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -7413,7 +8790,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.73
+        "risk": 0.73,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7454,7 +8839,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.43
+        "risk": 0.43,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -7495,7 +8888,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.73
+        "risk": 0.73,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7536,7 +8937,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.43
+        "risk": 0.43,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -7577,7 +8986,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7618,7 +9035,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.4
+        "risk": 0.4,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -7659,7 +9084,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7700,7 +9133,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.4
+        "risk": 0.4,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -7741,7 +9182,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7782,7 +9231,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.4
+        "risk": 0.4,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -7823,7 +9280,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7864,7 +9329,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.4
+        "risk": 0.4,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -7905,7 +9378,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7951,7 +9432,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -7992,7 +9481,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.45
+        "risk": 0.45,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -8033,7 +9530,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -8074,7 +9579,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.2
+        "risk": 0.2,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -8115,7 +9628,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.35
+        "risk": 0.35,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -8156,7 +9677,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -8202,7 +9731,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -8243,7 +9780,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -8284,7 +9829,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -8325,7 +9878,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.25
+        "risk": 0.25,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -8366,7 +9927,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.4
+        "risk": 0.4,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -8407,7 +9976,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -8453,7 +10030,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -8494,7 +10079,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -8535,7 +10128,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -8576,7 +10177,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.3
+        "risk": 0.3,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -8617,7 +10226,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.45
+        "risk": 0.45,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -8658,7 +10275,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -8704,7 +10329,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.8
+        "risk": 0.8,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -8745,7 +10378,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -8786,7 +10427,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -8827,7 +10476,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.35
+        "risk": 0.35,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -8868,7 +10525,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -8909,7 +10574,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -8955,7 +10628,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -8996,7 +10677,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -9037,7 +10726,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.8
+        "risk": 0.8,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -9078,7 +10775,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.4
+        "risk": 0.4,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -9119,7 +10824,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -9160,7 +10873,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -9206,7 +10927,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.9
+        "risk": 0.9,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -9247,7 +10976,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -9288,7 +11025,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -9329,7 +11074,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.45
+        "risk": 0.45,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -9370,7 +11123,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -9411,7 +11172,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.8
+        "risk": 0.8,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -9457,7 +11226,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.95
+        "risk": 0.95,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -9498,7 +11275,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -9539,7 +11324,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.9
+        "risk": 0.9,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -9580,7 +11373,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -9621,7 +11422,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -9667,7 +11476,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_severe"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -9717,7 +11534,16 @@
           ]
         },
         "level": "high",
-        "risk": 1.0
+        "risk": 1.0,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing",
+            "chest_pain_severe"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -9763,7 +11589,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.8
+        "risk": 0.8,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "head_pain_severe",
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -9809,7 +11644,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.95
+        "risk": 0.95,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "head_pain_severe",
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -9850,7 +11694,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -9891,7 +11743,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -9937,7 +11797,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.9
+        "risk": 0.9,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_severe"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -9993,7 +11861,16 @@
           ]
         },
         "level": "high",
-        "risk": 1.0
+        "risk": 1.0,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing",
+            "chest_pain_severe"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -10039,7 +11916,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "head_pain_severe",
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -10085,7 +11971,16 @@
           ]
         },
         "level": "high",
-        "risk": 1.0
+        "risk": 1.0,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "head_pain_severe",
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -10126,7 +12021,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -10167,7 +12070,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -10217,7 +12128,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.95
+        "risk": 0.95,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_severe",
+            "pain_maximum_high_concern_region"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -10277,7 +12197,17 @@
           ]
         },
         "level": "high",
-        "risk": 1.0
+        "risk": 1.0,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing",
+            "chest_pain_severe",
+            "pain_maximum_high_concern_region"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -10323,7 +12253,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.9
+        "risk": 0.9,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "pain_maximum_high_concern_region"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -10375,7 +12313,15 @@
           ]
         },
         "level": "high",
-        "risk": 1.0
+        "risk": 1.0,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "pain_maximum_high_concern_region"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -10421,7 +12367,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "pain_maximum"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -10467,7 +12421,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.8
+        "risk": 0.8,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "pain_maximum"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -10513,7 +12475,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -10559,7 +12529,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -10609,7 +12587,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing",
+            "chest_pain_radiating"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -10659,7 +12646,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing",
+            "chest_pain_radiating"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -10705,7 +12701,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -10751,7 +12755,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -10792,7 +12804,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.72
+        "risk": 0.72,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -10844,7 +12864,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.87
+        "risk": 0.87,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -10885,7 +12913,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.72
+        "risk": 0.72,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -10926,7 +12962,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.72
+        "risk": 0.72,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -10967,7 +13011,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.72
+        "risk": 0.72,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -11008,7 +13060,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.72
+        "risk": 0.72,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -11060,7 +13120,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.82
+        "risk": 0.82,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high",
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -11112,7 +13181,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.82
+        "risk": 0.82,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high",
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -11164,7 +13242,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.87
+        "risk": 0.87,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -11216,7 +13302,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.87
+        "risk": 0.87,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -11257,7 +13351,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -11298,7 +13400,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -11345,7 +13455,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.67
+        "risk": 0.67,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -11392,7 +13510,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.67
+        "risk": 0.67,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -11433,7 +13559,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -11480,7 +13614,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.77
+        "risk": 0.77,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -11529,7 +13671,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.84
+        "risk": 0.84,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -11578,7 +13728,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.79
+        "risk": 0.79,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -11627,7 +13785,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.72
+        "risk": 0.72,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -11676,7 +13842,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.92
+        "risk": 0.92,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -11725,7 +13899,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.79
+        "risk": 0.79,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -11774,7 +13956,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.79
+        "risk": 0.79,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -11823,7 +14013,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.72
+        "risk": 0.72,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -11872,7 +14070,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.72
+        "risk": 0.72,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -11927,7 +14133,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 1.0
+        "risk": 1.0,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -11982,7 +14196,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 1.0
+        "risk": 1.0,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -12037,7 +14259,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 1.0
+        "risk": 1.0,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -12092,7 +14322,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 1.0
+        "risk": 1.0,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -12147,7 +14385,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 1.0
+        "risk": 1.0,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -12196,7 +14442,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.89
+        "risk": 0.89,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -12245,7 +14499,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.89
+        "risk": 0.89,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -12294,7 +14556,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.74
+        "risk": 0.74,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -12343,7 +14613,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.74
+        "risk": 0.74,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -12392,7 +14670,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.74
+        "risk": 0.74,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -12441,7 +14727,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.74
+        "risk": 0.74,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -12490,7 +14784,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.87
+        "risk": 0.87,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -12539,7 +14841,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.87
+        "risk": 0.87,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Right)",
@@ -12588,7 +14898,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.67
+        "risk": 0.67,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Right)",
@@ -12637,7 +14955,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.67
+        "risk": 0.67,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Right)",
@@ -12686,7 +15012,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.74
+        "risk": 0.74,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Right)",
@@ -12735,7 +15069,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.74
+        "risk": 0.74,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Left)",
@@ -12784,7 +15126,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.74
+        "risk": 0.74,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Left)",
@@ -12833,7 +15183,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.59
+        "risk": 0.59,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Hips / Groin",
@@ -12882,7 +15240,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.59
+        "risk": 0.59,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Hips / Groin",
@@ -12931,7 +15297,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.59
+        "risk": 0.59,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Hips / Groin",
@@ -12980,7 +15354,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Hips / Groin",
@@ -13029,7 +15411,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Hips / Groin",
@@ -13078,7 +15468,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Hips / Groin",
@@ -13127,7 +15525,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Thighs",
@@ -13176,7 +15582,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Thighs",
@@ -13225,7 +15639,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Thighs",
@@ -13274,7 +15696,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Thighs",
@@ -13323,7 +15753,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.82
+        "risk": 0.82,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Upper)",
@@ -13372,7 +15810,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Upper)",
@@ -13421,7 +15867,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Upper)",
@@ -13470,7 +15924,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.69
+        "risk": 0.69,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Upper)",
@@ -13519,7 +15981,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -13568,7 +16038,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -13617,7 +16095,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -13666,7 +16152,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -13715,7 +16209,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.69
+        "risk": 0.69,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -13764,7 +16266,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.69
+        "risk": 0.69,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -13813,7 +16323,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -13862,7 +16380,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.64
+        "risk": 0.64,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -13911,7 +16437,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -13960,7 +16494,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -14009,7 +16551,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -14058,7 +16608,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.82
+        "risk": 0.82,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -14107,7 +16665,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.69
+        "risk": 0.69,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -14156,7 +16722,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -14205,7 +16779,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -14254,7 +16836,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Leg / Knee",
@@ -14303,7 +16893,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Leg / Knee",
@@ -14352,7 +16950,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Leg / Knee",
@@ -14401,7 +17007,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Leg / Knee",
@@ -14450,7 +17064,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg / Knee",
@@ -14499,7 +17121,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg / Knee",
@@ -14548,7 +17178,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg / Knee",
@@ -14597,7 +17235,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.64
+        "risk": 0.64,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Shoulder",
@@ -14646,7 +17292,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Shoulder",
@@ -14695,7 +17349,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Shoulder",
@@ -14744,7 +17406,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Shoulder",
@@ -14793,7 +17463,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.82
+        "risk": 0.82,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Shoulder",
@@ -14842,7 +17520,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.69
+        "risk": 0.69,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Shoulder",
@@ -14891,7 +17577,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Shoulder",
@@ -14940,7 +17634,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Shoulder",
@@ -14989,7 +17691,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Armpit",
@@ -15038,7 +17748,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Armpit",
@@ -15087,7 +17805,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.69
+        "risk": 0.69,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Armpit",
@@ -15136,7 +17862,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Armpit",
@@ -15185,7 +17919,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Armpit",
@@ -15234,7 +17976,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Elbow",
@@ -15283,7 +18033,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Elbow",
@@ -15332,7 +18090,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Elbow",
@@ -15381,7 +18147,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Elbow",
@@ -15430,7 +18204,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Elbow",
@@ -15479,7 +18261,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Elbow",
@@ -15528,7 +18318,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Wrist",
@@ -15577,7 +18375,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Wrist",
@@ -15626,7 +18432,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Wrist",
@@ -15675,7 +18489,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Wrist",
@@ -15724,7 +18546,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Hand",
@@ -15773,7 +18603,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.82
+        "risk": 0.82,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Hand",
@@ -15822,7 +18660,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.62
+        "risk": 0.62,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Hand",
@@ -15871,7 +18717,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Thigh",
@@ -15920,7 +18774,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Thigh",
@@ -15969,7 +18831,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Thigh",
@@ -16018,7 +18888,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Thigh",
@@ -16067,7 +18945,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Thigh",
@@ -16116,7 +19002,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Knee",
@@ -16165,7 +19059,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Knee",
@@ -16214,7 +19116,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Knee",
@@ -16263,7 +19173,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Knee",
@@ -16312,7 +19230,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Knee",
@@ -16361,7 +19287,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Knee",
@@ -16410,7 +19344,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Knee",
@@ -16459,7 +19401,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Knee",
@@ -16508,7 +19458,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Shin / Calf",
@@ -16557,7 +19515,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Shin / Calf",
@@ -16606,7 +19572,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Shin / Calf",
@@ -16655,7 +19629,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Shin / Calf",
@@ -16704,7 +19686,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Shin / Calf",
@@ -16753,7 +19743,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Shin / Calf",
@@ -16802,7 +19800,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Shin / Calf",
@@ -16851,7 +19857,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Shin / Calf",
@@ -16900,7 +19914,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Ankle",
@@ -16949,7 +19971,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Ankle",
@@ -16998,7 +20028,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Ankle",
@@ -17047,7 +20085,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Ankle",
@@ -17096,7 +20142,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Foot",
@@ -17145,7 +20199,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Foot",
@@ -17199,7 +20261,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Hand / Wrist",
@@ -17248,7 +20318,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.8
+        "risk": 0.8,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Right)",
@@ -17306,7 +20384,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.8
+        "risk": 0.8,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Left)",
@@ -17354,7 +20440,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "pain_maximum"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -17406,7 +20500,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.8
+        "risk": 0.8,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "pain_maximum"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Shoulder Blade",
@@ -17458,7 +20560,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "pain_maximum"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Right Thigh",
@@ -17512,7 +20622,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.8
+        "risk": 0.8,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Hand / Wrist",
@@ -17559,7 +20677,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -17611,7 +20737,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.79
+        "risk": 0.79,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -17665,7 +20799,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -17708,7 +20850,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.45
+        "risk": 0.45,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -17766,7 +20916,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Unmapped Region",
@@ -17809,7 +20967,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -17853,7 +21019,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Hips / Groin",
@@ -17908,7 +21082,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -17963,7 +21145,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.83
+        "risk": 0.83,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Left Wrist",
@@ -18012,7 +21202,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Thigh",
@@ -18070,7 +21268,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Left Wrist",
@@ -18128,7 +21334,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower)",
@@ -18177,7 +21391,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.34
+        "risk": 0.34,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Ankle / Foot",
@@ -18235,7 +21457,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.67
+        "risk": 0.67,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -18276,7 +21506,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Left)",
@@ -18317,7 +21555,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Foot",
@@ -18360,7 +21606,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.3
+        "risk": 0.3,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Right Knee",
@@ -18412,7 +21666,15 @@
           ]
         },
         "level": "low",
-        "risk": 0.35
+        "risk": 0.35,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Right Foot",
@@ -18459,7 +21721,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.68
+        "risk": 0.68,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Knee (Right)",
@@ -18511,7 +21781,15 @@
           ]
         },
         "level": "low",
-        "risk": 0.35
+        "risk": 0.35,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Right Wrist",
@@ -18560,7 +21838,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.63
+        "risk": 0.63,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Knee (Right)",
@@ -18601,7 +21887,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Shoulder",
@@ -18653,7 +21947,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.88
+        "risk": 0.88,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -18707,7 +22009,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.87
+        "risk": 0.87,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "pain_maximum"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Left Armpit",
@@ -18754,7 +22064,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.45
+        "risk": 0.45,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg / Knee",
@@ -18797,7 +22115,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -18858,7 +22184,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Right Knee",
@@ -18919,7 +22253,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.57
+        "risk": 0.57,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -18973,7 +22315,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.69
+        "risk": 0.69,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Right)",
@@ -19028,7 +22378,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.4
+        "risk": 0.4,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Elbow",
@@ -19080,7 +22438,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.68
+        "risk": 0.68,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -19134,7 +22500,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high",
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Left)",
@@ -19188,7 +22563,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -19246,7 +22629,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.95
+        "risk": 0.95,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -19296,7 +22687,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.44
+        "risk": 0.44,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Foot",
@@ -19343,7 +22742,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.45
+        "risk": 0.45,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg / Knee",
@@ -19384,7 +22791,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -19431,7 +22846,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Hip",
@@ -19472,7 +22895,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Thigh",
@@ -19532,7 +22963,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Shoulder Blade",
@@ -19573,7 +23012,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.53
+        "risk": 0.53,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -19623,7 +23070,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.4
+        "risk": 0.4,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -19677,7 +23132,15 @@
           ]
         },
         "level": "low",
-        "risk": 0.35
+        "risk": 0.35,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Left Ankle",
@@ -19718,7 +23181,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -19776,7 +23247,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -19834,7 +23313,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Right Leg",
@@ -19892,7 +23379,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Right Elbow",
@@ -19936,7 +23431,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.25
+        "risk": 0.25,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Left Foot",
@@ -19985,7 +23488,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.43
+        "risk": 0.43,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -20026,7 +23537,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.4
+        "risk": 0.4,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -20073,7 +23592,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.44
+        "risk": 0.44,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Elbow",
@@ -20117,7 +23644,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.45
+        "risk": 0.45,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Leg / Knee",
@@ -20175,7 +23710,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Right Leg",
@@ -20218,7 +23761,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.3
+        "risk": 0.3,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Left Thigh",
@@ -20276,7 +23827,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.73
+        "risk": 0.73,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Shoulder Blade",
@@ -20317,7 +23876,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Hand",
@@ -20378,7 +23945,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Left Leg / Knee",
@@ -20433,7 +24008,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.95
+        "risk": 0.95,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "pain_maximum_high_concern_region"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower)",
@@ -20488,7 +24071,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Hips / Groin",
@@ -20529,7 +24120,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.27
+        "risk": 0.27,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Hip",
@@ -20579,7 +24178,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.67
+        "risk": 0.67,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -20633,7 +24240,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.95
+        "risk": 0.95,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -20682,7 +24297,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.73
+        "risk": 0.73,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -20743,7 +24366,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.79
+        "risk": 0.79,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high",
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -20795,7 +24427,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.89
+        "risk": 0.89,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "pain_maximum_high_concern_region"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Left)",
@@ -20857,7 +24497,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.95
+        "risk": 0.95,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high",
+            "pain_maximum"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -20912,7 +24561,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.64
+        "risk": 0.64,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Right Elbow",
@@ -20966,7 +24623,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.45
+        "risk": 0.45,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Hips / Groin",
@@ -21013,7 +24678,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.68
+        "risk": 0.68,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Left)",
@@ -21074,7 +24747,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -21124,7 +24805,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Elbow",
@@ -21165,7 +24854,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Ankle",
@@ -21212,7 +24909,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.54
+        "risk": 0.54,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Ankle",
@@ -21270,7 +24975,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.93
+        "risk": 0.93,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Back Pain (Upper)",
@@ -21320,7 +25033,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Elbow",
@@ -21361,7 +25082,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.25
+        "risk": 0.25,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Unmapped Region",
@@ -21402,7 +25131,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Knee",
@@ -21454,7 +25191,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.52
+        "risk": 0.52,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Right Elbow",
@@ -21512,7 +25257,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Left Elbow",
@@ -21570,7 +25323,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Right Thigh",
@@ -21622,7 +25383,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Knee (Right)",
@@ -21674,7 +25443,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Right Elbow",
@@ -21726,7 +25503,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.44
+        "risk": 0.44,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Right Elbow",
@@ -21784,7 +25569,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Right Wrist",
@@ -21839,7 +25632,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Back Pain (Upper)",
@@ -21882,7 +25683,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.35
+        "risk": 0.35,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower)",
@@ -21925,7 +25734,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.35
+        "risk": 0.35,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "",
@@ -21979,7 +25796,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.68
+        "risk": 0.68,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Shoulder Blade",
@@ -22037,7 +25862,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -22099,7 +25932,15 @@
           ]
         },
         "level": "high",
-        "risk": 1.0
+        "risk": 1.0,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Left Knee",
@@ -22154,7 +25995,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -22212,7 +26061,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.69
+        "risk": 0.69,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -22255,7 +26112,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Elbow",
@@ -22296,7 +26161,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Armpit",
@@ -22348,7 +26221,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.4
+        "risk": 0.4,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Left Shoulder",
@@ -22396,7 +26277,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.77
+        "risk": 0.77,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "pain_maximum"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Right Armpit",
@@ -22439,7 +26328,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Leg / Knee",
@@ -22497,7 +26394,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Hips / Groin",
@@ -22540,7 +26445,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.64
+        "risk": 0.64,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -22581,7 +26494,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.25
+        "risk": 0.25,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Right Leg",
@@ -22636,7 +26557,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.68
+        "risk": 0.68,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Right)",
@@ -22696,7 +26625,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.45
+        "risk": 0.45,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Right Shin / Calf",
@@ -22754,7 +26691,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.92
+        "risk": 0.92,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high",
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Stomach",
@@ -22795,7 +26741,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Upper)",
@@ -22855,7 +26809,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.49
+        "risk": 0.49,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Right Leg",
@@ -22899,7 +26861,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -22951,7 +26921,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -23011,7 +26989,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.68
+        "risk": 0.68,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Ankle / Foot",
@@ -23070,7 +27056,16 @@
           ]
         },
         "level": "high",
-        "risk": 0.95
+        "risk": 0.95,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high",
+            "pain_maximum"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Left Elbow",
@@ -23111,7 +27106,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.53
+        "risk": 0.53,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Upper)",
@@ -23152,7 +27155,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.6
+        "risk": 0.6,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Leg / Knee",
@@ -23199,7 +27210,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Upper)",
@@ -23246,7 +27265,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.5
+        "risk": 0.5,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -23304,7 +27331,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.4
+        "risk": 0.4,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Right Knee",
@@ -23364,7 +27399,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.74
+        "risk": 0.74,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Elbow",
@@ -23414,7 +27457,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.72
+        "risk": 0.72,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Hips / Groin",
@@ -23455,7 +27506,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.47
+        "risk": 0.47,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Right)",
@@ -23496,7 +27555,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.35
+        "risk": 0.35,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Back Pain (Upper)",
@@ -23556,7 +27623,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Right Shoulder",
@@ -23605,7 +27680,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.95
+        "risk": 0.95,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_severe"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -23663,7 +27746,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.88
+        "risk": 0.88,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Left Arm / Shoulder",
@@ -23712,7 +27803,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.77
+        "risk": 0.77,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "pain_maximum"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Right Arm / Shoulder",
@@ -23764,7 +27863,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.85
+        "risk": 0.85,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Left Shoulder",
@@ -23805,7 +27912,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.45
+        "risk": 0.45,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Unmapped Region",
@@ -23848,7 +27963,15 @@
           "triggers": []
         },
         "level": "low",
-        "risk": 0.33
+        "risk": 0.33,
+        "tier": {
+          "category": "routine",
+          "decided_by": [
+            "score_below_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "green"
+        }
       },
       "input": {
         "body_region": "Hand / Wrist",
@@ -23908,7 +28031,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -23958,7 +28089,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.73
+        "risk": 0.73,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Right Shoulder",
@@ -24002,7 +28141,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Neck",
@@ -24054,7 +28201,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.88
+        "risk": 0.88,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Left)",
@@ -24106,7 +28261,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.83
+        "risk": 0.83,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Left Armpit",
@@ -24162,7 +28325,16 @@
           ]
         },
         "level": "high",
-        "risk": 1.0
+        "risk": 1.0,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "chest_pain_crushing",
+            "chest_pain_severe"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Chest / Heart",
@@ -24222,7 +28394,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.68
+        "risk": 0.68,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Right)",
@@ -24277,7 +28457,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.44
+        "risk": 0.44,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Left Leg",
@@ -24321,7 +28509,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.7
+        "risk": 0.7,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Leg / Knee",
@@ -24365,7 +28561,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Armpit",
@@ -24417,7 +28621,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Headache / Cranial",
@@ -24461,7 +28673,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "score_high_in_concerning_region"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Abdomen (Lower Right)",
@@ -24508,7 +28728,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Elbow",
@@ -24557,7 +28785,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.65
+        "risk": 0.65,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Left Knee",
@@ -24612,7 +28848,15 @@
           ]
         },
         "level": "medium",
-        "risk": 0.48
+        "risk": 0.48,
+        "tier": {
+          "category": "very_urgent",
+          "decided_by": [
+            "heart_rate_high"
+          ],
+          "scale": "SATS",
+          "tier": "orange"
+        }
       },
       "input": {
         "body_region": "Unmapped Region",
@@ -24674,7 +28918,15 @@
           ]
         },
         "level": "high",
-        "risk": 0.95
+        "risk": 0.95,
+        "tier": {
+          "category": "emergency",
+          "decided_by": [
+            "heart_rate_critical"
+          ],
+          "scale": "SATS",
+          "tier": "red"
+        }
       },
       "input": {
         "body_region": "Right Thigh",
@@ -24718,7 +28970,15 @@
           "triggers": []
         },
         "level": "medium",
-        "risk": 0.55
+        "risk": 0.55,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Back Pain (Lower)",
@@ -24759,7 +29019,15 @@
           "triggers": []
         },
         "level": "high",
-        "risk": 0.75
+        "risk": 0.75,
+        "tier": {
+          "category": "urgent",
+          "decided_by": [
+            "score_reaches_urgent_band"
+          ],
+          "scale": "SATS",
+          "tier": "yellow"
+        }
       },
       "input": {
         "body_region": "Shoulder Blade",

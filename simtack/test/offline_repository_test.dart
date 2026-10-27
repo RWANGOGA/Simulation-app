@@ -368,6 +368,32 @@ void main() {
       expect((await repo.getTriageReports())['closed_count'], 1);
     });
 
+    test("the clinician's own category is stored and reads back", () async {
+      // The reference standard is only usable if it survives the same round trip
+      // as the rest of the decision: written to the local row, read back on the
+      // report, and left alone by a later save that does not mention it. A tier
+      // that lived in the widget could not be compared with the tool's answer.
+      final latest = await repo.getLatestVisit(code);
+      final updated = await repo.updateTriageDecision(
+        latest.first.id,
+        clinicianTier: 'orange',
+      );
+
+      expect(updated.clinicianTier, 'orange');
+      // The tool's own category comes back derived from the row, so the two sit
+      // side by side on one report and their disagreement is visible.
+      expect(updated.tier, isNotNull);
+      expect((await repo.getLatestVisit(code)).first.clinicianTier, 'orange');
+
+      final later = await repo.updateTriageDecision(
+        latest.first.id,
+        status: 'closed',
+        clinicalNotes: 'Reviewed again on the ward.',
+      );
+      expect(later.clinicianTier, 'orange',
+          reason: 'a save that omits the category must not erase a judgement');
+    });
+
     test('a decision on an unknown session is a 404', () async {
       await expectLater(
         repo.updateTriageDecision(-999, status: 'closed'),
@@ -430,6 +456,26 @@ void main() {
       expect(db.outbox[1]['payload'], isA<Map<String, dynamic>>());
       expect(db.outbox.every((op) => op['attempts'] == 0), isTrue);
       expect(db.pendingUploadCount, 2);
+    });
+
+    test('a recorded category is queued in the shape the server accepts',
+        () async {
+      // The offline decision has to become the same PATCH the online one sends,
+      // or a tier chosen without a network is stored somewhere nobody reads.
+      final patient = await repo.createPatient(profile);
+      final triage = await repo.sendTriage(report(
+        patientId: patient.id,
+        patientCode: patient.anonymousCode,
+        visitId: newVisitId(),
+      ));
+      await repo.updateTriageDecision(triage.id, clinicianTier: 'yellow');
+
+      final db = await LocalDatabase.open();
+      final queued =
+          db.outbox.lastWhere((op) => op['kind'] == 'update_decision')
+              as Map<String, dynamic>;
+
+      expect(queued['payload'], containsPair('clinician_tier', 'yellow'));
     });
   });
 }

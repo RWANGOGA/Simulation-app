@@ -13,7 +13,7 @@ import 'support/clinical_assets.dart';
 /// answers.
 ///
 /// `test/fixtures/clinical_golden.json` is recorded from the Python services by
-/// `Backend-fastapi/scripts/export_offline_assets.py`: 425 scored reports, 30
+/// `Backend-fastapi/scripts/export_offline_assets.py`: 441 scored reports, 42
 /// retrieval queries and the raw output of the lexical normalisation, each with
 /// the answer the server produced. The app has to reproduce every one of them. If
 /// a rule, a rounding, a tie-break, a stem or a synonym edge changes on either
@@ -198,6 +198,55 @@ void main() {
         isEmpty,
         reason: '${mismatches.length} verdicts diverged:\n'
             '${mismatches.take(10).join('\n')}',
+      );
+    });
+
+    test('reproduces every recorded SATS triage category', () {
+      // Compared field by field rather than on the colour alone: a device that
+      // says `orange` where the server says `very_urgent` is one translation
+      // layer away from telling a clinician something the record does not say.
+      final engine = RiskEngine(data);
+      final cases = (golden['risk_cases'] as List).cast<Map<String, dynamic>>();
+      final mismatches = <String>[];
+      final seen = <String, int>{};
+
+      for (final recorded in cases) {
+        final input = TriageInput.fromJson(
+          recorded['input'] as Map<String, dynamic>,
+        );
+        final expected = (recorded['expected'] as Map<String, dynamic>)['tier']
+            as Map<String, dynamic>;
+        final actual =
+            engine.triageTier(input, risk: engine.compute(input).risk);
+
+        final tier = actual['tier'] as String;
+        seen[tier] = (seen[tier] ?? 0) + 1;
+
+        if (actual['tier'] != expected['tier'] ||
+            actual['scale'] != expected['scale'] ||
+            actual['category'] != expected['category'] ||
+            jsonEncode(actual['decided_by']) !=
+                jsonEncode(expected['decided_by'])) {
+          mismatches.add(
+            '${input.bodyRegion} / sev ${input.severity}: '
+            '${jsonEncode(actual)} != ${jsonEncode(expected)}',
+          );
+        }
+      }
+
+      expect(
+        mismatches,
+        isEmpty,
+        reason: '${mismatches.length} categories diverged:\n'
+            '${mismatches.take(10).join('\n')}',
+      );
+      // All four branches have to actually occur, or parity could pass on the
+      // common case while the emergency and the score anchors went untested.
+      expect(
+        seen.keys.toSet(),
+        containsAll(<String>['red', 'orange', 'yellow', 'green']),
+        reason: 'fixture tier coverage was $seen — regenerate it with '
+            'scripts/export_offline_assets.py',
       );
     });
 

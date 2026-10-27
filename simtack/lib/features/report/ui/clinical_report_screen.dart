@@ -40,6 +40,11 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
 
   // ---- Practitioner decision workflow state ----
   String _decisionStatus = 'open';
+  // The clinician's own SATS category for this visit. Kept separate from the
+  // priority text, which is a worklist instruction: the two are different
+  // judgements, and the difference between this and the tool's tier is the
+  // measurement the study is about.
+  String? _clinicianTier;
   final Set<String> _checkedActions = {};
   final TextEditingController _notesController = TextEditingController();
   bool _savingDecision = false;
@@ -127,6 +132,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
   /// outcome, so each visit is reviewed on its own terms.
   void _applyDecisionFrom(TriageResult worst) {
     _decisionStatus = worst.status;
+    _clinicianTier = worst.clinicianTier;
     _notesController.text = worst.clinicalNotes ?? '';
     _checkedActions
       ..clear()
@@ -1062,6 +1068,45 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     return 'Routine Follow-up';
   }
 
+  /// The SATS tier for the worst point of the visit, or null if nothing scored.
+  ///
+  /// `red` is the category of the single most urgent point rather than an average
+  /// of the visit: a visit with one Red and three Greens is a Red patient, which is
+  /// how a station acts on a triage category.
+  String? _toolTier() {
+    String? worstTier;
+    var worstRank = -1;
+    for (final report in _currentVisit) {
+      final tier = report.tier?.tier;
+      if (tier == null) continue;
+      final rank = TriageTier.order.indexOf(tier);
+      if (rank < 0) continue;
+      // The scale's order runs most urgent first, so the lowest index wins.
+      if (rank < worstRank || worstRank < 0) {
+        worstRank = rank;
+        worstTier = tier;
+      }
+    }
+    return worstTier;
+  }
+
+  String _tierLabel(AppLocalizations t, String tier) => switch (tier) {
+        TriageTier.red => t.satsTierRed,
+        TriageTier.orange => t.satsTierOrange,
+        TriageTier.yellow => t.satsTierYellow,
+        TriageTier.green => t.satsTierGreen,
+        _ => tier,
+      };
+
+  /// SATS colour for a tier, resolved by the theme rather than here.
+  ///
+  /// This is one of the few places a colour carries clinical meaning instead of
+  /// decoration, so the four hexes live in AppAccent, where they adapt to
+  /// brightness and are checked against WCAG by test/app_theme_test.dart. A tier
+  /// the scale does not define gets a muted slate rather than an invented hue.
+  Color _tierColor(String tier) =>
+      AppAccent.triageTier(context, tier) ?? AppPalette.textMuted(context);
+
   List<String> _recommendedActions(int rank) {
     if (rank >= 2) {
       return [
@@ -1085,6 +1130,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           status: _decisionStatus,
           priority: _suggestedPriority(
               _urgencyRank(worst.riskScore, worst.escalation)),
+          clinicianTier: _clinicianTier,
           actionsTaken: _checkedActions.toList(),
           clinicalNotes: _notesController.text,
         );
@@ -1126,6 +1172,14 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
         : rank == 1
             ? AppAccent.warning(context)
             : AppAccent.success(context);
+    // Sizes come from the theme's ramp, not from a number written here: the
+    // decision card is a new panel and the font-size ratchet in
+    // test/no_inline_colour_test.dart is capped at what already exists.
+    final ramp = Theme.of(context).textTheme;
+    final rowLabel =
+        ramp.bodyMedium?.copyWith(color: AppPalette.textPrimary(context));
+    final rowCaption =
+        ramp.bodySmall?.copyWith(color: AppPalette.textMuted(context));
 
     return Container(
       width: double.infinity,
@@ -1190,6 +1244,84 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                 ],
               ),
             ],
+            const SizedBox(height: 12),
+            // The category the tool derived, named by the rules that produced it.
+            // Above the clinician's own choice so the two are read together: this
+            // line is the suggestion, the chips below are the answer, and the gap
+            // between them is what the agreement study measures.
+            if (_toolTier() != null) ...[
+              Row(
+                children: [
+                  Icon(Icons.category_outlined,
+                      size: 18, color: AppPalette.textMuted(context)),
+                  const SizedBox(width: 8),
+                  Text(t.triageTierLabel, style: rowLabel),
+                  const Spacer(),
+                  Text(
+                    _tierLabel(t, _toolTier()!),
+                    style: ramp.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: _tierColor(_toolTier()!)),
+                  ),
+                ],
+              ),
+              // Why the tier is what it is, in the codes the clinician can dispute.
+              // English and untranslated on purpose: a rule name is a citation, and
+              // a paraphrase of "chest_pain_crushing" is not the same reason.
+              if ((worst.tier?.decidedBy ?? const <String>[]).isNotEmpty) ...[
+                const SizedBox(height: 4),
+                Text(
+                  '${t.escalationReasonsLabel}: '
+                  '${worst.tier!.decidedBy.join(', ')}',
+                  style: rowCaption,
+                ),
+              ],
+            ],
+            const SizedBox(height: 8),
+            // The reference standard, recorded in the product rather than in a
+            // notebook beside it. A visit nobody has categorised is left blank:
+            // inferring the clinician's answer from the tool's own tier would make
+            // it agree with itself, and an agreement of 1.0 measured that way would
+            // be a fiction.
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(top: 6, right: 8),
+                  child: Text(t.clinicianTierLabel, style: rowLabel),
+                ),
+                Expanded(
+                  child: Wrap(
+                    spacing: 8,
+                    children: [
+                      // Tapping a chip records that category; tapping the selected
+                      // one again does not un-record it. The PATCH has patch
+                      // semantics — `clinician_tier: null` means "leave the column
+                      // alone", exactly as the notes and the status do — so a
+                      // deselect control would silently do nothing while the chart
+                      // went on showing a tier nobody chose. A wrong tap is
+                      // corrected by tapping the right category, which is the one
+                      // thing a reference standard has to support.
+                      for (final tier in TriageTier.order)
+                        ChoiceChip(
+                          label: Text(_tierLabel(t, tier)),
+                          selected: _clinicianTier == tier,
+                          onSelected: (_) =>
+                              setState(() => _clinicianTier = tier),
+                          selectedColor: _tierColor(tier).withOpacity(0.18),
+                          checkmarkColor: _tierColor(tier),
+                          labelStyle: ramp.bodySmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: _clinicianTier == tier
+                                ? _tierColor(tier)
+                                : AppPalette.textMuted(context),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 12),
             Row(
               children: [

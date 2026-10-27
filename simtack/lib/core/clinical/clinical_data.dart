@@ -145,6 +145,12 @@ class RiskRules {
     required this.actionByLevel,
     required this.concerningChestPainTypes,
     required this.highConcernRegionKeywords,
+    required this.tierScale,
+    required this.tierOrder,
+    required this.tierCategories,
+    required this.tierOrangeScoreMin,
+    required this.tierYellowScoreMin,
+    required this.tierRuleCodes,
   });
 
   final List<RegionRule> regionRules;
@@ -180,12 +186,37 @@ class RiskRules {
   final List<String> concerningChestPainTypes;
   final List<String> highConcernRegionKeywords;
 
+  // ── Triage tier (SATS categories) ──────────────────────────────────────
+  //
+  // Every number and code below comes from the generated rule table, exactly like
+  // the scoring weights. That is deliberate: a device that hardcodes its own
+  // thresholds can hand a patient one category and the practitioner's server
+  // another, offline, with nobody beside it to notice.
+
+  /// The scale these categories come from — 'SATS'. Sent with every tier so a
+  /// reader knows which four-word vocabulary is in use.
+  final String tierScale;
+
+  /// Most urgent first. Clients draw the colour strip in this order.
+  final List<String> tierOrder;
+
+  /// tier -> the scale's own name for it, e.g. 'orange' -> 'very_urgent'.
+  final Map<String, String> tierCategories;
+
+  final double tierOrangeScoreMin;
+  final double tierYellowScoreMin;
+
+  /// The three reasons no finding can name, exported so `decided_by` is
+  /// byte-identical on both platforms and localisable by code.
+  final Map<String, String> tierRuleCodes;
+
   factory RiskRules.fromJson(Map<String, dynamic> json) {
     final heartRate = json['heart_rate'] as Map<String, dynamic>;
     final bmi = json['bmi'] as Map<String, dynamic>;
     final severity = json['severity'] as Map<String, dynamic>;
     final bands = json['bands'] as Map<String, dynamic>;
     final escalation = json['escalation'] as Map<String, dynamic>;
+    final tiers = json['tiers'] as Map<String, dynamic>;
 
     return RiskRules(
       regionRules: (json['region_rules'] as List)
@@ -226,6 +257,14 @@ class RiskRules {
           (escalation['high_concern_region_keywords'] as List)
               .map((e) => e as String)
               .toList(),
+      tierScale: tiers['scale'] as String,
+      tierOrder: (tiers['order'] as List).map((e) => e as String).toList(),
+      tierCategories: (tiers['categories'] as Map<String, dynamic>)
+          .map((key, value) => MapEntry(key, value as String)),
+      tierOrangeScoreMin: (tiers['orange_score_min'] as num).toDouble(),
+      tierYellowScoreMin: (tiers['yellow_score_min'] as num).toDouble(),
+      tierRuleCodes: (tiers['rule_codes'] as Map<String, dynamic>)
+          .map((key, value) => MapEntry(key, value as String)),
     );
   }
 }

@@ -309,6 +309,65 @@ class TriageEscalation {
   }
 }
 
+class TriageTier {
+  /// The pain point mapped onto the four SATS categories — the server's
+  /// `triage_service.triage_tier`, recomputed on every read.
+  ///
+  /// Separate from [TriageResult.riskScore] and [TriageEscalation] on purpose. The
+  /// score is how much, the escalation is whether one finding is dangerous, and
+  /// this is the category a referral carries. They can disagree, and that
+  /// disagreement is information rather than a bug: a mild crushing chest pain is a
+  /// medium score and a Red category.
+  final String tier;
+  final String scale;
+  final String category;
+  final List<String> decidedBy;
+
+  const TriageTier({
+    required this.tier,
+    this.scale = 'SATS',
+    this.category = '',
+    this.decidedBy = const [],
+  });
+
+  static const red = 'red';
+  static const orange = 'orange';
+  static const yellow = 'yellow';
+  static const green = 'green';
+
+  /// Most urgent first, matching the scale's own order.
+  static const List<String> order = [red, orange, yellow, green];
+
+  bool get isRed => tier == red;
+  bool get isOrange => tier == orange;
+
+  /// Returns null rather than throwing: an older server, or a session stored
+  /// before the category existed, must not stop a report from rendering.
+  static TriageTier? tryParse(dynamic raw) {
+    if (raw is! Map<String, dynamic>) return null;
+    final tier = raw['tier'];
+    if (tier is! String || !order.contains(tier)) return null;
+    final decidedBy = raw['decided_by'];
+    return TriageTier(
+      tier: tier,
+      scale: raw['scale'] is String ? raw['scale'] as String : '',
+      category: raw['category'] is String ? raw['category'] as String : '',
+      decidedBy: [
+        if (decidedBy is List)
+          for (final code in decidedBy)
+            if (code is String) code,
+      ],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'tier': tier,
+        'scale': scale,
+        'category': category,
+        'decided_by': decidedBy,
+      };
+}
+
 class TriageResult {
   final int id;
   final int? patientId;
@@ -326,6 +385,8 @@ class TriageResult {
   final double? riskScore;
   // Red flags, computed server-side from the clinical fields on every read.
   final TriageEscalation? escalation;
+  // The triage category, derived the same way from the same fields.
+  final TriageTier? tier;
   final String? shapExplanation;
   final String? qrPayloadHash;
   final DateTime createdAt;
@@ -347,6 +408,10 @@ class TriageResult {
   // Practitioner decision workflow (blueprint section 5).
   final String status; // 'open' until reviewed, then 'closed'
   final String? priority;
+  // The clinician's own SATS category, on the same scale as [tier]. This is the
+  // reference standard: without it there is no way to say whether the tool agrees
+  // with a clinician from anything the product recorded.
+  final String? clinicianTier;
   final List<String> actionsTaken;
   final String? clinicalNotes;
   final Map<String, String>? questionAnswers;
@@ -367,6 +432,7 @@ class TriageResult {
     this.visitId,
     this.riskScore,
     this.escalation,
+    this.tier,
     this.shapExplanation,
     this.qrPayloadHash,
     required this.createdAt,
@@ -383,6 +449,7 @@ class TriageResult {
     this.patientHospitalName,
     this.status = 'open',
     this.priority,
+    this.clinicianTier,
     this.actionsTaken = const [],
     this.clinicalNotes,
     this.questionAnswers,
@@ -418,6 +485,7 @@ class TriageResult {
       visitId: json['visit_id'] as String?,
       riskScore: (json['risk_score'] as num?)?.toDouble(),
       escalation: TriageEscalation.tryParse(json['escalation']),
+      tier: TriageTier.tryParse(json['tier']),
       shapExplanation: json['shap_explanation'] as String?,
       qrPayloadHash: json['qr_payload_hash'] as String?,
       createdAt: DateTime.parse(json['created_at'] as String),
@@ -434,6 +502,7 @@ class TriageResult {
       patientHospitalName: json['patient_hospital_name'] as String?,
       status: (json['status'] as String?) ?? 'open',
       priority: json['priority'] as String?,
+      clinicianTier: json['clinician_tier'] as String?,
       actionsTaken: _parseActionsTaken(json['actions_taken']),
       clinicalNotes: json['clinical_notes'] as String?,
       questionAnswers: (json['question_answers'] as Map<String, dynamic>?)
@@ -950,13 +1019,14 @@ class ApiClient {
     return List<Map<String, dynamic>>.from(jsonDecode(response.body));
   }
 
-  /// Practitioner review workflow: saves the decision (status, priority,
-  /// ticked actions, notes) on one triage session. Doctor-only endpoint —
-  /// must carry the JWT.
+  /// Practitioner review workflow: saves the decision (status, priority, the
+  /// clinician's own SATS category, ticked actions, notes) on one triage session.
+  /// Doctor-only endpoint — must carry the JWT.
   static Future<TriageResult> updateTriageDecision(
     int sessionId, {
     String? status,
     String? priority,
+    String? clinicianTier,
     List<String>? actionsTaken,
     String? clinicalNotes,
   }) async {
@@ -967,6 +1037,7 @@ class ApiClient {
       body: jsonEncode({
         if (status != null) 'status': status,
         if (priority != null) 'priority': priority,
+        if (clinicianTier != null) 'clinician_tier': clinicianTier,
         if (actionsTaken != null) 'actions_taken': actionsTaken,
         if (clinicalNotes != null) 'clinical_notes': clinicalNotes,
       }),

@@ -163,6 +163,10 @@ class OfflineRepository {
             jsonEncode([for (final c in assessment.contributions) c.toJson()]),
         'status': 'open',
         'priority': null,
+        // The clinician's own category, filled in by the review. Null until a
+        // human answers: inventing one from the tool's tier would destroy the very
+        // comparison the field exists to make.
+        'clinician_tier': null,
         'actions_taken': const <String>[],
         'clinical_notes': null,
         'question_answers': report.questionAnswers,
@@ -383,6 +387,7 @@ class OfflineRepository {
     int sessionId, {
     String? status,
     String? priority,
+    String? clinicianTier,
     List<String>? actionsTaken,
     String? clinicalNotes,
   }) async {
@@ -397,6 +402,7 @@ class OfflineRepository {
       }
       if (status != null) session['status'] = status;
       if (priority != null) session['priority'] = priority;
+      if (clinicianTier != null) session['clinician_tier'] = clinicianTier;
       if (actionsTaken != null) session['actions_taken'] = actionsTaken;
       if (clinicalNotes != null) session['clinical_notes'] = clinicalNotes;
 
@@ -408,6 +414,7 @@ class OfflineRepository {
         'payload': {
           if (status != null) 'status': status,
           if (priority != null) 'priority': priority,
+          if (clinicianTier != null) 'clinician_tier': clinicianTier,
           if (actionsTaken != null) 'actions_taken': actionsTaken,
           if (clinicalNotes != null) 'clinical_notes': clinicalNotes,
         },
@@ -547,10 +554,17 @@ class OfflineRepository {
       'risk_score': session['risk_score'],
       'shap_explanation': session['shap_explanation'],
       'escalation': _engine.escalation(input),
+      // Derived on every read, like the server: the category follows the current
+      // rules and never becomes a stored value that a rule change would strand.
+      'tier': _engine.triageTier(
+        input,
+        risk: (session['risk_score'] as num?)?.toDouble() ?? 0.0,
+      ),
       'qr_payload_hash': session['qr_payload_hash'],
       'created_at': session['created_at'],
       'status': (session['status'] as String?) ?? 'open',
       'priority': session['priority'],
+      'clinician_tier': session['clinician_tier'],
       'actions_taken': session['actions_taken'] ?? const <String>[],
       'clinical_notes': session['clinical_notes'],
       'question_answers': session['question_answers'],

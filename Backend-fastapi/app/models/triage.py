@@ -25,6 +25,11 @@ class TriageSession(Base):
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     status = Column(String, nullable=False, default="open", index=True)
     priority = Column(String, nullable=True)
+    # The practitioner's own triage category, on the same scale as the tool's
+    # derived tier (see triage_service.triage_tier). Stored, not derived, because
+    # it is a human judgement: nothing may recompute it when a rule changes, and
+    # without it the system holds no reference standard to agree or disagree with.
+    clinician_tier = Column(String, nullable=True)
     actions_taken = Column(Text, nullable=True)
     clinical_notes = Column(Text, nullable=True)
     question_answers = Column(JSONB, nullable=True)

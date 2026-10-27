@@ -244,7 +244,11 @@ class RiskEngine {
       _rules.defaultPainTypeWeight;
 
   double _heartRateContribution(double? heartRate) {
-    if (heartRate == null) return 0.0;
+    // `== 0` as well as null: a zero rate is "no measurement", not bradycardia.
+    // Mirrors `_heart_rate_contribution` on the server, which made the same change
+    // after a regenerated fixture showed the score adding the critical bump for 0
+    // bpm while the tier refused to treat it as critical.
+    if (heartRate == null || heartRate == 0) return 0.0;
     final rules = _rules;
     if (heartRate > rules.heartRateCriticalAbove ||
         heartRate < rules.heartRateCriticalBelow) {
@@ -322,6 +326,37 @@ class RiskEngine {
   /// that fired so a clinician can audit the verdict.
   Map<String, dynamic> escalation(TriageInput input) {
     final rules = _rules;
+    final findings = _redFlags(input);
+
+    // Emergencies first, each group keeping the order the rules fired in.
+    final ordered = [
+      ...findings.where((f) => f.level == rules.emergencyLevel),
+      ...findings.where((f) => f.level != rules.emergencyLevel),
+    ];
+
+    var level = rules.routineLevel;
+    if (findings.any((f) => f.level == rules.emergencyLevel)) {
+      level = rules.emergencyLevel;
+    } else if (findings.isNotEmpty) {
+      level = rules.urgentLevel;
+    }
+
+    return {
+      'level': level,
+      'action': rules.actionByLevel[level] ?? '',
+      'triggers': [
+        for (final finding in ordered)
+          {'code': finding.code, 'detail': finding.detail},
+      ],
+    };
+  }
+
+  /// Every red flag on [input], in fire order, keeping which level each one is.
+  ///
+  /// Shared by [escalation] and [triageTier] so the two cannot disagree about what
+  /// counts as an emergency — the port of `triage_service._red_flags`.
+  List<_Finding> _redFlags(TriageInput input) {
+    final rules = _rules;
     final region = input.bodyRegion.trim().toLowerCase();
     final painType = input.painType.trim().toLowerCase();
     final direction = (input.direction ?? '').trim().toLowerCase();
@@ -376,7 +411,7 @@ class RiskEngine {
     }
 
     if (severity >= 10) {
-      if (rules.highConcernRegionKeywords.any(region.contains)) {
+      if (_isHighConcernRegion(region)) {
         findings.add(_Finding(
           rules.emergencyLevel,
           'pain_maximum_high_concern_region',
@@ -397,26 +432,72 @@ class RiskEngine {
       ));
     }
 
-    // Emergencies first, each group keeping the order the rules fired in.
-    final ordered = [
-      ...findings.where((f) => f.level == rules.emergencyLevel),
-      ...findings.where((f) => f.level != rules.emergencyLevel),
-    ];
+    return findings;
+  }
 
-    var level = rules.routineLevel;
-    if (findings.any((f) => f.level == rules.emergencyLevel)) {
-      level = rules.emergencyLevel;
-    } else if (findings.isNotEmpty) {
-      level = rules.urgentLevel;
+  bool _isHighConcernRegion(String region) =>
+      _rules.highConcernRegionKeywords.any(region.contains);
+
+  bool _heartRateIsCritical(double? heartRate) {
+    if (heartRate == null || heartRate == 0) return false;
+    return heartRate > _rules.heartRateCriticalAbove ||
+        heartRate < _rules.heartRateCriticalBelow;
+  }
+
+  /// The SATS category for one pain point — port of `triage_service.triage_tier`.
+  ///
+  /// Rules first, score second: an emergency finding is Red whatever the total
+  /// says, and only when nothing has fired does the number get a vote. [risk] is
+  /// the score as computed for this point (the server reads the stored
+  /// `risk_score`, which includes the sibling and BMI factors a single row does not
+  /// carry), so a device and the server agree on the category as well as the number.
+  Map<String, dynamic> triageTier(TriageInput input, {required double risk}) {
+    final rules = _rules;
+    // The verdict is recomputed here rather than accepted from a payload: an
+    // escalation dict from an older server would carry the older rules, and the
+    // tier would then disagree with the score beside it.
+    final findings = _redFlags(input);
+    final emergency = findings
+        .where((f) => f.level == rules.emergencyLevel)
+        .map((f) => f.code)
+        .toList();
+    final urgent = findings
+        .where((f) => f.level == rules.urgentLevel)
+        .map((f) => f.code)
+        .toList();
+    final region = input.bodyRegion.trim().toLowerCase();
+    final criticalRate = _heartRateIsCritical(input.heartRate);
+    final scoreConcerningRegion =
+        risk >= rules.tierOrangeScoreMin && _isHighConcernRegion(region);
+
+    final codes = <String>[];
+    final String tier;
+    if (emergency.isNotEmpty || criticalRate) {
+      tier = 'red';
+      codes.addAll(emergency);
+      if (criticalRate &&
+          !codes.contains(rules.tierRuleCodes['heart_rate_critical']!)) {
+        codes.add(rules.tierRuleCodes['heart_rate_critical']!);
+      }
+    } else if (urgent.isNotEmpty || scoreConcerningRegion) {
+      tier = 'orange';
+      codes.addAll(urgent);
+      if (scoreConcerningRegion) {
+        codes.add(rules.tierRuleCodes['score_concerning_region']!);
+      }
+    } else if (risk >= rules.tierYellowScoreMin) {
+      tier = 'yellow';
+      codes.add(rules.tierRuleCodes['score_urgent_band']!);
+    } else {
+      tier = 'green';
+      codes.add(rules.tierRuleCodes['score_below_urgent_band']!);
     }
 
     return {
-      'level': level,
-      'action': rules.actionByLevel[level] ?? '',
-      'triggers': [
-        for (final finding in ordered)
-          {'code': finding.code, 'detail': finding.detail},
-      ],
+      'tier': tier,
+      'scale': rules.tierScale,
+      'category': rules.tierCategories[tier] ?? '',
+      'decided_by': codes,
     };
   }
 

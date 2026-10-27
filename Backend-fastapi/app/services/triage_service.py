@@ -48,7 +48,15 @@ def _pain_type_weight(pain_type: Optional[str]) -> float:
     return PAIN_TYPE_WEIGHTS.get((pain_type or "").strip().lower(), 0.05)
 
 def _heart_rate_contribution(heart_rate: Optional[float]) -> float:
-    if heart_rate is None:
+    # `not heart_rate` rather than `is None`, so a 0 is treated as "no
+    # measurement" here exactly as `_heart_rate_is_critical` and the red-flag
+    # rules treat it. A regenerated fixture made the contradiction visible: the
+    # old version read 0 bpm as profound bradycardia and added the critical bump to
+    # the score while the tier refused to call it an emergency. Two answers to the
+    # same question in the same record is what the paper cannot defend, and Unit 4
+    # is about to put a real camera number in this field — where a failed capture
+    # reported as 0 must change nothing at all.
+    if not heart_rate:
         return 0.0
     if heart_rate > 120 or heart_rate < 50:
         return 0.15
@@ -197,6 +205,12 @@ ACTION_SEEK_EMERGENCY_CARE = "seek_emergency_care"
 ACTION_SEEK_URGENT_CARE = "seek_urgent_care"
 ACTION_ROUTINE_REVIEW = "routine_review"
 
+# Vital-sign floor, shared by the red-flag rules and the tier below them. Named
+# constants rather than six literals, because Unit 5's sensitivity analysis has to
+# perturb "what heart rate counts as critical" in one place and see the tier flip.
+HEART_RATE_CRITICAL_ABOVE = 120.0
+HEART_RATE_CRITICAL_BELOW = 50.0
+
 _ACTION_BY_LEVEL = {
     ESCALATION_EMERGENCY: ACTION_SEEK_EMERGENCY_CARE,
     ESCALATION_URGENT: ACTION_SEEK_URGENT_CARE,
@@ -215,18 +229,26 @@ def _is_high_concern_region(region: str) -> bool:
     return any(word in region for word in _HIGH_CONCERN_REGION_KEYWORDS)
 
 
-def escalation_for(source: Any) -> Dict[str, Any]:
-    """Red-flag screen for one pain point.
+def _heart_rate_is_critical(heart_rate: Optional[float]) -> bool:
+    """True for a rate outside 50-120 bpm.
 
-    ``source`` is a `TriageSession` row or a `TriageCreate` payload - both carry
-    the same clinical columns, so the rules apply identically on write and on
-    every read. Computing on read is deliberate: a stored row is judged by the
-    current rules rather than by whatever was computed when it was submitted,
-    and no migration is needed to add or correct a rule.
+    ``0`` is read as "no measurement" and not as profound bradycardia, which is
+    what the escalation rules already assume. That matters from Unit 4 onward:
+    a camera pipeline that fails must send null, and a tier that called a failed
+    measurement an emergency would be worse than no measurement at all.
+    """
+    if not heart_rate:
+        return False
+    rate = float(heart_rate)
+    return rate > HEART_RATE_CRITICAL_ABOVE or rate < HEART_RATE_CRITICAL_BELOW
 
-    Returns ``{"level", "action", "triggers"}`` where each trigger is
-    ``{"code", "detail"}``: the code is stable for clients to localise (or
-    count), the detail is English for logs and API consumers.
+
+def _red_flags(source: Any) -> List[Tuple[str, str, str]]:
+    """Every red flag on [source] as ``(level, code, detail)``, in fire order.
+
+    Shared by `escalation_for` and `triage_tier` so the two cannot disagree about
+    which finding is an emergency and which is urgent. Ranking and formatting are
+    the callers' business; this is the only place the rules live.
     """
     region = (getattr(source, "body_region", None) or "").strip().lower()
     pain_type = (getattr(source, "pain_type", None) or "").strip().lower()
@@ -237,7 +259,6 @@ def escalation_for(source: Any) -> Dict[str, Any]:
     is_chest = "chest" in region or "heart" in region
     is_head = "head" in region or "cranial" in region
 
-    # (level, code, detail) - collected first, ranked afterwards.
     findings: List[Tuple[str, str, str]] = []
 
     if is_chest:
@@ -262,7 +283,7 @@ def escalation_for(source: Any) -> Dict[str, Any]:
 
     if heart_rate:
         rate = float(heart_rate)
-        if rate > 120 or rate < 50:
+        if rate > HEART_RATE_CRITICAL_ABOVE or rate < HEART_RATE_CRITICAL_BELOW:
             findings.append((
                 ESCALATION_EMERGENCY,
                 "heart_rate_critical",
@@ -291,6 +312,24 @@ def escalation_for(source: Any) -> Dict[str, Any]:
             f"Head pain rated {severity}/10",
         ))
 
+    return findings
+
+
+def escalation_for(source: Any) -> Dict[str, Any]:
+    """Red-flag screen for one pain point.
+
+    ``source`` is a `TriageSession` row or a `TriageCreate` payload - both carry
+    the same clinical columns, so the rules apply identically on write and on
+    every read. Computing on read is deliberate: a stored row is judged by the
+    current rules rather than by whatever was computed when it was submitted,
+    and no migration is needed to add or correct a rule.
+
+    Returns ``{"level", "action", "triggers"}`` where each trigger is
+    ``{"code", "detail"}``: the code is stable for clients to localise (or
+    count), the detail is English for logs and API consumers.
+    """
+    findings = _red_flags(source)
+
     # Emergencies first, then urgences, each in the order the rules fired.
     findings.sort(key=lambda finding: 0 if finding[0] == ESCALATION_EMERGENCY else 1)
 
@@ -306,5 +345,126 @@ def escalation_for(source: Any) -> Dict[str, Any]:
         "triggers": [
             {"code": code, "detail": detail} for _, code, detail in findings
         ],
+    }
+
+
+# ── Triage tier (SATS categories) ─────────────────────────────────────────
+#
+# What this adds over the two level sets above, and why neither of them was it:
+#
+#   * `risk_level` bands a clamped score. It is arithmetic dressed as a clinical
+#     category: 0.7 is "high" only because the weights happen to reach it there.
+#   * `escalation_for` answers "does one finding need care now" in three levels
+#     with no category a referral letter could carry.
+#
+# Neither could be compared against a clinician's judgement, which is the whole
+# point of the evaluation this system is missing, so both stay as they are for
+# historical rows and this maps the same findings onto a published four-category
+# scale.
+#
+# HONESTY BOUNDARY. SATS (Gosling et al., Emergency Medicine Journal 2006) decides
+# a category from vital signs, pain, mechanism of injury and available resources.
+# This function borrows the scale's four categories and their colour names and
+# decides them from what one pain point actually carries: region, character,
+# severity, direction, a heart rate where one exists, and the score. It is
+# SATS-shaped, not the SATS algorithm, so it may be described as "mapped to SATS
+# categories" and never as "validated". The only evidence that could support
+# agreement is the clinician-versus-tool kappa over the vignette set, which
+# records the answer beside these tiers as `clinician_tier`.
+
+TRIAGE_SCALE = "SATS"
+
+TIER_RED = "red"
+TIER_ORANGE = "orange"
+TIER_YELLOW = "yellow"
+TIER_GREEN = "green"
+
+# Most urgent first: the scale's own ordering, which clients draw as a colour
+# strip and Unit 5 uses as the ordinal axis for weighted kappa.
+TIERS: Tuple[str, ...] = (TIER_RED, TIER_ORANGE, TIER_YELLOW, TIER_GREEN)
+
+TIER_CATEGORIES: Dict[str, str] = {
+    TIER_RED: "emergency",
+    TIER_ORANGE: "very_urgent",
+    TIER_YELLOW: "urgent",
+    TIER_GREEN: "routine",
+}
+
+# Where the score is allowed to decide the category. These equal the legacy bands
+# today and are still stored separately on purpose: `bands` describes the number,
+# these describe how much weight the number gets, and the sensitivity analysis has
+# to move one without re-banding every historical triage.
+TIER_ORANGE_SCORE_MIN = 0.70
+TIER_YELLOW_SCORE_MIN = 0.40
+
+# Codes for the two decisions no finding can name. `decided_by` is then complete
+# for every tier: red and orange always cite findings, yellow and green cite the
+# band they came from, so an audit can always say why a patient was seated where
+# they were seated.
+TIER_RULE_SCORE_CONCERNING_REGION = "score_high_in_concerning_region"
+TIER_RULE_SCORE_URGENT_BAND = "score_reaches_urgent_band"
+TIER_RULE_SCORE_BELOW_URGENT_BAND = "score_below_urgent_band"
+
+# Which tiers a persisted legacy band can correspond to. One-to-many, and
+# deliberately documented as such rather than smoothed into a function: a `high`
+# score with no red flag and an ordinary region is Yellow, while a `low` score and
+# a crushing chest pain is Red. Reading the band as the tier would have been the
+# claim that the score decides the category, which is exactly what the red-flag
+# screen exists to contradict.
+LEGACY_BAND_TIERS: Dict[str, Tuple[str, ...]] = {
+    "high": (TIER_RED, TIER_ORANGE, TIER_YELLOW),
+    "medium": (TIER_RED, TIER_ORANGE, TIER_YELLOW),
+    "low": (TIER_RED, TIER_ORANGE, TIER_GREEN),
+}
+
+
+def triage_tier(source: Any, risk: Optional[float]) -> Dict[str, Any]:
+    """The SATS category for one pain point, decided beside the score.
+
+    Rules first, score second - the order a triage nurse uses. An emergency
+    finding is Red whatever the total says, and a calm-looking total never
+    softens a red flag. Only when nothing has fired does the number get a vote,
+    and then it votes for at most Orange-on-a-concerning-region, Yellow, Green.
+
+    Never reads or writes anything outside its own return value: a tier is derived
+    on every read exactly like the escalation verdict, so changing a threshold here
+    cannot mutate a stored `risk_score` (pinned by tests/test_triage_tier.py).
+    """
+    flags = _red_flags(source)
+    emergency = [code for level, code, _ in flags if level == ESCALATION_EMERGENCY]
+    urgent = [code for level, code, _ in flags if level == ESCALATION_URGENT]
+
+    score = float(risk) if risk is not None else 0.0
+    region = (getattr(source, "body_region", None) or "").strip().lower()
+    heart_rate = getattr(source, "heart_rate", None)
+
+    codes: List[str]
+    tier: str
+    if emergency or _heart_rate_is_critical(heart_rate):
+        tier = TIER_RED
+        codes = list(emergency)
+        # The vital-sign floor is checked again here on purpose. It coincides with
+        # the `heart_rate_critical` flag today because both read the same two
+        # constants; keeping it visible is what stops a future edit to the
+        # red-flag screen from quietly demoting an abnormal heart rate.
+        if _heart_rate_is_critical(heart_rate) and "heart_rate_critical" not in codes:
+            codes.append("heart_rate_critical")
+    elif urgent or (score >= TIER_ORANGE_SCORE_MIN and _is_high_concern_region(region)):
+        tier = TIER_ORANGE
+        codes = list(urgent)
+        if score >= TIER_ORANGE_SCORE_MIN and _is_high_concern_region(region):
+            codes.append(TIER_RULE_SCORE_CONCERNING_REGION)
+    elif score >= TIER_YELLOW_SCORE_MIN:
+        tier = TIER_YELLOW
+        codes = [TIER_RULE_SCORE_URGENT_BAND]
+    else:
+        tier = TIER_GREEN
+        codes = [TIER_RULE_SCORE_BELOW_URGENT_BAND]
+
+    return {
+        "tier": tier,
+        "scale": TRIAGE_SCALE,
+        "category": TIER_CATEGORIES[tier],
+        "decided_by": codes,
     }
 

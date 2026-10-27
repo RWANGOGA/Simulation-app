@@ -120,5 +120,28 @@
     "max": 10,
     "weight": 0.5
   },
+  "tiers": {
+    "categories": {
+      "green": "routine",
+      "orange": "very_urgent",
+      "red": "emergency",
+      "yellow": "urgent"
+    },
+    "orange_score_min": 0.7,
+    "order": [
+      "red",
+      "orange",
+      "yellow",
+      "green"
+    ],
+    "rule_codes": {
+      "heart_rate_critical": "heart_rate_critical",
+      "score_below_urgent_band": "score_below_urgent_band",
+      "score_concerning_region": "score_high_in_concerning_region",
+      "score_urgent_band": "score_reaches_urgent_band"
+    },
+    "scale": "SATS",
+    "yellow_score_min": 0.4
+  },
   "version": 1
 }

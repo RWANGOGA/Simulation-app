@@ -113,6 +113,33 @@ void main() {
       }
     });
 
+    test('the four SATS tier colours clear AA in both brightnesses', () {
+      // The tier hue is the clinical answer rather than decoration: a triage
+      // officer reads "red" across a room, and the practitioner console is
+      // brightness-aware, so the dark mode has to carry the same category. Each
+      // shade is checked rather than assumed, the same way the accents above are.
+      for (final tier in const ['red', 'orange', 'yellow', 'green']) {
+        for (final brightness in Brightness.values) {
+          final tierColour = AppAccent.triageTierOn(brightness, tier);
+          expect(tierColour, isNotNull, reason: '$tier is a defined category');
+          final surface =
+              brightness == Brightness.dark ? darkSurface : lightSurface;
+          final ratio = _ratio(tierColour!, surface);
+
+          expect(ratio, greaterThanOrEqualTo(_bodyText),
+              reason: '$tier is ${ratio.toStringAsFixed(2)}:1 on the '
+                  '$brightness surface, below the AA body-text bar of 4.5. A '
+                  'triage category that cannot be read is a category that gets '
+                  'misread.');
+        }
+      }
+
+      // The four categories are all the scale defines. Anything else must resolve
+      // to no colour at all rather than to the nearest hue, so a payload from an
+      // older backend cannot present an invented category as a clinical finding.
+      expect(AppAccent.triageTierOn(Brightness.light, 'black'), isNull);
+    });
+
     test('non-text accents clear AA for indicators, not for text', () {
       expect(_ratio(AppAccent.fieldErrorOn(Brightness.light), lightSurface),
           greaterThanOrEqualTo(_nonText));

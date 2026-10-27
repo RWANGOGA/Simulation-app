@@ -1,2 +1,8 @@
 from .patient import PatientBase, PatientCreate, PatientResponse, PublicPatientResponse
-from .triage import TriageCreate, TriageResponse, TriageDecisionUpdate
+from .triage import (
+    TriageCreate,
+    TriageEscalation,
+    TriageResponse,
+    TriageTier,
+    TriageDecisionUpdate,
+)

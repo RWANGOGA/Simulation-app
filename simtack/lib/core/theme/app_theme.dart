@@ -9,6 +9,13 @@ class AppTheme {
     headlineLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
     titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
     bodyLarge: TextStyle(fontSize: 16),
+    // Named rather than inherited from the Material defaults, because screens are
+    // about to stop writing `fontSize: 14` and `fontSize: 12` inline. Material 3
+    // already uses these two values, so pinning them here changes nothing on
+    // screen; it makes the two sizes a decision the theme owns instead of a
+    // coincidence of the framework's ramp.
+    bodyMedium: TextStyle(fontSize: 14),
+    bodySmall: TextStyle(fontSize: 12),
   );
 
   static ThemeData get lightTheme => _build(Brightness.light);
