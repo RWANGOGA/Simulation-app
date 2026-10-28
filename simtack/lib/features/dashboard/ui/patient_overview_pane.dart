@@ -414,6 +414,16 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
 
   Widget _bodyMapCard() {
     final t = AppLocalizations.of(context)!;
+    // The figure used to be `human_body_male.glb` unconditionally, so a female
+    // patient was shown a male body. Both models ship, and the gender is on
+    // every session the server returns, so there is no reason to guess.
+    // Sessions arrive newest-first, so the first one carrying a gender wins.
+    final gender = _sessions
+        .map((s) => s.patientGender)
+        .firstWhere((g) => g != null && g.isNotEmpty, orElse: () => null);
+    final model = (gender ?? '').toLowerCase().startsWith('f')
+        ? 'human_body_female.glb'
+        : 'human_body_male.glb';
     return GhBox(
       header: t.bodyMapTitle,
       child: Column(
@@ -429,9 +439,8 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                     children: [
                       Positioned.fill(
                         child: ModelViewer(
-                          src: kIsWeb
-                              ? 'models/human_body_male.glb'
-                              : 'assets/models/human_body_male.glb',
+                          src:
+                              kIsWeb ? 'models/$model' : 'assets/models/$model',
                           alt: 'Front-view body map — read only',
                           ar: false,
                           autoRotate: false,

@@ -10,7 +10,19 @@ import 'web_interop.dart';
 /// needs to be unique within one call to [Anatomy3DTapView]; the list is
 /// fully resynced on every change rather than diffed incrementally, so an
 /// id being reused across two different calls is harmless.
-typedef PainMarker = ({String id, double? x, double? y, double? z});
+///
+/// [viewKey] names the flat-view angle a point was marked on, or null for a
+/// point that came from the 3D viewer or the manual picker. It is ignored here
+/// — the 3D viewer only draws points carrying real hit coordinates — and is
+/// what lets the flat renderer decide which of its four images a dot belongs
+/// on, instead of stamping every point onto all four.
+typedef PainMarker = ({
+  String id,
+  double? x,
+  double? y,
+  double? z,
+  String? viewKey,
+});
 
 /// Real interactive 3D body-part tapping, backed by BodyParts3D geometry
 /// (see assets/anatomy3d/ATTRIBUTION.md for data sourcing/license) rendered

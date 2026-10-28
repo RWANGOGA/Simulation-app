@@ -10,7 +10,8 @@ import 'package:simtack/core/theme/app_palette.dart';
 import 'package:simtack/core/theme/app_page.dart';
 import 'package:flutter/services.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
-import 'anatomy_3d_tap_view.dart';
+import 'anatomy_view.dart';
+import 'anatomy_view_mode.dart';
 import 'pain_details_screen.dart';
 import 'pain_point.dart';
 import 'web_interop.dart';
@@ -147,6 +148,12 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
   // before opening and decrements it once it closes.
   int _openOverlayCount = 0;
 
+  // Which renderer the body is drawn with. Starts at `auto` (3D where the
+  // platform can host it, the flat image everywhere else) and is replaced by
+  // the stored preference once that has been read, so the very first frame
+  // always has a working renderer rather than a blank box.
+  AnatomyViewMode _viewMode = AnatomyViewMode.auto;
+
   // One in-flight AI request per region. Keyed by region label so
   // re-tapping the same region (toggle-off then on) does not re-fetch
   // when an answer is already loading.
@@ -156,30 +163,68 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
   final Map<String, Map<String, String>> _questionAnswers = {};
 
   @override
+  void initState() {
+    super.initState();
+    AnatomyViewModeStore.load().then((mode) {
+      if (!mounted) return;
+      setState(() => _viewMode = mode);
+    });
+  }
+
+  @override
   void dispose() {
     _tapLabelTimer?.cancel();
     super.dispose();
   }
 
-  /// Called by [Anatomy3DTapView], which already resolves a tap all the way
-  /// down to one of the backend's 14 fixed KB region strings itself (see
-  /// assets/anatomy3d/region-map.js) — no further mapping needed here,
-  /// unlike the old 2D system this replaced. `tap.partName` is the precise
-  /// structure tapped; `tap.hitX/hitY/hitZ` is the real 3D point on the
-  /// body, stored on the PainPoint so a marker can be drawn as an actual
-  /// object in the 3D scene (rotates correctly with the body) instead of a
-  /// flat overlay that only lined up at the camera angle from the moment
-  /// of the tap. Adds (or, on a repeat tap of the same spot, removes) the
-  /// location immediately and fires its AI insight request — no
-  /// confirmation step in between; a brief label naming the tapped
-  /// structure shows right at the tap point instead.
-  void _handleBodyPartReceived(BodyPartTap tap) {
+  /// Applies a renderer choice and remembers it, so a patient who prefers the
+  /// flat view — or whose device struggles with the 3D one — does not have to
+  /// pick it again on every visit.
+  void _setViewMode(AnatomyViewMode mode) {
+    if (mode == _viewMode) return;
+    setState(() => _viewMode = mode);
+    AnatomyViewModeStore.save(mode);
+  }
+
+  /// Only the flat renderer reports misses (the 3D viewer swallows its own),
+  /// and a miss is the one case where the patient tapped the body and nothing
+  /// happened, so it has to say why.
+  void _showMiss(String message) {
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    if (messenger == null) return;
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(
+        content: Text(message),
+        duration: const Duration(seconds: 2),
+      ));
+  }
+
+  /// Called by [AnatomyView], which hands over a tap already resolved to one
+  /// of the region strings `body_graph.json` is keyed on — the 3D viewer does
+  /// that in `region-map.js`, and the flat renderer's seven coarse ID-map
+  /// labels are translated by [backendRegionFor2D] before reaching here, so
+  /// nothing downstream has to care which renderer produced the tap.
+  ///
+  /// [flatViewKey] is the flat angle the tap came from, or null for the 3D
+  /// viewer. It is stored on the point because a fraction of the front image
+  /// and the same fraction of the back image are different places on a body.
+  ///
+  /// `tap.partName` is the precise structure tapped; `tap.hitX/hitY/hitZ` is
+  /// the real 3D point on the body, stored on the PainPoint so a marker can be
+  /// drawn as an actual object in the 3D scene (rotates correctly with the
+  /// body) instead of a flat overlay that only lined up at the camera angle
+  /// from the moment of the tap. Adds (or, on a repeat tap of the same spot,
+  /// removes) the location immediately and fires its AI insight request — no
+  /// confirmation step in between; a brief label naming the tapped structure
+  /// shows right at the tap point instead.
+  void _handleBodyPartReceived(BodyPartTap tap, String? flatViewKey) {
     final region = tap.part;
     final x = tap.x ?? 0.5;
     final y = tap.y ?? 0.5;
     if (!kReleaseMode) {
       debugPrint(
-          'BodyMap: received tap -> region=$region partName=${tap.partName} x=$x y=$y hit=(${tap.hitX},${tap.hitY},${tap.hitZ})');
+          'BodyMap: received tap -> region=$region partName=${tap.partName} x=$x y=$y view=$flatViewKey hit=(${tap.hitX},${tap.hitY},${tap.hitZ})');
     }
     _addOrRemovePainPoint(
       region: region,
@@ -188,6 +233,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
       hitX: tap.hitX,
       hitY: tap.hitY,
       hitZ: tap.hitZ,
+      viewKey: flatViewKey,
     );
     _requestAnatomyInsight(region);
 
@@ -219,13 +265,21 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
     double? hitX,
     double? hitY,
     double? hitZ,
+    String? viewKey,
     String? symptomDescription,
     List<String>? tags,
   }) {
     final tapX = x ?? 0.5;
     final tapY = y ?? 0.5;
 
-    final existingIndex = _painPoints.indexWhere((p) => p.isNearby(tapX, tapY));
+    // The viewKey has to be part of "the same spot" as well as the distance:
+    // the same fraction on the front image and on the back image are opposite
+    // sides of the patient. Without this, tapping the chest in the front view
+    // and then the back view at a similar height would silently remove the
+    // first point instead of adding the second.
+    final existingIndex = _painPoints.indexWhere(
+      (p) => p.viewKey == viewKey && p.isNearby(tapX, tapY),
+    );
 
     HapticFeedback.mediumImpact();
     setState(() {
@@ -236,6 +290,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
           region: region,
           x: tapX,
           y: tapY,
+          viewKey: viewKey,
           hitX: hitX,
           hitY: hitY,
           hitZ: hitZ,
@@ -379,17 +434,24 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                             Positioned.fill(
                               child: IgnorePointer(
                                 ignoring: _openOverlayCount > 0,
-                                child: Anatomy3DTapView(
+                                child: AnatomyView(
                                   gender: widget.gender,
+                                  mode: _viewMode,
+                                  onModeChanged: _setViewMode,
                                   onRegionTapped: _handleBodyPartReceived,
-                                  // Real 3D markers, drawn inside the scene
-                                  // itself (see viewer.js's setMarkers) so
-                                  // they stay correctly attached to the body
-                                  // through any rotation — points added via
-                                  // the manual picker have no 3D hit
-                                  // (hitX/Y/Z null) and are simply skipped by
-                                  // the viewer rather than drawn at a wrong
-                                  // spot.
+                                  onMiss: _showMiss,
+                                  tapLabel:
+                                      _viewMode.renders3D() ? null : _tapLabel,
+                                  // Markers in either coordinate system; the
+                                  // renderer draws the ones it can place. The
+                                  // 3D viewer draws points carrying real hit
+                                  // coordinates inside the scene itself (see
+                                  // viewer.js's setMarkers) so they stay
+                                  // attached through rotation; the flat view
+                                  // draws points carrying a matching viewKey.
+                                  // A point from the manual picker has neither
+                                  // and is simply skipped by both rather than
+                                  // drawn at a guessed spot.
                                   markers: [
                                     for (var i = 0; i < _painPoints.length; i++)
                                       (
@@ -397,6 +459,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                                         x: _painPoints[i].hitX,
                                         y: _painPoints[i].hitY,
                                         z: _painPoints[i].hitZ,
+                                        viewKey: _painPoints[i].viewKey,
                                       ),
                                   ],
                                 ),
@@ -455,7 +518,12 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                             // the tap point, then fades — the replacement
                             // for the old confirmation modal's "Detected:
                             // ..." line, without stopping to ask anything.
-                            if (_tapLabel != null)
+                            // The flat renderer draws its own label, inside the
+                            // letterboxed image rectangle it measured. Drawing
+                            // this one over it as well would either double the
+                            // label or place it at a box fraction while the dots
+                            // use an image fraction.
+                            if (_tapLabel != null && _viewMode.renders3D())
                               AnimatedPositioned(
                                 duration: const Duration(milliseconds: 200),
                                 left: (_tapLabel!.x * constraints.maxWidth)

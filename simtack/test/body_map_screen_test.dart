@@ -1,11 +1,11 @@
 // Coverage for BodyMapScreen — previously untested (confirmed by grepping
 // the whole test/ directory for "BodyMapScreen(" before writing this: zero
 // hits). Focuses on everything reachable without a live 3D tap, since the
-// actual 3D view (Anatomy3DTapView) only activates on kIsWeb — under
-// `flutter test`'s VM target it renders a plain "not available on this
-// platform yet" placeholder (see anatomy_3d_tap_view.dart), so these tests
-// exercise the manual "Add another location" picker instead. That path
-// converges on the exact same downstream code a real 3D tap would drive —
+// actual 3D view (Anatomy3DTapView) only activates on kIsWeb. Under
+// `flutter test`'s VM target the screen falls back to the flat renderer (see
+// AnatomyView / AnatomyViewMode.auto), which is what a phone build gets too —
+// so these tests exercise the manual "Add another location" picker, which
+// converges on the exact same downstream code a real tap would drive:
 // _addRegionManually -> _painPoints -> the "Selected Locations" screen's
 // detail list. Direct feedback moved the full per-location report (region
 // name, remove button, collapsible AI insight) out of an always-visible
@@ -232,13 +232,22 @@ void main() {
   });
 
   testWidgets(
-      '3D view placeholder renders without crashing on a non-web test target',
+      'a body renders on a non-web target instead of an unavailable placeholder',
       (tester) async {
     await tester.pumpWidget(buildScreen());
     await tester.pump(const Duration(milliseconds: 400));
 
+    // This test used to assert the opposite: that the screen showed the text
+    // "The 3D body view isn't available on this platform yet." A test that pins
+    // a defect makes the defect look intentional, and every Android/iOS build
+    // shipped with no body on the body-map step. The flat renderer is the
+    // fallback now, and its angle tabs are what prove it mounted — the image
+    // itself decodes asynchronously and is not asserted here.
     expect(find.text("The 3D body view isn't available on this platform yet."),
-        findsOneWidget);
+        findsNothing);
+    for (final angle in const ['front', 'back', 'left', 'right']) {
+      expect(find.byKey(ValueKey('anatomy-angle-$angle')), findsOneWidget);
+    }
   });
 
   testWidgets('help dialog opens and can be dismissed', (tester) async {
