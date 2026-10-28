@@ -19,6 +19,7 @@ import '../../../core/theme/app_breakpoints.dart';
 import '../../../core/theme/github_kit.dart';
 import '../../../core/theme/github_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
+import '../../../core/widgets/body_3d_fallback.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import 'qr_scan_screen.dart';
@@ -437,18 +438,28 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 builder: (context, constraints) {
                   return Stack(
                     children: [
+                      // Falls back to the still front view where the browser
+                      // cannot create a WebGL context, so this card always shows
+                      // a body. The region pins below are placed against the
+                      // model's fixed camera orbit, so on the still they land
+                      // approximately rather than exactly — a readable body with
+                      // slightly loose pins beats the empty panel this used to
+                      // be.
                       Positioned.fill(
-                        child: ModelViewer(
-                          src:
-                              kIsWeb ? 'models/$model' : 'assets/models/$model',
-                          alt: 'Front-view body map — read only',
-                          ar: false,
-                          autoRotate: false,
-                          cameraControls: false,
-                          cameraOrbit: '0deg 75deg 105%',
-                          disableZoom: true,
-                          backgroundColor: GhColors.canvasInset(context),
-                          interactionPromptThreshold: 999999,
+                        child: Body3DFallback(
+                          viewer: ModelViewer(
+                            src: kIsWeb
+                                ? 'models/$model'
+                                : 'assets/models/$model',
+                            alt: 'Front-view body map — read only',
+                            ar: false,
+                            autoRotate: false,
+                            cameraControls: false,
+                            cameraOrbit: '0deg 75deg 105%',
+                            disableZoom: true,
+                            backgroundColor: GhColors.canvasInset(context),
+                            interactionPromptThreshold: 999999,
+                          ),
                         ),
                       ),
                       Positioned.fill(

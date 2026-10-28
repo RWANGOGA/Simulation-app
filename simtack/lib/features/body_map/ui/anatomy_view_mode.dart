@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../core/platform/webgl_support.dart';
+
 /// Which renderer the anatomy view should use.
 ///
 /// The two renderers are not equivalent, and the difference is deliberately
@@ -30,7 +32,14 @@ enum AnatomyViewMode {
   /// and that directory is not in the pubspec asset bundle. Guessing from
   /// window width would be wrong in both directions — a phone is "wide" in
   /// landscape and still cannot host an iframe.
-  static bool get platformCanRender3D => kIsWeb;
+  ///
+  /// Two conditions, because there are two independent ways to fail. The
+  /// iframe only exists on the web; and inside `web/anatomy3d/` the very first
+  /// thing `viewer.js` does is `new THREE.WebGLRenderer`, which throws where no
+  /// WebGL context can be created. Being on the web is not enough — a browser
+  /// with its GPU process sandboxed or its hardware acceleration off is on the
+  /// web and still cannot draw a triangle.
+  static bool get platformCanRender3D => kIsWeb && detectWebglSupport();
 
   /// Resolves this mode against what the platform can do.
   ///

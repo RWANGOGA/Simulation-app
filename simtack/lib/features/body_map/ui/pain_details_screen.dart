@@ -11,6 +11,7 @@ import 'pain_profile_functional_impact_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_card.dart';
 import '../../../core/widgets/flow_progress_bar.dart';
+import '../../../core/widgets/body_3d_fallback.dart';
 import '../../../l10n/app_localizations.dart';
 
 class PainDetailsScreen extends StatefulWidget {
@@ -252,14 +253,16 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                 // are deliberately plain dropdowns rather than gestures on the
                                 // model itself, to avoid fighting the model's own controls.
                                 Positioned.fill(
-                                  child: ModelViewer(
-                                    src: widget.modelAsset,
-                                    alt: '3D pain vector model',
-                                    ar: false,
-                                    autoRotate: false,
-                                    cameraControls: true,
-                                    backgroundColor:
-                                        AppPalette.scaffold(context),
+                                  child: Body3DFallback(
+                                    viewer: ModelViewer(
+                                      src: widget.modelAsset,
+                                      alt: '3D pain vector model',
+                                      ar: false,
+                                      autoRotate: false,
+                                      cameraControls: true,
+                                      backgroundColor:
+                                          AppPalette.scaffold(context),
+                                    ),
                                   ),
                                 ),
 

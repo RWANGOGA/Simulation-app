@@ -20,6 +20,8 @@ import '../../patient_info/ui/patient_info_screen.dart';
 import '../../review/ui/review_screen.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../auth/ui/login_screen.dart';
+import '../../../core/platform/webgl_support.dart';
+import '../../../core/widgets/body_3d_fallback.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -535,9 +537,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               children: [
                 _welcomeHeader(context, t),
                 const SizedBox(height: AppSpacing.xl),
-                const SizedBox(
+                SizedBox(
                   height: 220,
-                  child: _ThreeDPlaceholder(web: _modelViewer),
+                  child: Body3DFallback(
+                    viewer: _modelViewer,
+                    canRender3D: _heroCanRender3D,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.xl),
                 _buildResumeDraftBanner(),
@@ -589,9 +594,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                 ),
               ),
               const SizedBox(width: AppSpacing.xxl),
-              const Expanded(
+              Expanded(
                 flex: 4,
-                child: _ThreeDPlaceholder(web: _modelViewer),
+                child: Body3DFallback(
+                  viewer: _modelViewer,
+                  canRender3D: _heroCanRender3D,
+                ),
               ),
             ],
           ),
@@ -607,51 +615,19 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 }
 
-/// Renders the live 3D model on web, and a static placeholder elsewhere.
+/// Whether the welcome hero may mount the live 3D model.
 ///
-/// On mobile, `model_viewer_plus` instantiates a `webview_flutter` platform
-/// view that has no default stub in widget tests, so we gate it behind
-/// `kIsWeb` to keep the welcome screen testable.
-class _ThreeDPlaceholder extends StatelessWidget {
-  final Widget web;
-  const _ThreeDPlaceholder({required this.web});
-
-  @override
-  Widget build(BuildContext context) {
-    if (kIsWeb) return web;
-    return Container(
-      decoration: BoxDecoration(
-        // Flat tint, not a two-stop gradient: the old one ran 0.10 to 0.05 of
-        // the same violet, which is a gradient that cannot gradient — it
-        // rendered as a barely-there wash. A flat surface from the one tint
-        // ramp is what the panel actually is.
-        color: AppAccent.primaryTint(context),
-        borderRadius: BorderRadius.circular(AppRadius.lg),
-        border: Border.all(color: AppAccent.primary(context).withOpacity(0.2)),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.medical_services,
-                size: 48, color: AppAccent.primary(context)),
-            const SizedBox(height: AppSpacing.sm),
-            Text(
-              '3D body model',
-              style: TextStyle(
-                color: AppAccent.primary(context),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Tap below to start triage',
-              style:
-                  TextStyle(color: AppPalette.textMuted(context), fontSize: 12),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+/// Two conditions, for two unrelated reasons. The WebGL probe is the one every
+/// body view uses — `<model-viewer>` throws inside its own constructor where no
+/// context can be created, and a still body beats an empty panel.
+///
+/// The `kIsWeb` half predates it and is specific to this screen: on mobile
+/// `model_viewer_plus` instantiates a `webview_flutter` platform view that has
+/// no default stub in widget tests, and the hero is decorative, so the welcome
+/// screen has never paid for one.
+///
+/// Where the model cannot run, the hero shows the same front-view body the flat
+/// body map draws. That also replaced the old icon-and-two-labels card, which
+/// said "3D body model" over a medical-bag glyph while showing no body at all —
+/// the very claim this app should not make.
+bool get _heroCanRender3D => kIsWeb && detectWebglSupport();

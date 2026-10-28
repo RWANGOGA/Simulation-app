@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simtack/core/locale/luganda_fallback_delegates.dart';
+import 'package:simtack/core/widgets/body_3d_fallback.dart';
 import 'package:simtack/features/onboarding/ui/welcome_screen.dart';
 import 'package:simtack/l10n/app_localizations.dart';
 
@@ -83,6 +84,24 @@ void main() {
       // leak through untranslated now that they ARE translated.
       expect(find.text('Continue'), findsNothing);
       expect(find.text('Practitioner Login'), findsNothing);
+    });
+
+    testWidgets('the hero shows a body, never a placeholder claiming one',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(wrap());
+      await tester.pumpAndSettle();
+
+      // The live model only mounts where a WebGL context can be created, so on
+      // this target the hero draws the still front view. Either way the hero
+      // draws a body: an empty panel was the actual failure, seen on a browser
+      // whose GPU was disabled, where `<model-viewer>` threw in its constructor
+      // and removed its own element.
+      expect(find.byKey(Body3DFallback.stillKey), findsWidgets);
+
+      // The card this replaced said "3D body model" over a medical-bag icon
+      // while drawing no body at all. It must not come back as a fallback.
+      expect(find.text('3D body model'), findsNothing);
+      expect(find.byIcon(Icons.medical_services), findsNothing);
     });
   });
 }
