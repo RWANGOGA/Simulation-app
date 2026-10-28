@@ -7,6 +7,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../core/theme/github_palette.dart';
 import '../../../core/theme/github_kit.dart';
 import '../../../core/theme/app_header_bar.dart';
+import '../../../core/theme/app_page.dart';
 import '../../../core/offline/offline_repository.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
@@ -80,7 +81,7 @@ class _PractitionerDashboardScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text('Error loading dashboard: $e'),
-              backgroundColor: Colors.red),
+              backgroundColor: GhColors.danger(context)),
         );
       }
     }
@@ -109,7 +110,7 @@ class _PractitionerDashboardScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text('Error loading more: $e'),
-              backgroundColor: Colors.red),
+              backgroundColor: GhColors.danger(context)),
         );
       }
     }
@@ -263,8 +264,13 @@ class _PractitionerDashboardScreenState
         await _loadData();
         await _refreshStats();
       },
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+      child: AppPage(
+        scrollable: true,
+        // A console, not prose: this screen reads as a workspace, so it gets
+        // the full measure. The cap is what stops a 1920px monitor from
+        // stretching four stat tiles and a session list into a kilometre of
+        // whitespace.
+        maxWidth: AppContentWidth.wide,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -742,7 +748,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text('Error loading sessions: $e'),
-              backgroundColor: Colors.red),
+              backgroundColor: GhColors.danger(context)),
         );
       }
     }

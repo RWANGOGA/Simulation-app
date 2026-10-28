@@ -232,13 +232,14 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.error_outline,
-                                color: Colors.red, size: 48),
+                            Icon(Icons.error_outline,
+                                color: AppAccent.danger(context), size: 48),
                             const SizedBox(height: 16),
                             Text(
                               _error ?? t.reportNotFoundError,
-                              style: const TextStyle(
-                                  color: Colors.red, fontSize: 16),
+                              style: TextStyle(
+                                  color: AppAccent.danger(context),
+                                  fontSize: 16),
                             ),
                             const SizedBox(height: 24),
                             ElevatedButton(
@@ -1156,7 +1157,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text('Failed to save decision: $e'),
-              backgroundColor: Colors.red),
+              backgroundColor: AppAccent.danger(context)),
         );
       }
     } finally {

@@ -27,6 +27,22 @@ int _colourLiterals(String source) {
   return hex.length + argb.length;
 }
 
+/// Material's named hues are the other way to write "a colour I picked".
+///
+/// `Colors.red` is #F44336 at every brightness: 3.5:1 on white, so it fails AA
+/// for text, and it cannot follow the theme into dark mode. The same is true of
+/// every entry in Material's swatch, which is why the semantic accent colours
+/// live in `AppAccent`/`GhColors` and resolve per brightness instead.
+///
+/// `Colors.white`, `Colors.black` and `Colors.transparent` stay legal and are
+/// not matched here: none of them is a semantic claim, and the scrim behind
+/// label text on the body map genuinely wants pure black at an alpha.
+int _materialColourLiterals(String source) => RegExp(
+      r'\bColors\.(?:red|pink|purple|deepPurple|indigo|blue|lightBlue|cyan|'
+      r'teal|green|lightGreen|lime|yellow|amber|orange|deepOrange|brown|'
+      r'grey|blueGrey)(?:Accent)?(?:\[\d+\])?(?![A-Za-z])',
+    ).allMatches(source).length;
+
 /// Every Dart file that is expected to speak in tokens rather than numbers.
 List<File> _uiSources() => Directory('lib')
         .listSync(recursive: true)
@@ -58,6 +74,26 @@ void main() {
           'brand violet ended up at 2.06:1 in dark mode, and it is why 90 '
           'distinct hexes existed for 12 jobs. Use AppPalette for slate and '
           'AppAccent for clinical accents.',
+    );
+  });
+
+  test('no screen names a Material swatch colour', () {
+    final offenders = <String, int>{};
+
+    for (final file in _uiSources()) {
+      final count = _materialColourLiterals(file.readAsStringSync());
+      if (count == 0) continue;
+      offenders[file.path.replaceAll(r'\', '/')] = count;
+    }
+
+    expect(
+      offenders,
+      isEmpty,
+      reason: 'These files reach for a fixed Material hue again: $offenders. '
+          'Five snackbars used `Colors.red` (#F44336, 3.5:1 on white, and '
+          'unchanged in dark mode) where the rest of their screen already used '
+          'a brightness-aware token. Use AppAccent on the patient side and '
+          'GhColors on the practitioner side.',
     );
   });
 

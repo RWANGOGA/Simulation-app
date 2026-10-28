@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/github_kit.dart';
 import '../../../core/theme/github_palette.dart';
+import '../../../core/theme/app_page.dart';
 import '../../../core/theme/app_page_route.dart';
 import '../../../core/theme/app_header_bar.dart';
 import '../../../core/offline/offline_repository.dart';
@@ -76,7 +77,7 @@ class _PractitionerSessionHistoryScreenState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text('Error loading history: $e'),
-              backgroundColor: Colors.red),
+              backgroundColor: GhColors.danger(context)),
         );
       }
     }
@@ -190,44 +191,50 @@ class _PractitionerSessionHistoryScreenState
   }
 
   Widget _buildList() {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: [
-        GhBox(
-          flush: true,
-          child: Column(
-            children: [
-              for (var index = 0; index < _items.length; index++)
-                _sessionRow(
-                  _items[index],
-                  isLast: index == _items.length - 1,
+    // The ListView stays the scroll owner so the rows remain lazily built; the
+    // frame around it supplies the gutter and the console measure, which keeps
+    // this list lined up with the header above it.
+    return AppPage(
+      maxWidth: AppContentWidth.wide,
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          GhBox(
+            flush: true,
+            child: Column(
+              children: [
+                for (var index = 0; index < _items.length; index++)
+                  _sessionRow(
+                    _items[index],
+                    isLast: index == _items.length - 1,
+                  ),
+              ],
+            ),
+          ),
+          if (_isFetchingMore)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: GhColors.accent(context),
                 ),
-            ],
-          ),
-        ),
-        if (_isFetchingMore)
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Center(
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: GhColors.accent(context),
+              ),
+            )
+          else if (_hasMore)
+            Padding(
+              padding: const EdgeInsets.only(top: 16),
+              child: Center(
+                child: GhButton(
+                  'Load More',
+                  icon: Icons.expand_more,
+                  variant: GhButtonVariant.secondary,
+                  onPressed: () => _loadHistory(reset: false),
+                ),
               ),
             ),
-          )
-        else if (_hasMore)
-          Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: Center(
-              child: GhButton(
-                'Load More',
-                icon: Icons.expand_more,
-                variant: GhButtonVariant.secondary,
-                onPressed: () => _loadHistory(reset: false),
-              ),
-            ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 

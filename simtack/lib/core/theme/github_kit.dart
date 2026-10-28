@@ -304,19 +304,38 @@ class GhButton extends StatelessWidget {
 class GhTextField extends StatelessWidget {
   final TextEditingController? controller;
   final String hint;
+
+  /// A label above the field. GitHub labels the input rather than floating a
+  /// legend into the border, which keeps the control's height constant whether
+  /// or not it holds content — a form of eight fields does not shift as the
+  /// practitioner fills it in.
+  final String? label;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onSubmitted;
   final IconData? prefixIcon;
+
+  /// Trailing control, typically the reveal toggle on a password field.
+  final Widget? suffix;
   final double? width;
   final bool enabled;
+  final bool obscureText;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
 
   const GhTextField({
     super.key,
     this.controller,
     required this.hint,
+    this.label,
     this.onChanged,
+    this.onSubmitted,
     this.prefixIcon,
+    this.suffix,
     this.width,
     this.enabled = true,
+    this.obscureText = false,
+    this.keyboardType,
+    this.textInputAction,
   });
 
   @override
@@ -330,7 +349,11 @@ class GhTextField extends StatelessWidget {
     final field = TextField(
       controller: controller,
       onChanged: onChanged,
+      onSubmitted: onSubmitted,
       enabled: enabled,
+      obscureText: obscureText,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
       style: GhType.body.copyWith(color: GhColors.fg(context)),
       decoration: InputDecoration(
         isDense: true,
@@ -343,6 +366,10 @@ class GhTextField extends StatelessWidget {
             : Icon(prefixIcon, size: 16, color: GhColors.fgMuted(context)),
         prefixIconConstraints:
             const BoxConstraints(minWidth: 34, minHeight: 32),
+        suffixIcon: suffix,
+        suffixIconConstraints: suffix == null
+            ? null
+            : const BoxConstraints(minWidth: 34, minHeight: 32),
         contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         border: border(GhColors.border(context)),
         enabledBorder: border(GhColors.border(context)),
@@ -351,7 +378,22 @@ class GhTextField extends StatelessWidget {
       ),
     );
 
-    return width == null ? field : SizedBox(width: width, child: field);
+    final content = label == null
+        ? field
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                label!,
+                style: GhType.bodyStrong.copyWith(color: GhColors.fg(context)),
+              ),
+              const SizedBox(height: 6),
+              field,
+            ],
+          );
+
+    return width == null ? content : SizedBox(width: width, child: content);
   }
 }
 

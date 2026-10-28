@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:simtack/core/theme/app_tokens.dart';
-import 'package:simtack/core/theme/app_accent.dart';
-import 'package:simtack/core/theme/app_palette.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/auth_service.dart';
+import '../../../core/theme/app_page.dart';
 import '../../../core/theme/app_page_route.dart';
+import '../../../core/theme/github_kit.dart';
+import '../../../core/theme/github_palette.dart';
 import '../../dashboard/ui/practitioner_dashboard_screen.dart';
 
-/// Self-service signup for medical practitioners.
+/// Self-service signup for medical practitioners, in Primer.
 ///
 /// Required fields (mirrored by backend validation):
 /// - Full name, professional email, password (exactly 8 chars, letter + number)
@@ -40,6 +40,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _inviteCodeController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmController = TextEditingController();
+  // Held rather than rebuilt inside `build`: a controller created per frame is
+  // never disposed, and the date field needs a stable one to write into.
+  final _dateOfBirthController = TextEditingController();
   String? _role = _roles.first;
   DateTime? _dateOfBirth;
   bool _isLoading = false;
@@ -65,24 +68,59 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return null;
   }
 
-  InputDecoration _fieldDecoration(
-          {required String label, required IconData icon}) =>
-      InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon, color: AppAccent.primary(context)),
+  /// Primer's input: 6px radius, one-pixel border, blue ring on focus. The
+  /// label lives above the field (see [_field]) rather than floating into the
+  /// border, so the form does not reflow as it is filled in.
+  InputDecoration _fieldDecoration({required IconData icon}) => InputDecoration(
+        isDense: true,
+        prefixIcon: Icon(icon, size: 16, color: GhColors.fgMuted(context)),
+        prefixIconConstraints:
+            const BoxConstraints(minWidth: 34, minHeight: 32),
         filled: true,
-        fillColor: AppPalette.inputFill(context),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            borderSide: BorderSide.none),
-        enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            borderSide: BorderSide(color: AppPalette.border(context))),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppRadius.md),
-            borderSide:
-                BorderSide(color: AppAccent.primary(context), width: 2)),
+        fillColor: GhColors.surface(context),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        border: _border(GhColors.border(context)),
+        enabledBorder: _border(GhColors.border(context)),
+        focusedBorder: _border(GhColors.accent(context), 2),
+        errorBorder: _border(GhColors.danger(context)),
+        focusedErrorBorder: _border(GhColors.danger(context), 2),
+        errorStyle: GhType.meta.copyWith(color: GhColors.danger(context)),
       );
+
+  OutlineInputBorder _border(Color color, [double width = 1]) =>
+      OutlineInputBorder(
+        borderRadius: BorderRadius.circular(6),
+        borderSide: BorderSide(color: color, width: width),
+      );
+
+  /// A labelled control. Nine copies of "label, gap, input" is exactly the
+  /// repetition that makes a form drift, so the pattern is written once.
+  Widget _field({
+    required String label,
+    required Widget child,
+    String? help,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          label,
+          style: GhType.bodyStrong.copyWith(color: GhColors.fg(context)),
+        ),
+        const SizedBox(height: 6),
+        child,
+        if (help != null)
+          Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: Text(
+              help,
+              style: GhType.meta.copyWith(color: GhColors.fgMuted(context)),
+            ),
+          ),
+      ],
+    );
+  }
 
   Future<void> _pickDateOfBirth() async {
     final now = DateTime.now();
@@ -93,7 +131,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
       lastDate: now,
       helpText: 'DATE OF BIRTH',
     );
-    if (picked != null) setState(() => _dateOfBirth = picked);
+    if (picked != null) {
+      setState(() {
+        _dateOfBirth = picked;
+        _dateOfBirthController.text = _formatDate(picked);
+      });
+    }
   }
 
   String _formatDate(DateTime d) =>
@@ -131,7 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               'Account created on this device. Everything works offline; '
               'register again while connected to also create a server account.',
             ),
-            backgroundColor: AppAccent.primary(context),
+            backgroundColor: GhColors.attention(context),
             duration: const Duration(seconds: 6),
           ),
         );
@@ -151,7 +194,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               'Account created. An administrator must approve it before you '
               'can sign in.',
             ),
-            backgroundColor: AppAccent.primary(context),
+            backgroundColor: GhColors.attention(context),
             duration: const Duration(seconds: 6),
           ),
         );
@@ -162,7 +205,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Account created. Welcome, ${doctor.fullName}!'),
-          backgroundColor: Colors.green,
+          backgroundColor: GhColors.success(context),
         ),
       );
       Navigator.of(context).pushReplacement(
@@ -185,240 +228,268 @@ class _RegisterScreenState extends State<RegisterScreen> {
     _inviteCodeController.dispose();
     _passwordController.dispose();
     _confirmController.dispose();
+    _dateOfBirthController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppPalette.scaffold(context),
-      appBar: AppBar(
-        backgroundColor: AppPalette.scaffold(context),
-        elevation: 0,
-        foregroundColor: AppPalette.textPrimary(context),
-        title: const Text('Create Practitioner Account'),
-      ),
+      backgroundColor: GhColors.canvasInset(context),
       body: SafeArea(
-        child: Center(
+        child: AppPage(
+          maxWidth: AppContentWidth.form,
           child: SingleChildScrollView(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 32.0, vertical: 16.0),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Icon(Icons.medical_services_rounded,
-                        size: 56, color: AppAccent.primary(context)),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Join Simtack Care',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: AppPalette.textPrimary(context)),
-                    ),
-                    const SizedBox(height: 24),
-                    if (_errorMessage != null) ...[
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: AppAccent.dangerTint(context),
-                          borderRadius: BorderRadius.circular(AppRadius.sm),
-                          border:
-                              Border.all(color: AppAccent.fieldError(context)),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(Icons.error_outline,
-                                color: AppAccent.fieldError(context), size: 20),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(_errorMessage!,
-                                  style: TextStyle(
-                                      color: AppAccent.danger(context),
-                                      fontSize: 14)),
-                            ),
-                          ],
-                        ),
-                      ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildHeader(context),
+                const SizedBox(height: 16),
+                if (_errorMessage != null) ...[
+                  GhBanner(
+                    _errorMessage!,
+                    tone: GhTone.danger,
+                    icon: Icons.error_outline,
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                // One Form around both boxes so a single validate() reaches
+                // all nine fields; the boxes are grouping for the eye only.
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildDetailsBox(context),
                       const SizedBox(height: 16),
+                      _buildSecurityBox(context),
                     ],
-                    TextFormField(
-                      controller: _nameController,
-                      textInputAction: TextInputAction.next,
-                      decoration: _fieldDecoration(
-                          label: 'Full Name', icon: Icons.person_outline),
-                      validator: (value) =>
-                          (value == null || value.trim().length < 2)
-                              ? 'Enter your full name.'
-                              : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _emailController,
-                      keyboardType: TextInputType.emailAddress,
-                      textInputAction: TextInputAction.next,
-                      decoration: _fieldDecoration(
-                          label: 'Professional Email',
-                          icon: Icons.email_outlined),
-                      validator: _validateEmail,
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      value: _role,
-                      decoration: _fieldDecoration(
-                          label: 'Role / Title', icon: Icons.badge_outlined),
-                      items: _roles
-                          .map((role) =>
-                              DropdownMenuItem(value: role, child: Text(role)))
-                          .toList(),
-                      onChanged: _isLoading
-                          ? null
-                          : (value) => setState(() => _role = value),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _licenseController,
-                      textInputAction: TextInputAction.next,
-                      decoration: _fieldDecoration(
-                        label: 'License / Registration Number',
-                        icon: Icons.verified_user_outlined,
-                      ),
-                      validator: (value) =>
-                          (value == null || value.trim().isEmpty)
-                              ? 'Enter your license or registration number.'
-                              : null,
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6, left: 4),
-                      child: Text(
-                        'Self-declared for this deployment — verified out-of-band in real rollouts.',
-                        style: TextStyle(
-                            fontSize: 12, color: AppPalette.textMuted(context)),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    GestureDetector(
-                      onTap: _pickDateOfBirth,
-                      child: AbsorbPointer(
-                        child: TextFormField(
-                          decoration: _fieldDecoration(
-                              label: 'Date of Birth (optional)',
-                              icon: Icons.cake_outlined),
-                          controller: TextEditingController(
-                            text: _dateOfBirth != null
-                                ? _formatDate(_dateOfBirth!)
-                                : '',
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _phoneController,
-                      keyboardType: TextInputType.phone,
-                      textInputAction: TextInputAction.next,
-                      decoration: _fieldDecoration(
-                          label: 'Contact Phone', icon: Icons.phone_outlined),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _hospitalController,
-                      textInputAction: TextInputAction.next,
-                      decoration: _fieldDecoration(
-                          label: 'Hospital / Facility',
-                          icon: Icons.local_hospital_outlined),
-                    ),
-                    const SizedBox(height: 16),
-                    // Only required when the deployment has set an invite
-                    // code (see Settings.INVITE_CODE); a blank submission
-                    // is fine otherwise — the backend is the source of truth.
-                    TextFormField(
-                      controller: _inviteCodeController,
-                      textInputAction: TextInputAction.next,
-                      decoration: _fieldDecoration(
-                          label: 'Invite Code (if required)',
-                          icon: Icons.vpn_key_outlined),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      obscureText: _obscurePassword,
-                      textInputAction: TextInputAction.next,
-                      decoration: _fieldDecoration(
-                              label: 'Password', icon: Icons.lock_outline)
-                          .copyWith(
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_outlined
-                                  : Icons.visibility_off_outlined,
-                              color: AppPalette.textMuted(context)),
-                          onPressed: () => setState(
-                              () => _obscurePassword = !_obscurePassword),
-                        ),
-                      ),
-                      validator: _validatePassword,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _confirmController,
-                      obscureText: _obscurePassword,
-                      textInputAction: TextInputAction.done,
-                      onFieldSubmitted: (_) => _register(),
-                      decoration: _fieldDecoration(
-                          label: 'Confirm Password', icon: Icons.lock_outline),
-                      validator: (value) => value != _passwordController.text
-                          ? 'Passwords do not match.'
-                          : null,
-                    ),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: _isLoading ? null : _register,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppAccent.primary(context),
-                          disabledBackgroundColor: AppAccent.primary(context),
-                          shape: RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.md)),
-                          elevation: 0,
-                        ),
-                        child: _isLoading
-                            ? const SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                    color: Colors.white, strokeWidth: 2.5))
-                            : const Text('Create Account',
-                                style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white)),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextButton(
-                      onPressed:
-                          _isLoading ? null : () => Navigator.of(context).pop(),
-                      child: Text(
-                        'Already have an account? Sign in',
-                        style: TextStyle(
-                            color: AppAccent.primary(context),
-                            fontWeight: FontWeight.w600),
-                      ),
-                    ),
-                  ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                GhButton(
+                  'Create Account',
+                  variant: GhButtonVariant.primary,
+                  expanded: true,
+                  busy: _isLoading,
+                  onPressed: _isLoading ? null : _register,
+                ),
+                const SizedBox(height: 12),
+                Center(
+                  child: GhButton(
+                    'Already have an account? Sign in',
+                    variant: GhButtonVariant.link,
+                    onPressed:
+                        _isLoading ? null : () => Navigator.of(context).pop(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            Icon(
+              Icons.medical_services_outlined,
+              size: 20,
+              color: GhColors.fgMuted(context),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Join Simtack Care',
+              style: GhType.sectionTitle.copyWith(color: GhColors.fg(context)),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Create Practitioner Account',
+          style: GhType.meta.copyWith(color: GhColors.fgMuted(context)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDetailsBox(BuildContext context) {
+    return GhBox(
+      header: 'Practitioner details',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _field(
+            label: 'Full Name',
+            child: TextFormField(
+              controller: _nameController,
+              textInputAction: TextInputAction.next,
+              style: GhType.body.copyWith(color: GhColors.fg(context)),
+              decoration: _fieldDecoration(icon: Icons.person_outline),
+              validator: (value) => (value == null || value.trim().length < 2)
+                  ? 'Enter your full name.'
+                  : null,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _field(
+            label: 'Professional Email',
+            child: TextFormField(
+              controller: _emailController,
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              style: GhType.body.copyWith(color: GhColors.fg(context)),
+              decoration: _fieldDecoration(icon: Icons.email_outlined),
+              validator: _validateEmail,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _field(
+            label: 'Role / Title',
+            child: DropdownButtonFormField<String>(
+              value: _role,
+              isDense: true,
+              style: GhType.body.copyWith(color: GhColors.fg(context)),
+              decoration: _fieldDecoration(icon: Icons.badge_outlined),
+              items: _roles
+                  .map((role) =>
+                      DropdownMenuItem(value: role, child: Text(role)))
+                  .toList(),
+              onChanged:
+                  _isLoading ? null : (value) => setState(() => _role = value),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _field(
+            label: 'License / Registration Number',
+            help: 'Self-declared for this deployment — verified out-of-band in '
+                'real rollouts.',
+            child: TextFormField(
+              controller: _licenseController,
+              textInputAction: TextInputAction.next,
+              style: GhType.body.copyWith(color: GhColors.fg(context)),
+              decoration: _fieldDecoration(icon: Icons.verified_user_outlined),
+              validator: (value) => (value == null || value.trim().isEmpty)
+                  ? 'Enter your license or registration number.'
+                  : null,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _field(
+            label: 'Date of Birth (optional)',
+            child: GestureDetector(
+              onTap: _pickDateOfBirth,
+              child: AbsorbPointer(
+                child: TextFormField(
+                  controller: _dateOfBirthController,
+                  style: GhType.body.copyWith(color: GhColors.fg(context)),
+                  decoration:
+                      _fieldDecoration(icon: Icons.cake_outlined).copyWith(
+                    hintText: 'YYYY-MM-DD',
+                    hintStyle:
+                        GhType.body.copyWith(color: GhColors.fgMuted(context)),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
+          const SizedBox(height: 12),
+          _field(
+            label: 'Contact Phone',
+            child: TextFormField(
+              controller: _phoneController,
+              keyboardType: TextInputType.phone,
+              textInputAction: TextInputAction.next,
+              style: GhType.body.copyWith(color: GhColors.fg(context)),
+              decoration: _fieldDecoration(icon: Icons.phone_outlined),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _field(
+            label: 'Hospital / Facility',
+            child: TextFormField(
+              controller: _hospitalController,
+              textInputAction: TextInputAction.next,
+              style: GhType.body.copyWith(color: GhColors.fg(context)),
+              decoration: _fieldDecoration(icon: Icons.local_hospital_outlined),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSecurityBox(BuildContext context) {
+    return GhBox(
+      header: 'Account security',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Only required when the deployment has set an invite code (see
+          // Settings.INVITE_CODE); a blank submission is fine otherwise — the
+          // backend is the source of truth.
+          _field(
+            label: 'Invite Code (if required)',
+            child: TextFormField(
+              controller: _inviteCodeController,
+              textInputAction: TextInputAction.next,
+              style: GhType.body.copyWith(color: GhColors.fg(context)),
+              decoration: _fieldDecoration(icon: Icons.vpn_key_outlined),
+            ),
+          ),
+          const SizedBox(height: 12),
+          _field(
+            label: 'Password',
+            help: 'At least 8 characters, including a letter and a number.',
+            child: TextFormField(
+              controller: _passwordController,
+              obscureText: _obscurePassword,
+              textInputAction: TextInputAction.next,
+              style: GhType.body.copyWith(color: GhColors.fg(context)),
+              decoration: _fieldDecoration(icon: Icons.lock_outline).copyWith(
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    size: 16,
+                    color: GhColors.fgMuted(context),
+                  ),
+                  tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+                  splashRadius: 16,
+                  onPressed: () =>
+                      setState(() => _obscurePassword = !_obscurePassword),
+                ),
+                suffixIconConstraints:
+                    const BoxConstraints(minWidth: 34, minHeight: 32),
+              ),
+              validator: _validatePassword,
+            ),
+          ),
+          const SizedBox(height: 12),
+          _field(
+            label: 'Confirm Password',
+            child: TextFormField(
+              controller: _confirmController,
+              obscureText: _obscurePassword,
+              textInputAction: TextInputAction.done,
+              style: GhType.body.copyWith(color: GhColors.fg(context)),
+              onFieldSubmitted: (_) => _register(),
+              decoration: _fieldDecoration(icon: Icons.lock_outline),
+              validator: (value) => value != _passwordController.text
+                  ? 'Passwords do not match.'
+                  : null,
+            ),
+          ),
+        ],
       ),
     );
   }

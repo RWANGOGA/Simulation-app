@@ -39,6 +39,15 @@ class AppBreakpoints {
   /// True when the window is wide enough for a permanent navigation rail.
   static bool hasRoomForRail(double width) => width >= compact;
 
+  /// The width a pane needs before it can put a second column beside a fixed
+  /// ~340px side panel. Deliberately not [medium]: a *component's* share of the
+  /// window is smaller than the window, and measuring the window from inside a
+  /// pane is the bug this replaces — a 320px pane in a 1000px window used to
+  /// pick the two-column layout and overflow.
+  static const double sideBySide = 700;
+
+  static bool hasRoomForSidePanel(double width) => width >= sideBySide;
+
   /// The width class of the nearest enclosing [MediaQuery], for the rare case
   /// where a widget cannot wrap itself in a [LayoutBuilder].
   static bool isCompactContext(BuildContext context) =>

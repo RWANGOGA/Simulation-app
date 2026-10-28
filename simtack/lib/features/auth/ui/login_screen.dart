@@ -1,15 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:simtack/core/theme/app_tokens.dart';
-import 'package:simtack/core/theme/app_accent.dart';
-import 'package:simtack/core/theme/app_palette.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/auth_service.dart';
+import '../../../core/theme/app_page.dart';
 import '../../../core/theme/app_page_route.dart';
+import '../../../core/theme/github_kit.dart';
+import '../../../core/theme/github_palette.dart';
 import '../../dashboard/ui/practitioner_dashboard_screen.dart';
 import '../../onboarding/ui/welcome_screen.dart';
 import '../../patient_info/ui/patient_info_screen.dart';
 import 'register_screen.dart';
 
+/// GitHub's sign-in box is about 340px wide. 400 keeps a long address on one
+/// line without the form sprawling across a desktop window — and it is below
+/// [AppContentWidth.form], because a sign-in is narrower than a form.
+const double _authBoxWidth = 400;
+
+/// The practitioner console's front door, in Primer.
+///
+/// This used to be laid out as a patient hero — a purple glyph over a
+/// full-window form — even though it is the screen a clinician opens ten times
+/// a day. A sign-in box with two labelled fields and one action is what makes
+/// it unambiguous; the two patient entry points sit *below* the box as
+/// secondary actions, because starting a triage is not the same commitment as
+/// signing in.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -45,7 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Login Successful! Welcome, ${doctor.fullName}.'),
-          backgroundColor: Colors.green,
+          backgroundColor: GhColors.success(context),
         ),
       );
       Navigator.of(context).pushReplacement(
@@ -68,235 +81,192 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppPalette.scaffold(context),
+      // `canvas.inset` rather than the canvas itself: a sign-in box needs a
+      // recessed ground to read as a box. Primer uses the same pairing on its
+      // own authentication pages.
+      backgroundColor: GhColors.canvasInset(context),
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 32.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Icon(Icons.medical_services_rounded,
-                    size: 80, color: AppAccent.primary(context)),
-                const SizedBox(height: 24),
-                Text(
-                  'Practitioner Portal',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: AppPalette.textPrimary(context)),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Simtack Care',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                      fontSize: 16,
-                      color: AppPalette.textMuted(context),
-                      fontWeight: FontWeight.w500),
-                ),
-                const SizedBox(height: 48),
-                if (_errorMessage != null)
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AppAccent.dangerTint(context),
-                      borderRadius: BorderRadius.circular(AppRadius.sm),
-                      border: Border.all(color: AppAccent.fieldError(context)),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.error_outline,
-                            color: AppAccent.fieldError(context), size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(_errorMessage!,
-                              style: TextStyle(
-                                  color: AppAccent.danger(context),
-                                  fontSize: 14)),
-                        ),
-                      ],
-                    ),
-                  ),
-                if (_errorMessage != null) const SizedBox(height: 16),
-                TextField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    labelText: 'Email Address',
-                    prefixIcon: Icon(Icons.email_outlined,
-                        color: AppAccent.primary(context)),
-                    filled: true,
-                    fillColor: AppPalette.inputFill(context),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide: BorderSide.none),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide:
-                            BorderSide(color: AppPalette.border(context))),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide: BorderSide(
-                            color: AppAccent.primary(context), width: 2)),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: _obscurePassword,
-                  onSubmitted: (_) => _login(),
-                  decoration: InputDecoration(
-                    labelText: 'Password',
-                    prefixIcon: Icon(Icons.lock_outline,
-                        color: AppAccent.primary(context)),
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_outlined
-                              : Icons.visibility_off_outlined,
-                          color: AppPalette.textMuted(context)),
-                      onPressed: () =>
-                          setState(() => _obscurePassword = !_obscurePassword),
-                    ),
-                    filled: true,
-                    fillColor: AppPalette.inputFill(context),
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide: BorderSide.none),
-                    enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide:
-                            BorderSide(color: AppPalette.border(context))),
-                    focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(AppRadius.md),
-                        borderSide: BorderSide(
-                            color: AppAccent.primary(context), width: 2)),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                SizedBox(
-                  height: 56,
-                  child: ElevatedButton(
-                    onPressed: _isLoading ? null : _login,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppAccent.primary(context),
-                      disabledBackgroundColor: AppAccent.primary(context),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.md)),
-                      elevation: 0,
-                    ),
-                    child: _isLoading
-                        ? const SizedBox(
-                            height: 24,
-                            width: 24,
-                            child: CircularProgressIndicator(
-                                color: Colors.white, strokeWidth: 2.5))
-                        : const Text('Sign In',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white)),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('New practitioner?',
-                        style: TextStyle(
-                            fontSize: 14,
-                            color: AppPalette.textMuted(context))),
-                    TextButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () => Navigator.of(context).push(
-                                AppPageRoute(
-                                    builder: (_) => const RegisterScreen()),
-                              ),
-                      child: Text('Create an account',
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                              color: AppAccent.primary(context))),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-                _buildDividerWithText('Or'),
-                const SizedBox(height: 16),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _isLoading
-                        ? null
-                        : () => Navigator.of(context).push(
-                              AppPageRoute(
-                                  builder: (_) => const WelcomeScreen()),
-                            ),
-                    icon: Icon(Icons.person_add_alt_1,
-                        color: AppAccent.primary(context)),
-                    label: Text('Register Patient',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppAccent.primary(context))),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppAccent.primary(context)),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.md)),
+        child: AppPage(
+          maxWidth: AppContentWidth.form,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Centred when there is room, scrollable when there is not — the
+              // minHeight forces the box to the middle of a tall window while
+              // still letting a short one scroll instead of overflowing.
+              return SingleChildScrollView(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                  child: Center(
+                    child: SizedBox(
+                      width: _authBoxWidth,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _buildBrand(context),
+                          const SizedBox(height: 20),
+                          _buildSignInBox(context),
+                          const SizedBox(height: 16),
+                          _buildPatientEntryPoints(context),
+                          const SizedBox(height: 20),
+                          _buildCreateAccountRow(context),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: _isLoading
-                        ? null
-                        : () => Navigator.of(context).push(
-                              AppPageRoute(
-                                  builder: (_) => const PatientInfoScreen()),
-                            ),
-                    icon: Icon(Icons.fast_forward,
-                        color: AppAccent.success(context)),
-                    label: Text('Quick Patient Entry',
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            color: AppAccent.success(context))),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: AppAccent.success(context)),
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.md)),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
     );
   }
 
-  Widget _buildDividerWithText(String text) {
-    return Row(
+  /// Wordmark and purpose, not a decorative glyph. The icon carries the same
+  /// muted weight as the rest of the chrome so the only coloured thing on the
+  /// screen is the button that signs you in.
+  Widget _buildBrand(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-            child: Divider(color: AppPalette.border(context), thickness: 1)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text(text,
-              style: TextStyle(
-                  color: AppPalette.textMuted(context), fontSize: 14)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.medical_services_outlined,
+              size: 20,
+              color: GhColors.fgMuted(context),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Practitioner Portal',
+              style: GhType.sectionTitle.copyWith(color: GhColors.fg(context)),
+            ),
+          ],
         ),
-        Expanded(
-            child: Divider(color: AppPalette.border(context), thickness: 1)),
+        const SizedBox(height: 4),
+        Text(
+          'Simtack Care',
+          style: GhType.meta.copyWith(color: GhColors.fgMuted(context)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSignInBox(BuildContext context) {
+    return GhBox(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_errorMessage != null) ...[
+            GhBanner(
+              _errorMessage!,
+              tone: GhTone.danger,
+              icon: Icons.error_outline,
+            ),
+            const SizedBox(height: 12),
+          ],
+          GhTextField(
+            controller: _emailController,
+            label: 'Email address',
+            hint: 'you@hospital.org',
+            prefixIcon: Icons.mail_outline,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.next,
+          ),
+          const SizedBox(height: 12),
+          GhTextField(
+            controller: _passwordController,
+            label: 'Password',
+            hint: 'Your password',
+            prefixIcon: Icons.lock_outline,
+            obscureText: _obscurePassword,
+            textInputAction: TextInputAction.done,
+            onSubmitted: (_) => _login(),
+            suffix: IconButton(
+              icon: Icon(
+                _obscurePassword
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                size: 16,
+                color: GhColors.fgMuted(context),
+              ),
+              tooltip: _obscurePassword ? 'Show password' : 'Hide password',
+              splashRadius: 16,
+              onPressed: () =>
+                  setState(() => _obscurePassword = !_obscurePassword),
+            ),
+          ),
+          const SizedBox(height: 16),
+          GhButton(
+            'Sign In',
+            variant: GhButtonVariant.primary,
+            expanded: true,
+            busy: _isLoading,
+            onPressed: _isLoading ? null : _login,
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Starting a patient is a different job from signing in, so these sit
+  /// outside the box as secondary buttons rather than competing with Sign In.
+  Widget _buildPatientEntryPoints(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        GhButton(
+          'Register Patient',
+          icon: Icons.person_add_alt_1,
+          variant: GhButtonVariant.secondary,
+          expanded: true,
+          onPressed: _isLoading
+              ? null
+              : () => Navigator.of(context).push(
+                    AppPageRoute(builder: (_) => const WelcomeScreen()),
+                  ),
+        ),
+        const SizedBox(height: 8),
+        GhButton(
+          'Quick Patient Entry',
+          icon: Icons.fast_forward,
+          variant: GhButtonVariant.secondary,
+          expanded: true,
+          onPressed: _isLoading
+              ? null
+              : () => Navigator.of(context).push(
+                    AppPageRoute(builder: (_) => const PatientInfoScreen()),
+                  ),
+        ),
+      ],
+    );
+  }
+
+  /// A [Wrap] rather than a [Row]: on a 320px device the prompt and the link
+  /// together are wider than the box, and a Row would overflow.
+  Widget _buildCreateAccountRow(BuildContext context) {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        Text(
+          'New practitioner?',
+          style: GhType.body.copyWith(color: GhColors.fgMuted(context)),
+        ),
+        const SizedBox(width: 4),
+        GhButton(
+          'Create an account',
+          variant: GhButtonVariant.link,
+          onPressed: _isLoading
+              ? null
+              : () => Navigator.of(context).push(
+                    AppPageRoute(builder: (_) => const RegisterScreen()),
+                  ),
+        ),
       ],
     );
   }

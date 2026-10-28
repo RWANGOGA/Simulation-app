@@ -12,6 +12,7 @@ import '../../../core/offline/offline_repository.dart';
 import '../../../core/theme/github_kit.dart';
 import '../../../core/theme/github_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
+import '../../../core/theme/app_page.dart';
 import '../../../l10n/app_localizations.dart';
 import 'practitioner_scaffold.dart';
 
@@ -98,7 +99,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text('Could not generate PDF: $e'),
-              backgroundColor: Colors.red),
+              backgroundColor: GhColors.danger(context)),
         );
       }
     } finally {
@@ -211,8 +212,9 @@ class _ReportsScreenState extends State<ReportsScreen> {
         .cast<Map<String, dynamic>>();
 
     if (total == 0) {
-      return SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+      return AppPage(
+        scrollable: true,
+        maxWidth: AppContentWidth.wide,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -231,9 +233,12 @@ class _ReportsScreenState extends State<ReportsScreen> {
 
     return RefreshIndicator(
       onRefresh: _loadReports,
-      child: SingleChildScrollView(
+      child: AppPage(
+        scrollable: true,
+        // Kept explicit so the pull-to-refresh gesture still works when the
+        // report list is shorter than the viewport.
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(24),
+        maxWidth: AppContentWidth.wide,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

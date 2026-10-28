@@ -62,7 +62,7 @@ class _PatientHistoryScreenState extends State<PatientHistoryScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               content: Text('Error loading history: $e'),
-              backgroundColor: Colors.red),
+              backgroundColor: AppAccent.danger(context)),
         );
       }
     }

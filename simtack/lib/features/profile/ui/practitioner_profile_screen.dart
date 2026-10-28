@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../../core/theme/github_kit.dart';
 import '../../../../core/theme/github_palette.dart';
 import '../../../../core/theme/app_header_bar.dart';
+import '../../../../core/theme/app_page.dart';
 import '../../../../core/network/auth_service.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../dashboard/ui/practitioner_scaffold.dart';
@@ -357,59 +358,61 @@ class _PractitionerProfileScreenState extends State<PractitionerProfileScreen> {
                   )
                 : _errorMessage != null
                     ? _buildLoadError(context)
-                    : SingleChildScrollView(
-                        padding: const EdgeInsets.all(24),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 860),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildIdentity(context),
-                              const SizedBox(height: 24),
-                              GhBox(
-                                header: 'Profile',
-                                flush: true,
-                                child: Form(
-                                  key: _formKey,
-                                  child: Column(
-                                    children: [
-                                      _buildField(
-                                          context: context,
-                                          label: 'Full Name',
-                                          controller: _fullNameController,
-                                          readOnly: !_isEditing,
-                                          validator: (v) =>
-                                              (v == null || v.trim().isEmpty)
-                                                  ? 'Full name is required'
-                                                  : null),
-                                      _buildField(
-                                          context: context,
-                                          label: 'Role / Specialty',
-                                          controller: _roleController,
-                                          readOnly: !_isEditing),
-                                      _buildField(
-                                          context: context,
-                                          label: 'License Number',
-                                          controller: _licenseNumberController,
-                                          readOnly: !_isEditing),
-                                      _buildField(
-                                          context: context,
-                                          label: 'Phone',
-                                          controller: _phoneController,
-                                          keyboardType: TextInputType.phone,
-                                          readOnly: !_isEditing),
-                                      _buildField(
-                                          context: context,
-                                          label: 'Hospital / Clinic Name',
-                                          controller: _hospitalNameController,
-                                          readOnly: !_isEditing),
-                                      _buildDateField(context),
-                                    ],
-                                  ),
+                    : AppPage(
+                        scrollable: true,
+                        // A settings page, not a console: single-column fields
+                        // and settings rows read better at the reading measure.
+                        // This replaces the hand-picked
+                        // `ConstrainedBox(maxWidth: 860)` that used to sit here.
+                        maxWidth: AppContentWidth.reading,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildIdentity(context),
+                            const SizedBox(height: 24),
+                            GhBox(
+                              header: 'Profile',
+                              flush: true,
+                              child: Form(
+                                key: _formKey,
+                                child: Column(
+                                  children: [
+                                    _buildField(
+                                        context: context,
+                                        label: 'Full Name',
+                                        controller: _fullNameController,
+                                        readOnly: !_isEditing,
+                                        validator: (v) =>
+                                            (v == null || v.trim().isEmpty)
+                                                ? 'Full name is required'
+                                                : null),
+                                    _buildField(
+                                        context: context,
+                                        label: 'Role / Specialty',
+                                        controller: _roleController,
+                                        readOnly: !_isEditing),
+                                    _buildField(
+                                        context: context,
+                                        label: 'License Number',
+                                        controller: _licenseNumberController,
+                                        readOnly: !_isEditing),
+                                    _buildField(
+                                        context: context,
+                                        label: 'Phone',
+                                        controller: _phoneController,
+                                        keyboardType: TextInputType.phone,
+                                        readOnly: !_isEditing),
+                                    _buildField(
+                                        context: context,
+                                        label: 'Hospital / Clinic Name',
+                                        controller: _hospitalNameController,
+                                        readOnly: !_isEditing),
+                                    _buildDateField(context),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
           ),

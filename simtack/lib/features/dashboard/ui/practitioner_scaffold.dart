@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/theme/app_breakpoints.dart';
 import '../../../core/theme/github_palette.dart';
 import 'practitioner_sidebar.dart';
 import 'session_trust_strip.dart';
@@ -27,7 +28,11 @@ class PractitionerScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final isWide = constraints.maxWidth > 600;
+        // One of the four private breakpoints this used to hard-code; the
+        // console's rail now appears at the same width class as everything
+        // else, so resizing does not flip different screens at different
+        // points.
+        final isWide = AppBreakpoints.hasRoomForRail(constraints.maxWidth);
 
         return Scaffold(
           backgroundColor: GhColors.canvas(context),

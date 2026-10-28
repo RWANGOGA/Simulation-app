@@ -14,6 +14,8 @@ import '../../../core/network/api_client.dart';
 import '../../../core/offline/offline_repository.dart';
 import '../../../core/offline/qr_passport.dart';
 import '../../../core/theme/app_page_route.dart';
+import '../../../core/theme/app_page.dart';
+import '../../../core/theme/app_breakpoints.dart';
 import '../../../core/theme/github_kit.dart';
 import '../../../core/theme/github_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
@@ -244,11 +246,18 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
             ],
           ),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: MediaQuery.of(context).size.width >= 700
-                  ? _buildWide()
-                  : _buildNarrow(),
+            // The pane decides its layout from the width it was *given*, not
+            // from the window: inside the console it is narrower than the
+            // browser, and `MediaQuery.size.width` was measuring the wrong box.
+            child: AppPage(
+              scrollable: true,
+              maxWidth: AppContentWidth.wide,
+              child: LayoutBuilder(
+                builder: (context, constraints) =>
+                    AppBreakpoints.hasRoomForSidePanel(constraints.maxWidth)
+                        ? _buildWide()
+                        : _buildNarrow(),
+              ),
             ),
           ),
         ],

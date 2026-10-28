@@ -125,7 +125,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: AppAccent.danger(context),
             duration: const Duration(seconds: 4),
           ),
         );
@@ -258,7 +258,8 @@ class _SuccessScreenState extends State<SuccessScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text('Could not open: $e'), backgroundColor: Colors.red),
+              content: Text('Could not open: $e'),
+              backgroundColor: AppAccent.danger(context)),
         );
       }
     }

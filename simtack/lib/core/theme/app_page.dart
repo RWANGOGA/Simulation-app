@@ -56,6 +56,7 @@ class AppPage extends StatelessWidget {
     this.verticalPadding = AppSpacing.xl,
     this.alignment = Alignment.topCenter,
     this.scrollable = false,
+    this.physics,
   });
 
   final Widget child;
@@ -81,6 +82,11 @@ class AppPage extends StatelessWidget {
   /// widget tree's shape, and therefore its indentation and parenthesis count,
   /// identical to what was there before.
   final bool scrollable;
+
+  /// Passed to the inner scroll view when [scrollable] is true. Screens behind a
+  /// `RefreshIndicator` need `AlwaysScrollableScrollPhysics`, otherwise a page
+  /// whose content is shorter than the viewport cannot be pulled down.
+  final ScrollPhysics? physics;
 
   /// The horizontal inset for a window of [width]. Exposed because a screen with
   /// its own scroll view sometimes needs the same number (to inset a divider or
@@ -146,6 +152,8 @@ class AppPage extends StatelessWidget {
         );
       },
     );
-    return scrollable ? SingleChildScrollView(child: page) : page;
+    return scrollable
+        ? SingleChildScrollView(physics: physics, child: page)
+        : page;
   }
 }

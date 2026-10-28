@@ -5,6 +5,8 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
+import '../../../core/theme/app_accent.dart';
+
 /// Pure-Dart replacement for the old single-mesh GLB model-viewer.
 ///
 /// Shows a pre-rendered anatomy image (real BodyParts3D data) and, on tap,
@@ -194,7 +196,7 @@ class _AnatomyTapViewState extends State<AnatomyTapView> {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Text(_error!,
-              style: const TextStyle(color: Colors.redAccent),
+              style: TextStyle(color: AppAccent.danger(context)),
               textAlign: TextAlign.center),
         ),
       );
