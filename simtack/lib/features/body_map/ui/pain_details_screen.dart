@@ -585,21 +585,17 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                           padding: const EdgeInsets.symmetric(
                               horizontal: 14, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppAccent.primary(context),
+                            // 7.10:1 under the white number, in both themes.
+                            // This pill used to also carry a violet
+                            // `BoxShadow` of its own colour, which is the glow
+                            // that reads as decoration rather than meaning.
+                            color: AppAccent.primaryFill,
                             borderRadius: BorderRadius.circular(AppRadius.md),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppAccent.primary(context)
-                                    .withOpacity(0.25),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
                           ),
                           child: Text(
                             '${point.severity} / 10',
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: AppAccent.onPrimary,
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
                             ),

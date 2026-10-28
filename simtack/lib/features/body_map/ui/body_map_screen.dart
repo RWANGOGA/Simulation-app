@@ -865,14 +865,19 @@ class _SelectedLocationsPageState extends State<_SelectedLocationsPage> {
                                           width: 24,
                                           height: 24,
                                           alignment: Alignment.center,
-                                          decoration: BoxDecoration(
+                                          decoration: const BoxDecoration(
                                             shape: BoxShape.circle,
-                                            color: AppAccent.primary(context),
+                                            // A filled marker carries a number
+                                            // in white, so it needs the fill
+                                            // token: `primary` resolves to
+                                            // lavender #A78BFA in dark mode,
+                                            // where white text is 1.9:1.
+                                            color: AppAccent.primaryFill,
                                           ),
                                           child: Text(
                                             '${index + 1}',
                                             style: const TextStyle(
-                                              color: Colors.white,
+                                              color: AppAccent.onPrimary,
                                               fontSize: 12,
                                               fontWeight: FontWeight.bold,
                                             ),

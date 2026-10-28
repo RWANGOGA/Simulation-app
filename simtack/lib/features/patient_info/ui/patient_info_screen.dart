@@ -304,7 +304,10 @@ class _PatientInfoScreenState extends State<PatientInfoScreen> {
                   child: ElevatedButton(
                     onPressed: _isSubmitting ? null : _onContinue,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppAccent.primary(context),
+                      // The spinner below is white, so the fill has to be the
+                      // one that white is legible on.
+                      backgroundColor: AppAccent.primaryFill,
+                      foregroundColor: AppAccent.onPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(AppRadius.md),
                       ),

@@ -605,8 +605,11 @@ class _SuccessScreenState extends State<SuccessScreen> {
                           style: const TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold)),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: AppAccent.primary(context),
-                        foregroundColor: Colors.white,
+                        // White on `primary` is 1.9:1 in dark mode, where
+                        // primary resolves to lavender; the fill token is
+                        // 7.10:1 in both themes.
+                        backgroundColor: AppAccent.primaryFill,
+                        foregroundColor: AppAccent.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(AppRadius.md)),
