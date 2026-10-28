@@ -34,7 +34,7 @@ void main() {
       expect(find.byKey(Body3DFallback.stillKey), findsNothing);
     });
 
-    testWidgets('the still is the same figure the flat body map draws',
+    testWidgets('the still is the body figure, cropped to the figure',
         (tester) async {
       await tester.pumpWidget(wrap(const Body3DFallback(
         viewer: Text('live-3d'),
@@ -44,10 +44,30 @@ void main() {
 
       final image = tester.widget<Image>(find.byKey(Body3DFallback.stillKey));
       expect((image.image as AssetImage).assetName, kBodyStillFront);
-      // Named rather than opaque: this is the flat renderer's visible layer, so
-      // the fallback cannot drift onto a different body than the one the body
-      // map shows.
-      expect(kBodyStillFront, 'assets/anatomy/body_visible_front.png');
+      // Named rather than opaque. The uncropped `body_visible_front.png` is an
+      // 800x1000 plate with the figure in about the middle third, so at hero
+      // size it rendered as a small pale figure in a field of white — which is
+      // what "the image no longer appears" looked like. This is the same body
+      // cropped to its bounding box.
+      expect(kBodyStillFront, 'assets/anatomy/body_still_front.png');
+    });
+
+    testWidgets('the still sits on a plate rather than a floating white box',
+        (tester) async {
+      await tester.pumpWidget(wrap(const Body3DFallback(
+        viewer: Text('live-3d'),
+        canRender3D: false,
+        stillBackground: Color(0xFF123456),
+      )));
+      await tester.pump();
+
+      final plate = tester.widget<ColoredBox>(find
+          .ancestor(
+            of: find.byKey(Body3DFallback.stillKey),
+            matching: find.byType(ColoredBox),
+          )
+          .first);
+      expect(plate.color, const Color(0xFF123456));
     });
 
     testWidgets('off the web the platform renderer keeps its chance',

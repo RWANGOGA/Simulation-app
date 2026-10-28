@@ -1,3 +1,6 @@
+import 'dart:js_interop';
+import 'dart:js_interop_unsafe';
+
 import 'package:web/web.dart' as web;
 
 /// Cached result: the answer cannot change within a page's lifetime, and each
@@ -26,11 +29,19 @@ bool detectWebglSupport() {
     final canvas = web.HTMLCanvasElement();
     // `webgl2` first: a context that answers for webgl2 supports both, and
     // asking for it avoids handing back a legacy context.
-    supported = canvas.getContext('webgl2') != null ||
-        canvas.getContext('webgl') != null;
+    final context = canvas.getContext('webgl2') ?? canvas.getContext('webgl');
+    if (context != null) {
+      // A context object is not proof it can draw. A browser whose GPU channel
+      // could not be established can hand one back already lost, and then fails
+      // on first use — the same `BindToCurrentSequence failed` state that broke
+      // `<model-viewer>`. Ask before trusting it.
+      final lost = context.callMethod<JSBoolean>('isContextLost'.toJS).toDart;
+      supported = !lost;
+    }
   } catch (_) {
     // Some browsers throw from `getContext` rather than returning null when
-    // the GPU process is unavailable.
+    // the GPU process is unavailable, and `isContextLost` is not present on
+    // every returned context kind.
     supported = false;
   }
   return _supported = supported;

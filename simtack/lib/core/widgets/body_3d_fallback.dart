@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 
 import '../platform/webgl_support.dart';
 
-/// The still front-view body every 3D view falls back to.
+/// The still front figure every 3D view falls back to.
 ///
-/// 800x1000, the same figure the flat body map draws — so a browser that cannot
-/// render 3D still shows the body this app already uses, rather than a new
-/// asset nobody designed.
-const String kBodyStillFront = 'assets/anatomy/body_visible_front.png';
+/// Cropped from `body_visible_front.png` — the flat body map's visible layer —
+/// to the figure's bounding box. The source plate is 800x1000 with the body
+/// occupying roughly the middle third, so dropping it into a hero-sized box
+/// produced a small, pale figure in a large field of white margin, which read
+/// as an empty panel. Same body, framed for a panel.
+const String kBodyStillFront = 'assets/anatomy/body_still_front.png';
 
 /// A body shown in 3D where that is possible, and as a still image where it is
 /// not.
@@ -30,6 +32,7 @@ class Body3DFallback extends StatelessWidget {
     this.still = kBodyStillFront,
     this.stillFit = BoxFit.contain,
     this.stillAlignment = Alignment.center,
+    this.stillBackground = Colors.white,
     this.canRender3D,
   });
 
@@ -46,6 +49,13 @@ class Body3DFallback extends StatelessWidget {
   final BoxFit stillFit;
   final Alignment stillAlignment;
 
+  /// Painted behind [still].
+  ///
+  /// The figure is drawn on a white plate, so it needs a plate to sit on rather
+  /// than floating as a white rectangle on whatever colour the page happens to
+  /// be. White by default, because that is the colour of the plate itself.
+  final Color stillBackground;
+
   /// Overrides the platform probe. `null` asks [detectWebglSupport].
   ///
   /// The welcome hero passes an override because it has a second, unrelated
@@ -58,11 +68,14 @@ class Body3DFallback extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (canRender3D ?? detectWebglSupport()) return viewer;
-    return Image.asset(
-      still,
-      key: stillKey,
-      fit: stillFit,
-      alignment: stillAlignment,
+    return ColoredBox(
+      color: stillBackground,
+      child: Image.asset(
+        still,
+        key: stillKey,
+        fit: stillFit,
+        alignment: stillAlignment,
+      ),
     );
   }
 }
