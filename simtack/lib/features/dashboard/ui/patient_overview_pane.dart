@@ -494,7 +494,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                                         width: redFlag ? 2.5 : 1.5),
                                     boxShadow: [
                                       BoxShadow(
-                                          color: color.withOpacity(0.55),
+                                          color: color.withValues(alpha: 0.55),
                                           blurRadius: 6,
                                           spreadRadius: 1)
                                     ],
@@ -513,7 +513,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.40),
+                                    color: Colors.black.withValues(alpha: 0.40),
                                     borderRadius:
                                         BorderRadius.circular(AppRadius.sm)),
                                 child: Text(

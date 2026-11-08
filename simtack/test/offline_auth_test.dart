@@ -27,7 +27,7 @@ void main() {
 
     test('verifyPassword returns true for correct password', () {
       final draft = DoctorDraft.createOffline(
-        profile: Doctor(
+        profile: const Doctor(
           id: -1,
           email: 'test@example.com',
           fullName: 'Test Doctor',
@@ -41,7 +41,7 @@ void main() {
 
     test('verifyPassword returns false for incorrect password', () {
       final draft = DoctorDraft.createOffline(
-        profile: Doctor(
+        profile: const Doctor(
           id: -1,
           email: 'test@example.com',
           fullName: 'Test Doctor',
@@ -55,7 +55,7 @@ void main() {
 
     test('createOffline generates negative localId', () {
       final draft = DoctorDraft.createOffline(
-        profile: Doctor(
+        profile: const Doctor(
           id: -1,
           email: 'test@example.com',
           fullName: 'Test Doctor',
@@ -72,7 +72,7 @@ void main() {
     test('fromSynced creates synced draft with positive localId', () {
       final draft = DoctorDraft.fromSynced(
         doctorId: 42,
-        profile: Doctor(
+        profile: const Doctor(
           id: 42,
           email: 'test@example.com',
           fullName: 'Test Doctor',
@@ -89,7 +89,7 @@ void main() {
 
     test('copyWith updates only specified fields', () {
       final original = DoctorDraft.createOffline(
-        profile: Doctor(
+        profile: const Doctor(
           id: -1,
           email: 'test@example.com',
           fullName: 'Test Doctor',
@@ -108,7 +108,7 @@ void main() {
 
     test('toJson and fromJson round-trip preserves data', () {
       final original = DoctorDraft.createOffline(
-        profile: Doctor(
+        profile: const Doctor(
           id: -1,
           email: 'test@example.com',
           fullName: 'Test Doctor',
@@ -170,7 +170,7 @@ void main() {
     });
 
     test('toJson omits empty optional fields', () {
-      final profile = const PatientProfile(
+      const profile = PatientProfile(
         age: 30,
         gender: 'Male',
         weight: 70.0,

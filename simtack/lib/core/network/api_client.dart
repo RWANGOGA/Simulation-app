@@ -1121,6 +1121,27 @@ class ApiClient {
         .map(AnatomyRegion.fromJson)
         .toList();
   }
+
+  /// Organ information for a tapped part from `GET /anatomy/part/{name}`.
+  /// [region] is the body-map region the tap resolved to; it adds that
+  /// region's red flags and questions. Null on a 404 (unknown part).
+  static Future<Map<String, dynamic>?> getOrganInfo(
+    String tapName, {
+    String? region,
+  }) async {
+    final uri = Uri.parse(
+            '$baseUrl/anatomy/part/${Uri.encodeComponent(tapName.trim())}')
+        .replace(
+            queryParameters: region == null ? null : {'region': region});
+    try {
+      final response =
+          await _send('GET', uri, headers: await _authHeaders());
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } on ApiException catch (e) {
+      if (e.statusCode == 404) return null;
+      rethrow;
+    }
+  }
 }
 
 /// Lightweight descriptor returned by GET /anatomy/regions. Used to render
@@ -1265,7 +1286,125 @@ class AnatomyInsight {
     required this.disclaimer,
     required this.sources,
     required this.citations,
+    this.organ,
   });
+
+  /// Set when the answer came from the tap-to-organ lookup rather than
+  /// retrieval; the card then shows the organ report above the region's
+  /// conditions, red flags and questions.
+  final OrganInfo? organ;
+
+  static const String organDisclaimer =
+      'This is supportive information for the clinician, not a diagnosis. '
+      'It comes from textbook reference material about the tapped body part.';
+
+  static const String organNotFound =
+      'No information available for this body part yet.';
+
+  /// Builds an insight from `GET /anatomy/part/{name}` (or the offline
+  /// [OrganLookup], which returns the same JSON). [json] null means the name
+  /// was unknown (a 404). The region's common conditions feed the condition
+  /// picker exactly as the offline retrieval answer did, so what a patient
+  /// selects for triage is unchanged.
+  factory AnatomyInsight.fromOrganJson(
+    Map<String, dynamic>? json, {
+    required String region,
+  }) {
+    if (json == null) {
+      return AnatomyInsight(
+        region: region,
+        complaint: '',
+        answered: false,
+        llmUsed: false,
+        cached: false,
+        summary: organNotFound,
+        structures: const [],
+        likelyConditions: const [],
+        redFlags: const [],
+        suggestedQuestions: const [],
+        disclaimer: '',
+        sources: const [],
+        citations: const [],
+      );
+    }
+    final organ = OrganInfo.fromJson(json);
+    final info = json['region'] as Map<String, dynamic>?;
+    List<String> strList(String key) =>
+        ((info?[key] as List?) ?? const []).whereType<String>().toList();
+    return AnatomyInsight(
+      region: (info?['region'] as String?) ?? region,
+      complaint: '',
+      answered: true,
+      llmUsed: false,
+      cached: false,
+      summary: organ.message ?? '',
+      structures: const [],
+      likelyConditions: [
+        for (final c in strList('common_conditions'))
+          AnatomyCondition(name: c, rationale: ''),
+      ],
+      redFlags: strList('red_flags'),
+      suggestedQuestions: strList('suggested_questions'),
+      disclaimer: organDisclaimer,
+      sources: const [],
+      citations: const [],
+      organ: organ,
+    );
+  }
+
+  /// The organ answer with the retrieval answer kept as a backstop.
+  ///
+  /// The organ report leads. Retrieval contributes only what the report does
+  /// not already say: its region overview, structures not among the report's
+  /// parts, and conditions, red flags and questions not already listed
+  /// (compared ignoring case). When the tapped part has no report - "coming
+  /// soon", or an unknown name - the retrieval answer stands in, so the patient
+  /// never gets an empty card where retrieval had something to say. A
+  /// retrieval abstention adds nothing.
+  static AnatomyInsight combine(AnatomyInsight organ, AnatomyInsight rag) {
+    if (!rag.answered) return organ;
+    final report = organ.organ;
+    final hasReport = report?.hasReport ?? false;
+
+    List<T> merged<T>(List<T> first, List<T> second, String Function(T) key) {
+      final seen = <String>{};
+      return [
+        for (final item in [...first, ...second])
+          if (seen.add(key(item).trim().toLowerCase())) item,
+      ];
+    }
+
+    String same(String s) => s;
+    final subparts = {
+      for (final s in report?.subparts ?? const <String>[])
+        s.trim().toLowerCase(),
+    };
+    final ragSummary =
+        rag.summary.trim() == report?.description.trim() ? '' : rag.summary;
+
+    return AnatomyInsight(
+      region: organ.region ?? rag.region,
+      complaint: rag.complaint,
+      answered: true,
+      lateralityNote: rag.lateralityNote,
+      llmUsed: rag.llmUsed,
+      cached: rag.cached,
+      summary: hasReport || ragSummary.isNotEmpty ? ragSummary : organ.summary,
+      structures: [
+        for (final s in merged(rag.structures, const <String>[], same))
+          if (!subparts.contains(s.trim().toLowerCase())) s,
+      ],
+      likelyConditions: merged(
+          organ.likelyConditions, rag.likelyConditions, (c) => c.name),
+      redFlags: merged(organ.redFlags, rag.redFlags, same),
+      suggestedQuestions:
+          merged(organ.suggestedQuestions, rag.suggestedQuestions, same),
+      disclaimer: hasReport ? organ.disclaimer : rag.disclaimer,
+      sources: rag.sources,
+      citations: rag.citations,
+      organ: report,
+    );
+  }
 
   factory AnatomyInsight.fromJson(Map<String, dynamic> json) {
     List<String> strList(String key) {
@@ -1299,6 +1438,77 @@ class AnatomyInsight {
       citations: ((json['citations'] as List?) ?? const [])
           .whereType<Map<String, dynamic>>()
           .map(AnatomyCitation.fromJson)
+          .toList(),
+    );
+  }
+}
+
+/// One disorder an organ report names, with the textbook sentence behind it.
+/// `evidence` may be empty; the card then shows the name alone.
+class OrganDisorder {
+  final String name;
+  final String evidence;
+
+  const OrganDisorder({required this.name, required this.evidence});
+
+  factory OrganDisorder.fromJson(Map<String, dynamic> json) => OrganDisorder(
+        name: (json['name'] as String?) ?? '',
+        evidence: (json['evidence'] as String?) ?? '',
+      );
+}
+
+/// Response of `GET /anatomy/part/{name}`: which report a tap resolved to and
+/// that report. `match` is "report", or "system" when the part is mapped but
+/// has no report yet (then [message] says so). The report's `mentions` and
+/// `sentences_*` fields are build statistics and are deliberately not kept.
+class OrganInfo {
+  final String part;
+  final String system;
+  final String? about;
+  final String match;
+  final String? message;
+  final String description;
+  final List<String> subparts;
+  final List<String> functions;
+  final List<OrganDisorder> disorders;
+
+  const OrganInfo({
+    required this.part,
+    required this.system,
+    required this.about,
+    required this.match,
+    required this.message,
+    required this.description,
+    required this.subparts,
+    required this.functions,
+    required this.disorders,
+  });
+
+  bool get hasReport => match == 'report';
+
+  /// "large_intestine" -> "Large intestine", for headings.
+  static String humanize(String name) {
+    final text = name.replaceAll('_', ' ').trim();
+    return text.isEmpty ? text : text[0].toUpperCase() + text.substring(1);
+  }
+
+  factory OrganInfo.fromJson(Map<String, dynamic> json) {
+    final report = json['report'] as Map<String, dynamic>?;
+    List<String> strList(String key) =>
+        ((report?[key] as List?) ?? const []).whereType<String>().toList();
+    return OrganInfo(
+      part: (json['part'] as String?) ?? '',
+      system: (json['system'] as String?) ?? '',
+      about: json['about'] as String?,
+      match: (json['match'] as String?) ?? 'system',
+      message: json['message'] as String?,
+      description: (report?['description'] as String?) ?? '',
+      subparts: strList('subparts'),
+      functions: strList('functions'),
+      disorders: ((report?['disorders'] as List?) ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .map(OrganDisorder.fromJson)
+          .where((d) => d.name.isNotEmpty)
           .toList(),
     );
   }

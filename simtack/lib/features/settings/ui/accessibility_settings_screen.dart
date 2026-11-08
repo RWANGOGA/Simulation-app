@@ -131,33 +131,41 @@ class AccessibilitySettingsScreen extends StatelessWidget {
             _sectionLabel(context, 'APPEARANCE'),
             _card(
               context,
-              child: Column(
-                children: [
-                  _themeTile(
-                    context,
-                    controller,
-                    mode: ThemeMode.light,
-                    icon: Icons.light_mode_outlined,
-                    title: 'Light',
-                    subtitle: 'Always use the light theme',
-                  ),
-                  _themeTile(
-                    context,
-                    controller,
-                    mode: ThemeMode.dark,
-                    icon: Icons.dark_mode_outlined,
-                    title: 'Dark',
-                    subtitle: 'Easier on the eyes in low light',
-                  ),
-                  _themeTile(
-                    context,
-                    controller,
-                    mode: ThemeMode.system,
-                    icon: Icons.brightness_auto_outlined,
-                    title: 'Follow device',
-                    subtitle: 'Match the phone\'s own setting',
-                  ),
-                ],
+              // The group owns the selected value and the change handler; each
+              // tile only says which mode it stands for.
+              child: RadioGroup<ThemeMode>(
+                groupValue: controller.themeMode,
+                onChanged: (value) {
+                  if (value != null) controller.setThemeMode(value);
+                },
+                child: Column(
+                  children: [
+                    _themeTile(
+                      context,
+                      controller,
+                      mode: ThemeMode.light,
+                      icon: Icons.light_mode_outlined,
+                      title: 'Light',
+                      subtitle: 'Always use the light theme',
+                    ),
+                    _themeTile(
+                      context,
+                      controller,
+                      mode: ThemeMode.dark,
+                      icon: Icons.dark_mode_outlined,
+                      title: 'Dark',
+                      subtitle: 'Easier on the eyes in low light',
+                    ),
+                    _themeTile(
+                      context,
+                      controller,
+                      mode: ThemeMode.system,
+                      icon: Icons.brightness_auto_outlined,
+                      title: 'Follow device',
+                      subtitle: 'Match the phone\'s own setting',
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 24),
@@ -285,10 +293,6 @@ class AccessibilitySettingsScreen extends StatelessWidget {
     final selected = controller.themeMode == mode;
     return RadioListTile<ThemeMode>(
       value: mode,
-      groupValue: controller.themeMode,
-      onChanged: (value) {
-        if (value != null) controller.setThemeMode(value);
-      },
       activeColor: AppAccent.primary(context),
       secondary: Icon(
         icon,

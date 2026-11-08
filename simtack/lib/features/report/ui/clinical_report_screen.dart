@@ -195,7 +195,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                       fontWeight: FontWeight.bold,
                       color: AppPalette.textPrimary(context)),
                 ),
-                backgroundColor: AppAccent.info(context).withOpacity(0.1),
+                backgroundColor: AppAccent.info(context).withValues(alpha: 0.1),
                 side: BorderSide(color: AppAccent.info(context)),
               ),
             ),
@@ -213,7 +213,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                   style: TextStyle(
                     fontSize: 60,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black.withOpacity(0.03),
+                    color: Colors.black.withValues(alpha: 0.03),
                     letterSpacing: 10,
                   ),
                 ),
@@ -288,7 +288,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppAccent.info(context).withOpacity(0.1),
+                  color: AppAccent.info(context).withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.medical_services,
@@ -358,7 +358,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: riskColor.withOpacity(0.1),
+              color: riskColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(AppRadius.md),
               border: Border.all(color: riskColor),
             ),
@@ -397,7 +397,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                             t.drivenByLabel(worst.bodyRegion),
                             style: TextStyle(
                                 fontSize: 12,
-                                color: riskColor.withOpacity(0.8)),
+                                color: riskColor.withValues(alpha: 0.8)),
                           ),
                         ),
                     ],
@@ -612,7 +612,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
           ),
         ),
         const SizedBox(height: 4),
-        Container(height: 1, color: AppAccent.info(context).withOpacity(0.2)),
+        Container(height: 1, color: AppAccent.info(context).withValues(alpha: 0.2)),
       ],
     );
   }
@@ -638,9 +638,9 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: badgeColor.withOpacity(0.1),
+        color: badgeColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: badgeColor.withOpacity(0.4)),
+        border: Border.all(color: badgeColor.withValues(alpha: 0.4)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -666,9 +666,9 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppAccent.danger(context).withOpacity(0.08),
+        color: AppAccent.danger(context).withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: AppAccent.danger(context).withOpacity(0.3)),
+        border: Border.all(color: AppAccent.danger(context).withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -694,9 +694,9 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppAccent.success(context).withOpacity(0.08),
+        color: AppAccent.success(context).withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppRadius.sm),
-        border: Border.all(color: AppAccent.success(context).withOpacity(0.3)),
+        border: Border.all(color: AppAccent.success(context).withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -722,10 +722,10 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppPalette.textPrimary(context).withOpacity(0.06),
+        color: AppPalette.textPrimary(context).withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(AppRadius.sm),
         border:
-            Border.all(color: AppPalette.textPrimary(context).withOpacity(0.2)),
+            Border.all(color: AppPalette.textPrimary(context).withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1004,8 +1004,8 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: isSelected
-                        ? Colors.white.withOpacity(0.2)
-                        : riskColor.withOpacity(0.12),
+                        ? Colors.white.withValues(alpha: 0.2)
+                        : riskColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(AppRadius.sm),
                   ),
                   child: Text(
@@ -1197,7 +1197,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
         color: Colors.white,
         borderRadius: BorderRadius.circular(AppRadius.md),
         border: Border.all(
-            color: AppPalette.textPrimary(context).withOpacity(0.35)),
+            color: AppPalette.textPrimary(context).withValues(alpha: 0.35)),
       ),
       child: Material(
         type: MaterialType.transparency,
@@ -1317,7 +1317,7 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                           selected: _clinicianTier == tier,
                           onSelected: (_) =>
                               setState(() => _clinicianTier = tier),
-                          selectedColor: _tierColor(tier).withOpacity(0.18),
+                          selectedColor: _tierColor(tier).withValues(alpha: 0.18),
                           checkmarkColor: _tierColor(tier),
                           labelStyle: ramp.bodySmall?.copyWith(
                             fontWeight: FontWeight.bold,
@@ -1349,8 +1349,8 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
                       onSelected: (picked) =>
                           setState(() => _decisionStatus = value),
                       selectedColor: value == 'closed'
-                          ? AppAccent.success(context).withOpacity(0.2)
-                          : AppPalette.textPrimary(context).withOpacity(0.2),
+                          ? AppAccent.success(context).withValues(alpha: 0.2)
+                          : AppPalette.textPrimary(context).withValues(alpha: 0.2),
                       checkmarkColor: value == 'closed'
                           ? AppAccent.success(context)
                           : AppPalette.textPrimary(context),
@@ -1438,9 +1438,9 @@ class _ClinicalReportScreenState extends State<ClinicalReportScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppAccent.info(context).withOpacity(0.06),
+        color: AppAccent.info(context).withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: AppAccent.info(context).withOpacity(0.2)),
+        border: Border.all(color: AppAccent.info(context).withValues(alpha: 0.2)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1736,7 +1736,7 @@ class _EditDemographicsSheetState extends State<_EditDemographicsSheet> {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: AppAccent.danger(context).withOpacity(0.08),
+                        color: AppAccent.danger(context).withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(AppRadius.sm),
                       ),
                       child: Text(_error!,
@@ -1761,7 +1761,7 @@ class _EditDemographicsSheetState extends State<_EditDemographicsSheet> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: DropdownButtonFormField<String>(
-                          value: _gender,
+                          initialValue: _gender,
                           decoration: _decoration(context, t.genderLabel),
                           items: _genders
                               .map((g) => DropdownMenuItem(

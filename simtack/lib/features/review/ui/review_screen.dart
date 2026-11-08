@@ -457,7 +457,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-                color: AppAccent.primary(context).withOpacity(0.1),
+                color: AppAccent.primary(context).withValues(alpha: 0.1),
                 shape: BoxShape.circle),
             child: Icon(icon, color: AppAccent.primary(context), size: 20)),
         const SizedBox(width: 12),

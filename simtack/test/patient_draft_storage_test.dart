@@ -12,7 +12,7 @@ void main() {
 
   group('PatientDraftStorage', () {
     test('save and loadAll works', () async {
-      final profile = PatientProfile(
+      const profile = PatientProfile(
         age: 30,
         gender: 'Female',
         weight: 70.0,
@@ -29,7 +29,7 @@ void main() {
     });
 
     test('save overwrites draft with same patientCode', () async {
-      final profile1 = PatientProfile(
+      const profile1 = PatientProfile(
         age: 30,
         gender: 'Female',
         weight: 70.0,
@@ -37,7 +37,7 @@ void main() {
         fullName: 'Jane Doe',
       );
 
-      final profile2 = PatientProfile(
+      const profile2 = PatientProfile(
         age: 31,
         gender: 'Female',
         weight: 71.0,
@@ -59,14 +59,14 @@ void main() {
     });
 
     test('save overwrites draft with same localId', () async {
-      final profile1 = PatientProfile(
+      const profile1 = PatientProfile(
         age: 30,
         gender: 'Female',
         weight: 70.0,
         height: 165.0,
       );
 
-      final profile2 = PatientProfile(
+      const profile2 = PatientProfile(
         age: 31,
         gender: 'Male',
         weight: 71.0,
@@ -94,7 +94,7 @@ void main() {
     });
 
     test('findByPatientCode returns matching draft', () async {
-      final profile = PatientProfile(
+      const profile = PatientProfile(
         age: 25,
         gender: 'Male',
         weight: 80.0,
@@ -110,7 +110,7 @@ void main() {
     });
 
     test('remove deletes draft', () async {
-      final profile = PatientProfile(
+      const profile = PatientProfile(
         age: 30,
         gender: 'Female',
         weight: 70.0,
@@ -128,13 +128,13 @@ void main() {
     test('clear removes all drafts', () async {
       await PatientDraftStorage.save(PatientDraft(
         localId: -1,
-        profile: PatientProfile(
+        profile: const PatientProfile(
             age: 20, gender: 'Male', weight: 60.0, height: 170.0),
         savedAt: DateTime(2024, 1, 1),
       ));
       await PatientDraftStorage.save(PatientDraft(
         localId: -2,
-        profile: PatientProfile(
+        profile: const PatientProfile(
             age: 25, gender: 'Female', weight: 65.0, height: 165.0),
         savedAt: DateTime(2024, 1, 2),
       ));
@@ -148,14 +148,14 @@ void main() {
     test('loadAll returns drafts sorted newest first', () async {
       final oldDraft = PatientDraft(
         localId: -1,
-        profile: PatientProfile(
+        profile: const PatientProfile(
             age: 20, gender: 'Male', weight: 60.0, height: 170.0),
         savedAt: DateTime(2024, 1, 1),
       );
 
       final newDraft = PatientDraft(
         localId: -2,
-        profile: PatientProfile(
+        profile: const PatientProfile(
             age: 25, gender: 'Female', weight: 65.0, height: 165.0),
         savedAt: DateTime(2024, 1, 2),
       );
@@ -171,14 +171,14 @@ void main() {
     test('loadLatest returns most recent draft', () async {
       await PatientDraftStorage.save(PatientDraft(
         localId: -1,
-        profile: PatientProfile(
+        profile: const PatientProfile(
             age: 20, gender: 'Male', weight: 60.0, height: 170.0),
         savedAt: DateTime(2024, 1, 1),
       ));
 
       await PatientDraftStorage.save(PatientDraft(
         localId: -2,
-        profile: PatientProfile(
+        profile: const PatientProfile(
             age: 25, gender: 'Female', weight: 65.0, height: 165.0),
         savedAt: DateTime(2024, 1, 2),
       ));
@@ -191,7 +191,7 @@ void main() {
 
   group('PatientDraft', () {
     test('createOffline generates negative localId', () {
-      final profile = PatientProfile(
+      const profile = PatientProfile(
         age: 30,
         gender: 'Female',
         weight: 70.0,
@@ -207,7 +207,7 @@ void main() {
     });
 
     test('copyWith updates only specified fields', () {
-      final profile = PatientProfile(
+      const profile = PatientProfile(
         age: 30,
         gender: 'Female',
         weight: 70.0,

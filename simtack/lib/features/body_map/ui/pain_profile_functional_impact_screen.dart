@@ -312,7 +312,7 @@ class _PainProfileFunctionalImpactScreenState
                                       ? [
                                           BoxShadow(
                                             color: AppAccent.primary(context)
-                                                .withOpacity(0.15),
+                                                .withValues(alpha: 0.15),
                                             blurRadius: 8,
                                             offset: const Offset(0, 3),
                                           ),
@@ -348,7 +348,7 @@ class _PainProfileFunctionalImpactScreenState
                                         fontSize: 10,
                                         color: isSelected
                                             ? AppAccent.primary(context)
-                                                .withOpacity(0.8)
+                                                .withValues(alpha: 0.8)
                                             : AppPalette.textMuted(context),
                                       ),
                                       textAlign: TextAlign.center,
@@ -695,7 +695,7 @@ class _PainProfileFunctionalImpactScreenState
         Container(
             height: 2,
             width: double.infinity,
-            color: AppAccent.primary(context).withOpacity(0.2)),
+            color: AppAccent.primary(context).withValues(alpha: 0.2)),
         const SizedBox(height: 6),
         Text(
           subtitle,

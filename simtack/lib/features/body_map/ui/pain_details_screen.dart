@@ -157,7 +157,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                         color: isActive
                             ? AppAccent.primary(context)
                             : (isDone
-                                ? AppAccent.primary(context).withOpacity(0.4)
+                                ? AppAccent.primary(context).withValues(alpha: 0.4)
                                 : AppPalette.border(context)),
                         borderRadius: BorderRadius.circular(4),
                       ),
@@ -191,7 +191,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color:
-                                  AppAccent.primary(context).withOpacity(0.1),
+                                  AppAccent.primary(context).withValues(alpha: 0.1),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(Icons.location_on,
@@ -235,7 +235,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                         border: Border.all(color: AppPalette.border(context)),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 10,
                             offset: const Offset(0, 4),
                           ),
@@ -298,7 +298,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                                     shape: BoxShape.circle,
                                                     color: AppAccent.fieldError(
                                                             context)
-                                                        .withOpacity(0.35 *
+                                                        .withValues(alpha: 0.35 *
                                                             (1 -
                                                                 _pulseController
                                                                     .value)),
@@ -329,11 +329,11 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                               decoration: BoxDecoration(
                                                 shape: BoxShape.circle,
                                                 color: AppAccent.danger(context)
-                                                    .withOpacity(0.35),
+                                                    .withValues(alpha: 0.35),
                                                 border: Border.all(
                                                   color:
                                                       AppAccent.danger(context)
-                                                          .withOpacity(0.5),
+                                                          .withValues(alpha: 0.5),
                                                   width: 1.5,
                                                 ),
                                               ),
@@ -357,16 +357,16 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 12, vertical: 8),
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.95),
+                                        color: Colors.white.withValues(alpha: 0.95),
                                         borderRadius:
                                             BorderRadius.circular(AppRadius.md),
                                         border: Border.all(
                                             color: AppAccent.primary(context)
-                                                .withOpacity(0.3)),
+                                                .withValues(alpha: 0.3)),
                                         boxShadow: [
                                           BoxShadow(
                                             color:
-                                                Colors.black.withOpacity(0.06),
+                                                Colors.black.withValues(alpha: 0.06),
                                             blurRadius: 6,
                                           ),
                                         ],
@@ -435,16 +435,16 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 12, vertical: 8),
                                       decoration: BoxDecoration(
-                                        color: Colors.white.withOpacity(0.95),
+                                        color: Colors.white.withValues(alpha: 0.95),
                                         borderRadius:
                                             BorderRadius.circular(AppRadius.md),
                                         border: Border.all(
                                             color: AppAccent.primary(context)
-                                                .withOpacity(0.3)),
+                                                .withValues(alpha: 0.3)),
                                         boxShadow: [
                                           BoxShadow(
                                             color:
-                                                Colors.black.withOpacity(0.06),
+                                                Colors.black.withValues(alpha: 0.06),
                                             blurRadius: 6,
                                           ),
                                         ],
@@ -621,7 +621,7 @@ class _PainDetailsScreenState extends State<PainDetailsScreen>
                           inactiveTrackColor: AppPalette.border(context),
                           thumbColor: AppAccent.primary(context),
                           overlayColor:
-                              AppAccent.primary(context).withOpacity(0.15),
+                              AppAccent.primary(context).withValues(alpha: 0.15),
                           thumbShape: const RoundSliderThumbShape(
                               enabledThumbRadius: 10),
                           trackHeight: 6,

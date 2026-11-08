@@ -310,7 +310,7 @@ class _AnatomyTapViewState extends State<AnatomyTapView> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: AppPalette.textPrimary(context).withOpacity(0.92),
+              color: AppPalette.textPrimary(context).withValues(alpha: 0.92),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Text(

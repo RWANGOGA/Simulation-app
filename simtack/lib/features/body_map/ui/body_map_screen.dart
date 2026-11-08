@@ -16,6 +16,7 @@ import 'pain_details_screen.dart';
 import 'pain_point.dart';
 import 'web_interop.dart';
 import '../../../core/theme/app_page_route.dart';
+import '../../../core/clinical/organ_lookup.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/offline/offline_repository.dart';
 import '../../../core/widgets/anatomy_insight_card.dart';
@@ -235,7 +236,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
       hitZ: tap.hitZ,
       viewKey: flatViewKey,
     );
-    _requestAnatomyInsight(region);
+    _requestAnatomyInsight(region, partName: tap.partName);
 
     // Show the resolved, human-meaningful region (e.g. "Right Hand"), not
     // the raw BodyParts3D mesh name in tap.partName — an exterior tap
@@ -330,18 +331,34 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
     _requestAnatomyInsight(region);
   }
 
-  /// Fires a background /anatomy/ask request for the given region and complaint.
+  /// Loads the insight for the given region in the background: the organ
+  /// report for the tapped part with retrieval filling the gaps, or either one
+  /// alone, as [OrganLookup.source] says.
   /// The future is stored per-region so the FutureBuilder in the insight
   /// panel can show loading → ready transitions without rebuilding the
   /// whole screen. Multiple regions load in parallel.
-  void _requestAnatomyInsight(String region, {String complaint = ''}) {
+  void _requestAnatomyInsight(
+    String region, {
+    String complaint = '',
+    String? partName,
+  }) {
     if (_anatomyFutures.containsKey(region)) return;
-    final future = OfflineRepository.instance.askAnatomy(
-      region: region,
-      complaint: complaint,
-      topK: 3,
-      conversationId: widget.conversationId,
-    );
+    final repo = OfflineRepository.instance;
+    final future = switch (OrganLookup.source) {
+      'rag' => repo.askAnatomy(
+          region: region,
+          complaint: complaint,
+          topK: 3,
+          conversationId: widget.conversationId,
+        ),
+      'organ' => repo.organInfo(region: region, partName: partName),
+      _ => repo.organAndRagInsight(
+          region: region,
+          partName: partName,
+          complaint: complaint,
+          conversationId: widget.conversationId,
+        ),
+    };
     setState(() {
       _anatomyFutures[region] = future;
     });
@@ -425,7 +442,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                             end: Alignment.bottomCenter,
                             colors: [
                               AppPalette.subtleFill(context),
-                              AppAccent.primary(context).withOpacity(0.06),
+                              AppAccent.primary(context).withValues(alpha: 0.06),
                             ],
                           ),
                         ),
@@ -480,12 +497,12 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                                           horizontal: 16, vertical: 10),
                                       decoration: BoxDecoration(
                                         color: AppPalette.surface(context)
-                                            .withOpacity(0.92),
+                                            .withValues(alpha: 0.92),
                                         borderRadius: BorderRadius.circular(20),
                                         boxShadow: [
                                           BoxShadow(
                                             color:
-                                                Colors.black.withOpacity(0.08),
+                                                Colors.black.withValues(alpha: 0.08),
                                             blurRadius: 10,
                                             offset: const Offset(0, 3),
                                           ),
@@ -542,7 +559,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                                       alignment: Alignment.center,
                                       decoration: BoxDecoration(
                                         color: AppPalette.textPrimary(context)
-                                            .withOpacity(0.92),
+                                            .withValues(alpha: 0.92),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Text(
