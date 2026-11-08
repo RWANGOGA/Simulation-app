@@ -11,6 +11,8 @@ writes two kinds of artefact into the Flutter project.
                         concern bump each one carries.
     body_graph.json     region -> connections (notes and concern levels).
     anatomy_kb.json     a byte-identical copy of app/data/anatomy_kb.json.
+    organ_reports.json  byte-identical copies of the tap-to-organ lookup data
+    part_to_organ.json  (see app/services/organ_lookup.py).
 
 ``simtack/test/fixtures/clinical_golden.json`` — parity vectors. Every case
 records what `triage_service.compute_risk` / `escalation_for` / `triage_tier` and
@@ -195,6 +197,10 @@ def _export_runtime_assets() -> Dict[str, Any]:
         BACKEND_DIR / "app" / "data" / "anatomy_kb.json",
         ASSET_DIR / "anatomy_kb.json",
     )
+    # The tap-to-organ lookup that replaced retrieval on the body map reads
+    # these two as they are; app/services/organ_lookup.py is the reference.
+    for name in ("organ_reports.json", "part_to_organ.json"):
+        shutil.copyfile(BACKEND_DIR / "app" / "data" / name, ASSET_DIR / name)
 
     return {"regions": len(graph), "connections": sum(len(v) for v in graph.values())}
 

@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:simtack/core/clinical/anatomy_engine.dart';
 import 'package:simtack/core/clinical/clinical_data.dart';
+import 'package:simtack/core/clinical/organ_lookup.dart';
 import 'package:simtack/core/clinical/risk_engine.dart';
 import 'package:simtack/core/models/patient_profile.dart';
 import 'package:simtack/core/network/api_client.dart';
@@ -441,6 +442,52 @@ class OfflineRepository {
     return AnatomyInsight.fromJson(
       engine.ask(region: region, complaint: complaint, topK: topK),
     );
+  }
+
+  /// The body map's tap-to-organ answer, from the bundled organ reports (the
+  /// same data `GET /anatomy/part/{name}` serves), so it works offline.
+  ///
+  /// [partName] is the mesh the 3D viewer hit. An outside tap almost always
+  /// hits the one skin mesh, which says nothing about where the patient
+  /// pointed, so a skin or unknown mesh falls back to [region].
+  Future<AnatomyInsight> organInfo({
+    required String region,
+    String? partName,
+  }) async {
+    final lookup = await OrganLookup.load();
+    final part = partName?.trim().toLowerCase() ?? '';
+    final usePart = part.isNotEmpty &&
+        !part.startsWith('skin') &&
+        lookup.knows(part);
+    return AnatomyInsight.fromOrganJson(
+      lookup.lookup(usePart ? part : region, region: region),
+      region: region,
+    );
+  }
+
+  /// The organ report with retrieval kept as a backstop: whatever the report
+  /// leaves out is filled from the retrieval answer, without repeating what the
+  /// report already says (see [AnatomyInsight.combine]). Both run on-device.
+  Future<AnatomyInsight> organAndRagInsight({
+    required String region,
+    String? partName,
+    String complaint = '',
+    String? conversationId,
+  }) async {
+    final organ = await organInfo(region: region, partName: partName);
+    final AnatomyInsight rag;
+    try {
+      rag = await askAnatomy(
+        region: region,
+        complaint: complaint,
+        conversationId: conversationId,
+      );
+    } catch (_) {
+      // Retrieval is the backstop here, not the answer: if it fails, the organ
+      // report still stands on its own.
+      return organ;
+    }
+    return AnatomyInsight.combine(organ, rag);
   }
 
   Future<List<AnatomyRegion>> listAnatomyRegions() async => [

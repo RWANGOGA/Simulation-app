@@ -20,7 +20,7 @@ void main() {
   group('DoctorDraftStorage', () {
     test('save and loadAll works', () async {
       final draft = DoctorDraft.createOffline(
-        profile: Doctor(
+        profile: const Doctor(
           id: -1,
           email: 'test@example.com',
           fullName: 'Test Doctor',
@@ -39,7 +39,7 @@ void main() {
 
     test('save overwrites draft with same email', () async {
       final draft1 = DoctorDraft.createOffline(
-        profile: Doctor(
+        profile: const Doctor(
           id: -1,
           email: 'test@example.com',
           fullName: 'Doctor One',
@@ -49,7 +49,7 @@ void main() {
       );
 
       final draft2 = DoctorDraft.createOffline(
-        profile: Doctor(
+        profile: const Doctor(
           id: -2,
           email: 'test@example.com',
           fullName: 'Doctor Two',
@@ -69,7 +69,7 @@ void main() {
     test('save overwrites draft with same localId', () async {
       final draft1 = DoctorDraft(
         localId: -100,
-        profile: Doctor(
+        profile: const Doctor(
           id: -100,
           email: 'one@example.com',
           fullName: 'Doctor One',
@@ -81,7 +81,7 @@ void main() {
 
       final draft2 = DoctorDraft(
         localId: -100,
-        profile: Doctor(
+        profile: const Doctor(
           id: -100,
           email: 'two@example.com',
           fullName: 'Doctor Two',
@@ -101,7 +101,7 @@ void main() {
 
     test('findByEmail returns matching draft', () async {
       final draft = DoctorDraft.createOffline(
-        profile: Doctor(
+        profile: const Doctor(
           id: -1,
           email: 'findme@example.com',
           fullName: 'Find Me',
@@ -119,7 +119,7 @@ void main() {
 
     test('findByEmail is case-insensitive', () async {
       final draft = DoctorDraft.createOffline(
-        profile: Doctor(
+        profile: const Doctor(
           id: -1,
           email: 'Test@Example.COM',
           fullName: 'Test',
@@ -142,7 +142,7 @@ void main() {
 
     test('remove deletes draft', () async {
       final draft = DoctorDraft.createOffline(
-        profile: Doctor(
+        profile: const Doctor(
           id: -1,
           email: 'remove@example.com',
           fullName: 'Remove Me',
@@ -161,14 +161,14 @@ void main() {
     test('clear removes all drafts', () async {
       await DoctorDraftStorage.save(DoctorDraft(
         localId: -1,
-        profile: Doctor(
+        profile: const Doctor(
             id: -1, email: 'a@example.com', fullName: 'A', isActive: true),
         passwordHash: 'hash',
         savedAt: DateTime(2024, 1, 1),
       ));
       await DoctorDraftStorage.save(DoctorDraft(
         localId: -2,
-        profile: Doctor(
+        profile: const Doctor(
             id: -2, email: 'b@example.com', fullName: 'B', isActive: true),
         passwordHash: 'hash',
         savedAt: DateTime(2024, 1, 2),
@@ -183,7 +183,7 @@ void main() {
     test('loadAll returns drafts sorted newest first', () async {
       final oldDraft = DoctorDraft(
         localId: -1,
-        profile: Doctor(
+        profile: const Doctor(
             id: -1, email: 'old@example.com', fullName: 'Old', isActive: true),
         passwordHash: 'hash',
         savedAt: DateTime(2024, 1, 1),
@@ -191,7 +191,7 @@ void main() {
 
       final newDraft = DoctorDraft(
         localId: -2,
-        profile: Doctor(
+        profile: const Doctor(
             id: -2, email: 'new@example.com', fullName: 'New', isActive: true),
         passwordHash: 'hash',
         savedAt: DateTime(2024, 1, 2),
@@ -208,7 +208,7 @@ void main() {
     test('loadLatest returns most recent draft', () async {
       await DoctorDraftStorage.save(DoctorDraft(
         localId: -1,
-        profile: Doctor(
+        profile: const Doctor(
             id: -1, email: 'old@example.com', fullName: 'Old', isActive: true),
         passwordHash: 'hash',
         savedAt: DateTime(2024, 1, 1),
@@ -216,7 +216,7 @@ void main() {
 
       await DoctorDraftStorage.save(DoctorDraft(
         localId: -2,
-        profile: Doctor(
+        profile: const Doctor(
             id: -2, email: 'new@example.com', fullName: 'New', isActive: true),
         passwordHash: 'hash',
         savedAt: DateTime(2024, 1, 2),
@@ -230,7 +230,7 @@ void main() {
 
   group('credential vault', () {
     DoctorDraft draftWith(String password) => DoctorDraft.createOffline(
-          profile: Doctor(
+          profile: const Doctor(
             id: -1,
             email: 'test@example.com',
             fullName: 'Test Doctor',

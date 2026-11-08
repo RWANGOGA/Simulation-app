@@ -3,6 +3,7 @@ import 'package:simtack/core/theme/app_tokens.dart';
 import 'package:simtack/core/theme/app_accent.dart';
 import 'package:simtack/core/theme/app_palette.dart';
 
+import '../clinical/organ_lookup.dart';
 import '../network/api_client.dart';
 
 /// Renders one region's anatomy insight returned by /anatomy/ask.
@@ -368,7 +369,9 @@ class _AnatomyInsightCardState extends State<AnatomyInsightCard> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'Retrieving clinical context...',
+                          OrganLookup.useRag
+                              ? 'Retrieving clinical context...'
+                              : 'Loading body part information...',
                           style: TextStyle(
                               fontSize: 12,
                               color: AppPalette.textMuted(context)),
@@ -438,17 +441,35 @@ class _SourceBadge extends StatelessWidget {
             AppAccent.danger(context),
             AppAccent.dangerTint(context)
           )
-        : insight.cached
-            ? (
-                'Cached reference',
-                AppAccent.info(context),
-                AppAccent.infoTint(context)
-              )
-            : (
-                'Clinical reference',
-                AppPalette.textSecondary(context),
-                AppPalette.subtleFill(context)
-              );
+        // Retrieval sources on an organ answer mean it filled gaps
+        // (AnatomyInsight.combine); without a report it is the whole answer,
+        // so it is labelled as the clinical reference it is.
+        : insight.organ != null &&
+                (insight.organ!.hasReport || insight.sources.isEmpty)
+            ? insight.organ!.hasReport
+                ? (
+                    insight.sources.isEmpty
+                        ? 'Organ reference'
+                        : 'Organ + clinical reference',
+                    AppAccent.info(context),
+                    AppAccent.infoTint(context)
+                  )
+                : (
+                    'Coming soon',
+                    AppPalette.textSecondary(context),
+                    AppPalette.subtleFill(context)
+                  )
+            : insight.cached
+                ? (
+                    'Cached reference',
+                    AppAccent.info(context),
+                    AppAccent.infoTint(context)
+                  )
+                : (
+                    'Clinical reference',
+                    AppPalette.textSecondary(context),
+                    AppPalette.subtleFill(context)
+                  );
     return Row(
       children: [
         Container(
@@ -456,7 +477,7 @@ class _SourceBadge extends StatelessWidget {
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: textColor.withOpacity(0.3)),
+            border: Border.all(color: textColor.withValues(alpha: 0.3)),
           ),
           child: Text(
             label,
@@ -501,6 +522,15 @@ class _InsightBody extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        if (insight.organ != null) _OrganSection(organ: insight.organ!),
+        // Below an organ report, a retrieval summary is the region's overview
+        // (AnatomyInsight.combine) and is headed as such.
+        if (insight.organ != null &&
+            insight.sources.isNotEmpty &&
+            insight.summary.isNotEmpty) ...[
+          const _SectionLabel('Region Overview'),
+          const SizedBox(height: 6),
+        ],
         if (insight.summary.isNotEmpty)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
@@ -826,6 +856,107 @@ class _InsightBody extends StatelessWidget {
   }
 }
 
+/// The organ report a tap resolved to: what the part is and does, its
+/// sub-parts, and the disorders the textbooks name for it, each with the
+/// sentence it came from. Empty fields are left out.
+class _OrganSection extends StatelessWidget {
+  final OrganInfo organ;
+  const _OrganSection({required this.organ});
+
+  @override
+  Widget build(BuildContext context) {
+    final body = TextStyle(
+        fontSize: 13, color: AppPalette.textPrimary(context), height: 1.45);
+    final muted = TextStyle(
+        fontSize: 12, color: AppPalette.textSecondary(context), height: 1.4);
+    final system = organ.system.replaceAll('_', ' ');
+    return Column(
+      key: const ValueKey('organ-section'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          OrganInfo.humanize(organ.part),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: AppPalette.textPrimary(context),
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          [
+            if (organ.about != null) 'About: ${OrganInfo.humanize(organ.about!)}',
+            if (system.isNotEmpty) '$system system',
+          ].join(' · '),
+          style: muted,
+        ),
+        const SizedBox(height: 10),
+        if (organ.description.isNotEmpty) ...[
+          Text(organ.description, style: body),
+          const SizedBox(height: 12),
+        ],
+        if (organ.functions.isNotEmpty) ...[
+          const _SectionLabel('Functions'),
+          const SizedBox(height: 6),
+          ...organ.functions.map((f) => Padding(
+                padding: const EdgeInsets.only(bottom: 4),
+                child: Text('• $f', style: body),
+              )),
+          const SizedBox(height: 8),
+        ],
+        if (organ.subparts.isNotEmpty) ...[
+          const _SectionLabel('Parts'),
+          const SizedBox(height: 6),
+          Wrap(
+            spacing: 6,
+            runSpacing: 4,
+            children: organ.subparts
+                .map((s) => Chip(
+                      label: Text(s,
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: AppPalette.textPrimary(context),
+                              fontWeight: FontWeight.w500)),
+                      backgroundColor: Colors.white,
+                      side: BorderSide(color: AppPalette.border(context)),
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      visualDensity: VisualDensity.compact,
+                    ))
+                .toList(),
+          ),
+          const SizedBox(height: 12),
+        ],
+        if (organ.disorders.isNotEmpty) ...[
+          const _SectionLabel('Related Disorders'),
+          const SizedBox(height: 6),
+          ...organ.disorders.map((d) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      OrganInfo.humanize(d.name),
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppPalette.textPrimary(context),
+                      ),
+                    ),
+                    if (d.evidence.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(d.evidence, style: muted),
+                      ),
+                  ],
+                ),
+              )),
+          const SizedBox(height: 4),
+        ],
+      ],
+    );
+  }
+}
+
 class _SectionLabel extends StatelessWidget {
   final String text;
   final Color? color;
@@ -860,7 +991,7 @@ class _ShimmerLines extends StatelessWidget {
             height: 10,
             width: i == lines - 1 ? 180 : double.infinity,
             decoration: BoxDecoration(
-              color: AppAccent.info(context).withOpacity(0.10),
+              color: AppAccent.info(context).withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(4),
             ),
           ),

@@ -472,8 +472,7 @@ void main() {
 
       final db = await LocalDatabase.open();
       final queued =
-          db.outbox.lastWhere((op) => op['kind'] == 'update_decision')
-              as Map<String, dynamic>;
+          db.outbox.lastWhere((op) => op['kind'] == 'update_decision');
 
       expect(queued['payload'], containsPair('clinician_tier', 'yellow'));
     });

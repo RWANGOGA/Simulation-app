@@ -3,6 +3,8 @@ Anatomy assistant endpoints (Step 7.4).
 
 Exposes:
   GET  /anatomy/regions   - list all known regions (id, region, system)
+  GET  /anatomy/part/{n}  - organ information for a tapped part (no retrieval)
+  GET  /anatomy/organs    - names of every organ report
   POST /anatomy/ask       - retriever + LLM call, returns structured JSON
   POST /anatomy/clear     - clear conversation history
 
@@ -47,7 +49,7 @@ from app.api.v1.endpoints.auth import get_current_doctor
 from app.core.config import settings
 from app.core.database import get_db
 from app.models import Doctor
-from app.services import anatomy_retriever, throttle
+from app.services import anatomy_retriever, organ_lookup, throttle
 from app.services.anatomy_retriever import RetrievalHit
 from app.services.llm_client import (
     GROQ_CHAT_COMPLETIONS_URL,
@@ -536,6 +538,27 @@ def _rerank_with_llm(
 def list_regions():
     """All anatomy regions the body map can ask about."""
     return {"regions": anatomy_retriever.list_regions()}
+
+
+@router.get("/organs")
+def list_reports():
+    """Names of every organ report a tap can resolve to."""
+    return {"reports": sorted(organ_lookup.reports())}
+
+
+# `:path` because region names carry a slash ("Chest / Heart"), which arrives
+# decoded and would otherwise never match a single path segment.
+@router.get("/part/{name:path}")
+def part_info(name: str, region: Optional[str] = Query(default=None)):
+    """Information for a tapped body part, a body-map region, or a report name.
+
+    `region` is the body-map region the tap resolved to; it adds that region's
+    red flags and questions when `name` is a mesh name such as "skin".
+    """
+    result = organ_lookup.lookup(name, region=region)
+    if result is None:
+        raise HTTPException(status_code=404, detail=f"Unknown body part '{name}'")
+    return result
 
 
 @router.get("/status")

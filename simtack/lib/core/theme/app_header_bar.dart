@@ -30,7 +30,7 @@ class AppHeaderBar extends StatelessWidget {
       decoration: BoxDecoration(
         color: GhColors.headerBg(context),
         border: Border(
-          bottom: BorderSide(color: Colors.black.withOpacity(0.28)),
+          bottom: BorderSide(color: Colors.black.withValues(alpha: 0.28)),
         ),
       ),
       child: Row(
@@ -49,10 +49,10 @@ class AppHeaderBar extends StatelessWidget {
             height: 26,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: GhColors.headerFg(context).withOpacity(0.14),
+              color: GhColors.headerFg(context).withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
-                color: GhColors.headerFg(context).withOpacity(0.24),
+                color: GhColors.headerFg(context).withValues(alpha: 0.24),
               ),
             ),
             child: Icon(
@@ -122,7 +122,7 @@ class AppHeaderIconButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         border: compact
             ? null
-            : Border.all(color: GhColors.headerFg(context).withOpacity(0.16)),
+            : Border.all(color: GhColors.headerFg(context).withValues(alpha: 0.16)),
       ),
       child: IconButton(
         icon: loadingChild ??

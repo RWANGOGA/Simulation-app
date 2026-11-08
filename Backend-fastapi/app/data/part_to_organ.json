@@ -1,0 +1,9389 @@
+{
+ "abdomen (lower left)": {
+  "candidates": [
+   "large_intestine",
+   "small_intestine",
+   "ovary",
+   "ureter"
+  ],
+  "system": "gastrointestinal"
+ },
+ "abdomen (lower right)": {
+  "candidates": [
+   "appendix",
+   "large_intestine",
+   "small_intestine",
+   "ovary",
+   "ureter"
+  ],
+  "system": "gastrointestinal"
+ },
+ "abdomen (upper)": {
+  "candidates": [
+   "stomach",
+   "liver",
+   "gallbladder",
+   "pancreas",
+   "abdominal_muscles"
+  ],
+  "system": "gastrointestinal"
+ },
+ "abdominal aorta": {
+  "candidates": [
+   "aorta",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "abdominal ostium of uterine tube": {
+  "candidates": [
+   "uterine_tube"
+  ],
+  "system": "reproductive"
+ },
+ "abdominal part of pectoralis major": {
+  "candidates": [
+   "pectoralis",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "abductor digiti minimi of foot": {
+  "candidates": [
+   "foot",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "abductor digiti minimi of hand": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "abductor hallucis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "abductor pollicis brevis": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "abductor pollicis longus": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "accessory hemiazygos vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "accessory subsuperior branch of posterior basal segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "acromial branch of thoraco-acromial artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "acromial part of deltoid": {
+  "candidates": [
+   "deltoid",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "adductor brevis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "adductor longus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "adductor magnus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "adductor minimus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "adrenal gland": {
+  "candidates": [
+   "adrenal_gland"
+  ],
+  "system": "endocrine"
+ },
+ "afferent lymphatic vessel": {
+  "candidates": [
+   "lymphatic_vessel",
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "amnion": {
+  "candidates": [
+   "placenta"
+  ],
+  "system": "pregnancy"
+ },
+ "ampulla of uterine tube": {
+  "candidates": [
+   "uterine_tube"
+  ],
+  "system": "reproductive"
+ },
+ "amygdala": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "amygdalohippocampal area ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "amygdaloid complex ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "anconeus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "angular gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "angular gyrus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "anterior amygdaloid area ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "anterior basal bronchopulmonary segment": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "anterior basal segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior basal segmental bronchial tree": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "anterior basal segmental bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "anterior basal segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "anterior branch of anterior segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior branch of lateral segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior bronchopulmonary segment": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "anterior cardiac vein": {
+  "candidates": [
+   "heart",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "anterior cecal artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior cerebral artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior chamber of eyeball": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "anterior choroidal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior cingulate gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "anterior circumflex humeral artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior circumflex humeral vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "anterior commissure": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "anterior communicating artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior cortical nucleus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "anterior cruciate enthesis ()": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "anterior cruciate ligament": {
+  "candidates": [
+   "knee"
+  ],
+  "system": "skeletal"
+ },
+ "anterior cusp of aortic valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "anterior cusp of pulmonary valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "anterior descending branch of pulmonary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "cardiac"
+ },
+ "anterior division of renal artery": {
+  "candidates": [
+   "kidney",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior ethmoidal nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "anterior horn of lateral ventricle ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "anterior inferior cerebellar artery": {
+  "candidates": [
+   "cerebellum",
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior inferior pancreaticoduodenal artery": {
+  "candidates": [
+   "pancreas",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior inferior segmental branch of portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "anterior inferior segmental hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior inferior segmental tributary of middle hepatic vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "anterior inferior tributary of hepatic biliary tree": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "anterior interosseous artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior interventricular vein": {
+  "candidates": [
+   "heart",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "anterior leaflet of mitral valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "anterior leaflet of tricuspid valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "anterior nuclear complex of thalamus ()": {
+  "candidates": [
+   "thalamus",
+   "brain",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "anterior olfactory nucleus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "anterior olfactory nucleus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "anterior papillary muscle of ventricle": {
+  "candidates": [
+   "heart",
+   "muscle"
+  ],
+  "system": "cardiac"
+ },
+ "anterior parahippocampal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "anterior parietal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior part of apical segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior part of apical segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "anterior part of lateral segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "anterior part of superior temporal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "anterior segment of paracentral lobule": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "anterior segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior segmental bronchial tree": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "anterior segmental bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "anterior segmental hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "anterior spinal artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior superior pancreaticoduodenal artery": {
+  "candidates": [
+   "pancreas",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior superior segmental branch of portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "anterior superior segmental hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior superior segmental tributary of hepatic vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "anterior superior tributary of hepatic biliary tree": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "anterior temporal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior temporal branch of lateral occipital artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior tibial artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior tibial recurrent artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior tibial vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "anterior ulnar recurrent artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterior wall of uterus": {
+  "candidates": [
+   "uterus"
+  ],
+  "system": "reproductive"
+ },
+ "anteroinferior segment": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "anterolateral central branch of middle cerebral artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "anterolateral head of lateral papillary muscle of ventricle": {
+  "candidates": [
+   "heart",
+   "muscle"
+  ],
+  "system": "cardiac"
+ },
+ "anterolateral ligament of knee": {
+  "candidates": [
+   "knee",
+   "ligament"
+  ],
+  "system": "skeletal"
+ },
+ "anterolateral segment": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "anterosuperior segment": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "aortic valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "apical bronchopulmonary segment": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "apical part of apical segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "apical part of apical segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "apical part of posterior segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "apical segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "apical segmental bronchial tree": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "apical segmental bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "apical segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "appendicular artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "appendix": {
+  "candidates": [
+   "appendix",
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "aqueous humor of eyeball": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "arch of aorta": {
+  "candidates": [
+   "aorta",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "arcuate artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "areolar tubercle": {
+  "candidates": [
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "arteria princeps pollicis": {
+  "candidates": [
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "arteria radialis indicis": {
+  "candidates": [
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "artery of central sulcus": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "artery of postcentral sulcus": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "artery of precentral sulcus": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "articular cartilage of distal epiphysis of femur": {
+  "candidates": [
+   "femur",
+   "cartilage"
+  ],
+  "system": "skeletal"
+ },
+ "articular disk of knee joint": {
+  "candidates": [
+   "knee"
+  ],
+  "system": "skeletal"
+ },
+ "aryepiglotticus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "arytenoid cartilage": {
+  "candidates": [
+   "larynx"
+  ],
+  "system": "skeletal"
+ },
+ "ascending aorta": {
+  "candidates": [
+   "aorta",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "ascending branch of colic artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "ascending branch of inferior branch of ileocolic artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "ascending colon": {
+  "candidates": [
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "ascending lumbar vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "ascending part of duodenum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "ascending part of trapezius": {
+  "candidates": [
+   "trapezius",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "atlas": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "atrium of lateral ventricle ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "axillary artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "axillary vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "axis": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "azygos vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "back pain (lower)": {
+  "candidates": [
+   "vertebral_column",
+   "kidney",
+   "sacrum"
+  ],
+  "system": "musculoskeletal"
+ },
+ "back pain (upper)": {
+  "candidates": [
+   "vertebral_column",
+   "scapula",
+   "trapezius",
+   "lung"
+  ],
+  "system": "musculoskeletal"
+ },
+ "bare area of liver": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "basal branch of anterior basal segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "basal forebrain ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "basal plate": {
+  "candidates": [
+   "placenta"
+  ],
+  "system": "pregnancy"
+ },
+ "basilar artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "basilic vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "basolateral nucleus basal nucleus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "basomedial nucleus accessory basal nucleus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "bed nucleus of stria terminalis ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "body of caudate ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "body of hippocampus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "body of lateral ventricle ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "body of pancreas": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "body of sternum": {
+  "candidates": [
+   "sternum"
+  ],
+  "system": "skeletal"
+ },
+ "body of uterus": {
+  "candidates": [
+   "uterus"
+  ],
+  "system": "reproductive"
+ },
+ "brachial artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "brachialis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "brachiocephalic artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "cardiac"
+ },
+ "brachiocephalic vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "brachioradialis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "brachium of inferior colliculus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "brachium of superior colliculus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "branch of anterior choroidal artery to posterior limb of internal capsule": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "branch of middle cerebral artery to angular gyrus": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "branch of portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "broad ligament of uterus": {
+  "candidates": [
+   "uterus",
+   "ligament"
+  ],
+  "system": "reproductive"
+ },
+ "bronchial artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "bronchial branch of arch of aorta": {
+  "candidates": [
+   "aorta",
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "bulbar conjunctiva": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "c1 segment of cervical spinal cord": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "c2 segment of cervical spinal cord": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "c3 segment of cervical spinal cord": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "c4 segment of cervical spinal cord": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "c5 segment of cervical spinal cord": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "c6 segment of cervical spinal cord": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "c7 segment of cervical spinal cord": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "c8 segment of cervical spinal cord": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "caecum": {
+  "candidates": [
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "calcaneal tendon": {
+  "candidates": [
+   "tendon",
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "calcaneus": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "callosomarginal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "capitate": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "capsule of lymph node": {
+  "candidates": [
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "capsule of the liver": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "cardiac atrium": {
+  "candidates": [
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "cardinal ligament": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "reproductive"
+ },
+ "carina of trachea": {
+  "candidates": [
+   "trachea",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "cartilage of lobar bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung",
+   "cartilage"
+  ],
+  "system": "respiratory"
+ },
+ "cartilage of main bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung",
+   "cartilage"
+  ],
+  "system": "respiratory"
+ },
+ "cartilage of segmental bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung",
+   "cartilage"
+  ],
+  "system": "respiratory"
+ },
+ "caudal pancreatic artery": {
+  "candidates": [
+   "pancreas",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "caudate lobe branch of hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "caudate lobe branch of portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "caudate lobe of liver": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "caudate lobe tributary of hepatic biliary tree": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "caudate nucleus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "cavity of atrium": {
+  "candidates": [
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "cavity of ventricle": {
+  "candidates": [
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "celiac artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "celiac trunk": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "central canal of medulla oblongata ()": {
+  "candidates": [
+   "brainstem",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "central canal of spinal cord": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "central nuclear group ()": {
+  "candidates": [
+   "brain",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "central retinal artery": {
+  "candidates": [
+   "retina",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "central retinal vein": {
+  "candidates": [
+   "retina",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "centromedian nucleus of thalamus ()": {
+  "candidates": [
+   "thalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "cephalic vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "cerebellar deep nuclei ()": {
+  "candidates": [
+   "cerebellum",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "cerebellar vermis": {
+  "candidates": [
+   "cerebellum",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "cerebellar vermis ()": {
+  "candidates": [
+   "cerebellum",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "cerebellum": {
+  "candidates": [
+   "cerebellum",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "cerebral aqueduct": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "cerebral aqueduct ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "cerebral peduncle": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "cervical rotator": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "cervicovaginal junction": {
+  "candidates": [
+   "cervix"
+  ],
+  "system": "reproductive"
+ },
+ "check ligament of lateral rectus": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "check ligament of medial rectus": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "chest / heart": {
+  "candidates": [
+   "heart",
+   "lung",
+   "sternum",
+   "rib",
+   "pectoralis"
+  ],
+  "system": "cardiovascular"
+ },
+ "chorionic plate": {
+  "candidates": [
+   "placenta"
+  ],
+  "system": "pregnancy"
+ },
+ "choroid": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "choroid plexus of cerebral hemisphere": {
+  "candidates": [
+   "brain",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "ciliary body": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "ciliary ganglion": {
+  "candidates": [],
+  "system": "nervous"
+ },
+ "ciliary muscle": {
+  "candidates": [
+   "muscle",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "ciliary processes": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "cingulate gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "circumflex branch of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "circumflex scapular artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "circumflex scapular vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "claustrum ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "clavicle": {
+  "candidates": [
+   "clavicle"
+  ],
+  "system": "skeletal"
+ },
+ "clavicular part of deltoid": {
+  "candidates": [
+   "deltoid",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "clavicular part of pectoralis major": {
+  "candidates": [
+   "pectoralis",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "coccygeus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "coccyx": {
+  "candidates": [
+   "sacrum",
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "colic artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "colic impression of liver": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "colic surface of spleen": {
+  "candidates": [
+   "spleen",
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "colic vein": {
+  "candidates": [
+   "large_intestine",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "commissure of fornix of forebrain": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "common bile duct": {
+  "candidates": [
+   "gallbladder"
+  ],
+  "system": "digestive"
+ },
+ "common carotid artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "common carotid artery plus branches": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "cardiac"
+ },
+ "common hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "common hepatic duct": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "common iliac artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "common iliac vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "common interosseous artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "common palmar digital vein": {
+  "candidates": [
+   "hand",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "common tendinous ring": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "communicating branch of nasociliary nerve with ciliary ganglion": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "compact bone tissue": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "conus artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "conus branch of anterior interventricular branch of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "conus elasticus": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "coracobrachialis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "cornea": {
+  "candidates": [
+   "cornea",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "corneoscleral junction": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "corniculate cartilage": {
+  "candidates": [
+   "larynx"
+  ],
+  "system": "skeletal"
+ },
+ "cornua": {
+  "candidates": [],
+  "system": "reproductive"
+ },
+ "corona ciliaris": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "cardiac"
+ },
+ "coronary ligament of liver": {
+  "candidates": [
+   "liver",
+   "ligament"
+  ],
+  "system": "digestive"
+ },
+ "coronary sinus": {
+  "candidates": [
+   "heart",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "corpus callosum": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "corpus cavernosum of penis": {
+  "candidates": [
+   "penis"
+  ],
+  "system": "reproductive"
+ },
+ "corpus spongiosum of penis": {
+  "candidates": [
+   "penis"
+  ],
+  "system": "reproductive"
+ },
+ "costocervical trunk": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "cricoid cartilage": {
+  "candidates": [
+   "larynx"
+  ],
+  "system": "skeletal"
+ },
+ "cuboid bone": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "cuneiform cartilage": {
+  "candidates": [
+   "larynx"
+  ],
+  "system": "skeletal"
+ },
+ "cuneus cortex": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "cystic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "cystic duct": {
+  "candidates": [],
+  "system": "digestive"
+ },
+ "cystic vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "deep brachial artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "deep cervical artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "deep dorsal vein of penis": {
+  "candidates": [
+   "penis",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "deep femoral vein": {
+  "candidates": [
+   "femur",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "deep palmar arch": {
+  "candidates": [
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "deep palmar venous arch": {
+  "candidates": [
+   "hand",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "deep plantar artery": {
+  "candidates": [
+   "foot",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "deferent duct": {
+  "candidates": [],
+  "system": "reproductive"
+ },
+ "deltoid branch of thoraco-acromial artery": {
+  "candidates": [
+   "deltoid",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "descending aorta": {
+  "candidates": [
+   "aorta",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "descending branch of colic artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "descending branch of lateral circumflex femoral artery": {
+  "candidates": [
+   "femur",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "descending colon": {
+  "candidates": [
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "descending genicular artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "descending part of duodenum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "descending part of trapezius": {
+  "candidates": [
+   "trapezius",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "descending thoracic aorta": {
+  "candidates": [
+   "aorta",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "diagonal branch of anterior descending branch of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "diaphragm": {
+  "candidates": [
+   "diaphragm",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "diaphragmatic surface of liver": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "diaphragmatic surface of spleen": {
+  "candidates": [
+   "spleen",
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "digastric": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "distal part of ileum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "distal part of jejunum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "distal perforating artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "distal phalanx of big toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "distal phalanx of fourth toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "distal phalanx of index finger": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "distal phalanx of little finger": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "distal phalanx of little toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "distal phalanx of middle finger": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "distal phalanx of ring finger": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "distal phalanx of second toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "distal phalanx of third toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "distal phalanx of thumb": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "distal-most point of medial condyle of femur": {
+  "candidates": [
+   "femur"
+  ],
+  "system": "skeletal"
+ },
+ "dorsal artery of penis": {
+  "candidates": [
+   "penis",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "dorsal carpal branch of radial artery": {
+  "candidates": [
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "dorsal carpal branch of ulnar artery": {
+  "candidates": [
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "dorsal digital artery of foot": {
+  "candidates": [
+   "foot",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "dorsal lateral geniculate nucleus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "dorsal metacarpal vein": {
+  "candidates": [
+   "hand",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "dorsal pancreatic artery": {
+  "candidates": [
+   "pancreas",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "dorsal pancreatic duct": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "dorsal scapular artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "dorsal venous arch of foot": {
+  "candidates": [
+   "foot",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "dorsal venous network of hand": {
+  "candidates": [
+   "hand",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "dorsalis pedis artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "duct of caudate lobe of liver": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "duodenal ampulla": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "duodenal impression of liver": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "duodenum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "dura mater": {
+  "candidates": [
+   "brain",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "efferent lymphatic vessel": {
+  "candidates": [
+   "lymphatic_vessel",
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "eighth rib": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "eighth thoracic spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "eighth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "eleventh rib": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "eleventh thoracic spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "eleventh thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "epididymis": {
+  "candidates": [],
+  "system": "reproductive"
+ },
+ "epiglottic cartilage": {
+  "candidates": [
+   "larynx"
+  ],
+  "system": "respiratory"
+ },
+ "epiglottis": {
+  "candidates": [
+   "larynx"
+  ],
+  "system": "respiratory"
+ },
+ "esophageal artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "esophageal impression of liver": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "esophagus": {
+  "candidates": [
+   "esophagus"
+  ],
+  "system": "digestive"
+ },
+ "ethmoid": {
+  "candidates": [
+   "skull"
+  ],
+  "system": "skeletal"
+ },
+ "extensor carpi radialis brevis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "extensor carpi radialis longus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "extensor carpi ulnaris": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "extensor digiti minimi": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "extensor digitorum": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "extensor digitorum longus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "extensor hallucis brevis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "extensor hallucis longus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "extensor indicis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "extensor pollicis brevis": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "extensor pollicis longus": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "external anal sphincter": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "external cervical os": {
+  "candidates": [
+   "cervix"
+  ],
+  "system": "reproductive"
+ },
+ "external ear": {
+  "candidates": [
+   "ear",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "external iliac artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "external iliac vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "external intercostal muscle": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "external oblique": {
+  "candidates": [
+   "abdominal_muscles",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "external segment of globus pallidus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "eye trabecular meshwork": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "eyebrow": {
+  "candidates": [
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "falciform ligament": {
+  "candidates": [
+   "liver",
+   "ligament"
+  ],
+  "system": "digestive"
+ },
+ "female areola": {
+  "candidates": [
+   "breast",
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "femoral artery": {
+  "candidates": [
+   "femur",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "femoral vein": {
+  "candidates": [
+   "femur",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "femur": {
+  "candidates": [
+   "femur"
+  ],
+  "system": "skeletal"
+ },
+ "fibula": {
+  "candidates": [
+   "fibula"
+  ],
+  "system": "skeletal"
+ },
+ "fibular collateral ligament": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "skeletal"
+ },
+ "fibular vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "fibularis brevis": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "fibularis longus": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "fibularis tertius": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "fifth cervical vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "fifth costal cartilage": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "fifth lumbar spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "fifth lumbar vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "fifth metacarpal bone": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "fifth metatarsal bone": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "fifth rib": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "fifth thoracic spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "fifth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "fimbria of uterine tube": {
+  "candidates": [
+   "uterine_tube"
+  ],
+  "system": "reproductive"
+ },
+ "first anterior branch of anterior interventricular branch of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "first anterior ventricular branch of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "first common palmar digital artery": {
+  "candidates": [
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "first costal cartilage": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "first lumbar spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "first lumbar vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "first lumbrical of foot": {
+  "candidates": [
+   "foot",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "first metacarpal bone": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "first metatarsal bone": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "first plantar interosseous of foot": {
+  "candidates": [
+   "foot",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "first posterior intercostal artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "first posterior ventricular branch of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "first rib": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "first sacral spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "first septal branch of posterior interventricular artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "first thoracic spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "first thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "flexor accessorius": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "flexor carpi radialis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "flexor digiti minimi brevis of foot": {
+  "candidates": [
+   "foot",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "flexor digiti minimi brevis of hand": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "flexor digitorum brevis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "flexor digitorum longus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "flexor digitorum profundus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "flexor digitorum superficialis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "flexor hallucis longus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "flexor pollicis brevis": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "flexor pollicis longus": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "flexor retinaculum of wrist": {
+  "candidates": [
+   "wrist",
+   "hand",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "fornix of brain": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "fornix of forebrain": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "fourth cervical vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "fourth common palmar digital artery": {
+  "candidates": [
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "fourth costal cartilage": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "fourth lumbar spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "fourth lumbar vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "fourth lumbrical of foot": {
+  "candidates": [
+   "foot",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "fourth metacarpal bone": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "fourth metatarsal bone": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "fourth rib": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "fourth sacral spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "fourth thoracic spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "fourth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "fourth ventricle": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "cardiac"
+ },
+ "fovea centralis": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "frontal agranular insular cortex area fl ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "frontal bone": {
+  "candidates": [
+   "skull"
+  ],
+  "system": "skeletal"
+ },
+ "frontal nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "frontal operculum": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "frontal pole ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "frontomarginal gyrus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "fundus of urinary bladder": {
+  "candidates": [
+   "urinary_bladder"
+  ],
+  "system": "urinary"
+ },
+ "fundus of uterus": {
+  "candidates": [
+   "uterus"
+  ],
+  "system": "reproductive"
+ },
+ "fused sacrum": {
+  "candidates": [
+   "sacrum",
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "fusiform gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "gallbladder": {
+  "candidates": [
+   "gallbladder"
+  ],
+  "system": "digestive"
+ },
+ "gastric artery": {
+  "candidates": [
+   "stomach",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "gastric impression of liver": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "gastric surface of spleen": {
+  "candidates": [
+   "spleen",
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "gastric vein": {
+  "candidates": [
+   "stomach",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "gastro-epiploic artery": {
+  "candidates": [
+   "stomach",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "gastroepiploic vein": {
+  "candidates": [
+   "stomach",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "gemellus inferior": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "gemellus superior": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "genicular vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "genioglossus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "geniohyoid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "gingiva of lower jaw": {
+  "candidates": [
+   "jaw"
+  ],
+  "system": "skeletal"
+ },
+ "gingiva of upper jaw": {
+  "candidates": [
+   "jaw"
+  ],
+  "system": "skeletal"
+ },
+ "glans penis": {
+  "candidates": [
+   "penis"
+  ],
+  "system": "reproductive"
+ },
+ "globus pallidus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "gluteus maximus": {
+  "candidates": [
+   "gluteus",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "gluteus medius": {
+  "candidates": [
+   "gluteus",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "gluteus minimus": {
+  "candidates": [
+   "gluteus",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "gracilis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "great cardiac vein": {
+  "candidates": [
+   "heart",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "great pancreatic artery": {
+  "candidates": [
+   "pancreas",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "great saphenous vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "great vein of heart": {
+  "candidates": [
+   "heart",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "gyrus ambiens ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "gyrus rectus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "habenula": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "habenular nuclei ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "hair of head": {
+  "candidates": [
+   "hair",
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "hamate": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "head of caudate ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "head of hippocampus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "head of pancreas": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "headache / cranial": {
+  "candidates": [
+   "skull",
+   "brain"
+  ],
+  "system": "neurological"
+ },
+ "heart ventricle": {
+  "candidates": [
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "hemiazygos vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "hepatic artery proper": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "hepatic duct": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "hepatic flexure of colon": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "hepatic portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "hepatic vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "hepatoduodenal ligament": {
+  "candidates": [
+   "liver",
+   "ligament"
+  ],
+  "system": "digestive"
+ },
+ "hepatopancreatic ampulla": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "hepatovenous segment ii": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "hepatovenous segment iii": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "hepatovenous segment iv": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "hepatovenous segment ix": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "hepatovenous segment v": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "hepatovenous segment vi": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "hepatovenous segment vii": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "hepatovenous segment viii": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "hilum of kidney": {
+  "candidates": [
+   "kidney"
+  ],
+  "system": "urinary"
+ },
+ "hilum of spleen": {
+  "candidates": [
+   "spleen",
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "hip bone": {
+  "candidates": [
+   "pelvis"
+  ],
+  "system": "skeletal"
+ },
+ "hippocampus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "hips / groin": {
+  "candidates": [
+   "pelvis",
+   "urinary_bladder",
+   "femur",
+   "uterus",
+   "prostate"
+  ],
+  "system": "musculoskeletal"
+ },
+ "horizontal part of duodenum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "humeral head of flexor carpi ulnaris": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "humeral head of pronator teres": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "humerus": {
+  "candidates": [
+   "humerus"
+  ],
+  "system": "skeletal"
+ },
+ "humor of vitreous body": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "hyo-epiglottic ligament": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "hyoglossus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "hyoid bone": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "hypothalamic branch of posterior communicating artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "hypothalamus": {
+  "candidates": [
+   "hypothalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "ileal artery": {
+  "candidates": [
+   "small_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "ileal branch of inferior branch of ileocolic artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "ileal vein": {
+  "candidates": [
+   "small_intestine",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "ileocecal junction": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "ileocecal valve": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "ileocolic artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "ileocolic vein": {
+  "candidates": [
+   "large_intestine",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "ileum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "iliacus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "iliococcygeus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "iliocostalis cervicis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "iliocostalis lumborum": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "iliocostalis thoracis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "iliolumbar vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "iliotibial tract": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "inferior branch of medial segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior branch of oculomotor nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "inferior cerebellar peduncle ()": {
+  "candidates": [
+   "cerebellum",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "inferior colliculus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "inferior epigastric artery": {
+  "candidates": [
+   "stomach",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior epigastric vein": {
+  "candidates": [
+   "stomach",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "inferior frontal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "inferior gluteal vein": {
+  "candidates": [
+   "gluteus",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "inferior horn of lateral ventricle ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "inferior lateral genicular artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior lingular artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior lingular bronchial tree": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "inferior lingular bronchopulmonary segment": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "inferior lingular bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "inferior lingular vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "inferior lobar bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "inferior medial genicular artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior mesenteric artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior mesenteric vein": {
+  "candidates": [
+   "large_intestine",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "inferior nasal concha": {
+  "candidates": [
+   "nose"
+  ],
+  "system": "respiratory"
+ },
+ "inferior oblique": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "inferior oblique part of longus colli": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "inferior occipital gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "inferior olive ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "inferior ophthalmic vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "inferior pancreatic artery": {
+  "candidates": [
+   "pancreas",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior pancreaticoduodenal artery": {
+  "candidates": [
+   "pancreas",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior pancreaticoduodenal vein": {
+  "candidates": [
+   "pancreas",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "inferior part of anterior segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "inferior part of medial segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "inferior pharyngeal constrictor": {
+  "candidates": [],
+  "system": "respiratory"
+ },
+ "inferior phrenic artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior phrenic vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "inferior pulmonary vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "inferior rectal vein": {
+  "candidates": [
+   "large_intestine",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "inferior rectus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "inferior segmental branch of renal artery": {
+  "candidates": [
+   "kidney",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior suprarenal artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior temporal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "inferior thyroid artery": {
+  "candidates": [
+   "thyroid",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior ulnar collateral artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "inferior vena cava": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "inferomedial segment": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "infraspinatus muscle": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "infratrochlear nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "infundibulum of uterine tube": {
+  "candidates": [
+   "uterine_tube"
+  ],
+  "system": "reproductive"
+ },
+ "innermost intercostal muscle": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "insula": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "insular part of middle cerebral artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "intercondylar fossa of femur": {
+  "candidates": [
+   "femur"
+  ],
+  "system": "skeletal"
+ },
+ "interlobar adipose tissue of mammary gland": {
+  "candidates": [
+   "breast",
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "intermediate cuneiform bone": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "intermediate orbital gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "intermediate tendon": {
+  "candidates": [
+   "tendon",
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "intermediomedial branch of callosomarginal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "internal capsule": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "internal carotid artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "internal cervical os": {
+  "candidates": [
+   "cervix"
+  ],
+  "system": "reproductive"
+ },
+ "internal iliac artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "internal iliac vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "internal intercostal muscle": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "internal jugular vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "internal pudendal vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "internal segment of globus pallidus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "internal thoracic artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "internal thoracic vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "interosseous membrane of forearm": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "interosseous membrane of leg": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "interpeduncular fossa": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "interspinalis thoracis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "interventricular foramen": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "cardiac"
+ },
+ "interventricular septum": {
+  "candidates": [
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "intervertebral disk": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of axis": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of eighth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of eleventh thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of fifth cervical vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of fifth lumbar vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of fifth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of first lumbar vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of first thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of fourth cervical vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of fourth lumbar vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of fourth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of ninth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of second lumbar vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of second thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of seventh cervical vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of seventh thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of sixth cervical vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of sixth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of tenth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of third cervical vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of third lumbar vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "intervertebral disk of third thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "iris": {
+  "candidates": [
+   "iris",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "isthmus of cingulate gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "isthmus of uterine tube": {
+  "candidates": [
+   "uterine_tube"
+  ],
+  "system": "reproductive"
+ },
+ "jejunum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "kidney": {
+  "candidates": [
+   "kidney"
+  ],
+  "system": "urinary"
+ },
+ "kidney capsule": {
+  "candidates": [
+   "kidney"
+  ],
+  "system": "urinary"
+ },
+ "lacrimal bone": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "lacrimal canaliculus": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "lacrimal gland": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "lacrimal lake": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "lacrimal nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "lacrimal sac": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "lactiferous sinus": {
+  "candidates": [
+   "breast",
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "lamina terminalis": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "lateral basal bronchopulmonary segment": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "lateral basal segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral basal segmental bronchial tree": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "lateral basal segmental bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "lateral basal segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "lateral branch of anterior basal segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral branch of lateral basal segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral branch of pontine artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral branch of superior cerebellar artery": {
+  "candidates": [
+   "cerebellum",
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral branch of superior segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral bronchopulmonary segment": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "lateral circumflex femoral artery": {
+  "candidates": [
+   "femur",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral circumflex femoral vein": {
+  "candidates": [
+   "femur",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "lateral condyle of femur": {
+  "candidates": [
+   "femur"
+  ],
+  "system": "skeletal"
+ },
+ "lateral crico-arytenoid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "lateral cuneiform bone": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "lateral dorsal nucleus of thalamus ()": {
+  "candidates": [
+   "thalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "lateral epicondylar enthesis ()": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "lateral frontobasal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral geniculate body": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "lateral head of flexor hallucis brevis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "lateral head of gastrocnemius": {
+  "candidates": [
+   "calf_muscles",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "lateral head of triceps brachii": {
+  "candidates": [
+   "triceps",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "lateral hemisphere of cerebellum ()": {
+  "candidates": [
+   "cerebellum",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "lateral inferior segmental branch of portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "lateral inferior segmental hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral inferior segmental tributary of hepatic vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "lateral inferior tributary of hepatic biliary tree": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "lateral lumbar intertransversarius": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "lateral nasal cartilage": {
+  "candidates": [
+   "nose",
+   "cartilage"
+  ],
+  "system": "respiratory"
+ },
+ "lateral nucleus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "lateral occipital artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral olfactory gyrus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "lateral orbital gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "lateral papillary muscle of ventricle": {
+  "candidates": [
+   "heart",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "lateral perichondular surface ()": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "lateral plantar artery": {
+  "candidates": [
+   "foot",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral posterior nucleus of thalamus ()": {
+  "candidates": [
+   "thalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "lateral proper palmar digital artery of little finger": {
+  "candidates": [
+   "finger",
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral proper palmar digital artery of middle finger": {
+  "candidates": [
+   "finger",
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral proper palmar digital artery of ring finger": {
+  "candidates": [
+   "finger",
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral rectus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "lateral sacral vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "lateral segmental bronchial tree": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "lateral segmental bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "lateral superior genicular artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral superior segmental branch of portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "lateral superior segmental hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral superior segmental tributary of hepatic vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "lateral superior tributary of hepatic biliary tree": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "lateral tarsal artery": {
+  "candidates": [
+   "foot",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral thoracic artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lateral thoracic vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "lateral thyrohyoid ligament": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "lateral ventricle": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "cardiac"
+ },
+ "laterobasal branch of posterior basal segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "left ankle": {
+  "candidates": [
+   "ligament",
+   "tibia",
+   "fibula",
+   "foot"
+  ],
+  "system": "musculoskeletal"
+ },
+ "left arm / shoulder": {
+  "candidates": [
+   "humerus",
+   "deltoid",
+   "scapula",
+   "clavicle"
+  ],
+  "system": "cardiovascular"
+ },
+ "left armpit": {
+  "candidates": [
+   "lymph_node",
+   "pectoralis",
+   "breast"
+  ],
+  "system": "lymphatic"
+ },
+ "left elbow": {
+  "candidates": [
+   "humerus",
+   "ulna",
+   "radius",
+   "biceps",
+   "triceps"
+  ],
+  "system": "musculoskeletal"
+ },
+ "left foot": {
+  "candidates": [
+   "foot",
+   "toe"
+  ],
+  "system": "musculoskeletal"
+ },
+ "left hand": {
+  "candidates": [
+   "hand",
+   "finger"
+  ],
+  "system": "musculoskeletal"
+ },
+ "left knee": {
+  "candidates": [
+   "knee",
+   "patella",
+   "ligament"
+  ],
+  "system": "musculoskeletal"
+ },
+ "left leg / knee": {
+  "candidates": [
+   "knee",
+   "femur",
+   "tibia",
+   "patella"
+  ],
+  "system": "musculoskeletal"
+ },
+ "left shin / calf": {
+  "candidates": [
+   "tibia",
+   "fibula",
+   "calf_muscles"
+  ],
+  "system": "musculoskeletal"
+ },
+ "left shoulder": {
+  "candidates": [
+   "deltoid",
+   "scapula",
+   "clavicle",
+   "humerus"
+  ],
+  "system": "musculoskeletal"
+ },
+ "left thigh": {
+  "candidates": [
+   "femur",
+   "quadriceps",
+   "hamstrings"
+  ],
+  "system": "musculoskeletal"
+ },
+ "left wrist": {
+  "candidates": [
+   "wrist",
+   "radius",
+   "ulna"
+  ],
+  "system": "musculoskeletal"
+ },
+ "lens": {
+  "candidates": [
+   "lens",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "levator palpebrae superioris": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "levator scapulae": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "levator veli palatini": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "ligamentum venosum": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "limen insula ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "linea alba": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "lingual gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "lip": {
+  "candidates": [
+   "mouth",
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "lobar bronchus of lung lower lobe": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "lobar bronchus of lung upper lobe": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "lobe branch of hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lobe of thymus": {
+  "candidates": [
+   "thymus",
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "long ciliary nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "long head of biceps brachii": {
+  "candidates": [
+   "biceps",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "long head of biceps femoris": {
+  "candidates": [
+   "hamstrings",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "long head of triceps brachii": {
+  "candidates": [
+   "triceps",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "long insular gyri ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "long plantar ligament": {
+  "candidates": [
+   "foot",
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "long posterior ciliary artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "longissimus capitis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "longissimus cervicis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "longissimus thoracis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "longus capitis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "lower central secondary incisor tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "lower first secondary molar tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "lower first secondary premolar tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "lower lateral secondary incisor tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "lower second secondary molar tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "lower second secondary premolar tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "lower secondary canine tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "lower uterine segment": {
+  "candidates": [
+   "uterus"
+  ],
+  "system": "reproductive"
+ },
+ "lumbar artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "lumbar rotator": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "lumbar vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "lumbar vertebra 1": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "lumbar vertebra 2": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "lumbar vertebra 3": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "lumbar vertebra 4": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "lumbar vertebra 5": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "lumbar vertebra 6": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "lunate": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "lung hilus": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "lymph node follicle": {
+  "candidates": [
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "lymph node t cell domain": {
+  "candidates": [
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "lymph vasculature": {
+  "candidates": [
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "macula lutea": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "main bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "main bronchus proper": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "main lactiferous duct": {
+  "candidates": [
+   "breast",
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "major alar cartilage": {
+  "candidates": [
+   "cartilage"
+  ],
+  "system": "skeletal"
+ },
+ "major calyx": {
+  "candidates": [
+   "kidney"
+  ],
+  "system": "urinary"
+ },
+ "mammalian cervical vertebra 3": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "mammalian cervical vertebra 4": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "mammalian cervical vertebra 5": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "mammalian cervical vertebra 6": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "mammalian cervical vertebra 7": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "mammary lobe": {
+  "candidates": [
+   "breast",
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "mammillary body": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "mammillary region of hth ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "mammillothalamic tract ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "mandible": {
+  "candidates": [
+   "jaw",
+   "skull"
+  ],
+  "system": "skeletal"
+ },
+ "manubrium": {
+  "candidates": [
+   "sternum"
+  ],
+  "system": "skeletal"
+ },
+ "marginal artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "cardiac"
+ },
+ "marginal artery of colon": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "marginal branch of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "marginal colic artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "marginal vein": {
+  "candidates": [
+   "heart",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "maxilla": {
+  "candidates": [
+   "jaw",
+   "skull"
+  ],
+  "system": "skeletal"
+ },
+ "medial basal bronchopulmonary segment": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "medial basal segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial basal segmental bronchial tree": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "medial basal segmental bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "medial basal segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "medial brachial vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "medial branch of pontine artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial branch of superior cerebellar artery": {
+  "candidates": [
+   "cerebellum",
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial branch of superior segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial bronchopulmonary segment": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "medial circumflex femoral vein": {
+  "candidates": [
+   "femur",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "medial condyle of femur": {
+  "candidates": [
+   "femur"
+  ],
+  "system": "skeletal"
+ },
+ "medial cuneiform bone": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "medial epicondylar enthesis ()": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "medial frontobasal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial geniculate body": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "medial geniculate nuclei ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "medial head of flexor hallucis brevis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "medial head of gastrocnemius": {
+  "candidates": [
+   "calf_muscles",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "medial head of triceps brachii": {
+  "candidates": [
+   "triceps",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "medial inferior segmental branch of portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "medial inferior segmental hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial inferior segmental tributary of middle hepatic vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "medial inferior tributary of hepatic biliary tree": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "medial lumbar intertransversarius": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "medial nucleus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "medial occipital artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial orbital gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "medial perichondular surface ()": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "medial plantar artery": {
+  "candidates": [
+   "foot",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial proper palmar digital artery of index finger": {
+  "candidates": [
+   "finger",
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial proper palmar digital artery of middle finger": {
+  "candidates": [
+   "finger",
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial proper palmar digital artery of ring finger": {
+  "candidates": [
+   "finger",
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial rectus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "medial segmental bronchial tree": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "medial segmental bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "medial superior genicular artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial superior segmental branch of portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "medial superior segmental hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "medial superior segmental tributary of hepatic vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "medial superior tributary of hepatic biliary tree": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "median antebrachial vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "median cricothyroid ligament": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "median cubital vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "median sacral vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "median thyrohyoid ligament": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "mediobasal branch of posterior basal segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "mediodorsal nucleus of thalamus ()": {
+  "candidates": [
+   "thalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "medulla oblongata": {
+  "candidates": [
+   "brainstem",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "medulla of lymph node": {
+  "candidates": [
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "mesentery of small intestine": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "mesoappendix": {
+  "candidates": [
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "mesosalpinx": {
+  "candidates": [],
+  "system": "reproductive"
+ },
+ "mesovarium": {
+  "candidates": [],
+  "system": "reproductive"
+ },
+ "midbrain": {
+  "candidates": [
+   "brainstem",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "midbrain tegmentum ()": {
+  "candidates": [
+   "brainstem",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "middle cardiac vein": {
+  "candidates": [
+   "heart",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "middle cerebellar peduncle ()": {
+  "candidates": [
+   "cerebellum",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "middle colic artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "middle colic vein": {
+  "candidates": [
+   "large_intestine",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "middle collateral branch of deep brachial artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "middle frontal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "middle genicular artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "middle hepatic artery branch of hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "middle hepatic vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "middle lobar bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "middle part of ileum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "middle part of jejunum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "middle phalanx of fourth toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "middle phalanx of index finger": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "middle phalanx of little finger": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "middle phalanx of little toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "middle phalanx of middle finger": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "middle phalanx of ring finger": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "middle phalanx of second toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "middle phalanx of third toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "middle pharyngeal constrictor": {
+  "candidates": [],
+  "system": "respiratory"
+ },
+ "middle rectal vein": {
+  "candidates": [
+   "large_intestine",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "middle suprarenal artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "middle temporal branch of lateral occipital artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "middle temporal branch of middle cerebral artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "middle temporal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "midline nuclear complex ()": {
+  "candidates": [
+   "brain",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "minor calyx": {
+  "candidates": [
+   "kidney"
+  ],
+  "system": "urinary"
+ },
+ "mitral valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "musculophrenic artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "musculophrenic vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "mylohyoid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "nasal bone": {
+  "candidates": [
+   "nose",
+   "skull"
+  ],
+  "system": "skeletal"
+ },
+ "nasociliary nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "nasolacrimal duct": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "navicular bone of foot": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "neck": {
+  "candidates": [
+   "vertebral_column",
+   "thyroid",
+   "larynx",
+   "trachea"
+  ],
+  "system": "musculoskeletal"
+ },
+ "neck of pancreas": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "ninth rib": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "ninth thoracic spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "ninth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "nipple": {
+  "candidates": [
+   "breast",
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "nucleus accumbens ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "oblique arytenoid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "oblique head of adductor hallucis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "oblique head of adductor pollicis": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "oblique part of cricothyroid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "oblique vein of atrium": {
+  "candidates": [
+   "heart",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "obliquus capitis inferior": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "obliquus capitis superior": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "obturator externus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "obturator internus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "obturator vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "occipital bone": {
+  "candidates": [
+   "skull"
+  ],
+  "system": "skeletal"
+ },
+ "occipital fusiform gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "occipital lobe": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "occipital pole": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "occipitotemporal fusiform gyrus temporal part ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "olfactory bulb": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "olfactory bulb ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "olfactory tract ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "omohyoid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "opercular part of inferior frontal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "ophthalmic artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "ophthalmic nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "ophthalmic vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "opponens digiti minimi of foot": {
+  "candidates": [
+   "foot",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "opponens digiti minimi of hand": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "opponens pollicis": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "optic chiasm": {
+  "candidates": [
+   "optic_nerve"
+  ],
+  "system": "nervous"
+ },
+ "optic chiasma": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "optic disc": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "optic nerve": {
+  "candidates": [
+   "optic_nerve",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "optic part of retina": {
+  "candidates": [
+   "retina",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "optic radiation": {
+  "candidates": [
+   "brain",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "optic tract": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "ora serrata": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "orbital gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "outer cortex of kidney": {
+  "candidates": [
+   "kidney"
+  ],
+  "system": "urinary"
+ },
+ "ovarian ligament": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "reproductive"
+ },
+ "ovary": {
+  "candidates": [
+   "ovary"
+  ],
+  "system": "reproductive"
+ },
+ "palatine bone": {
+  "candidates": [
+   "skull"
+  ],
+  "system": "skeletal"
+ },
+ "palatine tonsil": {
+  "candidates": [
+   "tonsil"
+  ],
+  "system": "digestive"
+ },
+ "palatopharyngeus": {
+  "candidates": [],
+  "system": "respiratory"
+ },
+ "palmar metacarpal artery": {
+  "candidates": [
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "palmar metacarpal vein": {
+  "candidates": [
+   "hand",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "palmaris longus": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "palpebral conjunctiva of lower eyelid": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "palpebral conjunctiva of upper eyelid": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "pancreas": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "pancreatic duct": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "pancreatic duct tree": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "pancreaticoduodenal vein": {
+  "candidates": [
+   "pancreas",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "paracentral branch of callosomarginal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "paracentral lobule caudal part ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "paracingulate gyrus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "parafascicular nucleus of thalamus ()": {
+  "candidates": [
+   "thalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "parahippocampal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "paravermis of cerebellum ()": {
+  "candidates": [
+   "cerebellum",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "parenchyma of pancreas": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "parietal bone": {
+  "candidates": [
+   "skull"
+  ],
+  "system": "skeletal"
+ },
+ "parietal operculum": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "patella": {
+  "candidates": [
+   "patella"
+  ],
+  "system": "skeletal"
+ },
+ "patellar ligament": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "skeletal"
+ },
+ "patellar surface of femur": {
+  "candidates": [
+   "femur"
+  ],
+  "system": "skeletal"
+ },
+ "pectineus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "pectoral branch of thoraco-acromial artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "pectoralis minor": {
+  "candidates": [
+   "pectoralis",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "peduncle of midbrain": {
+  "candidates": [
+   "brainstem",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "pericallosal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "perirhinal gyrus rostral part of fugt ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "pharyngeal raphe": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "pineal body": {
+  "candidates": [
+   "pineal"
+  ],
+  "system": "nervous"
+ },
+ "piriform cortex": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "piriform region ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "piriformis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "pisiform": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "pituitary gland": {
+  "candidates": [
+   "pituitary"
+  ],
+  "system": "endocrine"
+ },
+ "placenta vessels": {
+  "candidates": [
+   "placenta"
+  ],
+  "system": "pregnancy"
+ },
+ "plantar arch": {
+  "candidates": [
+   "foot",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "plantar metatarsal artery": {
+  "candidates": [
+   "foot",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "plantar metatarsal vein": {
+  "candidates": [
+   "foot",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "plantar venous arch of foot": {
+  "candidates": [
+   "foot",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "plantaris": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "planum polare": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "planum temporale": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "platysma": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "polar temporal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "pons": {
+  "candidates": [
+   "brainstem",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "pontine nuclear group": {
+  "candidates": [
+   "brain",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "pontine tegmentum": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "popliteal artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "popliteal vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "popliteus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "porta hepatis": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "postcentral gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "postcommunicating part of posterior cerebral artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior basal bronchopulmonary segment": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "posterior basal segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior basal segmental bronchial tree": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "posterior basal segmental bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "posterior basal segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "posterior branch of anterior segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior branch of lateral segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior bronchopulmonary segment": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "posterior cecal artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior cingulate gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "posterior circumflex humeral artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior commissure": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "posterior communicating artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior cortical nucleus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "posterior crico-arytenoid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "posterior cruciate enthesis ()": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "posterior cruciate ligament": {
+  "candidates": [
+   "knee"
+  ],
+  "system": "skeletal"
+ },
+ "posterior cusp of aortic valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "posterior cusp of pulmonary valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "posterior descending branch of circumflex branch of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "cardiac"
+ },
+ "posterior division of renal artery": {
+  "candidates": [
+   "kidney",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior ethmoidal nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "posterior horn of lateral ventricle ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "posterior inferior cerebellar artery": {
+  "candidates": [
+   "cerebellum",
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior inferior pancreaticoduodenal artery": {
+  "candidates": [
+   "pancreas",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior inferior segmental branch of portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "posterior inferior segmental hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior inferior segmental tributary of hepatic vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "posterior inferior tributary of hepatic biliary tree": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "posterior intercostal arteries": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior interventricular branch of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior leaflet of mitral valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "posterior leaflet of tricuspid valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "posterior medial choroidal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior papillary muscle of ventricle": {
+  "candidates": [
+   "heart",
+   "muscle"
+  ],
+  "system": "cardiac"
+ },
+ "posterior parahippocampal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "posterior parietal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior part of lateral segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "posterior part of posterior segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior part of superior temporal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "posterior segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior segmental branch of renal artery": {
+  "candidates": [
+   "kidney",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior segmental bronchial tree": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "posterior segmental bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "posterior segmental hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "posterior superior pancreaticoduodenal artery": {
+  "candidates": [
+   "pancreas",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior superior segmental branch of portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "posterior superior segmental hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior superior segmental tributary of hepatic vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "posterior superior tributary of hepatic biliary tree": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "posterior temporal branch of middle cerebral artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior tibial artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior tibial vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "posterior ulnar recurrent artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posterior vein of ventricle": {
+  "candidates": [
+   "heart",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "posterior ventricular branch of circumflex coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "cardiac"
+ },
+ "posterior wall of uterus": {
+  "candidates": [
+   "uterus"
+  ],
+  "system": "reproductive"
+ },
+ "posteroinferior segment": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "posteromedial branch of callosomarginal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posteromedial central branch of posterior cerebral artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "posteromedial head of posterior papillary muscle of ventricle": {
+  "candidates": [
+   "heart",
+   "muscle"
+  ],
+  "system": "cardiac"
+ },
+ "posterosuperior segment": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "posteroventral putamen ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "pre-hepatic portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "precentral gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "precommunicating part of posterior cerebral artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "precuneal branch of pericallosal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "precuneus cortex": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "prefrontal artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "preoptic region of hth ()": {
+  "candidates": [
+   "brain",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "pretectal region ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "pronator quadratus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "proper palmar digital vein of index finger": {
+  "candidates": [
+   "finger",
+   "hand",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "proper palmar digital vein of little finger": {
+  "candidates": [
+   "finger",
+   "hand",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "proper palmar digital vein of middle finger": {
+  "candidates": [
+   "finger",
+   "hand",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "proper palmar digital vein of ring finger": {
+  "candidates": [
+   "finger",
+   "hand",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "prostate": {
+  "candidates": [
+   "prostate"
+  ],
+  "system": "reproductive"
+ },
+ "proximal part of ileum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "proximal part of jejunum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "proximal phalanx of big toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "proximal phalanx of fourth toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "proximal phalanx of index finger": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "proximal phalanx of little finger": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "proximal phalanx of little toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "proximal phalanx of middle finger": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "proximal phalanx of ring finger": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "proximal phalanx of second toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "proximal phalanx of third toe": {
+  "candidates": [
+   "toe"
+  ],
+  "system": "skeletal"
+ },
+ "proximal phalanx of thumb": {
+  "candidates": [
+   "finger",
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "psoas major": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "pterygomandibular raphe": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "pubic hair": {
+  "candidates": [
+   "hair",
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "pubococcygeus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "puborectalis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "pulmonary artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "pulmonary trunk": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "pulmonary valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "pulvinar of thalamus ()": {
+  "candidates": [
+   "thalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "pupil": {
+  "candidates": [
+   "iris",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "putamen": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "pyramidal part of medulla oblongata ()": {
+  "candidates": [
+   "brainstem",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "quadrate lobe of liver": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "quadratus femoris": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "radial artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "radial collateral branch of deep brachial artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "radial recurrent artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "radial vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "radius": {
+  "candidates": [
+   "radius"
+  ],
+  "system": "skeletal"
+ },
+ "rectum": {
+  "candidates": [
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "rectus capitis anterior": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "rectus capitis lateralis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "rectus capitis posterior major": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "rectus capitis posterior minor": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "rectus femoris": {
+  "candidates": [
+   "quadriceps",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "recurrent interosseous artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "red nucleus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "renal artery": {
+  "candidates": [
+   "kidney",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "renal column": {
+  "candidates": [
+   "kidney"
+  ],
+  "system": "urinary"
+ },
+ "renal impression of liver": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "renal papilla": {
+  "candidates": [
+   "kidney"
+  ],
+  "system": "urinary"
+ },
+ "renal pelvis": {
+  "candidates": [
+   "pelvis",
+   "kidney"
+  ],
+  "system": "urinary"
+ },
+ "renal pyramid": {
+  "candidates": [
+   "kidney"
+  ],
+  "system": "urinary"
+ },
+ "renal surface of spleen": {
+  "candidates": [
+   "spleen",
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "renal vein": {
+  "candidates": [
+   "kidney",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "retina": {
+  "candidates": [
+   "retina",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "reuniens nucleus medioventral nucleus of thalamus ()": {
+  "candidates": [
+   "thalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "rhomboid major": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "rhomboid minor": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "right ankle": {
+  "candidates": [
+   "ligament",
+   "tibia",
+   "fibula",
+   "foot"
+  ],
+  "system": "musculoskeletal"
+ },
+ "right arm / shoulder": {
+  "candidates": [
+   "humerus",
+   "deltoid",
+   "scapula",
+   "clavicle"
+  ],
+  "system": "musculoskeletal"
+ },
+ "right armpit": {
+  "candidates": [
+   "lymph_node",
+   "pectoralis",
+   "breast"
+  ],
+  "system": "lymphatic"
+ },
+ "right elbow": {
+  "candidates": [
+   "humerus",
+   "ulna",
+   "radius",
+   "biceps",
+   "triceps"
+  ],
+  "system": "musculoskeletal"
+ },
+ "right foot": {
+  "candidates": [
+   "foot",
+   "toe"
+  ],
+  "system": "musculoskeletal"
+ },
+ "right hand": {
+  "candidates": [
+   "hand",
+   "finger"
+  ],
+  "system": "musculoskeletal"
+ },
+ "right knee": {
+  "candidates": [
+   "knee",
+   "patella",
+   "ligament"
+  ],
+  "system": "musculoskeletal"
+ },
+ "right leg / knee": {
+  "candidates": [
+   "knee",
+   "femur",
+   "tibia",
+   "patella"
+  ],
+  "system": "musculoskeletal"
+ },
+ "right shin / calf": {
+  "candidates": [
+   "tibia",
+   "fibula",
+   "calf_muscles"
+  ],
+  "system": "musculoskeletal"
+ },
+ "right shoulder": {
+  "candidates": [
+   "deltoid",
+   "scapula",
+   "clavicle",
+   "humerus"
+  ],
+  "system": "musculoskeletal"
+ },
+ "right thigh": {
+  "candidates": [
+   "femur",
+   "quadriceps",
+   "hamstrings"
+  ],
+  "system": "musculoskeletal"
+ },
+ "right wrist": {
+  "candidates": [
+   "wrist",
+   "radius",
+   "ulna"
+  ],
+  "system": "musculoskeletal"
+ },
+ "rostral gyrus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "round ligament of liver": {
+  "candidates": [
+   "liver",
+   "ligament"
+  ],
+  "system": "digestive"
+ },
+ "round ligament of uterus": {
+  "candidates": [
+   "uterus",
+   "ligament"
+  ],
+  "system": "reproductive"
+ },
+ "sacrum": {
+  "candidates": [
+   "sacrum",
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "salpingopharyngeus": {
+  "candidates": [],
+  "system": "respiratory"
+ },
+ "sartorius": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "scalenus anterior": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "scalenus medius": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "scalenus posterior": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "scaphoid": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "scapula": {
+  "candidates": [
+   "scapula"
+  ],
+  "system": "skeletal"
+ },
+ "sclera": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "scleral venous sinus": {
+  "candidates": [
+   "vein",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "second anterior branch of anterior interventricular branch of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "second common palmar digital artery": {
+  "candidates": [
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "second costal cartilage": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "second lumbar spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "second lumbar vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "second lumbrical of foot": {
+  "candidates": [
+   "foot",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "second metacarpal bone": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "second metatarsal bone": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "second plantar interosseous of foot": {
+  "candidates": [
+   "foot",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "second posterior intercostal artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "second rib": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "second sacral spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "second septal branch of posterior interventricular artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "second thoracic spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "second thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "semimembranosus": {
+  "candidates": [
+   "hamstrings",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "seminal vesicle": {
+  "candidates": [],
+  "system": "reproductive"
+ },
+ "semispinalis capitis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "semispinalis cervicis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "semispinalis thoracis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "semitendinosus": {
+  "candidates": [
+   "hamstrings",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "septal branch of anterior interventricular artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "septal leaflet of tricuspid valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "septal nasal cartilage": {
+  "candidates": [
+   "nose",
+   "cartilage"
+  ],
+  "system": "respiratory"
+ },
+ "septal nuclei ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "septal papillary muscle of ventricle": {
+  "candidates": [
+   "heart",
+   "muscle"
+  ],
+  "system": "cardiac"
+ },
+ "septum of telencephalon": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "serratus anterior": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "serratus posterior inferior": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "serratus posterior superior": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "sesamoid bone of foot": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "set of anterior cervical intertransversarii": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "set of anterior intercostal veins": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "set of calcaneal branches of posterior tibial artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "set of common plantar digital arteries": {
+  "candidates": [
+   "foot",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "set of dorsal digital arteries": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "set of dorsal digital veins": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "set of dorsal interossei of hand": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "set of dorsal metacarpal arteries": {
+  "candidates": [
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "set of interspinales cervicis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "set of interspinales lumborum": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "set of levatores costarum breves": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "set of levatores costarum longi": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "set of lumbricals of hand": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "set of oesophageal branches of thoracic aorta": {
+  "candidates": [
+   "aorta",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "set of palmar interossei of hand": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "set of perforating arteries": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "set of perforating veins": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "set of plantar digital arteries proper": {
+  "candidates": [
+   "foot",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "set of plantar digital veins": {
+  "candidates": [
+   "foot",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "set of posterior cervical intertransversarii": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "set of posterior temporal branches of lateral occipital artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "seventh cervical vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "seventh costal cartilage": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "seventh rib": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "seventh thoracic spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "seventh thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "short ciliary nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "short head of biceps brachii": {
+  "candidates": [
+   "biceps",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "short head of biceps femoris": {
+  "candidates": [
+   "hamstrings",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "short insular gyri ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "sigmoid artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "sigmoid colon": {
+  "candidates": [
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "sigmoid vein": {
+  "candidates": [
+   "large_intestine",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "sixth cervical vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "sixth costal cartilage": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "sixth rib": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "sixth thoracic spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "sixth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "skin": {
+  "candidates": [
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "skin of body": {
+  "candidates": [
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "small cardiac vein": {
+  "candidates": [
+   "heart",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "small saphenous vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "soleus": {
+  "candidates": [
+   "calf_muscles",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "sphenoid bone": {
+  "candidates": [
+   "skull"
+  ],
+  "system": "skeletal"
+ },
+ "sphenoid part of middle cerebral artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "sphincter of hepatopancreatic ampulla": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "spinal part of deltoid": {
+  "candidates": [
+   "deltoid",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "spinalis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "spinalis thoracis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "spleen": {
+  "candidates": [
+   "spleen",
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "splenial artery": {
+  "candidates": [
+   "spleen",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "splenic artery": {
+  "candidates": [
+   "spleen",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "splenic flexure of colon": {
+  "candidates": [
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "splenic vein": {
+  "candidates": [
+   "spleen",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "splenius capitis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "splenius cervicis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "sternocleidomastoid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "sternocostal part of pectoralis major": {
+  "candidates": [
+   "pectoralis",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "sternohyoid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "sternothyroid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "stomach": {
+  "candidates": [
+   "stomach"
+  ],
+  "system": "digestive"
+ },
+ "straight part of cricothyroid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "stria medullaris of thalamus": {
+  "candidates": [
+   "thalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "stria terminalis": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "stylohyoid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "stylohyoid ligament": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "stylopharyngeus": {
+  "candidates": [],
+  "system": "respiratory"
+ },
+ "subcallosal area": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "subclavian artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "cardiac"
+ },
+ "subclavian vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "subclavius": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "subcostal artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "subcostal vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "sublingual gland": {
+  "candidates": [
+   "salivary_gland"
+  ],
+  "system": "digestive"
+ },
+ "submandibular gland": {
+  "candidates": [
+   "salivary_gland"
+  ],
+  "system": "digestive"
+ },
+ "subscapular artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "subscapular vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "subscapularis": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "substantia nigra": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "subthalamic nucleus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "superficial cervical artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superficial dorsal vein of penis": {
+  "candidates": [
+   "penis",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superficial epigastric artery": {
+  "candidates": [
+   "stomach",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superficial epigastric vein": {
+  "candidates": [
+   "stomach",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superficial head of flexor pollicis brevis": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "superficial medial plantar artery": {
+  "candidates": [
+   "foot",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superficial palmar arterial arch": {
+  "candidates": [
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superficial palmar venous arch": {
+  "candidates": [
+   "hand",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superficial perineal muscle": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "superior branch of medial segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superior branch of oculomotor nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "superior branch of superior segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superior bronchopulmonary segment": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "superior cerebellar artery": {
+  "candidates": [
+   "cerebellum",
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superior cerebellar peduncle brachium conjunctivum ()": {
+  "candidates": [
+   "cerebellum",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "superior colliculus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "superior epigastric artery": {
+  "candidates": [
+   "stomach",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superior epigastric vein": {
+  "candidates": [
+   "stomach",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior frontal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "superior gluteal vein": {
+  "candidates": [
+   "gluteus",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior intercostal artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superior intercostal vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior lingular artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superior lingular bronchial tree": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "superior lingular bronchopulmonary segment": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "superior lingular bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "superior lingular vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior lobar bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "superior mesenteric artery": {
+  "candidates": [
+   "small_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superior mesenteric vein": {
+  "candidates": [
+   "small_intestine",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior oblique": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "superior oblique part of longus colli": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "superior occipital gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "superior ophthalmic vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior parietal lobule": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "superior part of anterior segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior part of duodenum": {
+  "candidates": [
+   "small_intestine"
+  ],
+  "system": "digestive"
+ },
+ "superior part of medial segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior pharyngeal constrictor": {
+  "candidates": [],
+  "system": "respiratory"
+ },
+ "superior phrenic vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior pulmonary vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior rectal artery": {
+  "candidates": [
+   "large_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superior rectal vein": {
+  "candidates": [
+   "large_intestine",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior rectus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "superior segmental artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superior segmental branch of renal artery": {
+  "candidates": [
+   "kidney",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superior segmental bronchial tree": {
+  "candidates": [
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "superior segmental bronchus": {
+  "candidates": [
+   "bronchus",
+   "lung"
+  ],
+  "system": "respiratory"
+ },
+ "superior segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior temporal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "superior ulnar collateral artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superior vena cava": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "superior vermian branch of medial branch of superior cerebellar artery": {
+  "candidates": [
+   "cerebellum",
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "superomedial segment": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "superomedial segment1": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "supinator": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "supra-orbital nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "supramarginal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "supramarginal gyrus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "supraoptic region of hth ()": {
+  "candidates": [
+   "brain",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "supraparietal lobule ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "suprarenal impression of liver": {
+  "candidates": [
+   "liver"
+  ],
+  "system": "digestive"
+ },
+ "suprarenal vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "suprascapular artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "suprascapular vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "supraspinatus": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "supratrochlear nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "suspensory ligament of breast": {
+  "candidates": [
+   "breast",
+   "ligament",
+   "skin"
+  ],
+  "system": "integumentary"
+ },
+ "suspensory ligament of lens": {
+  "candidates": [
+   "lens",
+   "ligament",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "suspensory ligament of ovary": {
+  "candidates": [
+   "ovary",
+   "ligament"
+  ],
+  "system": "reproductive"
+ },
+ "taenia libera": {
+  "candidates": [
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "taenia mesocolica": {
+  "candidates": [
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "taenia omentalis": {
+  "candidates": [
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "tail of caudate ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "tail of hippocampus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "tail of pancreas": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "talus": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "tarsal plate of lower eyelid": {
+  "candidates": [
+   "foot",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "tarsal plate of upper eyelid": {
+  "candidates": [
+   "foot",
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "tegmentum of medulla oblongata ()": {
+  "candidates": [
+   "brainstem",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "temporal agranular insular cortex area tl ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "temporal bone": {
+  "candidates": [
+   "skull"
+  ],
+  "system": "skeletal"
+ },
+ "temporal pole": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "temporo-occipital branch of middle cerebral artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "tendinous arch of levator ani": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "tendon of levator palpebrae superioris": {
+  "candidates": [
+   "tendon",
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "tendon of quadriceps femoris": {
+  "candidates": [
+   "quadriceps",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "tensor fasciae latae": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "tensor veli palatini": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "tenth rib": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "tenth thoracic spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "tenth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "tentorium cerebelli": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "teres major": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "teres minor": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "testicular artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "testicular vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "testis": {
+  "candidates": [
+   "testis"
+  ],
+  "system": "reproductive"
+ },
+ "thalamogeniculate artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "thalamoperforating artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "thalamus": {
+  "candidates": [
+   "thalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "thalamus ()": {
+  "candidates": [
+   "thalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "thighs": {
+  "candidates": [
+   "femur",
+   "quadriceps",
+   "hamstrings"
+  ],
+  "system": "musculoskeletal"
+ },
+ "third anterior branch of anterior interventricular branch of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "third cervical vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "third common palmar digital artery": {
+  "candidates": [
+   "hand",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "third costal cartilage": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "third lumbar spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "third lumbar vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "third lumbrical of foot": {
+  "candidates": [
+   "foot",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "third metacarpal bone": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "third metatarsal bone": {
+  "candidates": [
+   "foot"
+  ],
+  "system": "skeletal"
+ },
+ "third plantar interosseous of foot": {
+  "candidates": [
+   "foot",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "third rib": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "third sacral spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "third thoracic spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "third thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "third ventricle": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "cardiac"
+ },
+ "third ventricle ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "thoracic rotator": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "thoracic vertebra 1": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "thoracic vertebra 10": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "thoracic vertebra 11": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "thoracic vertebra 12": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "thoracic vertebra 2": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "thoracic vertebra 3": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "thoracic vertebra 4": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "thoracic vertebra 5": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "thoracic vertebra 6": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "thoracic vertebra 7": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "thoracic vertebra 8": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "thoracic vertebra 9": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "thoracodorsal artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "thoracodorsal vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "thymus lobe": {
+  "candidates": [
+   "thymus",
+   "lymph_node"
+  ],
+  "system": "lymphatic"
+ },
+ "thyro-arytenoid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "thyro-epiglottic ligament": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "thyrocervical trunk": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "thyrohyoid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "thyrohyoid membrane": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "thyroid cartilage": {
+  "candidates": [
+   "larynx"
+  ],
+  "system": "skeletal"
+ },
+ "tibia": {
+  "candidates": [
+   "tibia"
+  ],
+  "system": "skeletal"
+ },
+ "tibial collateral ligament": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "skeletal"
+ },
+ "tibialis anterior": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "tibialis posterior": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "tongue": {
+  "candidates": [
+   "tongue"
+  ],
+  "system": "digestive"
+ },
+ "trabecular bone tissue": {
+  "candidates": [],
+  "system": "skeletal"
+ },
+ "trachea": {
+  "candidates": [
+   "trachea"
+  ],
+  "system": "respiratory"
+ },
+ "trachea cartilage": {
+  "candidates": [
+   "trachea",
+   "cartilage"
+  ],
+  "system": "respiratory"
+ },
+ "transverse arytenoid": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "transverse cervical artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "transverse colon": {
+  "candidates": [
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "transverse head of adductor hallucis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "transverse head of adductor pollicis": {
+  "candidates": [
+   "hand",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "transverse mesocolon": {
+  "candidates": [
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "transverse part of trapezius": {
+  "candidates": [
+   "trapezius",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "transverse temporal gyrus heschls gyrus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "transversus thoracis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "trapezium": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "trapezoid": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "triangular ligament of liver": {
+  "candidates": [
+   "liver",
+   "ligament"
+  ],
+  "system": "digestive"
+ },
+ "triangular part of inferior frontal gyrus": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "tributary of middle hepatic vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "tributary of plantar venous arch": {
+  "candidates": [
+   "foot",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "tricuspid valve": {
+  "candidates": [
+   "heart_valve",
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "trigone of urinary bladder": {
+  "candidates": [
+   "urinary_bladder"
+  ],
+  "system": "urinary"
+ },
+ "triquetral": {
+  "candidates": [
+   "hand"
+  ],
+  "system": "skeletal"
+ },
+ "trochlea of superior oblique": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "trochlear nerve": {
+  "candidates": [
+   "nerve"
+  ],
+  "system": "nervous"
+ },
+ "trunk of anterior interventricular branch of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "trunk of apical segmental vein": {
+  "candidates": [
+   "lung",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "trunk of coronary artery": {
+  "candidates": [
+   "heart",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "trunk of gastroduodenal artery": {
+  "candidates": [
+   "small_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "trunk of hepatic artery": {
+  "candidates": [
+   "liver",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "trunk of inferior terminal branch of middle cerebral artery": {
+  "candidates": [
+   "brain",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "trunk of portal vein": {
+  "candidates": [
+   "liver",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "trunk of renal artery": {
+  "candidates": [
+   "kidney",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "trunk of superior mesenteric artery": {
+  "candidates": [
+   "small_intestine",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "trunk of thoraco-acromial artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "tuber cinereum": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "tuberal region of hth ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "twelfth rib": {
+  "candidates": [
+   "rib"
+  ],
+  "system": "skeletal"
+ },
+ "twelfth thoracic spinal cord segment": {
+  "candidates": [
+   "spinal_cord"
+  ],
+  "system": "nervous"
+ },
+ "twelfth thoracic vertebra": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "ulna": {
+  "candidates": [
+   "ulna"
+  ],
+  "system": "skeletal"
+ },
+ "ulnar artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "ulnar head of flexor carpi ulnaris": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "ulnar head of pronator teres": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "ulnar vein": {
+  "candidates": [
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "umbilical artery": {
+  "candidates": [
+   "artery",
+   "placenta"
+  ],
+  "system": "pregnancy"
+ },
+ "umbilical cord": {
+  "candidates": [
+   "placenta"
+  ],
+  "system": "pregnancy"
+ },
+ "umbilical vein": {
+  "candidates": [
+   "vein",
+   "placenta"
+  ],
+  "system": "pregnancy"
+ },
+ "uncinate process of pancreas": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "upper central secondary incisor tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "upper first secondary molar tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "upper first secondary premolar tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "upper lateral secondary incisor tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "upper lobar artery": {
+  "candidates": [
+   "lung",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "upper second secondary molar tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "upper second secondary premolar tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "upper secondary canine tooth": {
+  "candidates": [
+   "teeth"
+  ],
+  "system": "skeletal"
+ },
+ "ureter": {
+  "candidates": [
+   "ureter"
+  ],
+  "system": "urinary"
+ },
+ "ureteral orifice": {
+  "candidates": [
+   "urinary_bladder"
+  ],
+  "system": "urinary"
+ },
+ "ureteric segment of renal artery": {
+  "candidates": [
+   "kidney",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "urethra": {
+  "candidates": [
+   "urethra"
+  ],
+  "system": "urinary"
+ },
+ "urinary bladder": {
+  "candidates": [
+   "urinary_bladder"
+  ],
+  "system": "urinary"
+ },
+ "urinary bladder neck smooth muscle": {
+  "candidates": [
+   "urinary_bladder",
+   "muscle"
+  ],
+  "system": "urinary"
+ },
+ "uterine artery": {
+  "candidates": [
+   "uterus",
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "uterine cervix": {
+  "candidates": [
+   "cervix"
+  ],
+  "system": "reproductive"
+ },
+ "uterine vein": {
+  "candidates": [
+   "uterus",
+   "vein"
+  ],
+  "system": "venous"
+ },
+ "uterosacral ligament": {
+  "candidates": [
+   "ligament"
+  ],
+  "system": "reproductive"
+ },
+ "uterovesical pouch": {
+  "candidates": [],
+  "system": "reproductive"
+ },
+ "uvular muscle": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "vagina": {
+  "candidates": [
+   "vagina"
+  ],
+  "system": "reproductive"
+ },
+ "vastus intermedius": {
+  "candidates": [
+   "quadriceps",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "vastus lateralis": {
+  "candidates": [
+   "quadriceps",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "vastus medialis": {
+  "candidates": [
+   "quadriceps",
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "ventral anterior nucleus of thalamus ()": {
+  "candidates": [
+   "thalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "ventral lateral nucleus of thalamus ()": {
+  "candidates": [
+   "thalamus",
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "ventral pancreatic duct": {
+  "candidates": [
+   "pancreas"
+  ],
+  "system": "digestive"
+ },
+ "ventral posterior lateral nucleus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "ventral posterior medial nucleus ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "vermiform appendix": {
+  "candidates": [
+   "appendix",
+   "large_intestine"
+  ],
+  "system": "digestive"
+ },
+ "vertebral artery": {
+  "candidates": [
+   "artery"
+  ],
+  "system": "arterial"
+ },
+ "vertebral bone 1": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "vertebral bone 2": {
+  "candidates": [
+   "vertebral_column"
+  ],
+  "system": "skeletal"
+ },
+ "vertical intermediate part of longus colli": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "vitreous body": {
+  "candidates": [
+   "eye"
+  ],
+  "system": "sensory"
+ },
+ "vocal ligament": {
+  "candidates": [
+   "larynx",
+   "ligament"
+  ],
+  "system": "connective"
+ },
+ "vocalis": {
+  "candidates": [
+   "muscle"
+  ],
+  "system": "muscular"
+ },
+ "vomer": {
+  "candidates": [
+   "skull"
+  ],
+  "system": "skeletal"
+ },
+ "wall of atrium": {
+  "candidates": [
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "wall of ventricle": {
+  "candidates": [
+   "heart"
+  ],
+  "system": "cardiac"
+ },
+ "white matter of cerebral hemisphere": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "white matter of forebrain ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "white matter of hindbrain ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "xiphoid process": {
+  "candidates": [
+   "sternum"
+  ],
+  "system": "skeletal"
+ },
+ "zona incerta ()": {
+  "candidates": [
+   "brain"
+  ],
+  "system": "nervous"
+ },
+ "zygomatic bone": {
+  "candidates": [
+   "skull"
+  ],
+  "system": "skeletal"
+ }
+}
