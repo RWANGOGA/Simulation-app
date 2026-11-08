@@ -81,7 +81,8 @@ class ScanOutcome {
 
   const ScanOutcome.unrecognized() : this._();
 
-  const ScanOutcome.rejected(PassportFailure failure) : this._(failure: failure);
+  const ScanOutcome.rejected(PassportFailure failure)
+      : this._(failure: failure);
 
   final String? code;
   final PassportRecord? record;
