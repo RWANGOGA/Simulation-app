@@ -136,7 +136,7 @@ class _LanguageScreenState extends State<LanguageScreen>
                             height: 56,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.18),
+                              color: Colors.white.withOpacity(0.18),
                               borderRadius: BorderRadius.circular(AppRadius.lg),
                             ),
                             child: const Icon(Icons.medical_services_rounded,
@@ -156,7 +156,7 @@ class _LanguageScreenState extends State<LanguageScreen>
                             t.chooseLanguageSubtitle,
                             style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.white.withValues(alpha: 0.85)),
+                                color: Colors.white.withOpacity(0.85)),
                           ),
                         ],
                       ),

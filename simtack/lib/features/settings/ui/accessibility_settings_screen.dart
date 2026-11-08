@@ -133,12 +133,7 @@ class AccessibilitySettingsScreen extends StatelessWidget {
               context,
               // The group owns the selected value and the change handler; each
               // tile only says which mode it stands for.
-              child: RadioGroup<ThemeMode>(
-                groupValue: controller.themeMode,
-                onChanged: (value) {
-                  if (value != null) controller.setThemeMode(value);
-                },
-                child: Column(
+      child: Column(
                   children: [
                     _themeTile(
                       context,
@@ -167,7 +162,6 @@ class AccessibilitySettingsScreen extends StatelessWidget {
                   ],
                 ),
               ),
-            ),
             const SizedBox(height: 24),
             _sectionLabel(context, 'LANGUAGE'),
             _card(
@@ -293,6 +287,10 @@ class AccessibilitySettingsScreen extends StatelessWidget {
     final selected = controller.themeMode == mode;
     return RadioListTile<ThemeMode>(
       value: mode,
+      groupValue: controller.themeMode,
+      onChanged: (value) {
+        if (value != null) controller.setThemeMode(value);
+      },
       activeColor: AppAccent.primary(context),
       secondary: Icon(
         icon,

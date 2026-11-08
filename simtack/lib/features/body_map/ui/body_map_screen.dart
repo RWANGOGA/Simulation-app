@@ -442,7 +442,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                             end: Alignment.bottomCenter,
                             colors: [
                               AppPalette.subtleFill(context),
-                              AppAccent.primary(context).withValues(alpha: 0.06),
+                              AppAccent.primary(context).withOpacity(0.06),
                             ],
                           ),
                         ),
@@ -497,12 +497,12 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                                           horizontal: 16, vertical: 10),
                                       decoration: BoxDecoration(
                                         color: AppPalette.surface(context)
-                                            .withValues(alpha: 0.92),
+                                            .withOpacity(0.92),
                                         borderRadius: BorderRadius.circular(20),
                                         boxShadow: [
                                           BoxShadow(
                                             color:
-                                                Colors.black.withValues(alpha: 0.08),
+                                                Colors.black.withOpacity(0.08),
                                             blurRadius: 10,
                                             offset: const Offset(0, 3),
                                           ),
@@ -559,7 +559,7 @@ class _BodyMapScreenState extends State<BodyMapScreen> {
                                       alignment: Alignment.center,
                                       decoration: BoxDecoration(
                                         color: AppPalette.textPrimary(context)
-                                            .withValues(alpha: 0.92),
+                                            .withOpacity(0.92),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       child: Text(

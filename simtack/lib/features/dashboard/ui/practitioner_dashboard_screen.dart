@@ -580,7 +580,7 @@ class _PractitionerDashboardScreenState
                   decoration: BoxDecoration(
                     color: tone.subtle(context),
                     borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: color.withValues(alpha: 0.28)),
+                    border: Border.all(color: color.withOpacity(0.28)),
                   ),
                   child: Icon(icon, size: 16, color: color),
                 ),
@@ -821,7 +821,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
             decoration: BoxDecoration(
               color: GhColors.headerBg(context),
               border: Border(
-                bottom: BorderSide(color: Colors.black.withValues(alpha: 0.28)),
+                bottom: BorderSide(color: Colors.black.withOpacity(0.28)),
               ),
             ),
             child: Row(
@@ -1023,7 +1023,7 @@ class _SessionListScreenState extends State<SessionListScreen> {
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
               color: selected
-                  ? GhColors.accent(context).withValues(alpha: 0.45)
+                  ? GhColors.accent(context).withOpacity(0.45)
                   : GhColors.border(context),
             ),
           ),

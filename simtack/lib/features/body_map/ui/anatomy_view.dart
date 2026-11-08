@@ -261,7 +261,7 @@ class _Segment extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: selected ? accent.withValues(alpha: 0.14) : Colors.transparent,
+            color: selected ? accent.withOpacity(0.14) : Colors.transparent,
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
               color: selected ? accent : AppPalette.border(context),

@@ -36,9 +36,7 @@ class AppShadow {
   /// the only shadows the app is meant to use.
   static List<BoxShadow> soft(BuildContext context) => [
         BoxShadow(
-          color: Colors.black.withValues(
-            alpha: Theme.of(context).brightness == Brightness.dark ? 0.30 : 0.05,
-          ),
+          color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.30 : 0.05),
           blurRadius: 12,
           offset: const Offset(0, 4),
         ),
@@ -48,9 +46,7 @@ class AppShadow {
   /// FABs) that need to read as sitting above everything else.
   static List<BoxShadow> floating(BuildContext context) => [
         BoxShadow(
-          color: Colors.black.withValues(
-            alpha: Theme.of(context).brightness == Brightness.dark ? 0.45 : 0.10,
-          ),
+          color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.45 : 0.10),
           blurRadius: 16,
           offset: const Offset(0, 6),
         ),
@@ -60,9 +56,7 @@ class AppShadow {
   /// visibly passes *under* the bar instead of colliding with it.
   static List<BoxShadow> bar(BuildContext context) => [
         BoxShadow(
-          color: Colors.black.withValues(
-            alpha: Theme.of(context).brightness == Brightness.dark ? 0.40 : 0.06,
-          ),
+          color: Colors.black.withOpacity(Theme.of(context).brightness == Brightness.dark ? 0.40 : 0.06),
           blurRadius: 8,
           offset: const Offset(0, -2),
         ),

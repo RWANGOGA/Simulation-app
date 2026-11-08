@@ -354,7 +354,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           _field(
             label: 'Role / Title',
             child: DropdownButtonFormField<String>(
-              initialValue: _role,
+              value: _role,
               isDense: true,
               style: GhType.body.copyWith(color: GhColors.fg(context)),
               decoration: _fieldDecoration(icon: Icons.badge_outlined),

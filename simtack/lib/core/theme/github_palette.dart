@@ -108,12 +108,12 @@ class GhColors {
       _dark(context) ? const Color(0xFFE6EDF3) : const Color(0xFFFFFFFF);
 
   static Color headerFgMuted(BuildContext context) =>
-      headerFg(context).withValues(alpha: 0.72);
+      headerFg(context).withOpacity(0.72);
 
   /// Translucent pill behind header actions, so icons stay legible on any
   /// shade of the bar.
   static Color headerActionBg(BuildContext context) =>
-      headerFg(context).withValues(alpha: 0.12);
+      headerFg(context).withOpacity(0.12);
 
   // ── Controls ───────────────────────────────────────────────────────────
   /// Primary (create/confirm) button — GitHub's green (`btn-primary`).

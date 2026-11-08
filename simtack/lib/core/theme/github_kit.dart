@@ -100,7 +100,7 @@ class GhLabel extends StatelessWidget {
       decoration: BoxDecoration(
         color: tone.subtle(context),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.28)),
+        border: Border.all(color: color.withOpacity(0.28)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -224,12 +224,12 @@ class GhButton extends StatelessWidget {
       case GhButtonVariant.primary:
         background = GhColors.primaryBg(context);
         foreground = GhColors.fgOnEmphasis;
-        side = BorderSide(color: Colors.black.withValues(alpha: 0.12));
+        side = BorderSide(color: Colors.black.withOpacity(0.12));
         break;
       case GhButtonVariant.danger:
         background = GhColors.dangerBg(context);
         foreground = GhColors.fgOnEmphasis;
-        side = BorderSide(color: Colors.black.withValues(alpha: 0.12));
+        side = BorderSide(color: Colors.black.withOpacity(0.12));
         break;
       case GhButtonVariant.secondary:
         background = GhColors.defaultButtonBg(context);
@@ -250,7 +250,7 @@ class GhButton extends StatelessWidget {
         background = Colors.transparent;
         foreground = GhColors.headerFg(context);
         side = BorderSide(
-          color: GhColors.headerFg(context).withValues(alpha: 0.32),
+          color: GhColors.headerFg(context).withOpacity(0.32),
         );
         break;
     }
@@ -259,8 +259,8 @@ class GhButton extends StatelessWidget {
     final style = TextButton.styleFrom(
       backgroundColor: background,
       foregroundColor: foreground,
-      disabledBackgroundColor: background.withValues(alpha: 0.5),
-      disabledForegroundColor: foreground.withValues(alpha: 0.5),
+      disabledBackgroundColor: background.withOpacity(0.5),
+      disabledForegroundColor: foreground.withOpacity(0.5),
       minimumSize: Size(0, isLink ? 24 : 32),
       padding: isLink
           ? EdgeInsets.zero
@@ -762,7 +762,7 @@ class GhBanner extends StatelessWidget {
       decoration: BoxDecoration(
         color: tone.subtle(context),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: tone.color(context).withValues(alpha: 0.3)),
+        border: Border.all(color: tone.color(context).withOpacity(0.3)),
       ),
       child: Row(
         children: [

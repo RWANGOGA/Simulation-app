@@ -236,7 +236,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
           children: [
             CircleAvatar(
               radius: 26,
-              backgroundColor: color.withValues(alpha: 0.1),
+              backgroundColor: color.withOpacity(0.1),
               child: Icon(icon, color: color, size: 26),
             ),
             const SizedBox(height: 6),
@@ -300,7 +300,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: accent.withValues(alpha: 0.12),
+        color: accent.withOpacity(0.12),
         borderRadius: BorderRadius.circular(AppRadius.md),
         // A border, not just a tint: this has to survive a rushed glance at a
         // cheap screen in daylight.
@@ -393,7 +393,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppAccent.success(context).withValues(alpha: 0.1),
+                  color: AppAccent.success(context).withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.check_circle,
@@ -547,7 +547,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                 width: double.infinity,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                    color: riskColor.withValues(alpha: 0.1),
+                    color: riskColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(AppRadius.sm)),
                 child: Row(
                   children: [

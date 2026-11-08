@@ -477,7 +477,7 @@ class _SourceBadge extends StatelessWidget {
           decoration: BoxDecoration(
             color: bgColor,
             borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: textColor.withValues(alpha: 0.3)),
+            border: Border.all(color: textColor.withOpacity(0.3)),
           ),
           child: Text(
             label,
@@ -991,7 +991,7 @@ class _ShimmerLines extends StatelessWidget {
             height: 10,
             width: i == lines - 1 ? 180 : double.infinity,
             decoration: BoxDecoration(
-              color: AppAccent.info(context).withValues(alpha: 0.10),
+              color: AppAccent.info(context).withOpacity(0.10),
               borderRadius: BorderRadius.circular(4),
             ),
           ),
