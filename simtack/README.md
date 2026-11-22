@@ -35,6 +35,7 @@ The Flutter app is the patient-facing interface ("The Face") of the AtomyBridge 
 | AI | Interactive suggested questions with answer persistence |
 | Data | Expanded pain profiles: triggers, relievers, daily limitations, symptom description, tags |
 
+
 ## Project Structure
 
 ```text
