@@ -59,8 +59,12 @@ simtack/
 │       ├── settings/            # Accessibility, language picker
 │       └── success/             # Post-submission confirmation
 ├── assets/
-│   ├── models/                  # 3D GLB body model
-│   └── anatomy/                 # 2D anatomy atlas images and region mappings
+│   ├── models/                  # GLB body illustrations used on mobile
+│   ├── anatomy/                 # 2D anatomy atlas images and region mappings
+│   └── anatomy3d/               # source copy of the tracked interactive 3D atlas
+├── web/anatomy3d/               # the 3D viewer actually served on web
+├── web/vendor/                  # self-hosted model-viewer (no CDN at runtime)
+├── scripts/build_anatomy_lite.py # regenerates the fast first-paint skin atlases
 ├── test/                        # Widget + unit tests
 └── pubspec.yaml                 # Flutter dependencies
 ```

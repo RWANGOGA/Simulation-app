@@ -38,6 +38,20 @@ List<PainMarker> _painMarkers() => [
     ];
 
 void main() {
+  test('the 3D iframe URL is cacheable by Flutter\'s service worker', () {
+    // The generated worker strips everything from `?v=` before checking its
+    // resource manifest. A `gender=` query would never be intercepted and the
+    // 3D body would stop opening offline.
+    expect(
+      anatomy3DViewerUrl('Male'),
+      'anatomy3d/viewer.html?v=male&embedded=1',
+    );
+    expect(
+      anatomy3DViewerUrl('Female'),
+      'anatomy3d/viewer.html?v=female&embedded=1',
+    );
+  });
+
   testWidgets('the flat renderer is given only the current angle\'s points',
       (tester) async {
     await tester.pumpWidget(_wrap(AnatomyView(

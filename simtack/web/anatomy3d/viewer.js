@@ -49,6 +49,23 @@ const genderSelect = document.getElementById('gender');
 const skinToggle = document.getElementById('skin-toggle');
 const loadingOverlay = document.getElementById('loading-overlay');
 const loadingProgressEl = document.getElementById('loading-progress');
+const layerButtons = Array.from(document.querySelectorAll('[data-layer]'));
+
+// Which anatomy layer the patient is looking at. Skin is the default because
+// it is the body they recognise; muscles/veins/arteries are one tap away and
+// the geometry is already in the atlas — it used to be hidden behind a debug
+// panel that embedded mode removed entirely.
+let activeLayer = 'skin';
+
+function visibleForSystem(system) {
+  switch (activeLayer) {
+    case 'muscles': return system === 'muscular';
+    case 'veins': return system === 'venous';
+    case 'arteries': return system === 'arterial';
+    case 'all': return true;
+    default: return system === 'integumentary' && skinToggle.checked;
+  }
+}
 
 // Anatomy3DTapView passes ?embedded=1 for the real patient-facing view —
 // this debug panel (model dropdown, skin toggle, raw status/result text)
@@ -104,6 +121,10 @@ let currentMeshes = [];
 let currentParts = [];
 let overallBounds = null;
 let modestyPatch = null;
+// A gender switch (or a background upgrade starting late) must never let an
+// older load keep adding meshes after the newer one has cleared the scene.
+// Every await inside loadAtlas re-checks this token.
+let loadToken = 0;
 
 // Declared here, ahead of the marker-mesh helpers further down, because
 // clearScene() reads it and clearScene() runs synchronously inside the
@@ -180,12 +201,24 @@ function computeOverallBounds(parts) {
   return [min, max];
 }
 
-function clearScene() {
-  for (const m of currentMeshes) {
-    m.geometry.dispose();
-    m.material.dispose();
-    scene.remove(m);
+function disposeMeshes(meshes) {
+  for (const mesh of meshes) {
+    mesh.geometry.dispose();
+    mesh.material.dispose();
+    scene.remove(mesh);
   }
+}
+
+function disposeModesty() {
+  if (!modestyPatch) return;
+  modestyPatch.geometry.dispose();
+  modestyPatch.material.dispose();
+  scene.remove(modestyPatch);
+  modestyPatch = null;
+}
+
+function clearScene() {
+  disposeMeshes(currentMeshes);
   currentMeshes = [];
   currentParts = [];
   // Markers are positioned relative to this specific body's geometry —
@@ -193,22 +226,34 @@ function clearScene() {
   // stale markers floating at the old body's coordinates.
   for (const mesh of markerMeshes.values()) scene.remove(mesh);
   markerMeshes.clear();
-  if (modestyPatch) {
-    modestyPatch.geometry.dispose();
-    modestyPatch.material.dispose();
-    scene.remove(modestyPatch);
-    modestyPatch = null;
-  }
+  disposeModesty();
 }
 
-async function loadAtlas(name) {
-  statusEl.textContent = `Loading ${name} atlas…`;
-  loadingOverlay.classList.remove('hidden');
-  loadingProgressEl.textContent = '';
-  clearScene();
+async function loadAtlas(name, options = {}) {
+  const lite = options.lite === true;
+  const quiet = options.quiet === true;
+  const token = ++loadToken;
+  const female = name === 'female';
+  const manifest = lite
+    ? (female ? 'models/atlas-lite-female.json' : 'models/atlas-lite-male.json')
+    : (female ? 'models/atlas-female.json' : 'models/atlas.json');
+
+  if (!quiet) {
+    statusEl.textContent = `Loading ${name} atlas…`;
+    loadingOverlay.classList.remove('hidden');
+    loadingProgressEl.textContent = '';
+    clearScene();
+  }
+  // A quiet upgrade keeps the already-visible body until every new mesh is
+  // built, then swaps in one frame. Clearing first would leave the patient
+  // staring at an empty canvas for the several seconds a full atlas needs.
+  const previousMeshes = quiet ? currentMeshes : [];
+  const newMeshes = [];
   resultEl.textContent = '(no tap yet)';
 
-  const atlas = await (await fetch(`models/${name === 'female' ? 'atlas-female.json' : 'atlas.json'}`)).json();
+  performance.mark(`atomybridge-${lite ? 'lite' : 'full'}-start`);
+  const atlas = await (await fetch(manifest)).json();
+  if (token !== loadToken) return;
   currentParts = atlas.parts;
   overallBounds = computeOverallBounds(atlas.parts);
 
@@ -224,6 +269,7 @@ async function loadAtlas(name) {
 
   let loaded = 0;
   const addChunkGeometry = (chunkIndex, buffer) => {
+    if (token !== loadToken) return;
     for (const i of partsByChunk.get(chunkIndex) ?? []) {
       const p = atlas.parts[i];
       if (EXCLUDED_SYSTEMS.has(p.system) || EXCLUDED_NAME_PATTERN.test(p.name)) continue;
@@ -231,13 +277,6 @@ async function loadAtlas(name) {
       geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(buffer, p.positions, p.vertexCount * 3), 3));
       geometry.setAttribute('normal', new THREE.BufferAttribute(new Int16Array(buffer, p.normals, p.vertexCount * 3), 3, true));
       geometry.setIndex(new THREE.BufferAttribute(new Uint32Array(buffer, p.indices, p.indexCount), 1));
-      const isSkin = p.system === 'integumentary';
-      // Skin renders fully opaque by default — this is the patient-facing
-      // surface view (like the existing 2D body map), not an x-ray. The
-      // "Show skin" checkbox fully hides the skin mesh (see the change
-      // listener below) when someone wants to inspect organs underneath;
-      // it does not partially fade it, which previously made every part
-      // look see-through regardless of the checkbox.
       const material = new THREE.MeshStandardMaterial({
         color: SYSTEM_COLORS[p.system] || '#c9b7a6',
         metalness: 0.05,
@@ -246,13 +285,16 @@ async function loadAtlas(name) {
       });
       const mesh = new THREE.Mesh(geometry, material);
       mesh.userData.partIndex = i;
-      mesh.visible = !isSkin || skinToggle.checked;
+      mesh.visible = visibleForSystem(p.system);
+      mesh.userData.system = p.system;
       scene.add(mesh);
-      currentMeshes.push(mesh);
+      newMeshes.push(mesh);
     }
     loaded++;
-    statusEl.textContent = `Loading ${name} atlas… chunk ${loaded}/${atlas.chunks.length}`;
-    loadingProgressEl.textContent = `${Math.round((loaded / atlas.chunks.length) * 100)}%`;
+    if (!quiet) {
+      statusEl.textContent = `Loading ${name} atlas… chunk ${loaded}/${atlas.chunks.length}`;
+      loadingProgressEl.textContent = `${Math.round((loaded / atlas.chunks.length) * 100)}%`;
+    }
   };
 
   // Three concurrent fetch/decode workers, matching the proven upstream
@@ -267,28 +309,75 @@ async function loadAtlas(name) {
       addChunkGeometry(chunkIndex, buffer);
     }
   }));
-  if (name !== 'female') addModestyPatch(SYSTEM_COLORS.integumentary);
+  if (token !== loadToken) {
+    disposeMeshes(newMeshes);
+    return;
+  }
+  if (quiet) {
+    disposeMeshes(previousMeshes);
+    disposeModesty();
+  }
+  currentMeshes = newMeshes;
+  if (name !== 'female') {
+    addModestyPatch(SYSTEM_COLORS.integumentary);
+    modestyPatch.visible = visibleForSystem('integumentary');
+  }
+  applyLayerVisibility();
+  performance.mark(`atomybridge-${lite ? 'lite' : 'full'}-ready`);
   statusEl.textContent = `${name} atlas loaded — ${currentParts.length} parts, ${currentMeshes.length} meshes.`;
-  loadingOverlay.classList.add('hidden');
+  if (!quiet) loadingOverlay.classList.add('hidden');
 }
 
-skinToggle.addEventListener('change', () => {
-  for (const m of currentMeshes) {
-    const part = currentParts[m.userData.partIndex];
-    if (part.system === 'integumentary') m.visible = skinToggle.checked;
+function applyLayerVisibility() {
+  for (const mesh of currentMeshes) mesh.visible = visibleForSystem(mesh.userData.system);
+  if (modestyPatch) modestyPatch.visible = visibleForSystem('integumentary');
+  for (const button of layerButtons) {
+    button.classList.toggle('selected', button.dataset.layer === activeLayer);
   }
-  if (modestyPatch) modestyPatch.visible = skinToggle.checked;
-});
+}
 
-genderSelect.addEventListener('change', () => loadAtlas(genderSelect.value));
+skinToggle.addEventListener('change', applyLayerVisibility);
+for (const button of layerButtons) {
+  button.addEventListener('click', () => {
+    activeLayer = button.dataset.layer;
+    applyLayerVisibility();
+  });
+}
+
+// Fast path: show the ~1 MB skin silhouette first, then bring in the full
+// atlas once the body is already on screen. The upgrade is quiet — no
+// spinner, no progress line — so a patient tapping a body never sees it
+// disappear behind a loading overlay again.
+let upgradeTimer = null;
+function loadWithUpgrade(name) {
+  if (upgradeTimer !== null) {
+    clearTimeout(upgradeTimer);
+    upgradeTimer = null;
+  }
+  loadAtlas(name, { lite: true }).then(() => {
+    upgradeTimer = setTimeout(() => loadAtlas(name, { quiet: true }), 300);
+  }, (error) => {
+    statusEl.textContent = `Failed to load ${name} atlas: ${error.message}`;
+    showLoadFailure();
+  });
+}
+
+genderSelect.addEventListener('change', () => loadWithUpgrade(genderSelect.value));
 
 // The embedding app (Flutter's Anatomy3DTapView) passes the current
 // patient's gender via ?gender=male|female so the right atlas loads
 // immediately, instead of always starting on male and requiring a manual
 // dropdown change every time.
-const initialGender = new URLSearchParams(location.search).get('gender') === 'female' ? 'female' : 'male';
+// `v` carries the gender on the URL the Flutter app uses. The parameter is
+// named `v` so Flutter's generated service worker normalises the request to
+// `anatomy3d/viewer.html` and caches it for offline use; a plain `gender=`
+// query is not in its resource manifest and is never intercepted. The
+// standalone harness below keeps using `gender=` and both forms are accepted.
+const params = new URLSearchParams(location.search);
+const initialGender =
+  (params.get('v') === 'female' || params.get('gender') === 'female') ? 'female' : 'male';
 genderSelect.value = initialGender;
-loadAtlas(initialGender);
+loadWithUpgrade(initialGender);
 
 const raycaster = new THREE.Raycaster();
 const pointerNDC = new THREE.Vector2();

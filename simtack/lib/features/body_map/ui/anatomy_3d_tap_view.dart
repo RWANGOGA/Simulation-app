@@ -39,6 +39,13 @@ typedef PainMarker = ({
 /// Web only for now: mobile needs the same viewer.html loaded through
 /// webview_flutter instead of HtmlElementView, which is follow-up work, not
 /// done here yet — see anatomy3d_platform_view_stub.dart.
+/// The iframe URL, kept pure so the offline-service-worker contract is
+/// testable without a browser. `?v=` must stay: Flutter's generated service
+/// worker strips that prefix before checking its resource manifest, so this
+/// is the only query form it will cache and serve offline.
+String anatomy3DViewerUrl(String gender) =>
+    'anatomy3d/viewer.html?v=${gender == 'Female' ? 'female' : 'male'}&embedded=1';
+
 class Anatomy3DTapView extends StatefulWidget {
   final String gender; // 'Male' or 'Female', matching BodyMapScreen.gender
   final List<PainMarker> markers;
@@ -65,11 +72,7 @@ class _Anatomy3DTapViewState extends State<Anatomy3DTapView> {
     super.initState();
     if (kIsWeb) {
       _viewType = 'anatomy3d-viewer-${_instanceCounter++}';
-      final genderParam = widget.gender == 'Female' ? 'female' : 'male';
-      registerAnatomy3DPlatformView(
-        _viewType,
-        'anatomy3d/viewer.html?gender=$genderParam&embedded=1',
-      );
+      registerAnatomy3DPlatformView(_viewType, anatomy3DViewerUrl(widget.gender));
       _registered = true;
       WebInterop.registerBodyPartListener(_handleBodyPart);
       _syncMarkers();
