@@ -1,11 +1,11 @@
 {
-    "name": "atomybridge_app",
-    "short_name": "atomybridge_app",
+    "name": "AtomyBridge Care",
+    "short_name": "AtomyBridge",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Offline-first clinical triage: map pain, get an explainable risk score and a QR clinical passport.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

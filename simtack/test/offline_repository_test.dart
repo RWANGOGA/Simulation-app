@@ -189,11 +189,66 @@ void main() {
       ));
 
       // Chest / Heart and Left Arm / Shoulder are a high-concern connection:
-      // 0.72 alone, 0.97 once the arm is in the same visit.
+      // 0.72 alone, 0.99 once the arm is in the same visit. The fixed edge bump
+      // accounts for most of it and the neighbour's severity adds the referral.
       expect(alone.riskScore, 0.72);
-      expect(chest.riskScore, 0.97);
+      expect(chest.riskScore, 0.99);
       expect(chest.shapExplanation, contains('Connected to reported'));
       expect(alone.shapExplanation, isNot(contains('Connected to reported')));
+    });
+
+    test('a sibling pain severity travels with the region when scoring offline',
+        () async {
+      // Connectivity alone only knows that the neighbour exists. Propagation
+      // needs the neighbour's own severity: the device must carry it into the
+      // engine just as the server's create_triage does, or an offline record
+      // would score as if the neighbour's pain were unreported while an online
+      // one would carry the referral.
+      final patient = await repo.createPatient(const PatientProfile(
+        age: 30,
+        gender: 'Male',
+        weight: 60,
+        height: 165,
+      ));
+      final mildVisit = newVisitId();
+      final severeVisit = newVisitId();
+
+      await repo.sendTriage(report(
+        region: 'Left Arm / Shoulder',
+        painType: 'Sharp',
+        severity: 1,
+        visitId: mildVisit,
+        patientId: patient.id,
+        patientCode: patient.anonymousCode,
+      ));
+      await repo.sendTriage(report(
+        region: 'Left Arm / Shoulder',
+        painType: 'Sharp',
+        severity: 8,
+        visitId: severeVisit,
+        patientId: patient.id,
+        patientCode: patient.anonymousCode,
+      ));
+
+      final mild = await repo.sendTriage(report(
+        region: 'Chest / Heart',
+        painType: 'Sharp',
+        severity: 1,
+        visitId: mildVisit,
+        patientId: patient.id,
+        patientCode: patient.anonymousCode,
+      ));
+      final severe = await repo.sendTriage(report(
+        region: 'Chest / Heart',
+        painType: 'Sharp',
+        severity: 1,
+        visitId: severeVisit,
+        patientId: patient.id,
+        patientCode: patient.anonymousCode,
+      ));
+
+      expect(severe.shapExplanation, contains('referral'));
+      expect(severe.riskScore!, greaterThan(mild.riskScore!));
     });
   });
 

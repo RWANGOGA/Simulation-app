@@ -139,6 +139,7 @@ class OfflineRepository {
         patientWeight: _asDouble(patient['weight']),
         patientHeight: _asDouble(patient['height']),
         siblingRegions: db.regionsInVisit(report.visitId),
+        siblingSeverities: db.severitiesInVisit(report.visitId),
       );
 
       final assessment = _engine.compute(input);

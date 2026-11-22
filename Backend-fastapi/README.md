@@ -1,7 +1,7 @@
 # AtomyBridge Care — API
 
 FastAPI + PostgreSQL backend for the AtomyBridge Care patient and practitioner
-apps. The Flutter clients live in `../simtack` and `../painpoint`.
+apps. The Flutter client lives in `../simtack`.
 
 ## Running it locally
 
@@ -20,11 +20,15 @@ them along with the schema they would publish.
 
 ## Migrations
 
-**Nothing runs the migrations for you.** Neither the Dockerfile, nor the
-container entrypoint, nor application startup calls Alembic. `app/main.py`
-creates two tables (`audit_logs`, `request_throttle`) with `checkfirst` because
-leaving them out fails silently — a missing audit table just means "no trail".
-Everything else has to be migrated explicitly.
+**Run the migrations explicitly, and let the container do it on deploy.** The
+Dockerfile's entrypoint (`docker-entrypoint.py`) runs `alembic upgrade head`
+before uvicorn starts, so a container deploy always lands on the current
+revision. Local runs do not: `uvicorn app.main:app` starts the app as-is, so
+run `alembic upgrade head` yourself after pulling. `app/main.py` only creates
+two tables (`audit_logs`, `request_throttle`) with `checkfirst` because leaving
+them out fails silently — a missing audit table just means "no trail" — and it
+adopts nullable columns the ORM declares but the live table lacks. Everything
+else has to be migrated.
 
 ```bash
 alembic upgrade head                 # apply everything (every deploy)

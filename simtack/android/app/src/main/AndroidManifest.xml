@@ -2,7 +2,7 @@
     <!-- Camera is used for the practitioner QR scanner (and PPG vitals). -->
     <uses-permission android:name="android.permission.CAMERA" />
     <application
-        android:label="atomybridge_app"
+        android:label="AtomyBridge Care"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

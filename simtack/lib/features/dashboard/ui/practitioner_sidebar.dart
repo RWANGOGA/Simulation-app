@@ -13,6 +13,7 @@ import '../../report/ui/clinical_report_screen.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
 import '../../history/ui/practitioner_session_history_screen.dart';
 import '../../profile/ui/practitioner_profile_screen.dart';
+import '../../admin/ui/admin_console_screen.dart';
 
 /// The practitioner console's left navigation, in GitHub's sidebar idiom:
 /// a white rail separated by a one-pixel border, small section captions, and
@@ -38,6 +39,7 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
   String? _doctorEmail;
   String? _hospitalName;
   int? _pendingSync;
+  bool _isAdmin = false;
 
   @override
   void initState() {
@@ -54,6 +56,7 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
           _doctorName = doctor.fullName;
           _doctorEmail = doctor.email;
           _hospitalName = doctor.hospitalName;
+          _isAdmin = doctor.isAdmin;
         });
       }
     } catch (_) {
@@ -128,6 +131,19 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
                   padding: EdgeInsets.symmetric(vertical: 8),
                   child: GhRule(),
                 ),
+                if (_isAdmin) ...[
+                  _sectionLabel(context, 'Administration'),
+                  _buildNavItem(
+                    context,
+                    icon: Icons.admin_panel_settings_outlined,
+                    label: 'Admin Console',
+                    route: '/admin',
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: GhRule(),
+                  ),
+                ],
                 _sectionLabel(context, 'Account'),
                 _buildNavItem(
                   context,
@@ -395,6 +411,11 @@ class _PractitionerSidebarState extends State<PractitionerSidebar> {
       case '/profile':
         Navigator.of(context).push(
           AppPageRoute(builder: (_) => const PractitionerProfileScreen()),
+        );
+        break;
+      case '/admin':
+        Navigator.of(context).push(
+          AppPageRoute(builder: (_) => const AdminConsoleScreen()),
         );
         break;
       default:

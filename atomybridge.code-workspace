@@ -1,6 +1,6 @@
 {
   "folders": [
-    { "name": "📱 FRONTEND - atomybridge_app", "path": "atomybridge_app" },
+    { "name": "📱 FRONTEND - simtack", "path": "simtack" },
     { "name": " BACKEND - Backend-fastapi", "path": "Backend-fastapi" }
   ],
   "settings": {

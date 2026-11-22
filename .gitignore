@@ -1,8 +1,7 @@
 # Don't push the Flutter SDK itself
 flutter/
 
-# Exclude unrelated project
-painpoint/
+# Exclude unrelated local folders from this repo
 untitled folder/
 
 # macOS
@@ -26,6 +25,7 @@ simtack/ios/.symlinks/
 
 # Qoder / IDE tooling cache
 .qoder/
+.idea/
 
 # Local build/analysis output
 .dist/

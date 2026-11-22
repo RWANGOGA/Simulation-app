@@ -6,7 +6,6 @@ from fastapi_offline import FastAPIOffline
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from sqlalchemy import inspect, text
-from app.api.v1.endpoints import auth
 from app.api.v1.router import api_router
 from app.core.config import settings, warn_on_insecure_defaults
 from app.core.database import Base, engine
@@ -213,7 +212,6 @@ async def limit_request_size(request, call_next):
 # before any other middleware logs.
 app.add_middleware(RequestContextMiddleware)
 
-app.include_router(auth.router, prefix="/api/v1")
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 @app.get("/")

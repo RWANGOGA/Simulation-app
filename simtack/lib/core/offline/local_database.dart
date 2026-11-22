@@ -200,6 +200,7 @@ class LocalDatabase {
         'patients': <Map<String, dynamic>>[],
         'sessions': <Map<String, dynamic>>[],
         'outbox': <Map<String, dynamic>>[],
+        'cache': <String, dynamic>{},
       };
 
   static Map<String, dynamic> _parseOrQuarantine(
@@ -223,6 +224,8 @@ class LocalDatabase {
           'outbox': ((decoded['outbox'] as List?) ?? const [])
               .whereType<Map<String, dynamic>>()
               .toList(),
+          'cache': ((decoded['cache'] as Map?) ?? const {})
+              .map((key, value) => MapEntry(key.toString(), value)),
         };
       }
     } catch (_) {
@@ -291,6 +294,21 @@ class LocalDatabase {
             alias.toString(),
         },
       };
+
+  // ── Cached non-clinical payloads ────────────────────────────────────────
+  //
+  // The administrator console reads server-side data that has no device-side
+  // equivalent. Keeping the last successful snapshot here — in the same
+  // encrypted document as everything else — lets the console open in a clinic
+  // with no signal and say plainly how old its numbers are, instead of showing
+  // an empty screen or pretending the figures are live.
+
+  Map<String, dynamic> get cache =>
+      (_root['cache'] as Map).cast<String, dynamic>();
+
+  void writeCache(String key, Object? value) => cache[key] = value;
+
+  void removeCache(String key) => cache.remove(key);
 
   // ── Patients ────────────────────────────────────────────────────────────
 
@@ -376,6 +394,31 @@ class LocalDatabase {
         if (session['visit_id'] == visitId && session['body_region'] is String)
           session['body_region'] as String,
     ];
+  }
+
+  /// body_region -> severity for every pain point already in this visit.
+  ///
+  /// Feeds the engine's propagation pass: a referral's strength is the
+  /// neighbouring region's own severity, so the severity has to travel with the
+  /// region name or the message pass has nothing to carry. Where the same region
+  /// was reported more than once in a visit the highest severity wins — the
+  /// loudest report is the one a referral should carry. This mirrors
+  /// `crud_triage.get_region_severities_in_visit` on the server, because a
+  /// record scored offline has to reach the same number a record scored online
+  /// would.
+  Map<String, int> severitiesInVisit(String? visitId) {
+    if (visitId == null || visitId.isEmpty) return const {};
+    final severities = <String, int>{};
+    for (final session in sessions) {
+      if (session['visit_id'] != visitId) continue;
+      final region = session['body_region'];
+      final severity = session['severity'];
+      if (region is! String || severity is! num) continue;
+      final value = severity.toInt();
+      final current = severities[region] ?? 0;
+      if (value > current) severities[region] = value;
+    }
+    return severities;
   }
 
   /// The patient an in-progress visit already belongs to, if any.

@@ -882,6 +882,94 @@ class ApiClient {
   static Future<bool> get isLoggedIn async =>
       (await tokenStorage.read()) != null;
 
+  // ── Administrator console ────────────────────────────────────────────────
+  //
+  // These routes are administrator-only, and the server re-checks the role on
+  // every request. The bodies are returned as maps because the console renders
+  // the server's own aggregate shapes rather than re-deriving them on the
+  // device, where the source rows do not exist.
+  //
+  // The reads use a shorter timeout than the rest of the API: a console is an
+  // operator tool, and waiting 20 seconds behind a dead link before falling
+  // back to the cached snapshot makes the screen feel broken.
+
+  static const Duration _adminTimeout = Duration(seconds: 8);
+
+  static Future<Map<String, dynamic>> _adminGet(
+    String path, [
+    Map<String, String>? params,
+  ]) async {
+    final uri = Uri.parse('$baseUrl$path').replace(queryParameters: params);
+    final response = await _send(
+      'GET',
+      uri,
+      headers: await _authHeaders(),
+      timeout: _adminTimeout,
+    );
+    return jsonDecode(response.body) as Map<String, dynamic>;
+  }
+
+  static Future<Map<String, dynamic>> getAdminOverview() =>
+      _adminGet('/admin/overview');
+
+  static Future<Map<String, dynamic>> getAdminUsers({
+    int page = 1,
+    int limit = 25,
+    String? query,
+    String? status,
+  }) =>
+      _adminGet('/admin/users', {
+        'page': '$page',
+        'limit': '$limit',
+        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+        if (status != null && status.isNotEmpty) 'status': status,
+      });
+
+  static Future<Doctor> updateAdminUser(
+    int doctorId, {
+    bool? isApproved,
+    bool? isActive,
+    String? accessLevel,
+  }) async {
+    final response = await _send(
+      'PATCH',
+      Uri.parse('$baseUrl/admin/users/$doctorId'),
+      headers: await _authHeaders(),
+      body: jsonEncode({
+        if (isApproved != null) 'is_approved': isApproved,
+        if (isActive != null) 'is_active': isActive,
+        if (accessLevel != null) 'access_level': accessLevel,
+      }),
+    );
+    return Doctor.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  static Future<Map<String, dynamic>> getAdminActivity({
+    int page = 1,
+    int limit = 50,
+    String? action,
+    String? outcome,
+  }) =>
+      _adminGet('/admin/activity', {
+        'page': '$page',
+        'limit': '$limit',
+        if (action != null && action.isNotEmpty) 'action': action,
+        if (outcome != null && outcome.isNotEmpty) 'outcome': outcome,
+      });
+
+  static Future<Map<String, dynamic>> getAdminSessions({
+    int page = 1,
+    int limit = 25,
+    String? riskLevel,
+    String? status,
+  }) =>
+      _adminGet('/admin/sessions', {
+        'page': '$page',
+        'limit': '$limit',
+        if (riskLevel != null && riskLevel.isNotEmpty) 'risk_level': riskLevel,
+        if (status != null && status.isNotEmpty) 'status': status,
+      });
+
   static Future<void> logout() => tokenStorage.delete();
 
   // The live backend is hosted on a free tier that goes to sleep after a
