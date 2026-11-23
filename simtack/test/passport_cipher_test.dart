@@ -169,7 +169,8 @@ void main() {
       // quoted from a paper: this is the version qr_flutter would choose.
       final version = QrCode.fromData(
         data: payload,
-        errorCorrectLevel: QrErrorCorrectLevel.M,
+        // The app prints at level Q so the centred logo has headroom.
+        errorCorrectLevel: QrErrorCorrectLevel.Q,
       ).typeNumber;
 
       // 12 points is more than any visit in the dataset; it is the ceiling, not

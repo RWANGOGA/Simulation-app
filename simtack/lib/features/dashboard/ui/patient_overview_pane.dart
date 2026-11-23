@@ -3,8 +3,6 @@ import 'dart:async';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:simtack/core/theme/app_tokens.dart';
-import 'package:simtack/core/theme/app_accent.dart';
-import 'package:simtack/core/theme/app_palette.dart';
 import 'package:intl/intl.dart';
 import 'package:model_viewer_plus/model_viewer_plus.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -343,14 +341,27 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 child: QrImageView(
                   data: passportPayload(_enteredCode),
                   version: QrVersions.auto,
-                  size: 160,
+                  size: 190,
+                  // White on black modules in every theme, with level Q so
+                  // the centred logo cannot cost a scan. This code is only a
+                  // pointer, so the caption below says it needs internet.
                   backgroundColor: Colors.white,
-                  eyeStyle: QrEyeStyle(
-                      eyeShape: QrEyeShape.square,
-                      color: AppAccent.info(context)),
-                  dataModuleStyle: QrDataModuleStyle(
-                      dataModuleShape: QrDataModuleShape.square,
-                      color: AppPalette.textPrimary(context)),
+                  errorCorrectionLevel: QrErrorCorrectLevel.Q,
+                  eyeStyle: const QrEyeStyle(
+                    eyeShape: QrEyeShape.square,
+                    color: Colors.black,
+                  ),
+                  dataModuleStyle: const QrDataModuleStyle(
+                    dataModuleShape: QrDataModuleShape.square,
+                    color: Colors.black,
+                  ),
+                  embeddedImage: const AssetImage(
+                    'assets/branding/simtack_qr_logo.png',
+                  ),
+                  embeddedImageStyle: const QrEmbeddedImageStyle(
+                    size: Size(26, 26),
+                  ),
+                  embeddedImageEmitsError: true,
                 ),
               ),
             ),
@@ -360,6 +371,13 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 style: GhType.meta.copyWith(
                     color: GhColors.fgMuted(context),
                     fontWeight: FontWeight.w500)),
+            const SizedBox(height: 4),
+            Text(t.qrNeedsInternetHint,
+                textAlign: TextAlign.center,
+                style: GhType.meta.copyWith(
+                  color: GhColors.fgMuted(context),
+                  fontSize: 11,
+                )),
             const SizedBox(height: 16),
             GhButton(
               t.openFullClinicalReportButton,

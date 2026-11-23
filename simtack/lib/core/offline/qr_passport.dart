@@ -22,9 +22,10 @@ const String passportPayloadPrefix = passportPrefix;
 
 /// The most bytes a passport payload may print as.
 ///
-/// Measured with the encoder the app actually uses (`QrCode.fromData` at error
-/// correction level M): 700 bytes lands near QR version 20, about 97 modules on
-/// a side. Past that a phone camera at arm's length over a printed card starts
+/// Measured with the encoder the app actually prints with: error correction
+/// level Q (25%), which leaves room for the centred Simtack logo. 700 bytes
+/// lands near QR version 28, about 129 modules on a side, at a 220px display
+/// size. Past that a phone camera at arm's length over a printed card starts
 /// failing to resolve the symbol, and an unreadable passport helps nobody — so
 /// the app prints the URL code instead and says so on the card.
 const int passportByteCeiling = 700;
@@ -37,7 +38,7 @@ const int passportByteCeiling = 700;
 /// screen: a flag can be set wrongly by the caller, which is the same bug in a
 /// different place. The bytes either contain the record or they do not.
 bool passportCarriesRecord(String payload) =>
-    payload.startsWith(passportPayloadPrefix);
+    payload.startsWith('$passportPayloadPrefix:');
 
 /// The hint a patient should be shown under [payload].
 ///

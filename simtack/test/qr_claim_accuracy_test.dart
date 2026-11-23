@@ -135,7 +135,10 @@ void main() {
             payload: 'ABP1dGVzdA',
             offlinePassport: offline,
             needsInternet: online),
-        offline,
+        online,
+        reason: 'a payload that only starts with ABP1 but has no colon is not '
+            'a sealed passport; claiming otherwise tells a patient the record '
+            'is offline when the scanner cannot open it',
       );
     });
   });
@@ -159,7 +162,10 @@ void main() {
       )));
       await tester.pump();
 
-      expect(find.byType(QrImageView), findsWidgets);
+      final qr = tester.widget<QrImageView>(find.byType(QrImageView).first);
+      expect(qr.errorCorrectionLevel, QrErrorCorrectLevel.Q);
+      expect(qr.embeddedImage, isA<AssetImage>());
+      expect(qr.embeddedImageEmitsError, isTrue);
       expect(
         find.text('The record travels inside this code, so it opens without '
             'internet'),

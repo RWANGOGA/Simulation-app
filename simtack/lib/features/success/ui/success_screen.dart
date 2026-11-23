@@ -116,7 +116,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
           // Mobile: real native OS share tray, handled entirely by share_plus.
           await Share.share(
             'Clinical Report for Patient ${widget.patientId}:\n$_reportUrl',
-            subject: 'AtomyBridge Clinical Report',
+            subject: 'Simtack Care Clinical Report',
           );
         }
       }
@@ -183,7 +183,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                       color: AppAccent.primary(context),
                       onTap: () => _launchAndClose(
                         sheetContext,
-                        'mailto:?subject=${Uri.encodeComponent('AtomyBridge Clinical Report')}&body=${Uri.encodeComponent(message)}',
+                        'mailto:?subject=${Uri.encodeComponent('Simtack Care Clinical Report')}&body=${Uri.encodeComponent(message)}',
                       ),
                     ),
                     _shareOption(
@@ -471,8 +471,27 @@ class _SuccessScreenState extends State<SuccessScreen> {
                       QrImageView(
                         data: _passportData,
                         version: QrVersions.auto,
-                        size: 180.0,
-                        backgroundColor: AppPalette.surface(context),
+                        size: 220.0,
+                        // A fixed high-contrast pair and level Q keep the
+                        // symbol scannable in dark mode and leave 25% of the
+                        // code recoverable under the centred logo.
+                        backgroundColor: Colors.white,
+                        errorCorrectionLevel: QrErrorCorrectLevel.Q,
+                        eyeStyle: const QrEyeStyle(
+                          eyeShape: QrEyeShape.square,
+                          color: Colors.black,
+                        ),
+                        dataModuleStyle: const QrDataModuleStyle(
+                          dataModuleShape: QrDataModuleShape.square,
+                          color: Colors.black,
+                        ),
+                        embeddedImage: const AssetImage(
+                          'assets/branding/simtack_qr_logo.png',
+                        ),
+                        embeddedImageStyle: const QrEmbeddedImageStyle(
+                          size: Size(30, 30),
+                        ),
+                        embeddedImageEmitsError: true,
                       ),
                       const SizedBox(height: 12),
                       // The printed key phrase, shown only when the bytes above

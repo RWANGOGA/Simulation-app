@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import '../../../core/offline/passport_cipher.dart';
@@ -302,6 +303,11 @@ class _PassportPhraseSheetState extends State<_PassportPhraseSheet> {
             autocorrect: false,
             enableSuggestions: false,
             textCapitalization: TextCapitalization.characters,
+            maxLength: passportPhraseLength,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(passportPhraseLength),
+              FilteringTextInputFormatter.allow(RegExp(r'[A-Z]')),
+            ],
             decoration: InputDecoration(
               labelText: 'Unlock phrase',
               border: const OutlineInputBorder(),

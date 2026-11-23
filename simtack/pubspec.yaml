@@ -52,6 +52,7 @@ flutter:
     - assets/models/
     - assets/avatars/
     - assets/anatomy/
+    - assets/branding/
     # Generated from the backend by scripts/export_offline_assets.py. The app
     # scores reports and answers anatomy questions from these with no network.
     - assets/clinical/
