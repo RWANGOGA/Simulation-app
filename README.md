@@ -438,6 +438,9 @@ what keeps the caption honest.
   **unapproved** and cannot sign in until an admin approves them.
 - Exactly two access levels: `practitioner` and `admin`. `role` is a display-only
   job title. An admin cannot demote or deactivate themselves.
+- Passwords are **at least 8 characters** and must include upper case, lower
+  case, a number and a special character. The Flutter registration form uses
+  the same 8-character minimum; existing passwords are never rewritten.
 
 ### Cross-cutting services
 
@@ -512,6 +515,9 @@ Base path: `/api/v1`
 | GET | `/admin/overview` | Account, patient, triage and audit aggregates | Admin |
 | GET | `/admin/users` | Paginated accounts with counts, search and status filters | Admin |
 | PATCH | `/admin/users/{id}` | Approve, deactivate or promote an account (delegates to the auth handler) | Admin |
+| GET | `/admin/users/{id}` | Full practitioner profile with their own audit history | Admin |
+| GET | `/admin/patients` | Paginated patient register with live session counts and last risk | Admin |
+| GET | `/admin/patients/{id}` | Patient demographics, triage sessions and access history | Admin |
 | GET | `/admin/activity` | Paginated audit trail with action/outcome/actor filters | Admin |
 | GET | `/admin/sessions` | Paginated operational session view with risk/status filters | Admin |
 | GET | `/audit/logs` | Paginated access trail | Admin |
@@ -640,13 +646,15 @@ availability gate is still WebGL: browsers without a context use the bundled
 #### Administrator console
 
 Administrators get an extra **Administration → Admin Console** entry in the
-practitioner sidebar. It is a four-tab operational view:
+practitioner sidebar. It is a five-tab operational view, all fed by live
+backend queries:
 
 | Tab | Contents |
 |---|---|
-| Overview | Account/patient/triage/audit counters, tier and red-flag distributions, top regions, recent activity |
-| Users | Search and filter accounts; approve, deactivate, reactivate, promote and demote |
-| Activity | The audit trail with action, outcome, actor and resource filters |
+| Overview | Account/patient/triage/audit counters; tier, risk and escalation distributions; 14-day daily volume; activity grouped by action/outcome/actor; top regions; recent activity; snapshot provenance |
+| Users | Search and filter accounts; approve, deactivate, reactivate, promote and demote; open a full practitioner profile with their own audit history |
+| Patients | Searchable patient register with session counts and last risk; open a full record with demographics, triage sessions and who accessed it |
+| Activity | The complete audit trail with action, outcome, actor and resource filters |
 | Sessions | Recent triage points with risk and status filters (anonymous patient code only) |
 
 The console is **server-authoritative but cache-backed**. `AdminRepository`

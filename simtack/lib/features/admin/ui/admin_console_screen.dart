@@ -34,10 +34,17 @@ class AdminConsoleScreen extends StatefulWidget {
 }
 
 class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
-  static const _tabs = ['Overview', 'Users', 'Activity', 'Sessions'];
+  static const _tabs = [
+    'Overview',
+    'Users',
+    'Patients',
+    'Activity',
+    'Sessions'
+  ];
   static const _tabIcons = [
     Icons.space_dashboard_outlined,
     Icons.people_outline,
+    Icons.person_search_outlined,
     Icons.history,
     Icons.monitor_heart_outlined,
   ];
@@ -50,26 +57,32 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
 
   AdminSnapshot? _overview;
   AdminSnapshot? _users;
+  AdminSnapshot? _patients;
   AdminSnapshot? _activity;
   AdminSnapshot? _sessions;
 
   bool _overviewLoading = false;
   bool _usersLoading = false;
+  bool _patientsLoading = false;
   bool _activityLoading = false;
   bool _sessionsLoading = false;
 
   String? _overviewError;
   String? _usersError;
+  String? _patientsError;
   String? _activityError;
   String? _sessionsError;
 
   int _usersPage = 1;
+  int _patientsPage = 1;
   int _activityPage = 1;
   int _sessionsPage = 1;
 
   final TextEditingController _userSearch = TextEditingController();
+  final TextEditingController _patientSearch = TextEditingController();
   Timer? _searchDebounce;
   String? _userStatus;
+  String? _patientHasSessions;
 
   String? _activityAction;
   String? _activityOutcome;
@@ -87,6 +100,7 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
   void dispose() {
     _searchDebounce?.cancel();
     _userSearch.dispose();
+    _patientSearch.dispose();
     super.dispose();
   }
 
@@ -158,6 +172,34 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     }
   }
 
+  Future<void> _loadPatients({int page = 1}) async {
+    setState(() {
+      _patientsLoading = true;
+      _patientsError = null;
+      _patientsPage = page;
+    });
+    try {
+      final snapshot = await AdminRepository.instance.loadPatients(
+        page: page,
+        query: _patientSearch.text,
+        hasSessions: _patientHasSessions == null
+            ? null
+            : _patientHasSessions == 'true',
+      );
+      if (!mounted) return;
+      setState(() {
+        _patients = snapshot;
+        _patientsLoading = false;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _patientsError = _messageFor(error);
+        _patientsLoading = false;
+      });
+    }
+  }
+
   Future<void> _loadActivity({int page = 1}) async {
     setState(() {
       _activityLoading = true;
@@ -217,9 +259,12 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
         if (_users == null) _loadUsers();
         break;
       case 2:
-        if (_activity == null) _loadActivity();
+        if (_patients == null) _loadPatients();
         break;
       case 3:
+        if (_activity == null) _loadActivity();
+        break;
+      case 4:
         if (_sessions == null) _loadSessions();
         break;
       default:
@@ -233,9 +278,12 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
         _loadUsers(page: _usersPage);
         break;
       case 2:
-        _loadActivity(page: _activityPage);
+        _loadPatients(page: _patientsPage);
         break;
       case 3:
+        _loadActivity(page: _activityPage);
+        break;
+      case 4:
         _loadSessions(page: _sessionsPage);
         break;
       default:
@@ -309,6 +357,283 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     }
   }
 
+  Future<void> _showUserDetail(int id, String email) async {
+    _showDetailLoading();
+    try {
+      final snapshot = await AdminRepository.instance.loadUserDetail(id);
+      if (!mounted) return;
+      Navigator.of(context).pop(); // dismiss the loading dialog
+      final data = snapshot.data;
+      final recent = _list(data['recent_activity']);
+      showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text('${data['full_name'] ?? email}'),
+          content: SizedBox(
+            width: 520,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (snapshot.fromCache) _cachedBanner(snapshot),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 20,
+                    runSpacing: 12,
+                    children: [
+                      _fact(dialogContext, 'Email', email),
+                      _fact(
+                        dialogContext,
+                        'Access',
+                        '${data['access_level'] ?? 'practitioner'}',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Status',
+                        data['is_approved'] == true ? 'Approved' : 'Pending',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Role',
+                        '${data['role'] ?? '—'}',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'License',
+                        '${data['license_number'] ?? '—'}',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Phone',
+                        '${data['phone'] ?? '—'}',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Hospital',
+                        '${data['hospital_name'] ?? '—'}',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Joined',
+                        _time(data['created_at']),
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Actions',
+                        _count(data['audit_count']),
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Denied',
+                        _count(data['denied_count']),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  const GhSectionHeader(
+                    'Recent activity',
+                    subtitle: 'Actions performed by this account.',
+                  ),
+                  const SizedBox(height: 8),
+                  GhBox(
+                    flush: true,
+                    child: Column(
+                      children: [
+                        for (final entry in recent)
+                          _activityRow(
+                            dialogContext,
+                            entry,
+                            showBorder: entry != recent.last,
+                          ),
+                        if (recent.isEmpty)
+                          const GhEmptyState(
+                            icon: Icons.history,
+                            message: 'No activity recorded for this account.',
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            GhButton('Close', onPressed: () => Navigator.of(dialogContext).pop()),
+          ],
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_messageFor(error)),
+          backgroundColor: GhColors.danger(context),
+        ),
+      );
+    }
+  }
+
+  Future<void> _showPatientDetail(int id, String code) async {
+    _showDetailLoading();
+    try {
+      final snapshot = await AdminRepository.instance.loadPatient(id);
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      final data = snapshot.data;
+      final sessions = _list(data['sessions']);
+      final audit = _list(data['audit']);
+      showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: Text('${data['full_name'] ?? code}'),
+          content: SizedBox(
+            width: 560,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (snapshot.fromCache) _cachedBanner(snapshot),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 20,
+                    runSpacing: 12,
+                    children: [
+                      _fact(dialogContext, 'Code', code),
+                      _fact(
+                        dialogContext,
+                        'Age',
+                        '${data['age'] ?? '—'}',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Gender',
+                        '${data['gender'] ?? '—'}',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Phone',
+                        '${data['phone'] ?? '—'}',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Hospital',
+                        '${data['hospital_name'] ?? '—'}',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Language',
+                        '${data['preferred_language'] ?? '—'}',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Date of birth',
+                        '${data['date_of_birth'] ?? '—'}',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Next of kin',
+                        '${data['next_of_kin_name'] ?? '—'}',
+                      ),
+                      _fact(
+                        dialogContext,
+                        'Registered',
+                        _time(data['created_at']),
+                      ),
+                    ],
+                  ),
+                  if (data['address'] != null) ...[
+                    const SizedBox(height: 16),
+                    _fact(dialogContext, 'Address', '${data['address']}'),
+                  ],
+                  if (data['notes'] != null) ...[
+                    const SizedBox(height: 12),
+                    _fact(dialogContext, 'Notes', '${data['notes']}'),
+                  ],
+                  const SizedBox(height: 20),
+                  GhSectionHeader(
+                    'Triage sessions',
+                    subtitle: '${_count(data['session_count'])} recorded on this record.',
+                  ),
+                  const SizedBox(height: 8),
+                  GhBox(
+                    flush: true,
+                    child: Column(
+                      children: [
+                        for (final session in sessions)
+                          _sessionRow(
+                            dialogContext,
+                            session,
+                            showBorder: session != sessions.last,
+                          ),
+                        if (sessions.isEmpty)
+                          const GhEmptyState(
+                            icon: Icons.monitor_heart_outlined,
+                            message: 'No sessions recorded for this patient.',
+                          ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const GhSectionHeader(
+                    'Access history',
+                    subtitle: 'Who opened this patient record and when.',
+                  ),
+                  const SizedBox(height: 8),
+                  GhBox(
+                    flush: true,
+                    child: Column(
+                      children: [
+                        for (final entry in audit)
+                          _activityRow(
+                            dialogContext,
+                            entry,
+                            showBorder: entry != audit.last,
+                          ),
+                        if (audit.isEmpty)
+                          const GhEmptyState(
+                            icon: Icons.history,
+                            message: 'No access recorded for this patient.',
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            GhButton('Close', onPressed: () => Navigator.of(dialogContext).pop()),
+          ],
+        ),
+      );
+    } catch (error) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_messageFor(error)),
+          backgroundColor: GhColors.danger(context),
+        ),
+      );
+    }
+  }
+
+  void _showDetailLoading() {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const AlertDialog(
+        content: SizedBox(
+          height: 96,
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      ),
+    );
+  }
+
   // ── Helpers ─────────────────────────────────────────────────────────────
 
   String _messageFor(Object error) {
@@ -345,6 +670,11 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     final parsed = DateTime.tryParse(iso?.toString() ?? '');
     if (parsed == null) return '—';
     return DateFormat('d MMM yyyy, HH:mm').format(parsed.toLocal());
+  }
+
+  static String _shortDate(Object? iso) {
+    final text = iso?.toString() ?? '';
+    return text.length >= 5 ? text.substring(5) : text;
   }
 
   GhTone _riskTone(String? level) {
@@ -447,8 +777,10 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       case 1:
         return _buildUsers(context);
       case 2:
-        return _buildActivity(context);
+        return _buildPatients(context);
       case 3:
+        return _buildActivity(context);
+      case 4:
         return _buildSessions(context);
       default:
         return _buildOverview(context);
@@ -543,9 +875,32 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
         const SizedBox(height: 24),
         _section(
           context,
+          title: 'Triage volume · last 14 days',
+          subtitle: 'Daily submissions read straight from the sessions table.',
+          child: _trendBars(context, _list(triage['trend'])),
+        ),
+        const SizedBox(height: 24),
+        _section(
+          context,
           title: 'Top reported regions',
           subtitle: 'Where the system is being used, by pain point.',
           child: _regionBars(context, _list(triage['by_region'])),
+        ),
+        const SizedBox(height: 24),
+        _section(
+          context,
+          title: 'System activity',
+          subtitle: 'Every recorded event, grouped by kind and outcome.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _breakdown(context, 'Actions', _map(activity['by_action'])),
+              const SizedBox(height: 12),
+              _breakdown(context, 'Outcomes', _map(activity['by_outcome'])),
+              const SizedBox(height: 12),
+              _breakdown(context, 'Actors', _map(activity['by_actor_type'])),
+            ],
+          ),
         ),
         const SizedBox(height: 24),
         _section(
@@ -664,6 +1019,98 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _trendBars(BuildContext context, List<Map<String, dynamic>> rows) {
+    if (rows.isEmpty) {
+      return const GhEmptyState(
+        icon: Icons.show_chart,
+        message: 'No daily volume is available yet.',
+      );
+    }
+    final maxCount = rows
+        .map((row) => _int(row['count']))
+        .fold<int>(1, (max, count) => count > max ? count : max);
+    return GhBox(
+      child: SizedBox(
+        height: 132,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            for (final row in rows)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 3),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text(
+                        _count(row['count']),
+                        style: GhType.meta.copyWith(
+                          color: GhColors.fgMuted(context),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Container(
+                        height: 78 * (_int(row['count']) / maxCount).clamp(0.0, 1.0),
+                        decoration: BoxDecoration(
+                          color: GhColors.accent(context),
+                          borderRadius: BorderRadius.circular(AppRadius.sm),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        _shortDate(row['date']),
+                        style: GhType.meta.copyWith(
+                          color: GhColors.fgMuted(context),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _breakdown(
+    BuildContext context,
+    String title,
+    Map<String, dynamic> values,
+  ) {
+    final entries = values.entries.toList()
+      ..sort((a, b) => _int(b.value).compareTo(_int(a.value)));
+    if (entries.isEmpty) {
+      return _fact(context, title, 'None recorded');
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          title.toUpperCase(),
+          style: GhType.meta.copyWith(
+            color: GhColors.fgMuted(context),
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final entry in entries.take(12))
+              GhLabel(
+                '${entry.key} · ${_count(entry.value)}',
+                tone: entry.key == 'denied'
+                    ? GhTone.danger
+                    : GhTone.neutral,
+              ),
+          ],
+        ),
+      ],
     );
   }
 
@@ -867,6 +1314,12 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     final role = user['role']?.toString();
 
     final actions = <Widget>[
+      GhButton(
+        'Details',
+        icon: Icons.open_in_new,
+        variant: GhButtonVariant.secondary,
+        onPressed: () => _showUserDetail(id, email),
+      ),
       if (!isApproved)
         GhButton(
           'Approve',
@@ -965,6 +1418,152 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       );
 
   // ── Activity ────────────────────────────────────────────────────────────
+
+  Widget _buildPatients(BuildContext context) {
+    final snapshot = _patients;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            GhTextField(
+              controller: _patientSearch,
+              hint: 'Search code, name, phone or hospital',
+              prefixIcon: Icons.search,
+              width: 320,
+              onChanged: (_) {
+                _searchDebounce?.cancel();
+                _searchDebounce = Timer(
+                  const Duration(milliseconds: 350),
+                  () => _loadPatients(),
+                );
+              },
+            ),
+            GhSelect(
+              value: _patientHasSessions,
+              options: const [
+                GhOption('All patients'),
+                GhOption('With sessions', 'true'),
+                GhOption('No sessions', 'false'),
+              ],
+              onChanged: (value) {
+                setState(() => _patientHasSessions = value);
+                _loadPatients();
+              },
+            ),
+            GhButton(
+              'Refresh',
+              icon: Icons.refresh,
+              onPressed: () => _loadPatients(page: _patientsPage),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        if (_patientsLoading && snapshot == null)
+          const _LoadingBlock(label: 'Loading patient register…')
+        else if (_patientsError != null && snapshot == null)
+          _ErrorBlock(
+            message: _patientsError!,
+            onRetry: () => _loadPatients(page: _patientsPage),
+          )
+        else if (snapshot == null)
+          const SizedBox.shrink()
+        else ...[
+          if (snapshot.fromCache) _cachedBanner(snapshot),
+          if (snapshot.fromCache) const SizedBox(height: 12),
+          GhBox(
+            header: 'Patient register',
+            flush: true,
+            headerActions: [
+              GhCounter(
+                _count(_map(snapshot.data['pagination'])['total']),
+                tone: GhTone.neutral,
+              ),
+            ],
+            child: _patientList(context, _list(snapshot.data['items'])),
+          ),
+          const SizedBox(height: 12),
+          _pagination(
+            snapshot.data,
+            onPrevious: _patientsPage > 1
+                ? () => _loadPatients(page: _patientsPage - 1)
+                : null,
+            onNext: _patientsPage < _totalPages(snapshot.data)
+                ? () => _loadPatients(page: _patientsPage + 1)
+                : null,
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _patientList(BuildContext context, List<Map<String, dynamic>> rows) {
+    if (rows.isEmpty) {
+      return const GhEmptyState(
+        icon: Icons.person_search_outlined,
+        message: 'No patients match this filter.',
+      );
+    }
+    return Column(
+      children: [
+        for (final row in rows)
+          _patientRow(context, row, showBorder: row != rows.last),
+      ],
+    );
+  }
+
+  Widget _patientRow(
+    BuildContext context,
+    Map<String, dynamic> row, {
+    required bool showBorder,
+  }) {
+    final id = _int(row['id']);
+    final code = '${row['anonymous_code'] ?? ''}';
+    final name = '${row['full_name'] ?? 'Anonymous patient'}';
+    final detail = [
+      code,
+      if (row['age'] != null) '${row['age']} yrs',
+      if (row['gender'] != null) '${row['gender']}',
+      if (row['phone'] != null) '${row['phone']}',
+    ].join(' · ');
+    final sessions = _int(row['session_count']);
+    final risk = row['last_risk_score'];
+    final riskValue = risk is num ? risk.toDouble() : null;
+
+    return _adminRow(
+      context,
+      showBorder: showBorder,
+      leading: GhAvatar(name: name, size: 32),
+      title: name,
+      subtitle: detail,
+      labels: [
+        GhLabel(
+          '$sessions session${sessions == 1 ? '' : 's'}',
+          tone: sessions > 0 ? GhTone.done : GhTone.neutral,
+        ),
+        if (riskValue != null)
+          GhLabel(
+            'Risk ${riskValue.toStringAsFixed(2)}',
+            tone: riskValue >= 0.7
+                ? GhTone.danger
+                : riskValue >= 0.4
+                    ? GhTone.attention
+                    : GhTone.success,
+          ),
+      ],
+      trailing: [
+        GhButton(
+          'Details',
+          icon: Icons.open_in_new,
+          variant: GhButtonVariant.secondary,
+          onPressed: () => _showPatientDetail(id, code),
+        ),
+      ],
+    );
+  }
 
   Widget _buildActivity(BuildContext context) {
     final snapshot = _activity;

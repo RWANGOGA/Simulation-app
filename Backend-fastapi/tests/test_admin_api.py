@@ -309,6 +309,135 @@ def test_session_list_redacts_identity_and_derives_tier():
     assert "phone" not in item
 
 
+def test_eight_character_password_is_the_minimum():
+    # The rule is eight characters everywhere: backend validation, the
+    # Flutter registration form and the documented default. Seven must fail,
+    # eight must succeed, without changing any existing account's password.
+    import uuid
+    suffix = uuid.uuid4().hex[:8]
+    short = client.post(
+        REGISTER_URL,
+        json={
+            "email": f"short-{suffix}@simtack.com",
+            "password": "Abc1234",
+            "full_name": "Short Password",
+        },
+    )
+    assert short.status_code in (400, 422)
+
+    ok = client.post(
+        REGISTER_URL,
+        json={
+            "email": f"eight-{suffix}@simtack.com",
+            "password": "Abc1234!",
+            "full_name": "Eight Password",
+        },
+    )
+    assert ok.status_code == 201
+
+
+def test_overview_carries_real_trend_and_activity_breakdowns():
+    headers = doctor_headers(client)
+    payload = client.get(f"{ADMIN_URL}/overview", headers=headers).json()
+
+    trend = payload["triage"]["trend"]
+    assert len(trend) == 14
+    assert all("date" in day and "count" in day for day in trend)
+    assert sum(day["count"] for day in trend) <= payload["triage"]["total"]
+
+    activity = payload["activity"]
+    for key in ("by_action", "by_outcome", "by_actor_type"):
+        assert isinstance(activity[key], dict)
+        assert sum(activity[key].values()) == activity["total"]
+
+
+def test_patient_register_shows_real_records_and_session_facts():
+    headers = doctor_headers(client)
+    patient = _create_patient(
+        full_name="Register Person", phone="+256700000123", age=33
+    )
+    _submit(
+        patient_id=patient["id"],
+        patient_code=patient["anonymous_code"],
+        region="Left Knee",
+        pain_type="Dull",
+        severity=3,
+    )
+
+    payload = client.get(f"{ADMIN_URL}/patients", headers=headers).json()
+    row = next(item for item in payload["items"] if item["id"] == patient["id"])
+
+    assert row["anonymous_code"] == patient["anonymous_code"]
+    assert row["full_name"] == "Register Person"
+    assert row["phone"] == "+256700000123"
+    assert row["session_count"] >= 1
+    assert row["last_risk_score"] is not None
+    assert row["last_session_at"]
+
+    searched = client.get(
+        f"{ADMIN_URL}/patients?q=Register%20Person", headers=headers
+    ).json()
+    assert [item["id"] for item in searched["items"]] == [patient["id"]]
+
+    with_sessions = client.get(
+        f"{ADMIN_URL}/patients?hasSessions=true", headers=headers
+    ).json()
+    assert any(item["id"] == patient["id"] for item in with_sessions["items"])
+
+
+def test_patient_detail_returns_demographics_sessions_and_audit():
+    headers = doctor_headers(client)
+    patient = _create_patient(
+        full_name="Detail Person",
+        age=45,
+        address="Kampala",
+        next_of_kin_name="Joan",
+    )
+    session = _submit(
+        patient_id=patient["id"],
+        patient_code=patient["anonymous_code"],
+    )
+
+    payload = client.get(
+        f"{ADMIN_URL}/patients/{patient['id']}", headers=headers
+    ).json()
+
+    assert payload["full_name"] == "Detail Person"
+    assert payload["address"] == "Kampala"
+    assert payload["next_of_kin_name"] == "Joan"
+    assert any(item["id"] == session["id"] for item in payload["sessions"])
+    assert any(
+        item["resource_type"] == "patient"
+        for item in payload["audit"]
+    )
+    assert client.get(f"{ADMIN_URL}/patients/999999", headers=headers).status_code == 404
+
+
+def test_practitioner_detail_returns_full_profile_and_own_activity():
+    headers = doctor_headers(client)
+    _register_pending()
+    account_id = _account_id(PENDING_EMAIL)
+
+    payload = client.get(f"{ADMIN_URL}/users/{account_id}", headers=headers).json()
+
+    assert payload["email"] == PENDING_EMAIL
+    assert payload["full_name"] == "Pending Person"
+    assert payload["hospital_name"] == "St. Mary's"
+    assert payload["is_approved"] is False
+    assert payload["audit_count"] >= 0
+    assert isinstance(payload["recent_activity"], list)
+    assert client.get(f"{ADMIN_URL}/users/999999", headers=headers).status_code == 404
+
+
+def test_patient_routes_are_admin_only():
+    assert client.get(f"{ADMIN_URL}/patients").status_code == 401
+    assert client.get(f"{ADMIN_URL}/patients/1").status_code == 401
+    practitioner = practitioner_headers(client)
+    assert client.get(f"{ADMIN_URL}/patients", headers=practitioner).status_code == 403
+    assert client.get(f"{ADMIN_URL}/patients/1", headers=practitioner).status_code == 403
+    assert client.get(f"{ADMIN_URL}/users/1", headers=practitioner).status_code == 403
+
+
 def test_session_list_filters_by_risk_and_status():
     headers = doctor_headers(client)
     high = _submit(region="Chest / Heart", pain_type="Crushing", severity=9)

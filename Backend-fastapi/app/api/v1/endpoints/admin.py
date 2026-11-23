@@ -32,10 +32,14 @@ from app.schemas.admin import (
     AdminOverview,
     AdminPagination,
     AdminPatientCounts,
+    AdminPatientDetail,
+    AdminPatientItem,
+    AdminPatientList,
     AdminSessionItem,
     AdminSessionList,
     AdminTriageOverview,
     AdminUserCounts,
+    AdminUserDetail,
     AdminUserList,
     AdminUserResponse,
 )
@@ -113,6 +117,31 @@ def _serialize_session(
         escalation=escalation["level"],
         status=session.status or "open",
         created_at=_iso(session.created_at),
+    )
+
+
+def _serialize_patient(db: Session, patient: Patient) -> AdminPatientItem:
+    """A register row with live session facts, never stored duplicates."""
+    sessions = (
+        db.query(TriageSession)
+        .filter(TriageSession.patient_id == patient.id)
+        .order_by(TriageSession.created_at.desc(), TriageSession.id.desc())
+        .all()
+    )
+    latest = sessions[0] if sessions else None
+    return AdminPatientItem(
+        id=patient.id,
+        anonymous_code=patient.anonymous_code,
+        full_name=patient.full_name,
+        age=patient.age,
+        gender=patient.gender,
+        phone=patient.phone,
+        hospital_name=patient.hospital_name,
+        preferred_language=patient.preferred_language or "en",
+        created_at=_iso(patient.created_at),
+        session_count=len(sessions),
+        last_session_at=_iso(latest.created_at) if latest else None,
+        last_risk_score=latest.risk_score if latest else None,
     )
 
 
@@ -199,11 +228,21 @@ def _triage_overview(
         "urgent": 0,
         "routine": 0,
     }
+    # Fourteen fixed date buckets, oldest first, so the chart has no gaps on
+    # quiet days and the client never has to invent a zero.
+    trend: Dict[str, int] = {
+        (now - timedelta(days=offset)).date().isoformat(): 0
+        for offset in range(13, -1, -1)
+    }
     for session in db.query(TriageSession).all():
         tier = triage_tier(session, session.risk_score)["tier"]
         by_tier[tier] = by_tier.get(tier, 0) + 1
         level = escalation_for(session)["level"]
         by_escalation[level] = by_escalation.get(level, 0) + 1
+        if session.created_at is not None:
+            day = session.created_at.date().isoformat()
+            if day in trend:
+                trend[day] += 1
 
     region_rows = (
         db.query(
@@ -233,6 +272,7 @@ def _triage_overview(
             {"region": region or "Unknown", "count": count}
             for region, count in region_rows
         ],
+        trend=[{"date": day, "count": count} for day, count in trend.items()],
         avg_severity=round(avg_severity, 1) if avg_severity is not None else None,
         avg_risk_score=round(avg_risk, 2) if avg_risk is not None else None,
     )
@@ -258,11 +298,29 @@ def _activity_summary(db: Session, now: datetime) -> AdminActivitySummary:
         .limit(10)
         .all()
     )
+    by_action_rows = (
+        db.query(AuditLog.action, func.count(AuditLog.id))
+        .group_by(AuditLog.action)
+        .all()
+    )
+    by_outcome_rows = (
+        db.query(AuditLog.outcome, func.count(AuditLog.id))
+        .group_by(AuditLog.outcome)
+        .all()
+    )
+    by_actor_rows = (
+        db.query(AuditLog.actor_type, func.count(AuditLog.id))
+        .group_by(AuditLog.actor_type)
+        .all()
+    )
     return AdminActivitySummary(
         total=total,
         last_24h=last_24h,
         denied=denied,
         recent=[_serialize_audit(entry) for entry in recent],
+        by_action={key or "unknown": value for key, value in by_action_rows},
+        by_outcome={key or "unknown": value for key, value in by_outcome_rows},
+        by_actor_type={key or "unknown": value for key, value in by_actor_rows},
     )
 
 
@@ -384,6 +442,150 @@ def update_admin_user(
         current_admin=current_admin,
     )
     return AdminUserResponse.model_validate(doctor)
+
+
+@router.get("/users/{doctor_id}", response_model=AdminUserDetail)
+def get_admin_user(
+    doctor_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_admin: Doctor = Depends(require_admin),
+):
+    """Full detail for one practitioner, including their own audit history."""
+    doctor = db.query(Doctor).filter(Doctor.id == doctor_id).first()
+    if doctor is None:
+        from fastapi import HTTPException, status
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Account not found")
+
+    own = (
+        db.query(AuditLog)
+        .filter(AuditLog.actor_id == doctor_id)
+        .order_by(AuditLog.created_at.desc(), AuditLog.id.desc())
+        .all()
+    )
+    data = AdminUserResponse.model_validate(doctor).model_dump()
+    data.update(
+        role=doctor.role,
+        license_number=doctor.license_number,
+        phone=doctor.phone,
+        hospital_name=doctor.hospital_name,
+        date_of_birth=_iso(doctor.date_of_birth),
+        created_at=_iso(doctor.created_at),
+        audit_count=len(own),
+        denied_count=sum(1 for row in own if row.outcome == "denied"),
+        recent_activity=[_serialize_audit(row) for row in own[:20]],
+    )
+    audit.record_access(
+        action=audit.ACTION_READ,
+        resource_type=RESOURCE_DOCTOR,
+        request=request,
+        actor=current_admin,
+        resource_id=str(doctor_id),
+        detail=f"administrator viewed account {doctor.email}",
+    )
+    return AdminUserDetail(**data)
+
+
+@router.get("/patients", response_model=AdminPatientList)
+def list_admin_patients(
+    request: Request,
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=25, ge=1, le=200),
+    q: Optional[str] = Query(default=None, max_length=120),
+    has_sessions: Optional[bool] = Query(default=None, alias="hasSessions"),
+    db: Session = Depends(get_db),
+    current_admin: Doctor = Depends(require_admin),
+):
+    """The system-wide patient register, with live session facts per row."""
+    query = db.query(Patient)
+    if q and q.strip():
+        pattern = f"%{q.strip()}%"
+        query = query.filter(
+            or_(
+                Patient.anonymous_code.ilike(pattern),
+                Patient.full_name.ilike(pattern),
+                Patient.phone.ilike(pattern),
+                Patient.hospital_name.ilike(pattern),
+            )
+        )
+    if has_sessions is not None:
+        with_sessions = db.query(TriageSession.patient_id).distinct()
+        query = (
+            query.filter(Patient.id.in_(with_sessions))
+            if has_sessions
+            else query.filter(~Patient.id.in_(with_sessions))
+        )
+
+    total = query.count()
+    patients = (
+        query.order_by(Patient.created_at.desc(), Patient.id.desc())
+        .offset((page - 1) * limit)
+        .limit(limit)
+        .all()
+    )
+    audit.record_access(
+        action=audit.ACTION_LIST,
+        resource_type=audit.RESOURCE_PATIENT,
+        request=request,
+        actor=current_admin,
+        detail=f"administrator listed {len(patients)} patient(s)",
+    )
+    return AdminPatientList(
+        items=[_serialize_patient(db, patient) for patient in patients],
+        pagination=_pagination(total, page, limit),
+    )
+
+
+@router.get("/patients/{patient_id}", response_model=AdminPatientDetail)
+def get_admin_patient(
+    patient_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+    current_admin: Doctor = Depends(require_admin),
+):
+    """One patient's demographics, triage sessions and access history."""
+    patient = db.query(Patient).filter(Patient.id == patient_id).first()
+    if patient is None:
+        from fastapi import HTTPException, status
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found")
+
+    data = _serialize_patient(db, patient).model_dump()
+    sessions = (
+        db.query(TriageSession, Patient.anonymous_code)
+        .outerjoin(Patient, TriageSession.patient_id == Patient.id)
+        .filter(TriageSession.patient_id == patient_id)
+        .order_by(TriageSession.created_at.desc(), TriageSession.id.desc())
+        .limit(100)
+        .all()
+    )
+    trail = (
+        db.query(AuditLog)
+        .filter(AuditLog.patient_id == patient_id)
+        .order_by(AuditLog.created_at.desc(), AuditLog.id.desc())
+        .limit(50)
+        .all()
+    )
+    data.update(
+        weight=patient.weight,
+        height=patient.height,
+        date_of_birth=_iso(patient.date_of_birth),
+        address=patient.address,
+        next_of_kin_name=patient.next_of_kin_name,
+        next_of_kin_phone=patient.next_of_kin_phone,
+        notes=patient.notes,
+        sessions=[_serialize_session(session, code).model_dump() for session, code in sessions],
+        audit=[_serialize_audit(row).model_dump() for row in trail],
+    )
+    audit.record_access(
+        action=audit.ACTION_READ,
+        resource_type=audit.RESOURCE_PATIENT,
+        request=request,
+        actor=current_admin,
+        patient_id=patient_id,
+        patient_code=patient.anonymous_code,
+        detail=f"administrator viewed patient {patient.anonymous_code}",
+    )
+    return AdminPatientDetail(**data)
 
 
 @router.get("/activity", response_model=AdminActivityList)

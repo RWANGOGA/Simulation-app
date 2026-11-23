@@ -944,6 +944,25 @@ class ApiClient {
     return Doctor.fromJson(jsonDecode(response.body) as Map<String, dynamic>);
   }
 
+  static Future<Map<String, dynamic>> getAdminPatients({
+    int page = 1,
+    int limit = 25,
+    String? query,
+    bool? hasSessions,
+  }) =>
+      _adminGet('/admin/patients', {
+        'page': '$page',
+        'limit': '$limit',
+        if (query != null && query.trim().isNotEmpty) 'q': query.trim(),
+        if (hasSessions != null) 'hasSessions': '$hasSessions',
+      });
+
+  static Future<Map<String, dynamic>> getAdminPatient(int patientId) =>
+      _adminGet('/admin/patients/$patientId');
+
+  static Future<Map<String, dynamic>> getAdminUser(int doctorId) =>
+      _adminGet('/admin/users/$doctorId');
+
   static Future<Map<String, dynamic>> getAdminActivity({
     int page = 1,
     int limit = 50,

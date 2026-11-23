@@ -60,6 +60,10 @@ class AdminTriageOverview(BaseModel):
     by_tier: Dict[str, int]
     by_escalation: Dict[str, int]
     by_region: List[Dict[str, object]]
+    # Real daily volume for the last 14 days, oldest first. Computed from the
+    # sessions table on every request so the chart cannot drift from the rest
+    # of the console.
+    trend: List[Dict[str, object]] = []
     avg_severity: Optional[float] = None
     avg_risk_score: Optional[float] = None
 
@@ -87,6 +91,9 @@ class AdminActivitySummary(BaseModel):
     last_24h: int
     denied: int
     recent: List[AdminActivityEntry]
+    by_action: Dict[str, int] = {}
+    by_outcome: Dict[str, int] = {}
+    by_actor_type: Dict[str, int] = {}
 
 
 class AdminActivityList(BaseModel):
@@ -122,3 +129,49 @@ class AdminSessionItem(BaseModel):
 class AdminSessionList(BaseModel):
     items: List[AdminSessionItem]
     pagination: AdminPagination
+
+
+class AdminPatientItem(BaseModel):
+    """One row of the system-wide patient register."""
+    id: int
+    anonymous_code: str
+    full_name: Optional[str] = None
+    age: Optional[int] = None
+    gender: Optional[str] = None
+    phone: Optional[str] = None
+    hospital_name: Optional[str] = None
+    preferred_language: str = "en"
+    created_at: Optional[str] = None
+    session_count: int = 0
+    last_session_at: Optional[str] = None
+    last_risk_score: Optional[float] = None
+
+
+class AdminPatientList(BaseModel):
+    items: List[AdminPatientItem]
+    pagination: AdminPagination
+
+
+class AdminPatientDetail(AdminPatientItem):
+    weight: Optional[float] = None
+    height: Optional[float] = None
+    date_of_birth: Optional[str] = None
+    address: Optional[str] = None
+    next_of_kin_name: Optional[str] = None
+    next_of_kin_phone: Optional[str] = None
+    notes: Optional[str] = None
+    sessions: List[AdminSessionItem] = []
+    audit: List[AdminActivityEntry] = []
+
+
+class AdminUserDetail(AdminUserResponse):
+    """Everything the console knows about one practitioner account."""
+    role: Optional[str] = None
+    license_number: Optional[str] = None
+    phone: Optional[str] = None
+    hospital_name: Optional[str] = None
+    date_of_birth: Optional[str] = None
+    created_at: Optional[str] = None
+    audit_count: int = 0
+    denied_count: int = 0
+    recent_activity: List[AdminActivityEntry] = []

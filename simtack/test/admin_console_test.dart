@@ -1,16 +1,19 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:plugin_platform_interface/plugin_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simtack/core/network/api_client.dart';
+import 'package:simtack/core/theme/github_kit.dart';
 import 'package:simtack/core/offline/local_database.dart';
 import 'package:simtack/features/admin/data/admin_repository.dart';
 import 'package:simtack/features/admin/ui/admin_console_screen.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_sidebar.dart';
 import 'package:simtack/l10n/app_localizations.dart';
+import 'package:webview_flutter_platform_interface/webview_flutter_platform_interface.dart';
 
 class _TokenStorage implements TokenStorage {
   _TokenStorage(this._token);
@@ -123,11 +126,68 @@ Future<void> _seedOverviewCache() async {
   });
 }
 
+class _FakeWebViewPlatform extends WebViewPlatform
+    with MockPlatformInterfaceMixin {
+  @override
+  PlatformWebViewController createPlatformWebViewController(
+          PlatformWebViewControllerCreationParams params) =>
+      _FakeWebViewController(params);
+
+  @override
+  PlatformWebViewWidget createPlatformWebViewWidget(
+          PlatformWebViewWidgetCreationParams params) =>
+      _FakeWebViewWidget(params);
+
+  @override
+  PlatformNavigationDelegate createPlatformNavigationDelegate(
+          PlatformNavigationDelegateCreationParams params) =>
+      _FakeNavigationDelegate(params);
+}
+
+class _FakeWebViewController extends PlatformWebViewController {
+  _FakeWebViewController(super.params) : super.implementation();
+  @override
+  Future<void> loadRequest(LoadRequestParams params) async {}
+  @override
+  Future<void> setJavaScriptMode(JavaScriptMode mode) async {}
+  @override
+  Future<void> setBackgroundColor(Color color) async {}
+  @override
+  Future<void> setPlatformNavigationDelegate(
+      PlatformNavigationDelegate handler) async {}
+  @override
+  Future<void> addJavaScriptChannel(
+      JavaScriptChannelParams params) async {}
+}
+
+class _FakeWebViewWidget extends PlatformWebViewWidget {
+  _FakeWebViewWidget(super.params) : super.implementation();
+  @override
+  Widget build(BuildContext context) => const SizedBox();
+}
+
+class _FakeNavigationDelegate extends PlatformNavigationDelegate {
+  _FakeNavigationDelegate(super.params) : super.implementation();
+  @override
+  Future<void> setOnNavigationRequest(
+      NavigationRequestCallback callback) async {}
+  @override
+  Future<void> setOnPageStarted(PageEventCallback callback) async {}
+  @override
+  Future<void> setOnPageFinished(PageEventCallback callback) async {}
+  @override
+  Future<void> setOnProgress(ProgressCallback callback) async {}
+  @override
+  Future<void> setOnWebResourceError(
+      WebResourceErrorCallback callback) async {}
+}
+
 void main() {
   final defaultClient = ApiClient.httpClient;
   final defaultStorage = ApiClient.tokenStorage;
 
   setUp(() {
+    WebViewPlatform.instance = _FakeWebViewPlatform();
     SharedPreferences.setMockInitialValues({});
     LocalDatabase.resetForTest();
     ApiClient.tokenStorage = _TokenStorage('token');
@@ -264,6 +324,112 @@ void main() {
       expect(find.text('Top reported regions'), findsOneWidget);
       expect(find.text('Chest / Heart'), findsOneWidget);
       expect(find.text('30'), findsWidgets);
+    });
+  });
+
+  group('Administrator console live data', () {
+    testWidgets('shows the patient register and opens a full patient record',
+        (tester) async {
+      tester.view.physicalSize = const Size(1400, 1600);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
+
+      const patientRow = {
+        'id': 7,
+        'anonymous_code': 'P-ABCD1234EFGH',
+        'full_name': 'Register Person',
+        'age': 33,
+        'gender': 'Female',
+        'phone': '+256700000123',
+        'session_count': 2,
+        'last_risk_score': 0.72,
+      };
+      final patientDetail = {
+        ...patientRow,
+        'address': 'Kampala',
+        'next_of_kin_name': 'Joan',
+        'sessions': [
+          {
+            'id': 11,
+            'body_region': 'Chest / Heart',
+            'pain_type': 'Sharp',
+            'severity': 6,
+            'risk_level': 'high',
+            'tier': 'orange',
+            'escalation': 'routine',
+            'status': 'open',
+          },
+        ],
+        'audit': [
+          {
+            'id': 3,
+            'action': 'read',
+            'outcome': 'allowed',
+            'actor_type': 'doctor',
+            'actor_label': 'admin@simtack.com',
+            'resource_type': 'patient',
+          },
+        ],
+      };
+
+      ApiClient.httpClient = MockClient((request) async {
+        final path = request.url.path;
+        if (path.endsWith('/auth/me')) {
+          return http.Response(
+            jsonEncode(_adminDoctor),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+        if (path.endsWith('/admin/patients')) {
+          return http.Response(
+            jsonEncode({
+              'items': [patientRow],
+              'pagination': {
+                'total': 1,
+                'page': 1,
+                'limit': 25,
+                'total_pages': 1,
+              },
+            }),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+        if (path.contains('/admin/patients/')) {
+          return http.Response(
+            jsonEncode(patientDetail),
+            200,
+            headers: {'content-type': 'application/json'},
+          );
+        }
+        return http.Response(
+          jsonEncode(_overview),
+          200,
+          headers: {'content-type': 'application/json'},
+        );
+      });
+
+      await tester.pumpWidget(_wrap(const AdminConsoleScreen()));
+      await tester.pumpAndSettle();
+
+      final patientsTab = find.descendant(
+        of: find.byType(GhUnderlineTabs),
+        matching: find.text('Patients'),
+      );
+      expect(patientsTab, findsOneWidget);
+      await tester.tap(patientsTab);
+      await tester.pumpAndSettle();
+
+      expect(find.text('Register Person'), findsOneWidget);
+      expect(find.textContaining('P-ABCD1234EFGH'), findsOneWidget);
+
+      await tester.tap(find.text('Details'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Access history'), findsOneWidget);
+      expect(find.text('Kampala'), findsOneWidget);
+      expect(find.textContaining('Chest / Heart'), findsWidgets);
     });
   });
 

@@ -43,6 +43,7 @@ class AdminRepository {
   static const String _usersKey = 'admin.users';
   static const String _activityKey = 'admin.activity';
   static const String _sessionsKey = 'admin.sessions';
+  static const String _patientsKey = 'admin.patients';
 
   Future<AdminSnapshot> loadOverview() =>
       _load(_overviewKey, ApiClient.getAdminOverview);
@@ -93,6 +94,33 @@ class AdminRepository {
           riskLevel: riskLevel,
           status: status,
         ),
+      );
+
+  Future<AdminSnapshot> loadPatients({
+    int page = 1,
+    int limit = 25,
+    String? query,
+    bool? hasSessions,
+  }) =>
+      _load(
+        _patientsKey,
+        () => ApiClient.getAdminPatients(
+          page: page,
+          limit: limit,
+          query: query,
+          hasSessions: hasSessions,
+        ),
+      );
+
+  /// Detail reads are cached per id so reopening a record works offline.
+  Future<AdminSnapshot> loadPatient(int patientId) => _load(
+        'admin.patient.$patientId',
+        () => ApiClient.getAdminPatient(patientId),
+      );
+
+  Future<AdminSnapshot> loadUserDetail(int doctorId) => _load(
+        'admin.user.$doctorId',
+        () => ApiClient.getAdminUser(doctorId),
       );
 
   /// Approve, deactivate or promote an account.
