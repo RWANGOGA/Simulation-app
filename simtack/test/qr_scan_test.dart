@@ -6,6 +6,19 @@ import 'package:simtack/core/offline/passport_record.dart';
 import 'package:simtack/features/dashboard/ui/qr_scan_screen.dart';
 
 void main() {
+  test('a scan result keeps the decrypted record for the caller', () {
+    const record = PassportRecord(
+      patientCode: 'P-OPEN1234',
+      points: [PassportPoint(bodyRegion: 'Chest / Heart', severity: 8, painType: 'Sharp')],
+      tier: 'orange',
+    );
+    final result = QrScanResult(code: record.patientCode, record: record);
+
+    expect(result.openedOffline, isTrue);
+    expect(result.record!.tier, 'orange');
+    expect(result.code, 'P-OPEN1234');
+  });
+
   group('QrScanScreen.extractPatientCode', () {
     test('extracts the code from a production deep-link QR', () {
       expect(

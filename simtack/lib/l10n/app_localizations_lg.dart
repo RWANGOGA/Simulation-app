@@ -953,4 +953,7 @@ class AppLocalizationsLg extends AppLocalizations {
 
   @override
   String get pagerNextTooltip => 'Next';
+
+  @override
+  String get qrPrintButton => 'Tunda pasipoti';
 }

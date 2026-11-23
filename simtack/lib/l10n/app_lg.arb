@@ -284,5 +284,6 @@
   "sessionCachedCopyUndatedNotice": "Signed in from the local copy of this account, which no server has confirmed from this device. Offline sign-in keeps working for {window} days after the last confirmation.",
   "sessionDeviceAccountNotice": "This account was created on this device and has never been confirmed by a server. It can sign in on this device only.",
   "pagerPreviousTooltip": "Previous",
-  "pagerNextTooltip": "Next"
+  "pagerNextTooltip": "Next",
+  "qrPrintButton": "Tunda pasipoti"
 }

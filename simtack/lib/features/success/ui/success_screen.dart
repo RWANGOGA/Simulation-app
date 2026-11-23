@@ -7,6 +7,9 @@ import 'package:simtack/core/theme/app_page.dart';
 import 'package:simtack/core/theme/app_palette.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart' show Clipboard, ClipboardData;
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:universal_html/html.dart' as html; // For web downloads
@@ -68,21 +71,79 @@ class _SuccessScreenState extends State<SuccessScreen> {
     ).seal(_passportPhrase);
   }
 
+  /// Captures the passport card once, at print resolution. Download, share
+  /// and print all use the same bytes so the printed card cannot drift from
+  /// the one the patient saved.
+  Future<Uint8List> _captureQrBytes() async {
+    final RenderRepaintBoundary boundary =
+        _qrKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+    final ui.Image image = await boundary.toImage(pixelRatio: 3.0);
+    final ByteData? byteData =
+        await image.toByteData(format: ui.ImageByteFormat.png);
+    final Uint8List? bytes = byteData?.buffer.asUint8List();
+    if (bytes == null) throw Exception('Could not capture image');
+    return bytes;
+  }
+
+  Future<void> _printQr() async {
+    final t = AppLocalizations.of(context)!;
+    setState(() => _isProcessing = true);
+    try {
+      final bytes = await _captureQrBytes();
+      final document = pw.Document();
+      final image = pw.MemoryImage(bytes);
+      final sealed = passportCarriesRecord(_passportData);
+      document.addPage(
+        pw.Page(
+          pageFormat: PdfPageFormat.a5,
+          margin: const pw.EdgeInsets.all(32),
+          build: (context) => pw.Center(
+            child: pw.Column(
+              mainAxisSize: pw.MainAxisSize.min,
+              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              children: [
+                pw.Text('Simtack Care',
+                    style: pw.TextStyle(
+                        fontSize: 20, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 8),
+                pw.Text('Patient passport · ${widget.patientId}'),
+                pw.SizedBox(height: 20),
+                pw.Image(image, width: 420),
+                pw.SizedBox(height: 16),
+                if (sealed)
+                  pw.Text('Unlock phrase: $_passportPhrase',
+                      style: pw.TextStyle(
+                          fontSize: 18, fontWeight: pw.FontWeight.bold)),
+                pw.SizedBox(height: 4),
+                pw.Text(passportHint(
+                    payload: _passportData,
+                    offlinePassport: t.qrOfflinePassportHint,
+                    needsInternet: t.qrNeedsInternetHint)),
+              ],
+            ),
+          ),
+        ),
+      );
+      await Printing.layoutPdf(onLayout: (_) async => document.save());
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not print passport: $error'),
+            backgroundColor: AppAccent.danger(context),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
+  }
+
   Future<void> _captureAndShare({required bool isSave}) async {
     setState(() => _isProcessing = true);
 
     try {
-      // Capture the QR Widget as an image
-      RenderRepaintBoundary boundary =
-          _qrKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-      ui.Image image = await boundary.toImage(pixelRatio: 3.0);
-      ByteData? byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
-      // `toByteData` can return null in principle, so keep the null-aware
-      // access and let the explicit check below produce the real error.
-      Uint8List? imageBytes = byteData?.buffer.asUint8List();
-
-      if (imageBytes == null) throw Exception('Could not capture image');
+      final Uint8List imageBytes = await _captureQrBytes();
 
       if (isSave) {
         // SAVE LOGIC: Different for Web vs Mobile
@@ -633,6 +694,15 @@ class _SuccessScreenState extends State<SuccessScreen> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(AppRadius.md)),
                       ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  // PRINT BUTTON
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: _isProcessing ? null : _printQr,
+                      icon: const Icon(Icons.print, size: 20),
+                      label: Text(t.qrPrintButton),
                     ),
                   ),
                   const SizedBox(width: 16),

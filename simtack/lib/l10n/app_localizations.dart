@@ -1808,6 +1808,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Next'**
   String get pagerNextTooltip;
+
+  /// Print action on the passport QR card, alongside download and share.
+  ///
+  /// In en, this message translates to:
+  /// **'Print passport'**
+  String get qrPrintButton;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

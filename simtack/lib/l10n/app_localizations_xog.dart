@@ -953,4 +953,7 @@ class AppLocalizationsXog extends AppLocalizations {
 
   @override
   String get pagerNextTooltip => 'Next';
+
+  @override
+  String get qrPrintButton => 'Shicilela ipaspoti';
 }

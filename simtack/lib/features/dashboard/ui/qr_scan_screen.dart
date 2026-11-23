@@ -94,6 +94,18 @@ class ScanOutcome {
   bool get isOffline => record != null;
 }
 
+/// What the caller receives after a scan. The decrypted record is returned
+/// alongside the code so a patient who is not on this device can still be
+/// shown everything the card carried, with no server and no local lookup.
+class QrScanResult {
+  const QrScanResult({required this.code, this.record});
+
+  final String code;
+  final PassportRecord? record;
+
+  bool get openedOffline => record != null;
+}
+
 class _QrScanScreenState extends State<QrScanScreen> {
   final MobileScannerController _controller = MobileScannerController();
 
@@ -121,7 +133,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
         if (code == null) continue; // ignore unrelated QRs
         _handled = true;
         _controller.stop();
-        Navigator.of(context).pop(code);
+        Navigator.of(context).pop(QrScanResult(code: code));
         return;
       }
 
@@ -137,13 +149,13 @@ class _QrScanScreenState extends State<QrScanScreen> {
   /// wrong phrase or a damaged card returns the practitioner to the camera
   /// rather than pretending the visit was read.
   Future<void> _reviewSealedPassport(String payload) async {
-    final recovered = await showModalBottomSheet<String>(
+    final recovered = await showModalBottomSheet<QrScanResult>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _PassportPhraseSheet(payload: payload),
     );
     if (!mounted) return;
-    if (recovered != null && recovered.isNotEmpty) {
+    if (recovered != null) {
       Navigator.of(context).pop(recovered);
       return;
     }
@@ -372,7 +384,8 @@ class _PassportPhraseSheetState extends State<_PassportPhraseSheet> {
                 // Hands the recovered code back so the caller opens the full
                 // report; without a connection the essentials above already
                 // told the practitioner what they need to act on.
-                onPressed: () => Navigator.of(context).pop(_code),
+                onPressed: () => Navigator.of(context).pop(
+                    QrScanResult(code: _code!, record: _record!)),
                 child: const Text('Open Full Clinical Report'),
               ),
             ],

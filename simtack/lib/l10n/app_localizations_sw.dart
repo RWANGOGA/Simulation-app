@@ -953,4 +953,7 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String get pagerNextTooltip => 'Inayofuata';
+
+  @override
+  String get qrPrintButton => 'Chapisha pasipoti';
 }

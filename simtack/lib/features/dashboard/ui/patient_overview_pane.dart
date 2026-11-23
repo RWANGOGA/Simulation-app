@@ -119,6 +119,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
   List<TriageResult> _sessions = [];
   bool _loading = false;
   String? _error;
+  QrScanResult? _scannedRecord;
 
   @override
   void initState() {
@@ -145,6 +146,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
         _enteredCode = '';
         _sessions = [];
         _error = null;
+        _scannedRecord = null;
       });
       return;
     }
@@ -176,12 +178,25 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
   }
 
   Future<void> _scanQr() async {
-    final code = await Navigator.of(context).push<String>(
+    final result = await Navigator.of(context).push<QrScanResult>(
       AppPageRoute(builder: (_) => const QrScanScreen()),
     );
-    if (code == null || !mounted) return;
-    _codeController.text = code;
-    _onCodeChanged(code);
+    if (result == null || !mounted) return;
+    _codeController.text = result.code;
+    if (result.openedOffline) {
+      // The card already carried the record. Show it immediately instead of
+      // failing a local lookup for a patient this device has never seen.
+      setState(() {
+        _enteredCode = result.code;
+        _scannedRecord = result;
+        _sessions = [];
+        _error = null;
+        _loading = false;
+      });
+      _debounce?.cancel();
+      return;
+    }
+    _onCodeChanged(result.code);
   }
 
   void _openReport(String code) {
@@ -378,6 +393,54 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                   color: GhColors.fgMuted(context),
                   fontSize: 11,
                 )),
+            if (_scannedRecord?.record != null) ...[
+              const SizedBox(height: 16),
+              const GhBanner(
+                'Record read from the QR passport — no connection needed.',
+                tone: GhTone.success,
+                icon: Icons.cloud_off_outlined,
+              ),
+              const SizedBox(height: 8),
+              GhBox(
+                header: 'Passport record',
+                flush: true,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (_scannedRecord!.record!.tier != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 10),
+                        child: Wrap(
+                          spacing: 8,
+                          children: [
+                            GhLabel(
+                              'Triage ${_scannedRecord!.record!.tier}',
+                              tone: GhTone.attention,
+                            ),
+                            if (_scannedRecord!.record!.escalationLevel != null)
+                              GhLabel(
+                                '${_scannedRecord!.record!.escalationLevel}',
+                                tone: GhTone.danger,
+                              ),
+                          ],
+                        ),
+                      ),
+                    for (final point in _scannedRecord!.record!.points)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Text(
+                          '${point.bodyRegion} · ${point.severity}/10'
+                          '${point.painType.isEmpty ? '' : ' · ${point.painType}'}',
+                          style: GhType.body.copyWith(
+                              color: GhColors.fg(context)),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             GhButton(
               t.openFullClinicalReportButton,

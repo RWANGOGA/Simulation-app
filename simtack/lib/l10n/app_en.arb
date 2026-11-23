@@ -120,114 +120,204 @@
   "@savedDraftBanner": {
     "description": "Banner announcing saved offline draft(s) on the Welcome screen.",
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "draftsSyncedSnackbar": "{count, plural, =1{1 saved report submitted} other{{count} saved reports submitted}}",
   "@draftsSyncedSnackbar": {
     "description": "Snackbar shown after offline drafts auto-sync successfully on launch.",
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
-
   "loadingEllipsis": "Loading...",
-  "@loadingEllipsis": {"description": "Generic loading placeholder shown across the practitioner dashboard."},
+  "@loadingEllipsis": {
+    "description": "Generic loading placeholder shown across the practitioner dashboard."
+  },
   "statHighRiskLabel": "High Risk",
-  "@statHighRiskLabel": {"description": "Label for the high-risk stat card and body-map legend dot."},
+  "@statHighRiskLabel": {
+    "description": "Label for the high-risk stat card and body-map legend dot."
+  },
   "statMediumRiskLabel": "Medium Risk",
-  "@statMediumRiskLabel": {"description": "Label for the medium-risk stat card and body-map legend dot."},
+  "@statMediumRiskLabel": {
+    "description": "Label for the medium-risk stat card and body-map legend dot."
+  },
   "statLowRiskLabel": "Low Risk",
-  "@statLowRiskLabel": {"description": "Label for the low-risk stat card and body-map legend dot."},
+  "@statLowRiskLabel": {
+    "description": "Label for the low-risk stat card and body-map legend dot."
+  },
   "statusOpenLabel": "Open",
-  "@statusOpenLabel": {"description": "Status chip / stat label for an open triage session."},
+  "@statusOpenLabel": {
+    "description": "Status chip / stat label for an open triage session."
+  },
   "statusClosedLabel": "Closed",
-  "@statusClosedLabel": {"description": "Status chip / stat label for a closed triage session."},
+  "@statusClosedLabel": {
+    "description": "Status chip / stat label for a closed triage session."
+  },
   "unknownLabel": "Unknown",
-  "@unknownLabel": {"description": "Fallback shown when a patient's anonymous code is missing."},
+  "@unknownLabel": {
+    "description": "Fallback shown when a patient's anonymous code is missing."
+  },
   "refreshDataTooltip": "Refresh Data",
-  "@refreshDataTooltip": {"description": "Tooltip on the header refresh icon (Dashboard, Patients)."},
+  "@refreshDataTooltip": {
+    "description": "Tooltip on the header refresh icon (Dashboard, Patients)."
+  },
   "refreshTooltip": "Refresh",
-  "@refreshTooltip": {"description": "Tooltip on the Reports header's refresh icon."},
+  "@refreshTooltip": {
+    "description": "Tooltip on the Reports header's refresh icon."
+  },
   "patientLookupTitle": "Patient Lookup",
-  "@patientLookupTitle": {"description": "Title used for the patient-lookup action card and section header."},
+  "@patientLookupTitle": {
+    "description": "Title used for the patient-lookup action card and section header."
+  },
   "menuTooltip": "Menu",
-  "@menuTooltip": {"description": "Tooltip on the hamburger button that opens the sidebar drawer on narrow screens."},
-
+  "@menuTooltip": {
+    "description": "Tooltip on the hamburger button that opens the sidebar drawer on narrow screens."
+  },
   "sidebarRoleLabel": "Practitioner",
-  "@sidebarRoleLabel": {"description": "Role caption under the Simtack brand name in the sidebar header."},
+  "@sidebarRoleLabel": {
+    "description": "Role caption under the Simtack brand name in the sidebar header."
+  },
   "navDashboard": "Dashboard",
-  "@navDashboard": {"description": "Sidebar nav item label."},
+  "@navDashboard": {
+    "description": "Sidebar nav item label."
+  },
   "navPatients": "Patients",
-  "@navPatients": {"description": "Sidebar nav item label."},
+  "@navPatients": {
+    "description": "Sidebar nav item label."
+  },
   "navTriageSessions": "Triage Sessions",
-  "@navTriageSessions": {"description": "Sidebar nav item label, also used as the dashboard session-list section title."},
+  "@navTriageSessions": {
+    "description": "Sidebar nav item label, also used as the dashboard session-list section title."
+  },
   "navReports": "Reports",
-  "@navReports": {"description": "Sidebar nav item label."},
+  "@navReports": {
+    "description": "Sidebar nav item label."
+  },
   "navSettings": "Settings",
-  "@navSettings": {"description": "Sidebar nav item label."},
+  "@navSettings": {
+    "description": "Sidebar nav item label."
+  },
   "navHelpSupport": "Help & Support",
-  "@navHelpSupport": {"description": "Sidebar nav item label."},
+  "@navHelpSupport": {
+    "description": "Sidebar nav item label."
+  },
   "comingSoonMessage": "Coming soon",
-  "@comingSoonMessage": {"description": "Snackbar shown when tapping an unbuilt sidebar nav item."},
+  "@comingSoonMessage": {
+    "description": "Snackbar shown when tapping an unbuilt sidebar nav item."
+  },
   "logoutButton": "Logout",
-  "@logoutButton": {"description": "Sidebar footer logout button."},
-
+  "@logoutButton": {
+    "description": "Sidebar footer logout button."
+  },
   "dashboardTitle": "Dashboard Overview",
-  "@dashboardTitle": {"description": "Dashboard screen header title."},
+  "@dashboardTitle": {
+    "description": "Dashboard screen header title."
+  },
   "dashboardSubtitle": "Monitor active triage sessions and patient risk levels.",
-  "@dashboardSubtitle": {"description": "Dashboard screen header subtitle."},
+  "@dashboardSubtitle": {
+    "description": "Dashboard screen header subtitle."
+  },
   "statTotalLabel": "Total",
-  "@statTotalLabel": {"description": "Label for the total-sessions stat card on the dashboard."},
+  "@statTotalLabel": {
+    "description": "Label for the total-sessions stat card on the dashboard."
+  },
   "actionPatientLookupSubtitle": "Search patients and view history",
-  "@actionPatientLookupSubtitle": {"description": "Subtitle on the Patient Lookup action card."},
+  "@actionPatientLookupSubtitle": {
+    "description": "Subtitle on the Patient Lookup action card."
+  },
   "actionNewTriageTitle": "New Triage",
-  "@actionNewTriageTitle": {"description": "Title on the New Triage action card."},
+  "@actionNewTriageTitle": {
+    "description": "Title on the New Triage action card."
+  },
   "actionNewTriageSubtitle": "Start a new patient triage session",
-  "@actionNewTriageSubtitle": {"description": "Subtitle on the New Triage action card."},
+  "@actionNewTriageSubtitle": {
+    "description": "Subtitle on the New Triage action card."
+  },
   "recentActivityTitle": "Recent Activity",
-  "@recentActivityTitle": {"description": "Section title above the recent-sessions list."},
+  "@recentActivityTitle": {
+    "description": "Section title above the recent-sessions list."
+  },
   "seeAllButton": "See All",
-  "@seeAllButton": {"description": "Button that opens the full session list from Recent Activity."},
+  "@seeAllButton": {
+    "description": "Button that opens the full session list from Recent Activity."
+  },
   "viewAllButton": "View All",
-  "@viewAllButton": {"description": "Button that opens the full session list from Triage Sessions."},
+  "@viewAllButton": {
+    "description": "Button that opens the full session list from Triage Sessions."
+  },
   "searchPatientIdHint": "Search Patient ID (e.g., P-...)",
-  "@searchPatientIdHint": {"description": "Hint text on the dashboard's patient search field."},
+  "@searchPatientIdHint": {
+    "description": "Hint text on the dashboard's patient search field."
+  },
   "scanPatientQrTooltip": "Scan patient QR",
-  "@scanPatientQrTooltip": {"description": "Tooltip on the dashboard's QR scan icon button."},
+  "@scanPatientQrTooltip": {
+    "description": "Tooltip on the dashboard's QR scan icon button."
+  },
   "noTriageSessionsFoundMessage": "No triage sessions found.",
-  "@noTriageSessionsFoundMessage": {"description": "Empty state when the dashboard's session list has no results."},
+  "@noTriageSessionsFoundMessage": {
+    "description": "Empty state when the dashboard's session list has no results."
+  },
   "loadMoreButton": "Load More",
-  "@loadMoreButton": {"description": "Button that loads the next page of sessions."},
+  "@loadMoreButton": {
+    "description": "Button that loads the next page of sessions."
+  },
   "unknownIdLabel": "Unknown ID",
-  "@unknownIdLabel": {"description": "Fallback session title when the anonymous code is missing."},
+  "@unknownIdLabel": {
+    "description": "Fallback session title when the anonymous code is missing."
+  },
   "allTriageSessionsTitle": "All Triage Sessions",
-  "@allTriageSessionsTitle": {"description": "App bar title on the full session-list screen."},
+  "@allTriageSessionsTitle": {
+    "description": "App bar title on the full session-list screen."
+  },
   "filterSessionsTitle": "Filter Sessions",
-  "@filterSessionsTitle": {"description": "Title of the filter bottom sheet."},
+  "@filterSessionsTitle": {
+    "description": "Title of the filter bottom sheet."
+  },
   "riskLevelLabel": "Risk Level",
-  "@riskLevelLabel": {"description": "Filter sheet section label."},
+  "@riskLevelLabel": {
+    "description": "Filter sheet section label."
+  },
   "statusLabel": "Status",
-  "@statusLabel": {"description": "Filter sheet section label."},
+  "@statusLabel": {
+    "description": "Filter sheet section label."
+  },
   "clearAllButton": "Clear All",
-  "@clearAllButton": {"description": "Clears every active filter chip."},
+  "@clearAllButton": {
+    "description": "Clears every active filter chip."
+  },
   "applyFiltersButton": "Apply Filters",
-  "@applyFiltersButton": {"description": "Confirms the filter sheet's selections."},
+  "@applyFiltersButton": {
+    "description": "Confirms the filter sheet's selections."
+  },
   "noSessionsFoundMessage": "No sessions found.",
-  "@noSessionsFoundMessage": {"description": "Empty state on the full session-list screen."},
-
+  "@noSessionsFoundMessage": {
+    "description": "Empty state on the full session-list screen."
+  },
   "patientOverviewTitle": "Patient Overview",
-  "@patientOverviewTitle": {"description": "Patient Overview screen header title."},
+  "@patientOverviewTitle": {
+    "description": "Patient Overview screen header title."
+  },
   "patientOverviewSubtitle": "Review patient history, body map, and triage data.",
-  "@patientOverviewSubtitle": {"description": "Patient Overview screen header subtitle."},
+  "@patientOverviewSubtitle": {
+    "description": "Patient Overview screen header subtitle."
+  },
   "patientCodeHint": "Enter patient code e.g. P-770043",
-  "@patientCodeHint": {"description": "Hint text on the patient-code lookup field."},
+  "@patientCodeHint": {
+    "description": "Hint text on the patient-code lookup field."
+  },
   "scanPatientQrButton": "Scan Patient QR",
-  "@scanPatientQrButton": {"description": "Button label for launching the mobile QR scanner."},
+  "@scanPatientQrButton": {
+    "description": "Button label for launching the mobile QR scanner."
+  },
   "patientAnonymousIdLabel": "PATIENT ANONYMOUS ID",
-  "@patientAnonymousIdLabel": {"description": "Caption above the looked-up patient's anonymous code badge."},
-
-
+  "@patientAnonymousIdLabel": {
+    "description": "Caption above the looked-up patient's anonymous code badge."
+  },
   "qrNeedsInternetHint": "Needs internet to open the report",
   "@qrNeedsInternetHint": {
     "description": "Under the QR code when the payload is a report URL. Must be read with qrOfflinePassportHint, which is only shown when the payload carries the record itself."
@@ -249,306 +339,559 @@
     "description": "Explains what the printed unlock phrase is for. Only shown alongside qrPassportKeyLabel for a sealed passport payload."
   },
   "openFullClinicalReportButton": "Open Full Clinical Report",
-  "@openFullClinicalReportButton": {"description": "Button that opens the patient's full clinical report."},
+  "@openFullClinicalReportButton": {
+    "description": "Button that opens the patient's full clinical report."
+  },
   "bodyMapTitle": "3D Body Map",
-  "@bodyMapTitle": {"description": "Section header over the interactive 3D body model."},
+  "@bodyMapTitle": {
+    "description": "Section header over the interactive 3D body model."
+  },
   "bodyMapEmptyHint": "Enter a patient code to see pain points",
-  "@bodyMapEmptyHint": {"description": "Overlay hint on the body map before a patient code is entered."},
+  "@bodyMapEmptyHint": {
+    "description": "Overlay hint on the body map before a patient code is entered."
+  },
   "visitHistoryTitle": "Visit History",
-  "@visitHistoryTitle": {"description": "Section header over the patient's session timeline."},
+  "@visitHistoryTitle": {
+    "description": "Section header over the patient's session timeline."
+  },
   "sessionCountLabel": "{count, plural, =1{1 session} other{{count} sessions}}",
   "@sessionCountLabel": {
     "description": "Pill next to Visit History showing how many sessions are listed.",
     "placeholders": {
-      "count": {"type": "int"}
+      "count": {
+        "type": "int"
+      }
     }
   },
   "enterCodeForHistoryHint": "Enter a patient code above to view visit history",
-  "@enterCodeForHistoryHint": {"description": "Empty state before any patient code has been entered."},
+  "@enterCodeForHistoryHint": {
+    "description": "Empty state before any patient code has been entered."
+  },
   "noVisitsFoundHint": "No visits found for {code}",
   "@noVisitsFoundHint": {
     "description": "Empty state when a looked-up patient has no recorded visits.",
     "placeholders": {
-      "code": {"type": "String"}
+      "code": {
+        "type": "String"
+      }
     }
   },
   "sessionNumberLabel": "Session {number}",
   "@sessionNumberLabel": {
     "description": "Heading on each row of the visit-history timeline.",
     "placeholders": {
-      "number": {"type": "int"}
+      "number": {
+        "type": "int"
+      }
     }
   },
-
   "reportsTitle": "Reports",
-  "@reportsTitle": {"description": "Reports screen header title."},
+  "@reportsTitle": {
+    "description": "Reports screen header title."
+  },
   "reportsSubtitle": "Aggregate breakdown across every triage session on record.",
-  "@reportsSubtitle": {"description": "Reports screen header subtitle."},
+  "@reportsSubtitle": {
+    "description": "Reports screen header subtitle."
+  },
   "downloadPdfTooltip": "Download PDF report",
-  "@downloadPdfTooltip": {"description": "Tooltip on the Reports header's download icon."},
+  "@downloadPdfTooltip": {
+    "description": "Tooltip on the Reports header's download icon."
+  },
   "periodThisWeek": "This Week",
-  "@periodThisWeek": {"description": "Reports period filter chip."},
+  "@periodThisWeek": {
+    "description": "Reports period filter chip."
+  },
   "periodThisMonth": "This Month",
-  "@periodThisMonth": {"description": "Reports period filter chip."},
+  "@periodThisMonth": {
+    "description": "Reports period filter chip."
+  },
   "periodAllTime": "All Time",
-  "@periodAllTime": {"description": "Reports period filter chip."},
+  "@periodAllTime": {
+    "description": "Reports period filter chip."
+  },
   "noSessionsInPeriodMessage": "No triage sessions in this period.",
-  "@noSessionsInPeriodMessage": {"description": "Empty state when the selected reporting period has no sessions."},
+  "@noSessionsInPeriodMessage": {
+    "description": "Empty state when the selected reporting period has no sessions."
+  },
   "statTotalSessionsLabel": "Total Sessions",
-  "@statTotalSessionsLabel": {"description": "Label for the total-sessions stat card on Reports."},
+  "@statTotalSessionsLabel": {
+    "description": "Label for the total-sessions stat card on Reports."
+  },
   "statAvgSeverityLabel": "Avg. Severity",
-  "@statAvgSeverityLabel": {"description": "Label for the average-severity stat card on Reports."},
+  "@statAvgSeverityLabel": {
+    "description": "Label for the average-severity stat card on Reports."
+  },
   "statAvgRiskScoreLabel": "Avg. Risk Score",
-  "@statAvgRiskScoreLabel": {"description": "Label for the average-risk-score stat card on Reports."},
+  "@statAvgRiskScoreLabel": {
+    "description": "Label for the average-risk-score stat card on Reports."
+  },
   "sessionStatusTitle": "Session Status",
-  "@sessionStatusTitle": {"description": "Section title above the open/closed donut chart."},
+  "@sessionStatusTitle": {
+    "description": "Section title above the open/closed donut chart."
+  },
   "mostReportedRegionsTitle": "Most Reported Body Regions",
-  "@mostReportedRegionsTitle": {"description": "Section title above the body-region donut chart."},
+  "@mostReportedRegionsTitle": {
+    "description": "Section title above the body-region donut chart."
+  },
   "painTypeBreakdownTitle": "Pain Type Breakdown",
-  "@painTypeBreakdownTitle": {"description": "Section title above the pain-type donut chart."},
+  "@painTypeBreakdownTitle": {
+    "description": "Section title above the pain-type donut chart."
+  },
   "retryButton": "Retry",
-  "@retryButton": {"description": "Button shown on Reports when loading data fails."},
+  "@retryButton": {
+    "description": "Button shown on Reports when loading data fails."
+  },
   "otherLabel": "Other",
-  "@otherLabel": {"description": "Catch-all donut slice label for categories beyond the top 6."},
-
+  "@otherLabel": {
+    "description": "Catch-all donut slice label for categories beyond the top 6."
+  },
   "genderFemale": "Female",
-  "@genderFemale": {"description": "Display label for the Female gender option. The value sent to the backend stays the English literal 'Female' regardless of locale."},
+  "@genderFemale": {
+    "description": "Display label for the Female gender option. The value sent to the backend stays the English literal 'Female' regardless of locale."
+  },
   "genderMale": "Male",
-  "@genderMale": {"description": "Display label for the Male gender option. The value sent to the backend stays the English literal 'Male' regardless of locale."},
+  "@genderMale": {
+    "description": "Display label for the Male gender option. The value sent to the backend stays the English literal 'Male' regardless of locale."
+  },
   "genderOther": "Other",
-  "@genderOther": {"description": "Display label for the Other gender option (demographics edit sheet)."},
+  "@genderOther": {
+    "description": "Display label for the Other gender option (demographics edit sheet)."
+  },
   "notSetLabel": "Not set",
-  "@notSetLabel": {"description": "Shown when an optional date field has no value yet."},
+  "@notSetLabel": {
+    "description": "Shown when an optional date field has no value yet."
+  },
   "naLabel": "N/A",
-  "@naLabel": {"description": "Shown when an optional clinical field has no value."},
-
+  "@naLabel": {
+    "description": "Shown when an optional clinical field has no value."
+  },
   "patientProfileTitle": "Patient Profile",
-  "@patientProfileTitle": {"description": "Title of the patient intake form screen."},
+  "@patientProfileTitle": {
+    "description": "Title of the patient intake form screen."
+  },
   "patientProfileSubtitle": "This helps us build your body map",
-  "@patientProfileSubtitle": {"description": "Subtitle under Patient Profile."},
+  "@patientProfileSubtitle": {
+    "description": "Subtitle under Patient Profile."
+  },
   "ageLabel": "Age",
-  "@ageLabel": {"description": "Age field label."},
+  "@ageLabel": {
+    "description": "Age field label."
+  },
   "yearsSuffix": "years",
-  "@yearsSuffix": {"description": "Unit suffix on the age field."},
+  "@yearsSuffix": {
+    "description": "Unit suffix on the age field."
+  },
   "weightLabel": "Weight",
-  "@weightLabel": {"description": "Weight field label."},
+  "@weightLabel": {
+    "description": "Weight field label."
+  },
   "kgSuffix": "kg",
-  "@kgSuffix": {"description": "Unit suffix on the weight field."},
+  "@kgSuffix": {
+    "description": "Unit suffix on the weight field."
+  },
   "heightLabel": "Height",
-  "@heightLabel": {"description": "Height field label."},
+  "@heightLabel": {
+    "description": "Height field label."
+  },
   "cmSuffix": "cm",
-  "@cmSuffix": {"description": "Unit suffix on the height field."},
+  "@cmSuffix": {
+    "description": "Unit suffix on the height field."
+  },
   "contactIdentityOptionalTitle": "CONTACT & IDENTITY (OPTIONAL)",
-  "@contactIdentityOptionalTitle": {"description": "Section header for optional identifying fields."},
+  "@contactIdentityOptionalTitle": {
+    "description": "Section header for optional identifying fields."
+  },
   "contactIdentityHint": "Add these so the practitioner can identify and reach you. Skip them to stay fully anonymous.",
-  "@contactIdentityHint": {"description": "Explanation under the optional contact/identity section."},
+  "@contactIdentityHint": {
+    "description": "Explanation under the optional contact/identity section."
+  },
   "fullNameLabel": "Full Name",
-  "@fullNameLabel": {"description": "Full name field label."},
+  "@fullNameLabel": {
+    "description": "Full name field label."
+  },
   "dateOfBirthLabel": "Date of Birth",
-  "@dateOfBirthLabel": {"description": "Date of birth field label."},
+  "@dateOfBirthLabel": {
+    "description": "Date of birth field label."
+  },
   "dateOfBirthHelpText": "DATE OF BIRTH",
-  "@dateOfBirthHelpText": {"description": "Native date picker dialog header text."},
+  "@dateOfBirthHelpText": {
+    "description": "Native date picker dialog header text."
+  },
   "contactPhoneLabel": "Contact Phone",
-  "@contactPhoneLabel": {"description": "Phone number field label on the patient intake form."},
+  "@contactPhoneLabel": {
+    "description": "Phone number field label on the patient intake form."
+  },
   "addressLabel": "Address",
-  "@addressLabel": {"description": "Address field label."},
+  "@addressLabel": {
+    "description": "Address field label."
+  },
   "nextOfKinNameLabel": "Next of Kin Name",
-  "@nextOfKinNameLabel": {"description": "Next-of-kin name field label."},
+  "@nextOfKinNameLabel": {
+    "description": "Next-of-kin name field label."
+  },
   "nextOfKinNameHelper": "Useful when reporting for a child or dependent",
-  "@nextOfKinNameHelper": {"description": "Helper text under the next-of-kin name field."},
+  "@nextOfKinNameHelper": {
+    "description": "Helper text under the next-of-kin name field."
+  },
   "nextOfKinPhoneLabel": "Next of Kin Phone",
-  "@nextOfKinPhoneLabel": {"description": "Next-of-kin phone field label."},
+  "@nextOfKinPhoneLabel": {
+    "description": "Next-of-kin phone field label."
+  },
   "hospitalClinicNameLabel": "Hospital / Clinic Name",
-  "@hospitalClinicNameLabel": {"description": "Hospital/clinic name field label on the patient intake form."},
+  "@hospitalClinicNameLabel": {
+    "description": "Hospital/clinic name field label on the patient intake form."
+  },
   "fieldRequiredError": "{label} is required",
   "@fieldRequiredError": {
     "description": "Validation error when a required numeric field is left empty.",
-    "placeholders": {"label": {"type": "String"}}
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
   },
   "enterValidNumberError": "Enter a valid number",
-  "@enterValidNumberError": {"description": "Validation error when a numeric field can't be parsed."},
+  "@enterValidNumberError": {
+    "description": "Validation error when a numeric field can't be parsed."
+  },
   "fieldRangeError": "{label} must be between {min} and {max}",
   "@fieldRangeError": {
     "description": "Validation error when a numeric field is outside its allowed range.",
     "placeholders": {
-      "label": {"type": "String"},
-      "min": {"type": "String"},
-      "max": {"type": "String"}
+      "label": {
+        "type": "String"
+      },
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
     }
   },
-
   "bodyMapSelectPainTitle": "Body Map - Select Pain",
-  "@bodyMapSelectPainTitle": {"description": "Body Map screen app bar title."},
+  "@bodyMapSelectPainTitle": {
+    "description": "Body Map screen app bar title."
+  },
   "resetViewTooltip": "Reset View",
-  "@resetViewTooltip": {"description": "Tooltip on the camera reset overlay button."},
+  "@resetViewTooltip": {
+    "description": "Tooltip on the camera reset overlay button."
+  },
   "rotateModelTooltip": "Rotate Model",
-  "@rotateModelTooltip": {"description": "Tooltip on the rotate-view overlay button."},
+  "@rotateModelTooltip": {
+    "description": "Tooltip on the rotate-view overlay button."
+  },
   "zoomInTooltip": "Zoom In",
-  "@zoomInTooltip": {"description": "Tooltip on the zoom-in overlay button."},
+  "@zoomInTooltip": {
+    "description": "Tooltip on the zoom-in overlay button."
+  },
   "zoomOutTooltip": "Zoom Out",
-  "@zoomOutTooltip": {"description": "Tooltip on the zoom-out overlay button."},
+  "@zoomOutTooltip": {
+    "description": "Tooltip on the zoom-out overlay button."
+  },
   "tapABodyPartLabel": "Tap a body part",
-  "@tapABodyPartLabel": {"description": "Badge shown before any pain location has been marked."},
+  "@tapABodyPartLabel": {
+    "description": "Badge shown before any pain location has been marked."
+  },
   "locationsSelectedLabel": "{count, plural, =1{1 location selected} other{{count} locations selected}}",
   "@locationsSelectedLabel": {
     "description": "Badge showing how many pain locations are currently marked.",
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "viewFront": "Front",
-  "@viewFront": {"description": "Body-map camera angle button."},
+  "@viewFront": {
+    "description": "Body-map camera angle button."
+  },
   "viewBack": "Back",
-  "@viewBack": {"description": "Body-map camera angle button."},
+  "@viewBack": {
+    "description": "Body-map camera angle button."
+  },
   "viewLeft": "Left",
-  "@viewLeft": {"description": "Body-map camera angle button."},
+  "@viewLeft": {
+    "description": "Body-map camera angle button."
+  },
   "viewRight": "Right",
-  "@viewRight": {"description": "Body-map camera angle button."},
+  "@viewRight": {
+    "description": "Body-map camera angle button."
+  },
   "tapBodyToMarkPain": "Tap the body to mark pain",
-  "@tapBodyToMarkPain": {"description": "CTA button text before any pain location is marked."},
+  "@tapBodyToMarkPain": {
+    "description": "CTA button text before any pain location is marked."
+  },
   "continueToPainDetailsButton": "Continue to Pain Details ({count})",
   "@continueToPainDetailsButton": {
     "description": "CTA button text once at least one pain location is marked.",
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "painLocationsSheetTitle": "Pain Locations",
-  "@painLocationsSheetTitle": {"description": "Title of the marked-locations management bottom sheet."},
+  "@painLocationsSheetTitle": {
+    "description": "Title of the marked-locations management bottom sheet."
+  },
   "noLocationsMarkedHint": "No locations marked yet. Tap anywhere on the body to add one.",
-  "@noLocationsMarkedHint": {"description": "Empty state inside the pain-locations bottom sheet."},
+  "@noLocationsMarkedHint": {
+    "description": "Empty state inside the pain-locations bottom sheet."
+  },
   "removeTooltip": "Remove",
-  "@removeTooltip": {"description": "Tooltip on the remove-location icon."},
+  "@removeTooltip": {
+    "description": "Tooltip on the remove-location icon."
+  },
   "addAnotherLocationLabel": "Add another location",
-  "@addAnotherLocationLabel": {"description": "Entry point into the preset region picker from the locations sheet."},
+  "@addAnotherLocationLabel": {
+    "description": "Entry point into the preset region picker from the locations sheet."
+  },
   "selectPainLocationTitle": "Select Pain Location",
-  "@selectPainLocationTitle": {"description": "Title of the preset region picker bottom sheet."},
+  "@selectPainLocationTitle": {
+    "description": "Title of the preset region picker bottom sheet."
+  },
   "bodyMapHelpTitle": "How to use Body Map",
-  "@bodyMapHelpTitle": {"description": "Title of the Body Map help dialog."},
+  "@bodyMapHelpTitle": {
+    "description": "Title of the Body Map help dialog."
+  },
   "bodyMapHelpBullet1": "• 3D Body (OpenHuman model): Rotate & inspect in 360°.",
-  "@bodyMapHelpBullet1": {"description": "First bullet in the Body Map help dialog."},
+  "@bodyMapHelpBullet1": {
+    "description": "First bullet in the Body Map help dialog."
+  },
   "bodyMapHelpBullet2": "• Tap on body parts to mark pain locations. Tap as many as you need.",
-  "@bodyMapHelpBullet2": {"description": "Second bullet in the Body Map help dialog."},
+  "@bodyMapHelpBullet2": {
+    "description": "Second bullet in the Body Map help dialog."
+  },
   "bodyMapHelpBullet3": "• Tap the same spot again to remove that marker.",
-  "@bodyMapHelpBullet3": {"description": "Third bullet in the Body Map help dialog."},
+  "@bodyMapHelpBullet3": {
+    "description": "Third bullet in the Body Map help dialog."
+  },
   "bodyMapHelpBullet4": "• Use camera tools on the left overlay to zoom in/out or reset.",
-  "@bodyMapHelpBullet4": {"description": "Fourth bullet in the Body Map help dialog."},
+  "@bodyMapHelpBullet4": {
+    "description": "Fourth bullet in the Body Map help dialog."
+  },
   "bodyMapHelpBullet5": "• Toggle Front, Back, Left, or Right views with bottom tabs.",
-  "@bodyMapHelpBullet5": {"description": "Fifth bullet in the Body Map help dialog."},
+  "@bodyMapHelpBullet5": {
+    "description": "Fifth bullet in the Body Map help dialog."
+  },
   "gotItButton": "Got it",
-  "@gotItButton": {"description": "Dismiss button on help dialogs."},
-
+  "@gotItButton": {
+    "description": "Dismiss button on help dialogs."
+  },
   "painDetailsTitle": "3. Pain Details",
-  "@painDetailsTitle": {"description": "Pain Details app bar title when there's only one pain point."},
+  "@painDetailsTitle": {
+    "description": "Pain Details app bar title when there's only one pain point."
+  },
   "painDetailsTitleWithProgress": "3. Pain Details ({current} of {total})",
   "@painDetailsTitleWithProgress": {
     "description": "Pain Details app bar title when stepping through multiple pain points.",
     "placeholders": {
-      "current": {"type": "int"},
-      "total": {"type": "int"}
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
     }
   },
   "painLocationLabel": "Pain Location",
-  "@painLocationLabel": {"description": "Label above the currently selected body region."},
+  "@painLocationLabel": {
+    "description": "Label above the currently selected body region."
+  },
   "directionLabel": "Direction",
-  "@directionLabel": {"description": "Direction dropdown label."},
+  "@directionLabel": {
+    "description": "Direction dropdown label."
+  },
   "depthLabel": "Depth",
-  "@depthLabel": {"description": "Depth dropdown label."},
+  "@depthLabel": {
+    "description": "Depth dropdown label."
+  },
   "painTypeLabel": "Pain Type",
-  "@painTypeLabel": {"description": "Pain type section title / detail row label."},
+  "@painTypeLabel": {
+    "description": "Pain type section title / detail row label."
+  },
   "painIntensityLabel": "Pain Intensity",
-  "@painIntensityLabel": {"description": "Pain intensity slider section title."},
+  "@painIntensityLabel": {
+    "description": "Pain intensity slider section title."
+  },
   "nextMeasureVitalsButton": "Next: Measure Vitals",
-  "@nextMeasureVitalsButton": {"description": "CTA on the last pain point, advancing to Vitals Capture."},
+  "@nextMeasureVitalsButton": {
+    "description": "CTA on the last pain point, advancing to Vitals Capture."
+  },
   "nextLocationButton": "Next Location",
-  "@nextLocationButton": {"description": "CTA advancing to the next pain point's details."},
+  "@nextLocationButton": {
+    "description": "CTA advancing to the next pain point's details."
+  },
   "painDetailsHelpTitle": "Pain Details Guide",
-  "@painDetailsHelpTitle": {"description": "Title of the Pain Details help dialog."},
+  "@painDetailsHelpTitle": {
+    "description": "Title of the Pain Details help dialog."
+  },
   "painDetailsHelpBullet1": "• If you marked more than one location, you'll fill in details for each one in turn.",
-  "@painDetailsHelpBullet1": {"description": "First bullet in the Pain Details help dialog."},
+  "@painDetailsHelpBullet1": {
+    "description": "First bullet in the Pain Details help dialog."
+  },
   "painDetailsHelpBullet2": "• Use the Direction dropdown to specify where the pain moves (e.g. Towards Back).",
-  "@painDetailsHelpBullet2": {"description": "Second bullet in the Pain Details help dialog."},
+  "@painDetailsHelpBullet2": {
+    "description": "Second bullet in the Pain Details help dialog."
+  },
   "painDetailsHelpBullet3": "• Use the Depth dropdown to specify how deep the pain feels (Deep, Moderate, Superficial).",
-  "@painDetailsHelpBullet3": {"description": "Third bullet in the Pain Details help dialog."},
+  "@painDetailsHelpBullet3": {
+    "description": "Third bullet in the Pain Details help dialog."
+  },
   "painDetailsHelpBullet4": "• Tap pain type chips (Sharp, Dull, Burning, Cramping).",
-  "@painDetailsHelpBullet4": {"description": "Fourth bullet in the Pain Details help dialog."},
+  "@painDetailsHelpBullet4": {
+    "description": "Fourth bullet in the Pain Details help dialog."
+  },
   "painDetailsHelpBullet5": "• Slide to set pain intensity scale from 1 to 10. Each location can be different.",
-  "@painDetailsHelpBullet5": {"description": "Fifth bullet in the Pain Details help dialog."},
-
+  "@painDetailsHelpBullet5": {
+    "description": "Fifth bullet in the Pain Details help dialog."
+  },
   "vitalsCaptureTitle": "4. Vitals Capture",
-  "@vitalsCaptureTitle": {"description": "Vitals Capture app bar title."},
+  "@vitalsCaptureTitle": {
+    "description": "Vitals Capture app bar title."
+  },
   "signalQualityLabel": "Signal Quality",
-  "@signalQualityLabel": {"description": "Label on the signal-quality vital circle."},
+  "@signalQualityLabel": {
+    "description": "Label on the signal-quality vital circle."
+  },
   "tapStartMeasurementStatus": "Tap \"Start Measurement\"",
-  "@tapStartMeasurementStatus": {"description": "Initial status message before measurement begins."},
+  "@tapStartMeasurementStatus": {
+    "description": "Initial status message before measurement begins."
+  },
   "measuringKeepFingerSteadyStatus": "Measuring... Keep finger steady",
-  "@measuringKeepFingerSteadyStatus": {"description": "Status message while a PPG measurement is in progress."},
+  "@measuringKeepFingerSteadyStatus": {
+    "description": "Status message while a PPG measurement is in progress."
+  },
   "cameraPermissionNeededStatus": "Camera permission is needed to measure your heart rate. Please allow camera access and try again.",
-  "@cameraPermissionNeededStatus": {"description": "Status message when camera permission is denied on mobile."},
+  "@cameraPermissionNeededStatus": {
+    "description": "Status message when camera permission is denied on mobile."
+  },
   "measurementCompleteStatus": "Measurement complete!",
-  "@measurementCompleteStatus": {"description": "Status message once a measurement finishes."},
+  "@measurementCompleteStatus": {
+    "description": "Status message once a measurement finishes."
+  },
   "cameraReadyLabel": "Camera Ready",
-  "@cameraReadyLabel": {"description": "Placeholder shown before the camera preview starts."},
+  "@cameraReadyLabel": {
+    "description": "Placeholder shown before the camera preview starts."
+  },
   "placeFingerHint": "Place your finger gently over the back camera and flash",
-  "@placeFingerHint": {"description": "Instruction under the status message."},
+  "@placeFingerHint": {
+    "description": "Instruction under the status message."
+  },
   "nextReviewSubmitButton": "Next: Review & Submit",
-  "@nextReviewSubmitButton": {"description": "CTA once a heart rate reading has been captured."},
+  "@nextReviewSubmitButton": {
+    "description": "CTA once a heart rate reading has been captured."
+  },
   "measuringEllipsisButton": "Measuring...",
-  "@measuringEllipsisButton": {"description": "CTA button label while a measurement is running."},
+  "@measuringEllipsisButton": {
+    "description": "CTA button label while a measurement is running."
+  },
   "startMeasurementButton": "Start Measurement",
-  "@startMeasurementButton": {"description": "CTA button label before measurement begins."},
+  "@startMeasurementButton": {
+    "description": "CTA button label before measurement begins."
+  },
   "signalExcellent": "Excellent",
-  "@signalExcellent": {"description": "Qualitative signal-quality label."},
+  "@signalExcellent": {
+    "description": "Qualitative signal-quality label."
+  },
   "signalGood": "Good",
-  "@signalGood": {"description": "Qualitative signal-quality label."},
+  "@signalGood": {
+    "description": "Qualitative signal-quality label."
+  },
   "signalWeak": "Weak",
-  "@signalWeak": {"description": "Qualitative signal-quality label."},
-
+  "@signalWeak": {
+    "description": "Qualitative signal-quality label."
+  },
   "reviewSubmitTitle": "5. Review & Submit",
-  "@reviewSubmitTitle": {"description": "Review screen app bar title."},
+  "@reviewSubmitTitle": {
+    "description": "Review screen app bar title."
+  },
   "editButton": "Edit",
-  "@editButton": {"description": "Button that pops back to Pain Details to make a correction."},
+  "@editButton": {
+    "description": "Button that pops back to Pain Details to make a correction."
+  },
   "anonymousPatientLabel": "Anonymous Patient",
-  "@anonymousPatientLabel": {"description": "Label above the not-yet-generated patient ID."},
+  "@anonymousPatientLabel": {
+    "description": "Label above the not-yet-generated patient ID."
+  },
   "idGeneratedOnSubmitLabel": "ID generated on submit",
-  "@idGeneratedOnSubmitLabel": {"description": "Explanation that the anonymous ID appears after submitting."},
+  "@idGeneratedOnSubmitLabel": {
+    "description": "Explanation that the anonymous ID appears after submitting."
+  },
   "timestampLabel": "Timestamp",
-  "@timestampLabel": {"description": "Label above the visit timestamp."},
+  "@timestampLabel": {
+    "description": "Label above the visit timestamp."
+  },
   "clinicalSummaryTitle": "Clinical Summary",
-  "@clinicalSummaryTitle": {"description": "Section title over the list of pain points on the review screen."},
+  "@clinicalSummaryTitle": {
+    "description": "Section title over the list of pain points on the review screen."
+  },
   "painPointNumberLabel": "Pain Point {number}",
   "@painPointNumberLabel": {
     "description": "Heading on each pain point card during review.",
-    "placeholders": {"number": {"type": "int"}}
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
   },
   "locationLabel": "Location",
-  "@locationLabel": {"description": "Detail row label for the body region."},
+  "@locationLabel": {
+    "description": "Detail row label for the body region."
+  },
   "intensityLabel": "Intensity",
-  "@intensityLabel": {"description": "Detail row label for pain severity."},
+  "@intensityLabel": {
+    "description": "Detail row label for pain severity."
+  },
   "vitalsTitle": "Vitals",
-  "@vitalsTitle": {"description": "Section title over the captured vitals on the review screen."},
+  "@vitalsTitle": {
+    "description": "Section title over the captured vitals on the review screen."
+  },
   "heartRateLabel": "Heart Rate",
-  "@heartRateLabel": {"description": "Label for the captured heart rate."},
+  "@heartRateLabel": {
+    "description": "Label for the captured heart rate."
+  },
   "consentSubmitNotice": "By submitting, you consent to sharing this clinical data with the attending physician for triage purposes.",
-  "@consentSubmitNotice": {"description": "Consent notice above the submit button."},
+  "@consentSubmitNotice": {
+    "description": "Consent notice above the submit button."
+  },
   "saveDraftButton": "Save Draft",
-  "@saveDraftButton": {"description": "Button that saves an offline draft instead of submitting."},
+  "@saveDraftButton": {
+    "description": "Button that saves an offline draft instead of submitting."
+  },
   "submitButton": "Submit",
-  "@submitButton": {"description": "Final submit button on the review screen."},
+  "@submitButton": {
+    "description": "Final submit button on the review screen."
+  },
   "draftSavedSnackbar": "✓ Draft saved offline successfully!",
-  "@draftSavedSnackbar": {"description": "Confirmation snackbar after saving a draft."},
+  "@draftSavedSnackbar": {
+    "description": "Confirmation snackbar after saving a draft."
+  },
   "submitFailedSavedOfflineSnackbar": "⚠ Could not submit, saved offline, will retry automatically: {error}",
   "@submitFailedSavedOfflineSnackbar": {
     "description": "Snackbar shown when submission fails and is queued offline instead.",
-    "placeholders": {"error": {"type": "String"}}
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
   },
-
   "reportSubmittedTitle": "Report Submitted!",
-  "@reportSubmittedTitle": {"description": "Success screen heading."},
+  "@reportSubmittedTitle": {
+    "description": "Success screen heading."
+  },
   "patientIdLabel": "Patient ID",
-  "@patientIdLabel": {"description": "Label above the generated anonymous patient ID on the success screen."},
-
-  "@encryptedQrPassportLabel": {"description": "Caption over the QR code shown after submitting."},
-
-
+  "@patientIdLabel": {
+    "description": "Label above the generated anonymous patient ID on the success screen."
+  },
+  "@encryptedQrPassportLabel": {
+    "description": "Caption over the QR code shown after submitting."
+  },
   "showQrToHealthWorkerHint": "Show this QR code to the health worker",
-  "@showQrToHealthWorkerHint": {"description": "Instruction under the QR code."},
+  "@showQrToHealthWorkerHint": {
+    "description": "Instruction under the QR code."
+  },
   "escalationReasonsLabel": "What triggered this",
   "@escalationReasonsLabel": {
     "description": "Heading above the list of red flags in the escalation banner."
@@ -576,183 +919,342 @@
   "aiAssessmentLabel": "AI Assessment: {label}",
   "@aiAssessmentLabel": {
     "description": "Risk summary line on the success screen.",
-    "placeholders": {"label": {"type": "String"}}
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
   },
   "riskAssessmentPendingLabel": "Risk Assessment Pending",
-  "@riskAssessmentPendingLabel": {"description": "Shown when no risk score is available yet."},
+  "@riskAssessmentPendingLabel": {
+    "description": "Shown when no risk score is available yet."
+  },
   "riskPercentLabel": "{level} Risk ({percent}%)",
   "@riskPercentLabel": {
     "description": "Risk level with percentage, e.g. 'High Risk (82%)'.",
     "placeholders": {
-      "level": {"type": "String"},
-      "percent": {"type": "int"}
+      "level": {
+        "type": "String"
+      },
+      "percent": {
+        "type": "int"
+      }
     }
   },
   "saveButton": "Save",
-  "@saveButton": {"description": "Button that saves the QR code image."},
+  "@saveButton": {
+    "description": "Button that saves the QR code image."
+  },
   "shareButton": "Share",
-  "@shareButton": {"description": "Button that shares the report link."},
+  "@shareButton": {
+    "description": "Button that shares the report link."
+  },
   "viewHistoryButton": "View My Triage History",
-  "@viewHistoryButton": {"description": "Button that opens the patient's own visit history."},
+  "@viewHistoryButton": {
+    "description": "Button that opens the patient's own visit history."
+  },
   "startNewTriageButton": "Start New Triage",
-  "@startNewTriageButton": {"description": "Button that returns to the very start of the flow."},
+  "@startNewTriageButton": {
+    "description": "Button that returns to the very start of the flow."
+  },
   "shareReportSheetTitle": "Share Report",
-  "@shareReportSheetTitle": {"description": "Title of the web share-fallback bottom sheet."},
+  "@shareReportSheetTitle": {
+    "description": "Title of the web share-fallback bottom sheet."
+  },
   "whatsappLabel": "WhatsApp",
-  "@whatsappLabel": {"description": "Share option label."},
+  "@whatsappLabel": {
+    "description": "Share option label."
+  },
   "emailLabel": "Email",
-  "@emailLabel": {"description": "Share option label."},
+  "@emailLabel": {
+    "description": "Share option label."
+  },
   "smsLabel": "SMS",
-  "@smsLabel": {"description": "Share option label."},
+  "@smsLabel": {
+    "description": "Share option label."
+  },
   "copyLinkLabel": "Copy Link",
-  "@copyLinkLabel": {"description": "Share option label."},
+  "@copyLinkLabel": {
+    "description": "Share option label."
+  },
   "linkCopiedSnackbar": "Link copied to clipboard",
-  "@linkCopiedSnackbar": {"description": "Confirmation after using Copy Link."},
-
+  "@linkCopiedSnackbar": {
+    "description": "Confirmation after using Copy Link."
+  },
   "clinicalReportTitle": "Clinical Report",
-  "@clinicalReportTitle": {"description": "Clinical Report app bar title."},
+  "@clinicalReportTitle": {
+    "description": "Clinical Report app bar title."
+  },
   "practitionerModeChip": "Practitioner Mode",
-  "@practitionerModeChip": {"description": "Chip shown when a practitioner (not the patient) is viewing the report."},
+  "@practitionerModeChip": {
+    "description": "Chip shown when a practitioner (not the patient) is viewing the report."
+  },
   "reportNotFoundError": "Report not found",
-  "@reportNotFoundError": {"description": "Fallback error text when a report can't be loaded."},
+  "@reportNotFoundError": {
+    "description": "Fallback error text when a report can't be loaded."
+  },
   "clinicalTriageReportTitle": "Clinical Triage Report",
-  "@clinicalTriageReportTitle": {"description": "Heading at the top of the report body."},
+  "@clinicalTriageReportTitle": {
+    "description": "Heading at the top of the report body."
+  },
   "officialDocumentSubtitle": "Simtack Care • Official Document",
-  "@officialDocumentSubtitle": {"description": "Subtitle under the report heading."},
+  "@officialDocumentSubtitle": {
+    "description": "Subtitle under the report heading."
+  },
   "riskAssessmentHighestLabel": "RISK ASSESSMENT (HIGHEST)",
-  "@riskAssessmentHighestLabel": {"description": "Caption over the worst-finding risk score in a multi-point visit."},
+  "@riskAssessmentHighestLabel": {
+    "description": "Caption over the worst-finding risk score in a multi-point visit."
+  },
   "primaryPainCharacteristicsText": "PRIMARY PAIN CHARACTERISTICS",
-  "@primaryPainCharacteristicsText": {"description": "All-caps section header over the primary pain characteristics rows."},
+  "@primaryPainCharacteristicsText": {
+    "description": "All-caps section header over the primary pain characteristics rows."
+  },
   "painExpansionBehaviorSectionText": "SECTION A: PAIN EXPANSION BEHAVIOR",
-  "@painExpansionBehaviorSectionText": {"description": "All-caps section header over the pain expansion behavior badge."},
+  "@painExpansionBehaviorSectionText": {
+    "description": "All-caps section header over the pain expansion behavior badge."
+  },
   "aggravatingAlleviatingFactorsText": "SECTION B: AGGRAVATING & ALLEVIATING FACTORS",
-  "@aggravatingAlleviatingFactorsText": {"description": "All-caps section header over the triggers and relievers group."},
+  "@aggravatingAlleviatingFactorsText": {
+    "description": "All-caps section header over the triggers and relievers group."
+  },
   "triggersWorseLabel": "Triggers (Makes it Worse)",
-  "@triggersWorseLabel": {"description": "Sub-label above the red trigger tags."},
+  "@triggersWorseLabel": {
+    "description": "Sub-label above the red trigger tags."
+  },
   "relieversBetterLabel": "Relievers (Makes it Better)",
-  "@relieversBetterLabel": {"description": "Sub-label above the green reliever tags."},
+  "@relieversBetterLabel": {
+    "description": "Sub-label above the green reliever tags."
+  },
   "dailyLifeImpactSectionText": "SECTION C: DAILY LIFE IMPACT",
-  "@dailyLifeImpactSectionText": {"description": "All-caps section header over the daily-life-impact badges."},
+  "@dailyLifeImpactSectionText": {
+    "description": "All-caps section header over the daily-life-impact badges."
+  },
   "assessmentSectionText": "ASSESSMENT",
-  "@assessmentSectionText": {"description": "All-caps section header over the per-point risk and timestamp rows."},
+  "@assessmentSectionText": {
+    "description": "All-caps section header over the per-point risk and timestamp rows."
+  },
   "intakeQuestionnaireSectionText": "INTAKE QUESTIONNAIRE",
-  "@intakeQuestionnaireSectionText": {"description": "All-caps section header over the intake questionnaire Q&A rows."},
+  "@intakeQuestionnaireSectionText": {
+    "description": "All-caps section header over the intake questionnaire Q&A rows."
+  },
   "drivenByLabel": "Driven by: {region}",
   "@drivenByLabel": {
     "description": "Notes which body region produced the visit's highest risk score.",
-    "placeholders": {"region": {"type": "String"}}
+    "placeholders": {
+      "region": {
+        "type": "String"
+      }
+    }
   },
   "clinicalDetailsTitle": "Clinical Details",
-  "@clinicalDetailsTitle": {"description": "Section title over the per-point clinical detail cards."},
+  "@clinicalDetailsTitle": {
+    "description": "Section title over the per-point clinical detail cards."
+  },
   "clinicalDetailsWithCountTitle": "Clinical Details ({count} pain points)",
   "@clinicalDetailsWithCountTitle": {
     "description": "Section title variant when the visit has multiple pain points.",
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "painPointLabel": "Pain Point",
-  "@painPointLabel": {"description": "Small heading on each clinical detail card in a multi-point visit."},
+  "@painPointLabel": {
+    "description": "Small heading on each clinical detail card in a multi-point visit."
+  },
   "riskLabel": "Risk",
-  "@riskLabel": {"description": "Detail row label for a single pain point's risk score."},
+  "@riskLabel": {
+    "description": "Detail row label for a single pain point's risk score."
+  },
   "reportedAtLabel": "Reported At",
-  "@reportedAtLabel": {"description": "Detail row label for the submission timestamp."},
+  "@reportedAtLabel": {
+    "description": "Detail row label for the submission timestamp."
+  },
   "patientProfileSectionTitle": "PATIENT PROFILE",
-  "@patientProfileSectionTitle": {"description": "All-caps section header over the demographics chip list."},
+  "@patientProfileSectionTitle": {
+    "description": "All-caps section header over the demographics chip list."
+  },
   "noDemographicsOnFileMessage": "No demographics on file yet.",
-  "@noDemographicsOnFileMessage": {"description": "Empty state when a patient has no demographics recorded."},
+  "@noDemographicsOnFileMessage": {
+    "description": "Empty state when a patient has no demographics recorded."
+  },
   "nameLabel": "Name",
-  "@nameLabel": {"description": "Demographics chip label."},
+  "@nameLabel": {
+    "description": "Demographics chip label."
+  },
   "dobLabel": "DOB",
-  "@dobLabel": {"description": "Demographics chip label (date of birth, abbreviated)."},
+  "@dobLabel": {
+    "description": "Demographics chip label (date of birth, abbreviated)."
+  },
   "genderLabel": "Gender",
-  "@genderLabel": {"description": "Demographics chip / form field label."},
+  "@genderLabel": {
+    "description": "Demographics chip / form field label."
+  },
   "phoneLabel": "Phone",
-  "@phoneLabel": {"description": "Demographics chip / form field label."},
+  "@phoneLabel": {
+    "description": "Demographics chip / form field label."
+  },
   "nextOfKinShortLabel": "Next of kin",
-  "@nextOfKinShortLabel": {"description": "Demographics chip label combining next-of-kin name and phone."},
+  "@nextOfKinShortLabel": {
+    "description": "Demographics chip label combining next-of-kin name and phone."
+  },
   "hospitalLabel": "Hospital",
-  "@hospitalLabel": {"description": "Demographics chip label."},
+  "@hospitalLabel": {
+    "description": "Demographics chip label."
+  },
   "visitTimelineTitle": "VISIT TIMELINE",
-  "@visitTimelineTitle": {"description": "Section header over the horizontal visit-history strip (practitioner mode)."},
+  "@visitTimelineTitle": {
+    "description": "Section header over the horizontal visit-history strip (practitioner mode)."
+  },
   "visitNumberLabel": "Visit {number}",
   "@visitNumberLabel": {
     "description": "Label on each visit card in the timeline.",
-    "placeholders": {"number": {"type": "int"}}
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
   },
   "ptCountLabel": "{count, plural, =1{1 pt} other{{count} pts}}",
   "@ptCountLabel": {
     "description": "Compact pain-point count on a visit timeline card.",
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "whyThisScoreTitle": "WHY THIS SCORE?",
-  "@whyThisScoreTitle": {"description": "Section header over the SHAP risk-factor breakdown."},
+  "@whyThisScoreTitle": {
+    "description": "Section header over the SHAP risk-factor breakdown."
+  },
   "unknownFactorLabel": "Unknown factor",
-  "@unknownFactorLabel": {"description": "Fallback label for a risk factor with no description."},
+  "@unknownFactorLabel": {
+    "description": "Fallback label for a risk factor with no description."
+  },
   "triageDecisionTitle": "TRIAGE DECISION",
-  "@triageDecisionTitle": {"description": "Section header over the practitioner decision card."},
+  "@triageDecisionTitle": {
+    "description": "Section header over the practitioner decision card."
+  },
   "suggestedPriorityLabel": "Suggested Priority",
-  "@suggestedPriorityLabel": {"description": "Label before the AI-suggested priority in the decision card."},
+  "@suggestedPriorityLabel": {
+    "description": "Label before the AI-suggested priority in the decision card."
+  },
   "triageTierLabel": "Triage tier (SATS)",
   "@triageTierLabel": {
     "description": "Label before the category the tool derived, in the decision card."
   },
   "clinicianTierLabel": "Your tier",
-  "@clinicianTierLabel": {"description": "Label before the practitioner's own category choice."},
+  "@clinicianTierLabel": {
+    "description": "Label before the practitioner's own category choice."
+  },
   "satsTierRed": "Red - Emergency",
-  "@satsTierRed": {"description": "SATS category: red. Shown to a clinician, not to a patient."},
+  "@satsTierRed": {
+    "description": "SATS category: red. Shown to a clinician, not to a patient."
+  },
   "satsTierOrange": "Orange - Very urgent",
-  "@satsTierOrange": {"description": "SATS category: orange."},
+  "@satsTierOrange": {
+    "description": "SATS category: orange."
+  },
   "satsTierYellow": "Yellow - Urgent",
-  "@satsTierYellow": {"description": "SATS category: yellow."},
+  "@satsTierYellow": {
+    "description": "SATS category: yellow."
+  },
   "satsTierGreen": "Green - Routine",
-  "@satsTierGreen": {"description": "SATS category: green."},
+  "@satsTierGreen": {
+    "description": "SATS category: green."
+  },
   "statusColonLabel": "Status:",
-  "@statusColonLabel": {"description": "Label before the open/closed status chips in the decision card."},
+  "@statusColonLabel": {
+    "description": "Label before the open/closed status chips in the decision card."
+  },
   "recommendedActionsLabel": "Recommended Actions",
-  "@recommendedActionsLabel": {"description": "Label over the checklist of recommended actions."},
+  "@recommendedActionsLabel": {
+    "description": "Label over the checklist of recommended actions."
+  },
   "clinicalNotesHint": "Clinical notes...",
-  "@clinicalNotesHint": {"description": "Hint text on the practitioner's free-text notes field."},
+  "@clinicalNotesHint": {
+    "description": "Hint text on the practitioner's free-text notes field."
+  },
   "saveDecisionButton": "Save Decision",
-  "@saveDecisionButton": {"description": "Button that saves the practitioner's triage decision."},
+  "@saveDecisionButton": {
+    "description": "Button that saves the practitioner's triage decision."
+  },
   "decisionSavedSnackbar": "Decision saved.",
-  "@decisionSavedSnackbar": {"description": "Confirmation after saving a triage decision."},
+  "@decisionSavedSnackbar": {
+    "description": "Confirmation after saving a triage decision."
+  },
   "editPatientDemographicsTitle": "Edit Patient Demographics",
-  "@editPatientDemographicsTitle": {"description": "Title of the demographics edit bottom sheet."},
+  "@editPatientDemographicsTitle": {
+    "description": "Title of the demographics edit bottom sheet."
+  },
   "saveChangesButton": "Save Changes",
-  "@saveChangesButton": {"description": "Button that saves edited demographics."},
+  "@saveChangesButton": {
+    "description": "Button that saves edited demographics."
+  },
   "ageGenderWeightHeightRequiredError": "Age, gender, weight, and height are required.",
-  "@ageGenderWeightHeightRequiredError": {"description": "Validation error on the demographics edit sheet."},
+  "@ageGenderWeightHeightRequiredError": {
+    "description": "Validation error on the demographics edit sheet."
+  },
   "hospitalFacilityLabel": "Hospital / Facility",
-  "@hospitalFacilityLabel": {"description": "Hospital field label on the demographics edit sheet."},
+  "@hospitalFacilityLabel": {
+    "description": "Hospital field label on the demographics edit sheet."
+  },
   "weightKgLabel": "Weight (kg)",
-  "@weightKgLabel": {"description": "Weight field label on the demographics edit sheet."},
+  "@weightKgLabel": {
+    "description": "Weight field label on the demographics edit sheet."
+  },
   "heightCmLabel": "Height (cm)",
-  "@heightCmLabel": {"description": "Height field label on the demographics edit sheet."},
+  "@heightCmLabel": {
+    "description": "Height field label on the demographics edit sheet."
+  },
   "factorCountLabel": "{count, plural, =1{1 factor} other{{count} factors}}",
   "@factorCountLabel": {
     "description": "Count of factors in the SHAP explanation.",
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "legendRaisesRiskLabel": "Raises Risk",
-  "@legendRaisesRiskLabel": {"description": "Legend label for positive SHAP contributions."},
+  "@legendRaisesRiskLabel": {
+    "description": "Legend label for positive SHAP contributions."
+  },
   "legendLowersRiskLabel": "Lowers Risk",
-  "@legendLowersRiskLabel": {"description": "Legend label for negative SHAP contributions."},
+  "@legendLowersRiskLabel": {
+    "description": "Legend label for negative SHAP contributions."
+  },
   "moreFactorsLabel": "+{count, plural, =1{1 more} other{{count} more}}",
   "@moreFactorsLabel": {
     "description": "Label shown when there are more factors than displayed in compact view.",
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "sessionCachedCopyNotice": "{days, plural, =0{Signed in from the local copy of this account. The server confirmed it today; offline sign-in keeps working for {window} days after that.} =1{Signed in from the local copy of this account. The server confirmed it 1 day ago; offline sign-in keeps working for {window} days after that.} other{Signed in from the local copy of this account. The server confirmed it {days} days ago; offline sign-in keeps working for {window} days after that.}}",
   "@sessionCachedCopyNotice": {
     "description": "Strip at the top of the practitioner console when sign-in was answered from the credential cache instead of the server, naming how long ago the server last confirmed the account and how long offline access then lasts.",
     "placeholders": {
-      "days": {"type": "int"},
-      "window": {"type": "int"}
+      "days": {
+        "type": "int"
+      },
+      "window": {
+        "type": "int"
+      }
     }
   },
   "sessionCachedCopyUndatedNotice": "Signed in from the local copy of this account, which no server has confirmed from this device. Offline sign-in keeps working for {window} days after the last confirmation.",
   "@sessionCachedCopyUndatedNotice": {
     "description": "Same strip when there is no recorded confirmation date to quote. Used instead of claiming the account was confirmed today.",
-    "placeholders": {"window": {"type": "int"}}
+    "placeholders": {
+      "window": {
+        "type": "int"
+      }
+    }
   },
   "sessionDeviceAccountNotice": "This account was created on this device and has never been confirmed by a server. It can sign in on this device only.",
   "@sessionDeviceAccountNotice": {
@@ -765,5 +1267,9 @@
   "pagerNextTooltip": "Next",
   "@pagerNextTooltip": {
     "description": "Label on the right chevron that steps forward through a read-only sequence of captured items."
+  },
+  "qrPrintButton": "Print passport",
+  "@qrPrintButton": {
+    "description": "Print action on the passport QR card, alongside download and share."
   }
 }

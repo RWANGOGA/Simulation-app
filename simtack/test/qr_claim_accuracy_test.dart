@@ -166,6 +166,10 @@ void main() {
       expect(qr.errorCorrectionLevel, QrErrorCorrectLevel.Q);
       expect(qr.embeddedImage, isA<AssetImage>());
       expect(qr.embeddedImageEmitsError, isTrue);
+      // Download, print and share must all stay on the passport card.
+      expect(find.byIcon(Icons.download), findsOneWidget);
+      expect(find.byIcon(Icons.print), findsOneWidget);
+      expect(find.byIcon(Icons.share), findsOneWidget);
       expect(
         find.text('The record travels inside this code, so it opens without '
             'internet'),
