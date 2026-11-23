@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simtack/core/offline/local_database.dart';
+import 'package:simtack/features/dashboard/data/practitioner_analytics.dart';
 import 'package:simtack/features/dashboard/ui/practitioner_sidebar.dart';
 import 'package:simtack/features/dashboard/ui/reports_screen.dart';
 import 'package:simtack/l10n/app_localizations.dart';
@@ -21,12 +22,17 @@ Widget _wrap(Widget child) => MaterialApp(
 
 void main() {
   setUp(() {
+    PractitionerAnalytics.instance.allowServer = false;
     // The footer reads the doctor profile and the Reports screen totals the
     // device's own records, so both go through shared_preferences. Without a
     // mocked store those reads wait on a platform channel no widget test
     // answers, and every pumpAndSettle after them times out.
     SharedPreferences.setMockInitialValues({});
     LocalDatabase.resetForTest();
+  });
+
+  tearDown(() {
+    PractitionerAnalytics.instance.allowServer = true;
   });
 
   testWidgets('PractitionerSidebar renders correctly with dashboard route',

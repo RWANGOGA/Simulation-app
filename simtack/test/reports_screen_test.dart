@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:simtack/features/dashboard/data/practitioner_analytics.dart';
 import 'package:simtack/features/dashboard/ui/reports_screen.dart';
 import 'package:simtack/l10n/app_localizations.dart';
 
@@ -15,7 +16,16 @@ Widget _wrap(Widget child) => MaterialApp(
 void main() {
   // The screen totals whatever the device holds, so each test fills the store
   // rather than answering an HTTP mock.
-  setUp(setUpOfflineWorld);
+  setUp(() async {
+    // These tests assert device-store totals, so do not start the JWT-gated
+    // system analytics path (which would wait on a platform channel).
+    PractitionerAnalytics.instance.allowServer = false;
+    await setUpOfflineWorld();
+  });
+
+  tearDown(() {
+    PractitionerAnalytics.instance.allowServer = true;
+  });
 
   testWidgets('renders aggregates over the records on this device',
       (tester) async {

@@ -9,6 +9,7 @@ import '../../../core/theme/github_kit.dart';
 import '../../../core/theme/app_header_bar.dart';
 import '../../../core/theme/app_page.dart';
 import '../../../core/offline/offline_repository.dart';
+import '../data/practitioner_analytics.dart';
 import '../../report/ui/clinical_report_screen.dart';
 import '../../settings/ui/accessibility_settings_screen.dart';
 import '../../../core/theme/app_page_route.dart';
@@ -57,7 +58,7 @@ class _PractitionerDashboardScreenState
   Future<void> _loadData() async {
     setState(() => _isLoading = true);
     try {
-      final stats = await OfflineRepository.instance.getTriageStats();
+      final stats = await PractitionerAnalytics.instance.stats();
       final recent =
           await OfflineRepository.instance.getTriageList(limit: 5, offset: 0);
       final sessions = await OfflineRepository.instance.getTriageList(
@@ -118,7 +119,7 @@ class _PractitionerDashboardScreenState
 
   Future<void> _refreshStats() async {
     try {
-      final stats = await OfflineRepository.instance.getTriageStats();
+      final stats = await PractitionerAnalytics.instance.stats();
       if (mounted) setState(() => _stats = stats);
     } catch (e) {
       // Silent fail for stats refresh
@@ -274,7 +275,20 @@ class _PractitionerDashboardScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (_stats != null)
+            if (_stats != null) ...[
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: GhLabel(
+                  switch (_stats!['source']) {
+                    'system' => 'System-wide · live from server',
+                    'cached' => 'System-wide · last saved snapshot',
+                    _ => 'This device only · connect for system totals',
+                  },
+                  tone: _stats!['source'] == 'system'
+                      ? GhTone.success
+                      : GhTone.attention,
+                ),
+              ),
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
@@ -309,6 +323,7 @@ class _PractitionerDashboardScreenState
                   ),
                 ],
               ),
+            ],
 
             const SizedBox(height: 24),
 

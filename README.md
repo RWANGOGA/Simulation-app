@@ -638,10 +638,20 @@ Muscles, Veins, Arteries and All** — the muscle and vessel meshes were always
 in the atlas but were previously hidden behind a debug-only toggle.
 
 `model-viewer` is self-hosted in `web/vendor/`, so no CDN request is needed.
-Flutter's generated service worker precaches the web build, including the 3D
-viewer and its atlases, so a page that has loaded once opens offline. The
-availability gate is still WebGL: browsers without a context use the bundled
-2D atlas, and non-web builds always use it.
+`AnatomyOfflineCache` explicitly fetches the viewer, the lite atlases and every
+full-atlas chunk through the service worker once per app version, so offline 3D
+is a prepared state rather than a hope. Those chunks are the exact same tracked
+files the online viewer loads — including the muscle, arterial and venous
+meshes — and a test pins `assets/anatomy3d/` and `web/anatomy3d/` to identical
+bytes. If the full upgrade cannot be reached, the viewer keeps the working
+lite body instead of replacing it with an error.
+
+The practitioner dashboard and admin console share these colours through the
+`GhColors` token layer, which now resolves to `AppPalette`/`AppAccent`; the
+dense Primer shapes and type scale are unchanged. Dashboard aggregates prefer
+the server's `/triage/stats` and `/triage/reports`, fall back to a cached server
+snapshot, and only then to device-only figures, labelling which source is on
+screen.
 
 #### Administrator console
 

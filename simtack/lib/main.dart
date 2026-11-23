@@ -10,6 +10,7 @@ import 'core/locale/locale_controller.dart';
 import 'core/locale/luganda_fallback_delegates.dart';
 import 'core/network/api_client.dart';
 import 'core/network/auth_service.dart';
+import 'core/offline/anatomy_offline_cache.dart';
 import 'core/offline/local_database.dart';
 import 'core/offline/local_envelope.dart';
 import 'core/offline/sync_service.dart';
@@ -74,6 +75,13 @@ void main() async {
   // reached. Deliberately not awaited: the app is fully usable without it, and
   // nothing in the UI should ever wait for a network round-trip.
   SyncService.instance.start();
+
+  // 6b. Pre-fetch the 3D viewer into the browser cache. The viewer is an
+  // iframe, so Flutter's asset bundle cannot reach it; these are the exact same
+  // tracked files it loads online, cached once so skin, muscle, arterial and
+  // venous layers all work with no connection. Fire-and-forget: a slow download
+  // must never delay the first frame, and a failure is retried next launch.
+  AnatomyOfflineCache.instance.warmFullIfNeeded().catchError((_) {});
 
   // 7. Pass this state to the root widget
   runApp(AtomyBridgeApp(

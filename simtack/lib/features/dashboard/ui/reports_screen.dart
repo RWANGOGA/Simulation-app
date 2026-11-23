@@ -8,7 +8,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
-import '../../../core/offline/offline_repository.dart';
+import '../data/practitioner_analytics.dart';
 import '../../../core/theme/github_kit.dart';
 import '../../../core/theme/github_palette.dart';
 import '../../../core/theme/app_header_bar.dart';
@@ -60,7 +60,7 @@ class _ReportsScreenState extends State<ReportsScreen> {
     });
     try {
       final reports =
-          await OfflineRepository.instance.getTriageReports(period: _period);
+          await PractitionerAnalytics.instance.reports(period: _period);
       if (mounted) setState(() => _reports = reports);
     } catch (e) {
       if (mounted) setState(() => _error = '$e');

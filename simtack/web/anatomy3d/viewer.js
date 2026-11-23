@@ -355,7 +355,18 @@ function loadWithUpgrade(name) {
     upgradeTimer = null;
   }
   loadAtlas(name, { lite: true }).then(() => {
-    upgradeTimer = setTimeout(() => loadAtlas(name, { quiet: true }), 300);
+    // The lite body is on screen. Offline, stay on it: it carries the same
+    // skin geometry and tap resolution, and the full atlas has already been
+    // pre-cached by the app when it was online. Never trade a working body for
+    // an error overlay.
+    if (navigator.onLine === false) return;
+    upgradeTimer = setTimeout(() => {
+      loadAtlas(name, { quiet: true }).catch((error) => {
+        // Keep the already-visible lite body. A missing full chunk must not
+        // turn a working offline viewer into a failure screen.
+        statusEl.textContent = `Full atlas unavailable: ${error.message}`;
+      });
+    }, 300);
   }, (error) => {
     statusEl.textContent = `Failed to load ${name} atlas: ${error.message}`;
     showLoadFailure();

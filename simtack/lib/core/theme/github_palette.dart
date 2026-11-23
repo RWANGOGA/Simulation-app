@@ -1,111 +1,96 @@
 import 'package:flutter/material.dart';
 
-/// GitHub Primer tokens — the practitioner side's colour language.
+import 'app_accent.dart';
+import 'app_palette.dart';
+
+/// The practitioner-side colour vocabulary.
 ///
-/// The patient side keeps [AppPalette]'s purple/teal, and that separation is
-/// deliberate: a patient answering a triage question should not feel like they
-/// opened a code repository. Practitioners live in this app all day, and the
-/// console idiom they already read fluently — dark chrome, one-pixel borders,
-/// six-pixel radii, state labels, counters — is what makes a dense list of
-/// sessions scannable at a glance.
+/// It used to carry a separate GitHub Primer palette, which made the patient
+/// and practitioner halves of the app look like two different products. The
+/// token *names* are kept because every dense console widget is written in
+/// terms of them, but each value now resolves to the same patient-side tokens
+/// in [AppPalette] and [AppAccent]. Shapes, borders and type sizes stay in the
+/// GitHub/Primer idiom — that is what makes a dense list scannable — while the
+/// colours are shared with the patient experience.
 ///
-/// Every value resolves against the ambient brightness, so the practitioner
-/// area still follows the app's light/dark switch, and no screen has to hold a
-/// hex literal of its own. The hexes are Primer's published scale values.
+/// Everything resolves against ambient brightness, and no screen holds a hex
+/// literal of its own.
 class GhColors {
   GhColors._();
 
-  static bool _dark(BuildContext context) =>
-      Theme.of(context).brightness == Brightness.dark;
-
   // ── Canvas and surfaces ────────────────────────────────────────────────
-  /// Page background (Primer `canvas.default`).
-  static Color canvas(BuildContext context) =>
-      _dark(context) ? const Color(0xFF0D1117) : const Color(0xFFFFFFFF);
+  /// Page background.
+  static Color canvas(BuildContext context) => AppPalette.scaffold(context);
 
-  /// Recessed background, used behind boxes for contrast (`canvas.inset`).
-  static Color canvasInset(BuildContext context) =>
-      _dark(context) ? const Color(0xFF010409) : const Color(0xFFF6F8FA);
+  /// Recessed background, used behind boxes for contrast.
+  static Color canvasInset(BuildContext context) => AppPalette.inputFill(context);
 
-  /// Box / panel body (`canvas.default` on top of the page).
-  static Color surface(BuildContext context) =>
-      _dark(context) ? const Color(0xFF161B22) : const Color(0xFFFFFFFF);
+  /// Box / panel body.
+  static Color surface(BuildContext context) => AppPalette.surface(context);
 
-  /// Box headers, table headers, count pills (`canvas.subtle`).
+  /// Box headers, table headers, count pills.
   static Color surfaceSubtle(BuildContext context) =>
-      _dark(context) ? const Color(0xFF161B22) : const Color(0xFFF6F8FA);
+      AppPalette.raisedSurface(context);
 
-  /// Row hover (`neutral.muted` with alpha in Primer; flattened here).
+  /// Row hover.
   static Color surfaceHover(BuildContext context) =>
-      _dark(context) ? const Color(0xFF1C2128) : const Color(0xFFF3F4F6);
+      AppPalette.subtleFill(context);
 
   // ── Borders ────────────────────────────────────────────────────────────
-  /// Default 1px border (`border.default`).
-  static Color border(BuildContext context) =>
-      _dark(context) ? const Color(0xFF30363D) : const Color(0xFFD0D7DE);
+  /// Default 1px border.
+  static Color border(BuildContext context) => AppPalette.border(context);
 
-  /// Hairline between rows inside a box (`border.muted`).
-  static Color borderMuted(BuildContext context) =>
-      _dark(context) ? const Color(0xFF21262D) : const Color(0xFFD8DEE4);
+  /// Hairline between rows inside a box.
+  static Color borderMuted(BuildContext context) => AppPalette.divider(context);
 
   // ── Foreground ─────────────────────────────────────────────────────────
-  /// Primary text (`fg.default`).
-  static Color fg(BuildContext context) =>
-      _dark(context) ? const Color(0xFFE6EDF3) : const Color(0xFF1F2328);
+  /// Primary text.
+  static Color fg(BuildContext context) => AppPalette.textPrimary(context);
 
-  /// Secondary text: timestamps, captions, placeholders (`fg.muted`).
-  static Color fgMuted(BuildContext context) =>
-      _dark(context) ? const Color(0xFF8B949E) : const Color(0xFF656D76);
+  /// Secondary text: timestamps, captions, placeholders.
+  static Color fgMuted(BuildContext context) => AppPalette.textMuted(context);
 
   /// Text on a filled (emphasis) background.
-  static const Color fgOnEmphasis = Color(0xFFFFFFFF);
+  static const Color fgOnEmphasis = AppAccent.onPrimary;
 
   // ── Semantic hues ──────────────────────────────────────────────────────
-  /// Links, selection, focus (`accent.fg`).
-  static Color accent(BuildContext context) =>
-      _dark(context) ? const Color(0xFF2F81F7) : const Color(0xFF0969DA);
+  /// Links, selection, focus — the patient brand violet.
+  static Color accent(BuildContext context) => AppAccent.primary(context);
 
-  /// Selected-row fill (`accent.subtle`).
+  /// Selected-row fill.
   static Color accentSubtle(BuildContext context) =>
-      _dark(context) ? const Color(0xFF121D2F) : const Color(0xFFDDF4FF);
+      AppAccent.primaryTint(context);
 
-  static Color success(BuildContext context) =>
-      _dark(context) ? const Color(0xFF3FB950) : const Color(0xFF1A7F37);
+  static Color success(BuildContext context) => AppAccent.success(context);
 
   static Color successSubtle(BuildContext context) =>
-      _dark(context) ? const Color(0xFF12261E) : const Color(0xFFDAFBE1);
+      AppAccent.successTint(context);
 
-  static Color attention(BuildContext context) =>
-      _dark(context) ? const Color(0xFFD29922) : const Color(0xFF9A6700);
+  static Color attention(BuildContext context) => AppAccent.warning(context);
 
   static Color attentionSubtle(BuildContext context) =>
-      _dark(context) ? const Color(0xFF272115) : const Color(0xFFFFF8C5);
+      AppAccent.warningTint(context);
 
-  static Color danger(BuildContext context) =>
-      _dark(context) ? const Color(0xFFF85149) : const Color(0xFFCF222E);
+  static Color danger(BuildContext context) => AppAccent.danger(context);
 
   static Color dangerSubtle(BuildContext context) =>
-      _dark(context) ? const Color(0xFF25171C) : const Color(0xFFFFEBE9);
+      AppAccent.dangerTint(context);
 
-  static Color done(BuildContext context) =>
-      _dark(context) ? const Color(0xFFA371F7) : const Color(0xFF8250DF);
+  /// A completed/closed state: informational teal, never a second green.
+  static Color done(BuildContext context) => AppAccent.info(context);
 
-  static Color doneSubtle(BuildContext context) =>
-      _dark(context) ? const Color(0xFF221A2E) : const Color(0xFFFBEFFF);
+  static Color doneSubtle(BuildContext context) => AppAccent.infoTint(context);
 
-  static Color neutral(BuildContext context) =>
-      _dark(context) ? const Color(0xFF8B949E) : const Color(0xFF6E7681);
+  static Color neutral(BuildContext context) => AppPalette.textMuted(context);
 
   static Color neutralSubtle(BuildContext context) =>
-      _dark(context) ? const Color(0xFF21262D) : const Color(0xFFEFF2F5);
+      AppPalette.subtleFill(context);
 
   // ── Chrome ─────────────────────────────────────────────────────────────
-  /// The dark global navigation bar that every GitHub page hangs from.
-  static Color headerBg(BuildContext context) =>
-      _dark(context) ? const Color(0xFF161B22) : const Color(0xFF24292F);
+  /// The global navigation bar, in the patient brand violet.
+  static Color headerBg(BuildContext context) => AppAccent.primaryFill;
 
-  static Color headerFg(BuildContext context) =>
-      _dark(context) ? const Color(0xFFE6EDF3) : const Color(0xFFFFFFFF);
+  static Color headerFg(BuildContext context) => AppAccent.onPrimary;
 
   static Color headerFgMuted(BuildContext context) =>
       headerFg(context).withOpacity(0.72);
@@ -116,27 +101,24 @@ class GhColors {
       headerFg(context).withOpacity(0.12);
 
   // ── Controls ───────────────────────────────────────────────────────────
-  /// Primary (create/confirm) button — GitHub's green (`btn-primary`).
-  static Color primaryBg(BuildContext context) =>
-      _dark(context) ? const Color(0xFF238636) : const Color(0xFF1F883D);
+  /// Primary (create/confirm) button.
+  static Color primaryBg(BuildContext context) => AppAccent.primaryFill;
 
   static Color primaryHover(BuildContext context) =>
-      _dark(context) ? const Color(0xFF2EA043) : const Color(0xFF1A7F37);
+      AppAccent.primaryFill.withOpacity(0.88);
 
-  /// Default button fill (`btn-bg`).
+  /// Default button fill.
   static Color defaultButtonBg(BuildContext context) =>
-      _dark(context) ? const Color(0xFF21262D) : const Color(0xFFF6F8FA);
+      AppPalette.surface(context);
 
-  /// The 2px indicator under the selected tab in an underline nav.
-  static Color underline(BuildContext context) =>
-      _dark(context) ? const Color(0xFFF78166) : const Color(0xFFFD8C73);
+  /// The 2px indicator under the selected tab.
+  static Color underline(BuildContext context) => AppAccent.primary(context);
 
   /// Colour behind risk/danger emphasis filled buttons.
-  static Color dangerBg(BuildContext context) =>
-      _dark(context) ? const Color(0xFFDA3633) : const Color(0xFFCF222E);
+  static Color dangerBg(BuildContext context) => AppAccent.dangerFill;
 }
 
-/// The six states a Primer label, counter or dot can carry.
+/// The six states a label, counter or dot can carry.
 ///
 /// Screens pick a *meaning* (`GhTone.danger`) and the palette decides what that
 /// meaning looks like on the current brightness — including a clinical mapping
