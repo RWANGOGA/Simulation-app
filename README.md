@@ -381,8 +381,10 @@ https://…/#/passport/ABP1:base64url(salt | IV | ciphertext | tag)
   database request is made to read the passport.
 - `PassportRecord.seal()` produces the raw `ABP1:` envelope; `passportPayloadFor()`
   decides whether it fits and wraps it in the link above.
-- Only used when the sealed payload fits the byte budget (≤ 700 bytes); otherwise
-  the app falls back to a pointer.
+- Only used when the whole printed link fits the byte budget (≤ 520 bytes,
+  about QR version 22 at level Q); otherwise the app falls back to a pointer.
+  If a camera misreads a dense symbol, the unlock page offers to paste the
+  full scanned code so a patient is never stuck.
 - Carries the essentials a receiving station needs: patient code, visit id, tier,
   pain points (region, severity, character, tier). It does **not** carry name,
   phone, address, next of kin, the full factor breakdown or questionnaire answers.

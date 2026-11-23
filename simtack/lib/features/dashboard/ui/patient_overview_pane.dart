@@ -356,7 +356,7 @@ class _PatientOverviewScreenState extends State<PatientOverviewScreen> {
                 child: QrImageView(
                   data: passportPayload(_enteredCode),
                   version: QrVersions.auto,
-                  size: 190,
+                  size: 200,
                   // White on black modules in every theme, with level Q so
                   // the centred logo cannot cost a scan. This code is only a
                   // pointer, so the caption below says it needs internet.

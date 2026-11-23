@@ -22,13 +22,13 @@ const String passportPayloadPrefix = passportPrefix;
 
 /// The most bytes a passport payload may print as.
 ///
-/// Measured with the encoder the app actually prints with: error correction
-/// level Q (25%), which leaves room for the centred Simtack logo. 700 bytes
-/// lands near QR version 28, about 129 modules on a side, at a 220px display
-/// size. Past that a phone camera at arm's length over a printed card starts
-/// failing to resolve the symbol, and an unreadable passport helps nobody — so
-/// the app prints the URL code instead and says so on the card.
-const int passportByteCeiling = 700;
+/// Measured on the **whole printed link** (not just the envelope) with the
+/// encoder the app actually uses: error correction level Q (25%), which leaves
+/// room for the centred logo. 520 bytes lands near QR version 22, about 105
+/// modules on a side, which a phone camera can reliably read from another
+/// screen or a printed card. Longer visits fall back to the plain report link
+/// with an honest caption rather than printing a symbol that misreads.
+const int passportByteCeiling = 520;
 
 /// True when [payload] carries the clinical record itself, so a station can
 /// read it with no network. False when it is only a pointer to a server that
@@ -132,11 +132,12 @@ String passportPayloadFor({
   required String patientCode,
 }) {
   final sealed = sealPassport(record, phrase);
-  if (sealed.length > passportByteCeiling) {
+  final link = passportLink(sealed);
+  if (link.length > passportByteCeiling) {
     // Too much clinical record for one readable symbol. Falling back is visible
     // to the patient because the hint under the code is derived from whatever
     // this returns, so the card cannot promise offline reading it cannot do.
     return passportPayload(patientCode);
   }
-  return passportLink(sealed);
+  return link;
 }

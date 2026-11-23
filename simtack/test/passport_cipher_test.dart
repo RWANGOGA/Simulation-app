@@ -163,32 +163,47 @@ void main() {
           ],
         };
 
-    test('carries a full visit in a scannable symbol', () {
-      final payload = passportLink(sealPassport(worstCaseRecord(), phrase));
+    test('a passport at the byte ceiling is still a scannable symbol', () {
+      // The ceiling is measured on the whole printed link, at the level the
+      // app actually renders (Q, with the centred logo). A five-point visit is
+      // the largest payload kept inside it.
+      final record = worstCaseRecord();
+      record['p'] = (record['p'] as List).take(4).toList();
+      final payload = passportPayloadFor(
+        record: record,
+        phrase: phrase,
+        patientCode: 'A1B2C3D4E5F6G7H8',
+      );
+      expect(passportCarriesRecord(payload), isTrue);
+
       final bytes = utf8.encode(payload).length;
-      // Measured against the encoder the app actually prints with, not a table
-      // quoted from a paper: this is the version qr_flutter would choose.
       final version = QrCode.fromData(
         data: payload,
-        // The app prints at level Q so the centred logo has headroom.
         errorCorrectLevel: QrErrorCorrectLevel.Q,
       ).typeNumber;
 
-      // 12 points is more than any visit in the dataset; it is the ceiling, not
-      // the average. Above it the app falls back to the URL code.
       expect(
         bytes,
-        lessThanOrEqualTo(950),
-        reason: 'a worst-case passport of 12 pain points is $bytes bytes, '
-            'which prints as QR version $version',
+        lessThanOrEqualTo(passportByteCeiling),
+        reason: 'a passport at the ceiling is $bytes bytes',
       );
       expect(
         version,
-        lessThanOrEqualTo(30),
-        reason: 'a version $version symbol at EC level M is '
-            '${version * 4 + 17} modules wide, which a phone cannot resolve '
-            'from a printed card at arm length.',
+        lessThanOrEqualTo(22),
+        reason: 'a version $version symbol at EC level Q is '
+            '${version * 4 + 17} modules wide; denser symbols misread when a '
+            'phone camera scans another screen',
       );
+    });
+
+    test('a visit past the ceiling falls back to the honest report link', () {
+      final payload = passportPayloadFor(
+        record: worstCaseRecord(),
+        phrase: phrase,
+        patientCode: 'A1B2C3D4E5F6G7H8',
+      );
+      expect(passportCarriesRecord(payload), isFalse);
+      expect(payload, contains('#/report/'));
     });
 
     test('an ordinary visit is far inside that ceiling', () {

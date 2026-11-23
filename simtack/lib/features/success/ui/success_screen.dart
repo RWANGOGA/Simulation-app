@@ -537,7 +537,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                       QrImageView(
                         data: _passportData,
                         version: QrVersions.auto,
-                        size: 220.0,
+                        size: 240.0,
                         // A fixed high-contrast pair and level Q keep the
                         // symbol scannable in dark mode and leave 25% of the
                         // code recoverable under the centred logo.
@@ -555,7 +555,7 @@ class _SuccessScreenState extends State<SuccessScreen> {
                           'assets/branding/simtack_qr_logo.png',
                         ),
                         embeddedImageStyle: const QrEmbeddedImageStyle(
-                          size: Size(30, 30),
+                          size: Size(28, 28),
                         ),
                         embeddedImageEmitsError: true,
                       ),

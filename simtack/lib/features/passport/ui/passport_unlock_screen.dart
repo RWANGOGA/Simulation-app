@@ -26,17 +26,21 @@ class PassportUnlockScreen extends StatefulWidget {
 
 class _PassportUnlockScreenState extends State<PassportUnlockScreen> {
   final TextEditingController _phrase = TextEditingController();
+  final TextEditingController _manual = TextEditingController();
+  late String _payload = widget.payload;
+  bool _manualMode = false;
   PassportRecord? _record;
   PassportFailure? _failure;
 
   @override
   void dispose() {
     _phrase.dispose();
+    _manual.dispose();
     super.dispose();
   }
 
   void _open() {
-    final envelope = passportEnvelope(widget.payload);
+    final envelope = passportEnvelope(_payload);
     if (envelope == null) {
       setState(() => _failure = PassportFailure.notAPassport);
       return;
@@ -45,6 +49,21 @@ class _PassportUnlockScreenState extends State<PassportUnlockScreen> {
     setState(() {
       _record = result.isOpened ? PassportRecord.fromMap(result.record!) : null;
       _failure = result.failure;
+    });
+  }
+
+  /// A camera app can misread a dense symbol and hand us a broken URL. Most
+  /// scanners let the user copy what they read, so accepting that text here
+  /// recovers the visit without a rescan or a server round trip.
+  void _usePastedCode() {
+    final pasted = _manual.text.trim();
+    if (pasted.isEmpty) return;
+    setState(() {
+      _payload = pasted;
+      _manualMode = false;
+      _failure = null;
+      _record = null;
+      _phrase.clear();
     });
   }
 
@@ -80,7 +99,8 @@ class _PassportUnlockScreenState extends State<PassportUnlockScreen> {
     );
   }
 
-  Widget _entry(BuildContext context) => Column(
+  Widget _entry(BuildContext context) => SingleChildScrollView(
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -99,7 +119,32 @@ class _PassportUnlockScreenState extends State<PassportUnlockScreen> {
             'or account is needed.',
             style: TextStyle(color: AppPalette.textMuted(context)),
           ),
-          const SizedBox(height: 24),
+          if (_failure != null) ...[
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: () => setState(() => _manualMode = !_manualMode),
+              icon: const Icon(Icons.paste),
+              label: const Text('Paste the full scanned code instead'),
+            ),
+          ],
+          if (_manualMode) ...[
+            const SizedBox(height: 8),
+            TextField(
+              controller: _manual,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Full passport link or ABP1 code',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            FilledButton.tonal(
+              onPressed: _usePastedCode,
+              child: const Text('Use this code'),
+            ),
+            const SizedBox(height: 16),
+          ],
+          const SizedBox(height: 16),
           TextField(
             controller: _phrase,
             autocorrect: false,
@@ -123,9 +168,11 @@ class _PassportUnlockScreenState extends State<PassportUnlockScreen> {
             child: const Text('Show patient record'),
           ),
         ],
-      );
+      ));
 
-  Widget _recordView(BuildContext context, PassportRecord record) => Column(
+  Widget _recordView(BuildContext context, PassportRecord record) =>
+      SingleChildScrollView(
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -173,5 +220,5 @@ class _PassportUnlockScreenState extends State<PassportUnlockScreen> {
             child: const Text('Try another phrase'),
           ),
         ],
-      );
+      ));
 }
