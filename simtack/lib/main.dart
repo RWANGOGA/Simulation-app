@@ -12,6 +12,7 @@ import 'core/network/api_client.dart';
 import 'core/network/auth_service.dart';
 import 'core/offline/anatomy_offline_cache.dart';
 import 'core/offline/local_database.dart';
+import 'core/offline/qr_passport.dart';
 import 'core/offline/local_envelope.dart';
 import 'core/offline/sync_service.dart';
 
@@ -21,6 +22,7 @@ import 'features/auth/ui/login_screen.dart';
 import 'features/dashboard/ui/practitioner_dashboard_screen.dart';
 import 'features/onboarding/ui/language_screen.dart';
 import 'features/onboarding/ui/welcome_screen.dart';
+import 'features/passport/ui/passport_unlock_screen.dart';
 import 'features/report/ui/clinical_report_screen.dart';
 import 'features/settings/ui/accessibility_settings_screen.dart';
 import 'l10n/app_localizations.dart';
@@ -83,11 +85,20 @@ void main() async {
   // must never delay the first frame, and a failure is retried next launch.
   AnatomyOfflineCache.instance.warmFullIfNeeded().catchError((_) {});
 
-  // 7. Pass this state to the root widget
+  // 7. A passport QR opened by a generic scanner arrives as a web fragment.
+  // Carry it into the root widget so the unlock page can decrypt it locally.
+  final fragment = Uri.base.fragment;
+  final String? passportPayload = fragment.startsWith('/passport/')
+      ? passportLink(
+          '$passportPayloadPrefix:${fragment.replaceFirst('/passport/', '')}')
+      : null;
+
+  // 8. Pass this state to the root widget
   runApp(AtomyBridgeApp(
     isDoctorLoggedIn: isDoctorLoggedIn,
     accessibility: accessibility,
     locale: locale,
+    passportPayload: passportPayload,
   ));
 }
 
@@ -159,11 +170,16 @@ class AtomyBridgeApp extends StatefulWidget {
   /// on a real first launch).
   final LocaleController? locale;
 
+  /// A passport QR opened by an ordinary camera app. Decrypted on-device by
+  /// [PassportUnlockScreen]; never sent to the backend.
+  final String? passportPayload;
+
   const AtomyBridgeApp({
     super.key,
     required this.isDoctorLoggedIn,
     this.accessibility,
     this.locale,
+    this.passportPayload,
   });
 
   @override
@@ -244,13 +260,15 @@ class _AtomyBridgeAppState extends State<AtomyBridgeApp> {
     // A deep-linked report is next. Otherwise: the language & consent
     // screen (blueprint §1) gates the patient flow until accepted once,
     // then every later launch skips straight to Welcome.
-    final Widget initialScreen = widget.isDoctorLoggedIn || isDashboardFromUrl
-        ? const PractitionerDashboardScreen()
-        : (reportPatientId != null
+    final Widget initialScreen = widget.passportPayload != null
+        ? PassportUnlockScreen(payload: widget.passportPayload!)
+        : (widget.isDoctorLoggedIn || isDashboardFromUrl
+            ? const PractitionerDashboardScreen()
+            : (reportPatientId != null
             ? ClinicalReportScreen(patientId: reportPatientId)
             : (_locale.hasConsented
                 ? const WelcomeScreen()
-                : LanguageScreen(localeController: _locale)));
+                : LanguageScreen(localeController: _locale))));
 
     return LocaleScope(
       controller: _locale,

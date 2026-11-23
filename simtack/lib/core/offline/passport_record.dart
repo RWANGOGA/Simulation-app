@@ -12,6 +12,7 @@
 library;
 
 import '../network/api_client.dart';
+import 'passport_cipher.dart';
 import 'qr_passport.dart';
 
 /// One pain point as a passport carries it.
@@ -167,12 +168,9 @@ class PassportRecord {
     );
   }
 
-  /// Encodes this record into the bytes a passport QR prints, falling back to
-  /// the hosted report link when the visit is too large for a readable symbol
-  /// (see [passportByteCeiling]).
-  String seal(String phrase) => passportPayloadFor(
-        record: toMap(),
-        phrase: phrase,
-        patientCode: patientCode,
-      );
+  /// The raw `ABP1:` envelope for this record — the bytes that go *inside* a
+  /// QR payload. Wrapping them in the scannable web link is the job of
+  /// [passportPayloadFor], so tests of the cipher can work on the envelope
+  /// alone and the success screen decides the printed shape once.
+  String seal(String phrase) => sealPassport(toMap(), phrase);
 }

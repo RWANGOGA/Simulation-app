@@ -53,7 +53,11 @@ class QrScanScreen extends StatefulWidget {
           ? const ScanOutcome.unrecognized()
           : ScanOutcome.online(code);
     }
-    final opening = openPassport(payload, phrase);
+    // The QR now carries a web link so generic scanners can open an unlock
+    // page. This app's own scanner understands both shapes and decrypts the
+    // same envelope, so old printed cards keep working.
+    final envelope = passportEnvelope(payload)!;
+    final opening = openPassport(envelope, phrase);
     if (opening.isOpened) {
       return ScanOutcome.offline(PassportRecord.fromMap(opening.record!),
           code: opening.record!['c'] as String?);

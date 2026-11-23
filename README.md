@@ -371,11 +371,16 @@ reading the bytes — never by a caption.
 ### 1. Sealed passport
 
 ```text
-ABP1:base64url(salt | IV | ciphertext | tag)
+https://…/#/passport/ABP1:base64url(salt | IV | ciphertext | tag)
 ```
 
 - AES-256-GCM over a compact clinical record.
-- Opened with the six-character phrase printed on the card.
+- The envelope is wrapped in a fragment URL so an ordinary camera app opens a
+  static unlock page instead of showing ciphertext. That page asks for the
+  six-character phrase printed on the card and decrypts **locally** — no API or
+  database request is made to read the passport.
+- `PassportRecord.seal()` produces the raw `ABP1:` envelope; `passportPayloadFor()`
+  decides whether it fits and wraps it in the link above.
 - Only used when the sealed payload fits the byte budget (≤ 700 bytes); otherwise
   the app falls back to a pointer.
 - Carries the essentials a receiving station needs: patient code, visit id, tier,

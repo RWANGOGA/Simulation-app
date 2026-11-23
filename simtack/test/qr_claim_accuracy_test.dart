@@ -108,10 +108,15 @@ void main() {
       // The seal must never print a symbol a camera cannot resolve; over the
       // ceiling it hands back the URL family, which passportCarriesRecord then
       // reads as "no record" so the screen says it needs the internet.
-      final payload = PassportRecord.fromResults(
+      final record = PassportRecord.fromResults(
         patientCode: 'P-TEST1234',
         results: _tooBigToSeal(),
-      ).seal(generatePassportPhrase());
+      );
+      final payload = passportPayloadFor(
+        record: record.toMap(),
+        phrase: generatePassportPhrase(),
+        patientCode: 'P-TEST1234',
+      );
 
       expect(passportCarriesRecord(payload), isFalse);
       // The fallback is the report link family (http/https), whose exact host

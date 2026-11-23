@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:simtack/core/offline/passport_cipher.dart';
 import 'package:simtack/core/offline/passport_record.dart';
+import 'package:simtack/core/offline/qr_passport.dart';
 import 'package:simtack/features/dashboard/ui/qr_scan_screen.dart';
 
 void main() {
@@ -77,6 +78,22 @@ void main() {
       expect(outcome.isOffline, isTrue);
       expect(outcome.code, 'P-770043');
       expect(outcome.record?.tier, 'orange');
+      expect(outcome.record?.points.single.bodyRegion, 'Chest / Heart');
+    });
+
+    test('a passport web link opens with the phrase, with no database call',
+        () {
+      final phrase = generatePassportPhrase();
+      final link = passportLink(record.seal(phrase));
+
+      expect(passportCarriesRecord(link), isTrue);
+      expect(passportEnvelope(link), startsWith('ABP1:'));
+      expect(QrScanScreen.isSealedPassport(link), isTrue);
+      expect(QrScanScreen.extractPatientCode(link), isNull);
+
+      final outcome = QrScanScreen.openScanned(link, phrase);
+      expect(outcome.isOffline, isTrue);
+      expect(outcome.code, 'P-770043');
       expect(outcome.record?.points.single.bodyRegion, 'Chest / Heart');
     });
 

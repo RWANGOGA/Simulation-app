@@ -37,8 +37,30 @@ const int passportByteCeiling = 700;
 /// Deliberately a test on the payload and not a flag passed down from the
 /// screen: a flag can be set wrongly by the caller, which is the same bug in a
 /// different place. The bytes either contain the record or they do not.
+/// Marker for the self-contained web passport link.
+const String passportRouteMarker = '#/passport/';
+
+/// Builds the QR payload for a sealed visit.
+///
+/// A plain `ABP1:` string is only meaningful to this app's own scanner. A
+/// generic camera app would show the ciphertext and stop. Wrapping the same
+/// envelope in a fragment URL means any scanner opens a page that asks for the
+/// phrase and decrypts locally — no server call is involved in reading it.
+String passportLink(String sealedPayload) =>
+    '$reportBaseUrl$passportRouteMarker$sealedPayload';
+
+/// Extracts the raw `ABP1:` envelope from either payload shape, or null when
+/// this is a plain report link / unrelated QR.
+String? passportEnvelope(String payload) {
+  if (payload.startsWith('$passportPayloadPrefix:')) return payload;
+  final index = payload.indexOf(passportRouteMarker);
+  if (index < 0) return null;
+  final candidate = payload.substring(index + passportRouteMarker.length);
+  return candidate.startsWith('$passportPayloadPrefix:') ? candidate : null;
+}
+
 bool passportCarriesRecord(String payload) =>
-    payload.startsWith('$passportPayloadPrefix:');
+    passportEnvelope(payload) != null;
 
 /// The hint a patient should be shown under [payload].
 ///
@@ -84,10 +106,10 @@ String get reportBaseUrl {
 ///
 /// Two families exist, and the payload itself says which one it is:
 ///
-///  * `ABP1:…` — the record, encrypted, readable with no network and no account
-///    by anyone holding the printed key phrase. This is what [passportHint]
-///    calls a passport, and the claim is true because [passportCarriesRecord]
-///    read it off the bytes.
+///  * `https://…#/passport/ABP1:…` — the same encrypted record wrapped in a
+///    web link so an ordinary camera app opens an unlock page instead of
+///    showing ciphertext. The page decrypts locally with the printed phrase;
+///    no database or API request is involved in reading the card.
 ///  * `https://…#/report/<code>` — a pointer to the hosted report. Used for
 ///    visits too large for the symbol budget, and by every code printed before
 ///    the encrypted passport existed.
@@ -116,5 +138,5 @@ String passportPayloadFor({
     // this returns, so the card cannot promise offline reading it cannot do.
     return passportPayload(patientCode);
   }
-  return sealed;
+  return passportLink(sealed);
 }

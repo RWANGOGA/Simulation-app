@@ -65,10 +65,15 @@ class _SuccessScreenState extends State<SuccessScreen> {
   void initState() {
     super.initState();
     _passportPhrase = generatePassportPhrase();
-    _passportData = PassportRecord.fromResults(
+    final record = PassportRecord.fromResults(
       patientCode: widget.patientId,
       results: widget.allResults,
-    ).seal(_passportPhrase);
+    );
+    _passportData = passportPayloadFor(
+      record: record.toMap(),
+      phrase: _passportPhrase,
+      patientCode: widget.patientId,
+    );
   }
 
   /// Captures the passport card once, at print resolution. Download, share

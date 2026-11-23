@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:simtack/core/offline/passport_cipher.dart';
+import 'package:simtack/core/offline/qr_passport.dart';
 
 /// The printed passport, as bytes and as cryptography.
 ///
@@ -163,7 +164,7 @@ void main() {
         };
 
     test('carries a full visit in a scannable symbol', () {
-      final payload = sealPassport(worstCaseRecord(), phrase);
+      final payload = passportLink(sealPassport(worstCaseRecord(), phrase));
       final bytes = utf8.encode(payload).length;
       // Measured against the encoder the app actually prints with, not a table
       // quoted from a paper: this is the version qr_flutter would choose.
@@ -177,7 +178,7 @@ void main() {
       // the average. Above it the app falls back to the URL code.
       expect(
         bytes,
-        lessThanOrEqualTo(1000),
+        lessThanOrEqualTo(950),
         reason: 'a worst-case passport of 12 pain points is $bytes bytes, '
             'which prints as QR version $version',
       );
