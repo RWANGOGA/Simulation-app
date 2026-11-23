@@ -362,104 +362,95 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
     try {
       final snapshot = await AdminRepository.instance.loadUserDetail(id);
       if (!mounted) return;
-      Navigator.of(context).pop(); // dismiss the loading dialog
+      Navigator.of(context).pop();
       final data = snapshot.data;
       final recent = _list(data['recent_activity']);
+      final name = '${data['full_name'] ?? email}';
+      final isSelf = _currentDoctor?.id == id;
+
       showDialog<void>(
         context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: Text('${data['full_name'] ?? email}'),
-          content: SizedBox(
-            width: 520,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (snapshot.fromCache) _cachedBanner(snapshot),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 20,
-                    runSpacing: 12,
-                    children: [
-                      _fact(dialogContext, 'Email', email),
-                      _fact(
-                        dialogContext,
-                        'Access',
-                        '${data['access_level'] ?? 'practitioner'}',
+        builder: (dialogContext) => _detailDialog(
+          context: dialogContext,
+          header: _detailHeader(
+            context: dialogContext,
+            name: name,
+            subtitle: email,
+            labels: [
+              GhLabel(
+                '${data['access_level'] ?? 'practitioner'}',
+                tone: data['access_level'] == 'admin'
+                    ? GhTone.done
+                    : GhTone.neutral,
+              ),
+              GhLabel(
+                data['is_approved'] == true ? 'Approved' : 'Pending',
+                tone: data['is_approved'] == true
+                    ? GhTone.success
+                    : GhTone.attention,
+              ),
+              if (data['is_active'] == false)
+                const GhLabel('Inactive', tone: GhTone.danger),
+              if (isSelf) const GhLabel('You', tone: GhTone.accent),
+            ],
+          ),
+          banners: [
+            if (snapshot.fromCache) _cachedBanner(snapshot),
+          ],
+          sections: [
+            _detailSection(
+              context: dialogContext,
+              title: 'Account details',
+              child: _detailFields(dialogContext, [
+                ('Email', email),
+                (
+                  'Access level',
+                  '${data['access_level'] ?? 'practitioner'}'
+                ),
+                (
+                  'Status',
+                  data['is_approved'] == true ? 'Approved' : 'Pending'
+                ),
+                ('Role', '${data['role'] ?? '—'}'),
+                ('License', '${data['license_number'] ?? '—'}'),
+                ('Phone', '${data['phone'] ?? '—'}'),
+                ('Hospital', '${data['hospital_name'] ?? '—'}'),
+                ('Joined', _time(data['created_at'])),
+              ]),
+            ),
+            _detailSection(
+              context: dialogContext,
+              title: 'Activity summary',
+              subtitle: 'Reads and decisions recorded for this account.',
+              child: _detailFields(dialogContext, [
+                ('Total actions', _count(data['audit_count'])),
+                ('Denied', _count(data['denied_count'])),
+                ('Shown here', '${recent.length}'),
+              ]),
+            ),
+            _detailSection(
+              context: dialogContext,
+              title: 'Recent activity',
+              subtitle: 'Newest actions performed by this account.',
+              child: GhBox(
+                flush: true,
+                child: recent.isEmpty
+                    ? const GhEmptyState(
+                        icon: Icons.history,
+                        message: 'No activity recorded for this account.',
+                      )
+                    : Column(
+                        children: [
+                          for (final entry in recent)
+                            _activityRow(
+                              dialogContext,
+                              entry,
+                              showBorder: entry != recent.last,
+                            ),
+                        ],
                       ),
-                      _fact(
-                        dialogContext,
-                        'Status',
-                        data['is_approved'] == true ? 'Approved' : 'Pending',
-                      ),
-                      _fact(
-                        dialogContext,
-                        'Role',
-                        '${data['role'] ?? '—'}',
-                      ),
-                      _fact(
-                        dialogContext,
-                        'License',
-                        '${data['license_number'] ?? '—'}',
-                      ),
-                      _fact(
-                        dialogContext,
-                        'Phone',
-                        '${data['phone'] ?? '—'}',
-                      ),
-                      _fact(
-                        dialogContext,
-                        'Hospital',
-                        '${data['hospital_name'] ?? '—'}',
-                      ),
-                      _fact(
-                        dialogContext,
-                        'Joined',
-                        _time(data['created_at']),
-                      ),
-                      _fact(
-                        dialogContext,
-                        'Actions',
-                        _count(data['audit_count']),
-                      ),
-                      _fact(
-                        dialogContext,
-                        'Denied',
-                        _count(data['denied_count']),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  const GhSectionHeader(
-                    'Recent activity',
-                    subtitle: 'Actions performed by this account.',
-                  ),
-                  const SizedBox(height: 8),
-                  GhBox(
-                    flush: true,
-                    child: Column(
-                      children: [
-                        for (final entry in recent)
-                          _activityRow(
-                            dialogContext,
-                            entry,
-                            showBorder: entry != recent.last,
-                          ),
-                        if (recent.isEmpty)
-                          const GhEmptyState(
-                            icon: Icons.history,
-                            message: 'No activity recorded for this account.',
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
               ),
             ),
-          ),
-          actions: [
-            GhButton('Close', onPressed: () => Navigator.of(dialogContext).pop()),
           ],
         ),
       );
@@ -484,128 +475,115 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
       final data = snapshot.data;
       final sessions = _list(data['sessions']);
       final audit = _list(data['audit']);
+      final name = '${data['full_name'] ?? code}';
+      final risk = data['last_risk_score'];
+      final riskValue = risk is num ? risk.toDouble() : null;
+
       showDialog<void>(
         context: context,
-        builder: (dialogContext) => AlertDialog(
-          title: Text('${data['full_name'] ?? code}'),
-          content: SizedBox(
-            width: 560,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (snapshot.fromCache) _cachedBanner(snapshot),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 20,
-                    runSpacing: 12,
-                    children: [
-                      _fact(dialogContext, 'Code', code),
-                      _fact(
-                        dialogContext,
-                        'Age',
-                        '${data['age'] ?? '—'}',
+        builder: (dialogContext) => _detailDialog(
+          context: dialogContext,
+          header: _detailHeader(
+            context: dialogContext,
+            name: name,
+            subtitle: code,
+            labels: [
+              if (data['age'] != null)
+                GhLabel('${data['age']} years', tone: GhTone.neutral),
+              if (data['gender'] != null)
+                GhLabel('${data['gender']}', tone: GhTone.neutral),
+              GhLabel(
+                '${_count(data['session_count'])} session(s)',
+                tone: GhTone.done,
+              ),
+              if (riskValue != null)
+                GhLabel(
+                  'Risk ${riskValue.toStringAsFixed(2)}',
+                  tone: riskValue >= 0.7
+                      ? GhTone.danger
+                      : riskValue >= 0.4
+                          ? GhTone.attention
+                          : GhTone.success,
+                ),
+            ],
+          ),
+          banners: [
+            if (snapshot.fromCache) _cachedBanner(snapshot),
+          ],
+          sections: [
+            _detailSection(
+              context: dialogContext,
+              title: 'Patient details',
+              child: _detailFields(dialogContext, [
+                ('Anonymous code', code),
+                ('Full name', name),
+                ('Age', '${data['age'] ?? '—'}'),
+                ('Gender', '${data['gender'] ?? '—'}'),
+                ('Phone', '${data['phone'] ?? '—'}'),
+                ('Hospital', '${data['hospital_name'] ?? '—'}'),
+                ('Language', '${data['preferred_language'] ?? '—'}'),
+                ('Date of birth', '${data['date_of_birth'] ?? '—'}'),
+                ('Registered', _time(data['created_at'])),
+              ]),
+            ),
+            _detailSection(
+              context: dialogContext,
+              title: 'Contact & notes',
+              subtitle: 'Recorded during intake, only where the patient gave it.',
+              child: _detailFields(dialogContext, [
+                ('Next of kin', '${data['next_of_kin_name'] ?? '—'}'),
+                ('Kin phone', '${data['next_of_kin_phone'] ?? '—'}'),
+                ('Address', '${data['address'] ?? '—'}'),
+                ('Notes', '${data['notes'] ?? '—'}'),
+              ]),
+            ),
+            _detailSection(
+              context: dialogContext,
+              title: 'Triage sessions',
+              subtitle:
+                  '${_count(data['session_count'])} recorded on this patient record.',
+              child: GhBox(
+                flush: true,
+                child: sessions.isEmpty
+                    ? const GhEmptyState(
+                        icon: Icons.monitor_heart_outlined,
+                        message: 'No sessions recorded for this patient.',
+                      )
+                    : Column(
+                        children: [
+                          for (final session in sessions)
+                            _sessionRow(
+                              dialogContext,
+                              session,
+                              showBorder: session != sessions.last,
+                            ),
+                        ],
                       ),
-                      _fact(
-                        dialogContext,
-                        'Gender',
-                        '${data['gender'] ?? '—'}',
-                      ),
-                      _fact(
-                        dialogContext,
-                        'Phone',
-                        '${data['phone'] ?? '—'}',
-                      ),
-                      _fact(
-                        dialogContext,
-                        'Hospital',
-                        '${data['hospital_name'] ?? '—'}',
-                      ),
-                      _fact(
-                        dialogContext,
-                        'Language',
-                        '${data['preferred_language'] ?? '—'}',
-                      ),
-                      _fact(
-                        dialogContext,
-                        'Date of birth',
-                        '${data['date_of_birth'] ?? '—'}',
-                      ),
-                      _fact(
-                        dialogContext,
-                        'Next of kin',
-                        '${data['next_of_kin_name'] ?? '—'}',
-                      ),
-                      _fact(
-                        dialogContext,
-                        'Registered',
-                        _time(data['created_at']),
-                      ),
-                    ],
-                  ),
-                  if (data['address'] != null) ...[
-                    const SizedBox(height: 16),
-                    _fact(dialogContext, 'Address', '${data['address']}'),
-                  ],
-                  if (data['notes'] != null) ...[
-                    const SizedBox(height: 12),
-                    _fact(dialogContext, 'Notes', '${data['notes']}'),
-                  ],
-                  const SizedBox(height: 20),
-                  GhSectionHeader(
-                    'Triage sessions',
-                    subtitle: '${_count(data['session_count'])} recorded on this record.',
-                  ),
-                  const SizedBox(height: 8),
-                  GhBox(
-                    flush: true,
-                    child: Column(
-                      children: [
-                        for (final session in sessions)
-                          _sessionRow(
-                            dialogContext,
-                            session,
-                            showBorder: session != sessions.last,
-                          ),
-                        if (sessions.isEmpty)
-                          const GhEmptyState(
-                            icon: Icons.monitor_heart_outlined,
-                            message: 'No sessions recorded for this patient.',
-                          ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  const GhSectionHeader(
-                    'Access history',
-                    subtitle: 'Who opened this patient record and when.',
-                  ),
-                  const SizedBox(height: 8),
-                  GhBox(
-                    flush: true,
-                    child: Column(
-                      children: [
-                        for (final entry in audit)
-                          _activityRow(
-                            dialogContext,
-                            entry,
-                            showBorder: entry != audit.last,
-                          ),
-                        if (audit.isEmpty)
-                          const GhEmptyState(
-                            icon: Icons.history,
-                            message: 'No access recorded for this patient.',
-                          ),
-                      ],
-                    ),
-                  ),
-                ],
               ),
             ),
-          ),
-          actions: [
-            GhButton('Close', onPressed: () => Navigator.of(dialogContext).pop()),
+            _detailSection(
+              context: dialogContext,
+              title: 'Access history',
+              subtitle: 'Who opened this patient record and when.',
+              child: GhBox(
+                flush: true,
+                child: audit.isEmpty
+                    ? const GhEmptyState(
+                        icon: Icons.history,
+                        message: 'No access recorded for this patient.',
+                      )
+                    : Column(
+                        children: [
+                          for (final entry in audit)
+                            _activityRow(
+                              dialogContext,
+                              entry,
+                              showBorder: entry != audit.last,
+                            ),
+                        ],
+                      ),
+              ),
+            ),
           ],
         ),
       );
@@ -619,6 +597,190 @@ class _AdminConsoleScreenState extends State<AdminConsoleScreen> {
         ),
       );
     }
+  }
+
+  /// A detail view with a fixed header, scrollable body and a stable footer.
+  ///
+  /// The old version was a bare [AlertDialog] whose content and title were one
+  /// long unscrolled column; labels, values and lists all ran together. This
+  /// shell gives every record the same rhythm as the rest of the console.
+  Widget _detailDialog({
+    required BuildContext context,
+    required Widget header,
+    required List<Widget> banners,
+    required List<Widget> sections,
+  }) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 720, maxHeight: 760),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            header,
+            Flexible(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    for (final banner in banners) ...[
+                      banner,
+                      const SizedBox(height: 12),
+                    ],
+                    for (final section in sections) ...[
+                      section,
+                      const SizedBox(height: 20),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              decoration: BoxDecoration(
+                color: GhColors.surfaceSubtle(context),
+                border: Border(top: BorderSide(color: GhColors.border(context))),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  GhButton(
+                    'Close',
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _detailHeader({
+    required BuildContext context,
+    required String name,
+    required String subtitle,
+    required List<Widget> labels,
+  }) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 16),
+      decoration: BoxDecoration(
+        color: GhColors.surfaceSubtle(context),
+        border: Border(bottom: BorderSide(color: GhColors.border(context))),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GhAvatar(name: name, size: 40),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  name,
+                  style: GhType.sectionTitle.copyWith(
+                    color: GhColors.fg(context),
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: GhType.meta.copyWith(color: GhColors.fgMuted(context)),
+                ),
+                if (labels.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Wrap(spacing: 6, runSpacing: 6, children: labels),
+                  ),
+              ],
+            ),
+          ),
+          IconButton(
+            tooltip: 'Close',
+            icon: Icon(Icons.close, color: GhColors.fgMuted(context), size: 18),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _detailSection({
+    required BuildContext context,
+    required String title,
+    String? subtitle,
+    required Widget child,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        GhSectionHeader(title, subtitle: subtitle),
+        const SizedBox(height: 10),
+        child,
+      ],
+    );
+  }
+
+  /// A two-column grid of label/value cards on wide screens, one column on
+  /// narrow ones. Each value is its own box, so a long hospital name can never
+  /// push the next field out of alignment.
+  Widget _detailFields(
+    BuildContext context,
+    List<(String, String)> fields,
+  ) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        const gap = 12.0;
+        final columns = constraints.maxWidth >= 520 ? 2 : 1;
+        final width = (constraints.maxWidth - gap * (columns - 1)) / columns;
+        return Wrap(
+          spacing: gap,
+          runSpacing: gap,
+          children: [
+            for (final field in fields)
+              SizedBox(
+                width: width,
+                child: Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: GhColors.canvasInset(context),
+                    borderRadius: BorderRadius.circular(AppRadius.sm),
+                    border: Border.all(color: GhColors.borderMuted(context)),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        field.$1.toUpperCase(),
+                        style: GhType.meta.copyWith(
+                          color: GhColors.fgMuted(context),
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        field.$2,
+                        style: GhType.body.copyWith(
+                          color: GhColors.fg(context),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        );
+      },
+    );
   }
 
   void _showDetailLoading() {

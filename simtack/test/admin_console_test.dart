@@ -427,9 +427,12 @@ void main() {
       await tester.tap(find.text('Details'));
       await tester.pumpAndSettle();
 
+      expect(find.text('Patient details'), findsOneWidget);
+      expect(find.text('Contact & notes'), findsOneWidget);
       expect(find.text('Access history'), findsOneWidget);
       expect(find.text('Kampala'), findsOneWidget);
       expect(find.textContaining('Chest / Heart'), findsWidgets);
+      expect(find.text('Close'), findsWidgets);
     });
   });
 
