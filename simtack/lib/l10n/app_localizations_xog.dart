@@ -956,4 +956,7 @@ class AppLocalizationsXog extends AppLocalizations {
 
   @override
   String get qrPrintButton => 'Shicilela ipaspoti';
+
+  @override
+  String get qrOfflineFallbackHint => 'Xa khamera i bonisa iileta kuphela, vula i-app ye Simtack ukhethe \"Paste code\".';
 }

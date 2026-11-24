@@ -956,4 +956,7 @@ class AppLocalizationsNyn extends AppLocalizations {
 
   @override
   String get qrPrintButton => 'Tunda pasipoti y\'omurwayi';
+
+  @override
+  String get qrOfflineFallbackHint => 'Kamara k’ebonye nyugu zokka, fungura app ya Simtack oyore \"Paste code\".';
 }

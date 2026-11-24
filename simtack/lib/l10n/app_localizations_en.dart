@@ -956,4 +956,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get qrPrintButton => 'Print passport';
+
+  @override
+  String get qrOfflineFallbackHint => 'If your camera only shows letters, open the Simtack app and choose Paste code.';
 }

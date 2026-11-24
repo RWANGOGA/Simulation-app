@@ -7,6 +7,9 @@ import 'package:simtack/features/passport/ui/passport_unlock_screen.dart';
 void main() {
   testWidgets('a generic scanner link unlocks locally with the printed phrase',
       (tester) async {
+    tester.view.physicalSize = const Size(900, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     const phrase = 'ACDEFG';
     const record = PassportRecord(
       patientCode: 'P-OPEN1234',
@@ -31,13 +34,16 @@ void main() {
     await tester.tap(find.text('Show patient record'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Record read offline'), findsOneWidget);
+    expect(find.text('Patient record — opened offline'), findsOneWidget);
     expect(find.text('Patient P-OPEN1234'), findsOneWidget);
     expect(find.textContaining('Chest / Heart'), findsOneWidget);
   });
 
   testWidgets('a misread QR can be recovered by pasting the full code',
       (tester) async {
+    tester.view.physicalSize = const Size(900, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     const phrase = 'ACDEFG';
     const record = PassportRecord(
       patientCode: 'P-OPEN1234',
@@ -53,7 +59,7 @@ void main() {
     await tester.tap(find.text('Show patient record'));
     await tester.pumpAndSettle();
 
-    expect(find.textContaining('damaged or unreadable'), findsOneWidget);
+    expect(find.textContaining('could not read this code'), findsOneWidget);
 
     await tester.tap(find.text('Paste the full scanned code instead'));
     await tester.pumpAndSettle();
@@ -64,12 +70,15 @@ void main() {
     await tester.tap(find.text('Show patient record'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Record read offline'), findsOneWidget);
+    expect(find.text('Patient record — opened offline'), findsOneWidget);
     expect(find.text('Patient P-OPEN1234'), findsOneWidget);
   });
 
   testWidgets('a wrong phrase stays on the entry step with a reason',
       (tester) async {
+    tester.view.physicalSize = const Size(900, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
     const record = PassportRecord(
       patientCode: 'P-OPEN1234',
       points: [PassportPoint(bodyRegion: 'Head', severity: 1, painType: 'dull')],
@@ -84,7 +93,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Unlock this passport'), findsOneWidget);
-    expect(find.textContaining('does not open this passport'), findsOneWidget);
-    expect(find.text('Record read offline'), findsNothing);
+    expect(find.textContaining('do not match this card'), findsOneWidget);
+    expect(find.text('Patient record — opened offline'), findsNothing);
   });
 }

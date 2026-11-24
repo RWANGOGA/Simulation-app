@@ -7,6 +7,7 @@ import '../../../core/offline/qr_passport.dart';
 import '../../../core/theme/app_accent.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../../core/theme/app_page.dart';
+import '../../../core/theme/app_tokens.dart';
 
 /// The page a generic QR scanner opens.
 ///
@@ -69,11 +70,13 @@ class _PassportUnlockScreenState extends State<PassportUnlockScreen> {
 
   String _message(PassportFailure failure) => switch (failure) {
         PassportFailure.malformed =>
-          'This passport is damaged or unreadable. Ask for another copy.',
+          'We could not read this code. Ask for a fresh card, or copy the full '
+              'text from your scanner and paste it below.',
         PassportFailure.authenticationFailed =>
-          'That phrase does not open this passport. Check the characters '
-              'printed on the card and try again.',
-        PassportFailure.notAPassport => 'This is not a patient passport code.',
+          'Those six letters do not match this card. Look under the QR and '
+              'try again.',
+        PassportFailure.notAPassport =>
+          'This is not a patient passport. Scan the QR printed on the card.',
       };
 
   @override
@@ -104,6 +107,20 @@ class _PassportUnlockScreenState extends State<PassportUnlockScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
         children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: AppAccent.primaryTint(context),
+              borderRadius: BorderRadius.circular(AppRadius.sm),
+            ),
+            child: Text(
+              '1. Scan the QR on the patient\'s card.  '
+              '2. Type the six letters printed under it.  '
+              '3. Read the record here — no internet needed.',
+              style: TextStyle(color: AppPalette.textPrimary(context)),
+            ),
+          ),
+          const SizedBox(height: 16),
           Icon(Icons.lock_outline, size: 40, color: AppAccent.primary(context)),
           const SizedBox(height: 12),
           Text(
@@ -181,11 +198,13 @@ class _PassportUnlockScreenState extends State<PassportUnlockScreen> {
               Icon(Icons.verified_user_outlined,
                   color: AppAccent.success(context)),
               const SizedBox(width: 8),
-              Text(
-                'Record read offline',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: AppPalette.textPrimary(context),
-                    ),
+              Expanded(
+                child: Text(
+                  'Patient record — opened offline',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: AppPalette.textPrimary(context),
+                      ),
+                ),
               ),
             ],
           ),

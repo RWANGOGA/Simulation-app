@@ -596,6 +596,15 @@ class _SuccessScreenState extends State<SuccessScreen> {
                               .bodySmall
                               ?.copyWith(color: AppPalette.textMuted(context)),
                         ),
+                        const SizedBox(height: 4),
+                        Text(
+                          t.qrOfflineFallbackHint,
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodySmall
+                              ?.copyWith(color: AppPalette.textMuted(context)),
+                        ),
                         const SizedBox(height: 8),
                       ],
                       // Chosen from the payload, not written here, so the

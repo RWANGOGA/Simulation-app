@@ -1271,5 +1271,9 @@
   "qrPrintButton": "Print passport",
   "@qrPrintButton": {
     "description": "Print action on the passport QR card, alongside download and share."
+  },
+  "qrOfflineFallbackHint": "If your camera only shows letters, open the Simtack app and choose Paste code.",
+  "@qrOfflineFallbackHint": {
+    "description": "Next step printed under an offline passport when a generic scanner cannot open the web page."
   }
 }

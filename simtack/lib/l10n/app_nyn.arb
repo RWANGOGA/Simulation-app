@@ -285,5 +285,6 @@
   "sessionDeviceAccountNotice": "This account was created on this device and has never been confirmed by a server. It can sign in on this device only.",
   "pagerPreviousTooltip": "Previous",
   "pagerNextTooltip": "Next",
-  "qrPrintButton": "Tunda pasipoti y'omurwayi"
+  "qrPrintButton": "Tunda pasipoti y'omurwayi",
+  "qrOfflineFallbackHint": "Kamara k’ebonye nyugu zokka, fungura app ya Simtack oyore \"Paste code\"."
 }

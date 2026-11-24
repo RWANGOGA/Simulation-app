@@ -1814,6 +1814,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Print passport'**
   String get qrPrintButton;
+
+  /// Next step printed under an offline passport when a generic scanner cannot open the web page.
+  ///
+  /// In en, this message translates to:
+  /// **'If your camera only shows letters, open the Simtack app and choose Paste code.'**
+  String get qrOfflineFallbackHint;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

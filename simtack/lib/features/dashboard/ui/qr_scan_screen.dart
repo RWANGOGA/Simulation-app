@@ -168,6 +168,87 @@ class _QrScanScreenState extends State<QrScanScreen> {
     _controller.start();
   }
 
+  /// Offline entry point for a code copied from any scanner app. No camera,
+  /// no network and no account are needed: the bytes are decrypted on device.
+  Future<void> _pasteCode() async {
+    _handled = true;
+    _controller.stop();
+    final pasted = await showDialog<String>(
+      context: context,
+      builder: (dialogContext) {
+        final field = TextEditingController();
+        return AlertDialog(
+          title: const Text('Paste a passport code'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'If your camera app only showed text, copy the whole code and '
+                'paste it here. You will then enter the six letters printed '
+                'under the QR.',
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: field,
+                maxLines: 3,
+                autocorrect: false,
+                decoration: const InputDecoration(
+                  labelText: 'Full passport link or ABP1 code',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(field.text.trim()),
+              child: const Text('Continue'),
+            ),
+          ],
+        );
+      },
+    );
+    if (!mounted) return;
+    if (pasted == null || pasted.isEmpty) {
+      _handled = false;
+      _controller.start();
+      return;
+    }
+    if (passportCarriesRecord(pasted)) {
+      await _reviewSealedPassport(pasted);
+      return;
+    }
+    final patientCode = QrScanScreen.extractPatientCode(pasted);
+    if (patientCode != null) {
+      Navigator.of(context).pop(QrScanResult(code: patientCode));
+      return;
+    }
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('That code was not recognised'),
+        content: const Text(
+          'Copy the full text your scanner showed, including the ABP1 part, '
+          'then try again. If the patient has a card, scan its QR instead.',
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    _handled = false;
+    _controller.start();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -179,6 +260,11 @@ class _QrScanScreenState extends State<QrScanScreen> {
             style: TextStyle(color: Colors.white)),
         centerTitle: true,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.paste, color: Colors.white),
+            tooltip: 'Paste passport code',
+            onPressed: _pasteCode,
+          ),
           IconButton(
             icon: const Icon(Icons.flash_on, color: Colors.white),
             tooltip: 'Toggle torch',
@@ -278,11 +364,13 @@ class _PassportPhraseSheetState extends State<_PassportPhraseSheet> {
         // A code that decrypts to nothing meaningful is damaged, not typed
         // wrong; the two need different instructions or a station gives up.
         PassportFailure.malformed =>
-          'This passport is damaged or unreadable. Ask for another copy.',
+          'We could not read this code. Ask for a fresh card, or copy the full '
+              'text from your scanner and paste it below.',
         PassportFailure.authenticationFailed =>
-          'That phrase does not open this passport. Check the characters '
-              'printed on the card and try again.',
-        PassportFailure.notAPassport => 'This is not a patient passport code.',
+          'Those six letters do not match this card. Look under the QR on the '
+              'patient\'s card and try again.',
+        PassportFailure.notAPassport =>
+          'This is not a patient passport. Scan the QR printed on the card.',
       };
 
   @override
@@ -309,8 +397,8 @@ class _PassportPhraseSheetState extends State<_PassportPhraseSheet> {
                   ?.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Text(
-            'Enter the six characters printed under the patient\'s passport '
-            'code. This works without internet.',
+            'Type the six letters printed under the patient\'s QR. No '
+            'internet or account is needed — the record is inside this code.',
             style: theme.textTheme.bodySmall,
           ),
           const SizedBox(height: 16),

@@ -285,5 +285,6 @@
   "sessionDeviceAccountNotice": "This account was created on this device and has never been confirmed by a server. It can sign in on this device only.",
   "pagerPreviousTooltip": "Iliyotangulia",
   "pagerNextTooltip": "Inayofuata",
-  "qrPrintButton": "Chapisha pasipoti"
+  "qrPrintButton": "Chapisha pasipoti",
+  "qrOfflineFallbackHint": "Kamera ikionyesha herufi tu, fungua programu ya Simtack uchague \"Bandika kodi\"."
 }

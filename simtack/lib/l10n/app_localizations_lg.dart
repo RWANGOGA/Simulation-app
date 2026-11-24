@@ -956,4 +956,7 @@ class AppLocalizationsLg extends AppLocalizations {
 
   @override
   String get qrPrintButton => 'Tunda pasipoti';
+
+  @override
+  String get qrOfflineFallbackHint => 'Singa kamera yo eraga ekitiibwa kati, fungula app ya Simtack osale \"Paste code\".';
 }

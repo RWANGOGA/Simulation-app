@@ -956,4 +956,7 @@ class AppLocalizationsSw extends AppLocalizations {
 
   @override
   String get qrPrintButton => 'Chapisha pasipoti';
+
+  @override
+  String get qrOfflineFallbackHint => 'Kamera ikionyesha herufi tu, fungua programu ya Simtack uchague \"Bandika kodi\".';
 }
