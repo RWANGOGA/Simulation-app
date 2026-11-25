@@ -31,13 +31,6 @@ const String passportPayloadPrefix = passportPrefix;
 /// printing a symbol that misreads.
 const int passportByteCeiling = 320;
 
-/// True when [payload] carries the clinical record itself, so a station can
-/// read it with no network. False when it is only a pointer to a server that
-/// holds the record.
-///
-/// Deliberately a test on the payload and not a flag passed down from the
-/// screen: a flag can be set wrongly by the caller, which is the same bug in a
-/// different place. The bytes either contain the record or they do not.
 /// Marker for the self-contained web passport link.
 ///
 /// Deliberately short: the whole link is what an ordinary camera app shows on
@@ -89,6 +82,13 @@ String? passportPayloadFromFragment(String fragment) {
   return null;
 }
 
+/// True when [payload] carries the clinical record itself, so a station can
+/// read it with no network. False when it is only a pointer to a server that
+/// holds the record.
+///
+/// Deliberately a test on the payload and not a flag passed down from the
+/// screen: a flag can be set wrongly by the caller, which is the same bug in a
+/// different place. The bytes either contain the record or they do not.
 bool passportCarriesRecord(String payload) =>
     passportEnvelope(payload) != null;
 
@@ -149,7 +149,7 @@ String get reportBaseUrl {
 /// be set wrongly, which is exactly how "no internet required" survived on a
 /// plain URL.
 String passportPayload(String patientCode) =>
-    '$reportBaseUrl/#/report/$patientCode';
+    '$reportBaseUrl#/report/$patientCode';
 
 /// The payload for one finished visit: the encrypted record when it fits the
 /// symbol, the report link when it does not.
