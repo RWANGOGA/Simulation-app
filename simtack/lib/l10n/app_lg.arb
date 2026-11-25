@@ -61,7 +61,7 @@
   "seeAllButton": "Laba Byonna",
   "viewAllButton": "Laba Byonna",
   "searchPatientIdHint": "Noonya ekika ky'Omulwadde (gamba, P-...)",
-  "scanPatientQrTooltip": "Kuba QR y'Omulwadde",
+  "scanPatientQrTooltip": "Scan patient QR",
   "noTriageSessionsFoundMessage": "Tewali mirundi gya kwekenneenya gizuuliddwa.",
   "loadMoreButton": "Weongereeko Ebirala",
   "unknownIdLabel": "Ekika Ekitamanyiddwa",
@@ -75,9 +75,9 @@
   "patientOverviewTitle": "Ebikwata ku Mulwadde",
   "patientOverviewSubtitle": "Lambula ebyafaayo by'omulwadde, ekifaananyi ky'omubiri, n'ebikwata ku kwekenneenya.",
   "patientCodeHint": "Wandiika ekika ky'omulwadde gamba, P-770043",
-  "scanPatientQrButton": "Kuba QR y'Omulwadde",
+  "scanPatientQrButton": "Scan Patient QR",
   "patientAnonymousIdLabel": "EKIKA KY'OMULWADDE EKITALINA LINNYA",
-  "qrPassportLabel": "Paasipoota ya QR",
+  "qrPassportLabel": "Patient passport code",
   "openFullClinicalReportButton": "Sumulula Lipoota Yonna ey'Ebyobusawo",
   "bodyMapTitle": "Ekifaananyi ky'Omubiri mu 3D",
   "bodyMapEmptyHint": "Wandiika ekika ky'omulwadde okulaba w'obulumi buli",
@@ -204,7 +204,7 @@
   "qrOfflinePassportHint": "The record travels inside this code, so it opens without internet",
   "qrPassportKeyLabel": "Unlock phrase",
   "qrPassportKeyHint": "Give this phrase to the health worker so they can read the record on this card.",
-  "showQrToHealthWorkerHint": "Laga QR eno eri omukozi w'ebyobulamu",
+  "showQrToHealthWorkerHint": "Health worker: scan this inside the Simtack app",
   "escalationReasonsLabel": "What triggered this",
   "emergencyBannerTitle": "Go to an emergency department now",
   "emergencyBannerBody": "One of your answers is a red flag for a serious cause. Do not wait for a call back.",
@@ -285,6 +285,6 @@
   "sessionDeviceAccountNotice": "This account was created on this device and has never been confirmed by a server. It can sign in on this device only.",
   "pagerPreviousTooltip": "Previous",
   "pagerNextTooltip": "Next",
-  "qrPrintButton": "Tunda pasipoti",
-  "qrOfflineFallbackHint": "Singa kamera yo eraga ekitiibwa kati, fungula app ya Simtack osale \"Paste code\"."
+  "qrPrintButton": "Print passport",
+  "qrOfflineFallbackHint": "Open Simtack and scan this from the app. A phone camera on its own only shows the link as text."
 }

@@ -114,9 +114,9 @@ class _PassportUnlockScreenState extends State<PassportUnlockScreen> {
               borderRadius: BorderRadius.circular(AppRadius.sm),
             ),
             child: Text(
-              '1. Scan the QR on the patient\'s card.  '
-              '2. Type the six letters printed under it.  '
-              '3. Read the record here — no internet needed.',
+              '1. Find the six letters printed under the patient\'s QR.  '
+              '2. Type them below.  '
+              '3. The record opens here — no internet or account needed.',
               style: TextStyle(color: AppPalette.textPrimary(context)),
             ),
           ),
@@ -150,7 +150,7 @@ class _PassportUnlockScreenState extends State<PassportUnlockScreen> {
               controller: _manual,
               maxLines: 3,
               decoration: const InputDecoration(
-                labelText: 'Full passport link or ABP1 code',
+                labelText: 'Paste the full text your scanner showed',
                 border: OutlineInputBorder(),
               ),
             ),

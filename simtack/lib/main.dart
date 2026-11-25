@@ -87,11 +87,8 @@ void main() async {
 
   // 7. A passport QR opened by a generic scanner arrives as a web fragment.
   // Carry it into the root widget so the unlock page can decrypt it locally.
-  final fragment = Uri.base.fragment;
-  final String? passportPayload = fragment.startsWith('/passport/')
-      ? passportLink(
-          '$passportPayloadPrefix:${fragment.replaceFirst('/passport/', '')}')
-      : null;
+  final String? passportPayload =
+      passportPayloadFromFragment(Uri.base.fragment);
 
   // 8. Pass this state to the root widget
   runApp(AtomyBridgeApp(

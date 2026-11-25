@@ -206,7 +206,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get searchPatientIdHint => 'Noonya ekika ky\'Omulwadde (gamba, P-...)';
 
   @override
-  String get scanPatientQrTooltip => 'Kuba QR y\'Omulwadde';
+  String get scanPatientQrTooltip => 'Scan patient QR';
 
   @override
   String get noTriageSessionsFoundMessage => 'Tewali mirundi gya kwekenneenya gizuuliddwa.';
@@ -248,7 +248,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get patientCodeHint => 'Wandiika ekika ky\'omulwadde gamba, P-770043';
 
   @override
-  String get scanPatientQrButton => 'Kuba QR y\'Omulwadde';
+  String get scanPatientQrButton => 'Scan Patient QR';
 
   @override
   String get patientAnonymousIdLabel => 'EKIKA KY\'OMULWADDE EKITALINA LINNYA';
@@ -260,7 +260,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get qrOfflinePassportHint => 'The record travels inside this code, so it opens without internet';
 
   @override
-  String get qrPassportLabel => 'Paasipoota ya QR';
+  String get qrPassportLabel => 'Patient passport code';
 
   @override
   String get qrPassportKeyLabel => 'Unlock phrase';
@@ -667,7 +667,7 @@ class AppLocalizationsLg extends AppLocalizations {
   String get patientIdLabel => 'Ekika ky\'Omulwadde';
 
   @override
-  String get showQrToHealthWorkerHint => 'Laga QR eno eri omukozi w\'ebyobulamu';
+  String get showQrToHealthWorkerHint => 'Health worker: scan this inside the Simtack app';
 
   @override
   String get escalationReasonsLabel => 'What triggered this';
@@ -955,8 +955,8 @@ class AppLocalizationsLg extends AppLocalizations {
   String get pagerNextTooltip => 'Next';
 
   @override
-  String get qrPrintButton => 'Tunda pasipoti';
+  String get qrPrintButton => 'Print passport';
 
   @override
-  String get qrOfflineFallbackHint => 'Singa kamera yo eraga ekitiibwa kati, fungula app ya Simtack osale \"Paste code\".';
+  String get qrOfflineFallbackHint => 'Open Simtack and scan this from the app. A phone camera on its own only shows the link as text.';
 }

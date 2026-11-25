@@ -50,7 +50,10 @@ void main() {
       points: [PassportPoint(bodyRegion: 'Head', severity: 2, painType: 'dull')],
     );
     final goodLink = passportLink(record.seal(phrase));
-    final brokenLink = goodLink.substring(0, goodLink.length - 5);
+    // Invalid base64 characters stand in for the corruption a camera makes
+    // when it loses part of a symbol; the page must call it unreadable, not
+    // blame the phrase.
+    final brokenLink = '${goodLink.substring(0, goodLink.length - 3)}!!!';
 
     await tester.pumpWidget(MaterialApp(
       home: PassportUnlockScreen(payload: brokenLink),

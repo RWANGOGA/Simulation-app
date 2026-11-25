@@ -375,16 +375,23 @@ https://…/#/passport/ABP1:base64url(salt | IV | ciphertext | tag)
 ```
 
 - AES-256-GCM over a compact clinical record.
+- The plaintext is dictionary-coded binary (`passport_codec.dart`), not JSON:
+  region, pain type, tier and escalation names become one-byte indexes. A full
+  twelve-point visit prints about 250 bytes, so an ordinary camera app shows a
+  short link instead of ten lines of base64. Records printed before this
+  encoding still open — the decoder accepts the old JSON plaintext.
 - The envelope is wrapped in a fragment URL so an ordinary camera app opens a
   static unlock page instead of showing ciphertext. That page asks for the
   six-character phrase printed on the card and decrypts **locally** — no API or
   database request is made to read the passport.
 - `PassportRecord.seal()` produces the raw `ABP1:` envelope; `passportPayloadFor()`
   decides whether it fits and wraps it in the link above.
-- Only used when the whole printed link fits the byte budget (≤ 520 bytes,
-  about QR version 22 at level Q); otherwise the app falls back to a pointer.
-  If a camera misreads a dense symbol, the unlock page offers to paste the
-  full scanned code so a patient is never stuck.
+- Only used when the whole printed link fits the byte budget (≤ 320 bytes,
+  about QR version 17 at level Q); otherwise the app falls back to a pointer.
+  A camera app can only ever show the text inside the code, so the card tells
+  the health worker to scan it from inside Simtack; if a camera misreads a
+  symbol, both the app and the unlock page accept the copied text so nobody is
+  stuck.
 - Carries the essentials a receiving station needs: patient code, visit id, tier,
   pain points (region, severity, character, tier). It does **not** carry name,
   phone, address, next of kin, the full factor breakdown or questionnaire answers.
@@ -400,7 +407,9 @@ https://…/#/report/<patient-code>
 
 Both families are rendered by the same screen; the UI may only claim “offline” or
 “encrypted” after checking `qr_passport.dart` / `passport_record.dart`, which is
-what keeps the caption honest.
+what keeps the caption honest. The scanner and unlock page are deliberately
+English-only: the six-letter phrase is printed in English, and the instructions
+beside it must not disagree with the card.
 
 ---
 

@@ -1326,7 +1326,7 @@ abstract class AppLocalizations {
   /// Instruction under the QR code.
   ///
   /// In en, this message translates to:
-  /// **'Show this QR code to the health worker'**
+  /// **'Health worker: scan this inside the Simtack app'**
   String get showQrToHealthWorkerHint;
 
   /// Heading above the list of red flags in the escalation banner.
@@ -1818,7 +1818,7 @@ abstract class AppLocalizations {
   /// Next step printed under an offline passport when a generic scanner cannot open the web page.
   ///
   /// In en, this message translates to:
-  /// **'If your camera only shows letters, open the Simtack app and choose Paste code.'**
+  /// **'Open Simtack and scan this from the app. A phone camera on its own only shows the link as text.'**
   String get qrOfflineFallbackHint;
 }
 

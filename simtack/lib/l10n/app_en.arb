@@ -888,7 +888,7 @@
   "@encryptedQrPassportLabel": {
     "description": "Caption over the QR code shown after submitting."
   },
-  "showQrToHealthWorkerHint": "Show this QR code to the health worker",
+  "showQrToHealthWorkerHint": "Health worker: scan this inside the Simtack app",
   "@showQrToHealthWorkerHint": {
     "description": "Instruction under the QR code."
   },
@@ -1272,7 +1272,7 @@
   "@qrPrintButton": {
     "description": "Print action on the passport QR card, alongside download and share."
   },
-  "qrOfflineFallbackHint": "If your camera only shows letters, open the Simtack app and choose Paste code.",
+  "qrOfflineFallbackHint": "Open Simtack and scan this from the app. A phone camera on its own only shows the link as text.",
   "@qrOfflineFallbackHint": {
     "description": "Next step printed under an offline passport when a generic scanner cannot open the web page."
   }

@@ -62,10 +62,19 @@ const _englishCeiling = <String, int>{
   // instruction is the same class of error as the mistranslated connectivity
   // promise above, so they ship in English until a reviewer confirms the
   // wording, then these numbers drop.
-  'lg': 47,
-  'nyn': 281,
-  'sw': 265,
-  'xog': 281,
+  // 53 = 47 + the six scanner/passport captions that had Luganda renderings
+  // (scan button, "show this to the health worker", print, and the fallback
+  // line under the code). Passport scanning is now deliberately English-only:
+  // the QR carries a machine code and the next step has to be unambiguous to
+  // whoever is holding the card, so these ship in English until that flow gets
+  // a reviewed translation.
+  //
+  // The other locales move by +2 only, the two QR captions that were translated
+  // there (the print action and the fallback line under the code).
+  'lg': 53,
+  'nyn': 283,
+  'sw': 267,
+  'xog': 283,
 };
 
 Map<String, dynamic> _read(String path) =>
@@ -258,6 +267,38 @@ void main() {
         reason: 'These ARB files are never offered, so their translations are '
             'unreachable.',
       );
+    });
+
+    test('the QR scanner and passport captions are English in every locale',
+        () {
+      // A passport is read by whoever is holding the card, often a health
+      // worker whose app language is not the patient's. A half-translated
+      // scanner is worse than an English one: the six-letter phrase is printed
+      // in English, and the instructions next to it must match.
+      const englishOnly = {
+        'scanPatientQrTooltip',
+        'scanPatientQrButton',
+        'qrPassportLabel',
+        'qrNeedsInternetHint',
+        'qrOfflinePassportHint',
+        'qrPassportKeyLabel',
+        'qrPassportKeyHint',
+        'showQrToHealthWorkerHint',
+        'qrPrintButton',
+        'qrOfflineFallbackHint',
+      };
+      for (final locale in translated) {
+        final messages = _messages(_pathFor(locale));
+        for (final key in englishOnly) {
+          expect(
+            messages[key],
+            english[key],
+            reason: '$locale.$key must stay English: the passport flow is '
+                'English-only by design, so a translation here makes the '
+                'instruction disagree with the printed card.',
+          );
+        }
+      }
     });
 
     test('English fallback does not grow', () {

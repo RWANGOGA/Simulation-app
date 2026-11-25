@@ -194,7 +194,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
                 maxLines: 3,
                 autocorrect: false,
                 decoration: const InputDecoration(
-                  labelText: 'Full passport link or ABP1 code',
+                  labelText: 'Paste the full text your scanner showed',
                   border: OutlineInputBorder(),
                 ),
               ),
@@ -233,8 +233,8 @@ class _QrScanScreenState extends State<QrScanScreen> {
       builder: (dialogContext) => AlertDialog(
         title: const Text('That code was not recognised'),
         content: const Text(
-          'Copy the full text your scanner showed, including the ABP1 part, '
-          'then try again. If the patient has a card, scan its QR instead.',
+          'Copy all the text your scanner showed, then try again. If the '
+          'patient has a card, scan its QR from inside the Simtack app instead.',
         ),
         actions: [
           FilledButton(

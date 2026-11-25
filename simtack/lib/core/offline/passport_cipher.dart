@@ -29,6 +29,8 @@ import 'dart:typed_data';
 
 import 'package:pointycastle/export.dart';
 
+import 'passport_codec.dart';
+
 /// Version marker of a self-contained passport payload. Also what makes the
 /// "this code carries the record" claim in qr_passport.dart testable: the bytes
 /// either start with it or they do not.
@@ -101,6 +103,11 @@ class PassportOpening {
 /// Encrypts [record] into the bytes a passport QR prints:
 /// `ABP1:base64url(salt | iv | ciphertext | tag)`.
 ///
+/// The plaintext is the compact binary record from `passport_codec.dart`, not
+/// JSON: the dictionary-indexed form keeps a full visit in roughly sixty bytes
+/// so an ordinary camera app shows a short link instead of a wall of text.
+/// [openPassport] still accepts the JSON plaintext used by earlier prints.
+///
 /// A fresh salt and IV per sealing, so two prints of the same visit never share
 /// a ciphertext and a repeated code does not leak that the visit is repeated.
 String sealPassport(Map<String, dynamic> record, String phrase) {
@@ -121,7 +128,7 @@ String sealPassport(Map<String, dynamic> record, String phrase) {
       ),
     );
 
-  final clear = Uint8List.fromList(utf8.encode(jsonEncode(record)));
+  final clear = encodePassportRecord(record);
   final body = Uint8List.fromList([...cipher.process(clear)]);
   final envelope = Uint8List.fromList([...salt, ...iv, ...body]);
 
@@ -174,14 +181,12 @@ PassportOpening openPassport(String payload, String phrase) {
   }
 
   try {
-    final decoded = jsonDecode(utf8.decode(clear));
-    if (decoded is! Map<String, dynamic>) {
-      return const PassportOpening.rejected(PassportFailure.malformed);
-    }
-    return PassportOpening.opened(decoded);
+    // The compact encoder is the current format; JSON is what cards printed
+    // by earlier builds carry, and a printed card cannot be reissued.
+    return PassportOpening.opened(decodePassportRecord(clear));
   } catch (_) {
-    // Authenticated, but not JSON: a code from a future format. Say malformed
-    // rather than opening a record whose shape is guesswork.
+    // Authenticated, but not a record this build can read. Say malformed rather
+    // than opening a record whose shape is guesswork.
     return const PassportOpening.rejected(PassportFailure.malformed);
   }
 }

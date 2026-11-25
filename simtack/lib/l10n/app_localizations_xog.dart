@@ -667,7 +667,7 @@ class AppLocalizationsXog extends AppLocalizations {
   String get patientIdLabel => 'Patient ID';
 
   @override
-  String get showQrToHealthWorkerHint => 'Show this QR code to the health worker';
+  String get showQrToHealthWorkerHint => 'Health worker: scan this inside the Simtack app';
 
   @override
   String get escalationReasonsLabel => 'What triggered this';
@@ -955,8 +955,8 @@ class AppLocalizationsXog extends AppLocalizations {
   String get pagerNextTooltip => 'Next';
 
   @override
-  String get qrPrintButton => 'Shicilela ipaspoti';
+  String get qrPrintButton => 'Print passport';
 
   @override
-  String get qrOfflineFallbackHint => 'Xa khamera i bonisa iileta kuphela, vula i-app ye Simtack ukhethe \"Paste code\".';
+  String get qrOfflineFallbackHint => 'Open Simtack and scan this from the app. A phone camera on its own only shows the link as text.';
 }

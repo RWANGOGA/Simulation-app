@@ -204,7 +204,7 @@
   "qrOfflinePassportHint": "The record travels inside this code, so it opens without internet",
   "qrPassportKeyLabel": "Unlock phrase",
   "qrPassportKeyHint": "Give this phrase to the health worker so they can read the record on this card.",
-  "showQrToHealthWorkerHint": "Show this QR code to the health worker",
+  "showQrToHealthWorkerHint": "Health worker: scan this inside the Simtack app",
   "escalationReasonsLabel": "What triggered this",
   "emergencyBannerTitle": "Go to an emergency department now",
   "emergencyBannerBody": "One of your answers is a red flag for a serious cause. Do not wait for a call back.",
@@ -285,6 +285,6 @@
   "sessionDeviceAccountNotice": "This account was created on this device and has never been confirmed by a server. It can sign in on this device only.",
   "pagerPreviousTooltip": "Previous",
   "pagerNextTooltip": "Next",
-  "qrPrintButton": "Tunda pasipoti y'omurwayi",
-  "qrOfflineFallbackHint": "Kamara k’ebonye nyugu zokka, fungura app ya Simtack oyore \"Paste code\"."
+  "qrPrintButton": "Print passport",
+  "qrOfflineFallbackHint": "Open Simtack and scan this from the app. A phone camera on its own only shows the link as text."
 }

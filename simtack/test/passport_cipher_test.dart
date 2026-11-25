@@ -100,6 +100,31 @@ void main() {
       expect(opened.failure, PassportFailure.notAPassport);
     });
 
+    test('a camera-scanned web link reaches the cipher with one prefix', () {
+      // The web entry point strips `/passport/` from `Uri.base.fragment`. It
+      // once wrapped the result in `passportLink` again, so the unlock page
+      // received `ABP1:ABP1:…` and called every real card damaged. This is the
+      // exact path a generic scanner takes.
+      final sealed = sealPassport(record, phrase);
+      final link = passportLink(sealed);
+      final fragment = Uri.parse(link).fragment;
+
+      final payload = passportPayloadFromFragment(fragment);
+      expect(payload, sealed);
+      expect(payload, isNot(contains('ABP1:ABP1:')));
+
+      final opened = openPassport(payload!, phrase);
+      expect(opened.isOpened, isTrue, reason: '${opened.failure}');
+      expect(opened.record, record);
+    });
+
+    test('a malformed fragment is ignored rather than treated as a passport',
+        () {
+      expect(passportPayloadFromFragment('/passport/not-a-passport'), isNull);
+      expect(passportPayloadFromFragment('/report/A1B2C3D4E5'), isNull);
+      expect(passportPayloadFromFragment(''), isNull);
+    });
+
     test('sealing the same visit twice prints different bytes', () {
       // Fresh salt and IV per print, so two copies of one patient's card do not
       // reveal that they hold the same record.
@@ -163,14 +188,12 @@ void main() {
           ],
         };
 
-    test('a passport at the byte ceiling is still a scannable symbol', () {
-      // The ceiling is measured on the whole printed link, at the level the
-      // app actually renders (Q, with the centred logo). A five-point visit is
-      // the largest payload kept inside it.
-      final record = worstCaseRecord();
-      record['p'] = (record['p'] as List).take(4).toList();
+    test('a full twelve-point visit still prints a short link', () {
+      // The compact record encoding exists so a generic camera shows a link,
+      // not ten lines of base64. A visit at the intake form's twelve-point
+      // maximum must still fit, at a symbol density a phone camera can read.
       final payload = passportPayloadFor(
-        record: record,
+        record: worstCaseRecord(),
         phrase: phrase,
         patientCode: 'A1B2C3D4E5F6G7H8',
       );
@@ -185,11 +208,11 @@ void main() {
       expect(
         bytes,
         lessThanOrEqualTo(passportByteCeiling),
-        reason: 'a passport at the ceiling is $bytes bytes',
+        reason: 'a twelve-point passport is $bytes bytes',
       );
       expect(
         version,
-        lessThanOrEqualTo(22),
+        lessThanOrEqualTo(18),
         reason: 'a version $version symbol at EC level Q is '
             '${version * 4 + 17} modules wide; denser symbols misread when a '
             'phone camera scans another screen',
@@ -197,8 +220,16 @@ void main() {
     });
 
     test('a visit past the ceiling falls back to the honest report link', () {
+      // Build a record that really is too large for one symbol, rather than a
+      // realistic visit: the fallback must still be reachable and honest.
       final payload = passportPayloadFor(
-        record: worstCaseRecord(),
+        record: {
+          'c': 'A1B2C3D4E5F6G7H8',
+          'p': [
+            for (var i = 0; i < 60; i++)
+              {'r': 'Unknown region number $i', 's': 5, 'y': 'unknown $i'},
+          ],
+        },
         phrase: phrase,
         patientCode: 'A1B2C3D4E5F6G7H8',
       );
@@ -209,7 +240,7 @@ void main() {
     test('an ordinary visit is far inside that ceiling', () {
       final payload = sealPassport(record, phrase);
 
-      expect(utf8.encode(payload).length, lessThan(400));
+      expect(utf8.encode(payload).length, lessThan(260));
     });
   });
 }

@@ -24,11 +24,12 @@ const String passportPayloadPrefix = passportPrefix;
 ///
 /// Measured on the **whole printed link** (not just the envelope) with the
 /// encoder the app actually uses: error correction level Q (25%), which leaves
-/// room for the centred logo. 520 bytes lands near QR version 22, about 105
-/// modules on a side, which a phone camera can reliably read from another
-/// screen or a printed card. Longer visits fall back to the plain report link
-/// with an honest caption rather than printing a symbol that misreads.
-const int passportByteCeiling = 520;
+/// room for the centred logo. The compact record encoding keeps a full
+/// twelve-point visit under about 250 bytes, and 320 is a comfortable ceiling:
+/// it stays near QR version 17, about 85 modules, which a phone camera reads
+/// reliably. Longer visits fall back to the plain report link rather than
+/// printing a symbol that misreads.
+const int passportByteCeiling = 320;
 
 /// True when [payload] carries the clinical record itself, so a station can
 /// read it with no network. False when it is only a pointer to a server that
@@ -57,6 +58,20 @@ String? passportEnvelope(String payload) {
   if (index < 0) return null;
   final candidate = payload.substring(index + passportRouteMarker.length);
   return candidate.startsWith('$passportPayloadPrefix:') ? candidate : null;
+}
+
+/// The payload the web app receives from a generic scanner.
+///
+/// [Uri.base.fragment] is the part after `#`, e.g.
+/// `/passport/ABP1:QGo…`. The route is stripped exactly once and the raw
+/// envelope is returned. This used to call [passportLink] as well, which
+/// prefixed `ABP1:` a second time and made every camera-scanned card fail as
+/// "unreadable" before the phrase was ever checked.
+String? passportPayloadFromFragment(String fragment) {
+  const routeWithoutHash = '/passport/';
+  if (!fragment.startsWith(routeWithoutHash)) return null;
+  final payload = fragment.substring(routeWithoutHash.length);
+  return payload.startsWith('$passportPayloadPrefix:') ? payload : null;
 }
 
 bool passportCarriesRecord(String payload) =>

@@ -114,7 +114,10 @@ class _SuccessScreenState extends State<SuccessScreen> {
                 pw.Text('Patient passport · ${widget.patientId}'),
                 pw.SizedBox(height: 20),
                 pw.Image(image, width: 420),
-                pw.SizedBox(height: 16),
+                pw.SizedBox(height: 12),
+                pw.Text(t.showQrToHealthWorkerHint,
+                    textAlign: pw.TextAlign.center),
+                pw.SizedBox(height: 12),
                 if (sealed)
                   pw.Text('Unlock phrase: $_passportPhrase',
                       style: pw.TextStyle(

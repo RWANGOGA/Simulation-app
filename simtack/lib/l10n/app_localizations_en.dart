@@ -667,7 +667,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get patientIdLabel => 'Patient ID';
 
   @override
-  String get showQrToHealthWorkerHint => 'Show this QR code to the health worker';
+  String get showQrToHealthWorkerHint => 'Health worker: scan this inside the Simtack app';
 
   @override
   String get escalationReasonsLabel => 'What triggered this';
@@ -958,5 +958,5 @@ class AppLocalizationsEn extends AppLocalizations {
   String get qrPrintButton => 'Print passport';
 
   @override
-  String get qrOfflineFallbackHint => 'If your camera only shows letters, open the Simtack app and choose Paste code.';
+  String get qrOfflineFallbackHint => 'Open Simtack and scan this from the app. A phone camera on its own only shows the link as text.';
 }
