@@ -8,11 +8,11 @@
 /// names were being printed over and over.
 ///
 /// This encoding replaces those names with one-byte dictionary indexes and
-/// drops JSON punctuation entirely. A full twelve-point visit is about 60
-/// bytes, so the printed link stays short enough to look like a link instead of
-/// a wall of code. Unknown values are kept verbatim rather than refused: a card
-/// printed by a newer app must still be readable by an older one, and a typo in
-/// a region name must not make the record unreadable.
+/// drops JSON punctuation entirely. A full twelve-point visit is around a
+/// hundred bytes, so the printed link stays short enough to look like a link
+/// instead of a wall of code. Unknown values are kept verbatim rather than
+/// refused: a card printed by a newer app must still be readable by an older
+/// one, and a typo in a region name must not make the record unreadable.
 ///
 /// Compatibility is one-way by design: [decodePassportRecord] also accepts the
 /// old JSON plaintext, because cards already printed cannot be reissued.
