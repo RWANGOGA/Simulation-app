@@ -79,6 +79,22 @@ void main() {
       );
     });
 
+    test('keeps a long escalation action', () {
+      // Server referral text can exceed one byte's length range. It must come
+      // back whole rather than truncate an instruction a clinician acts on.
+      final long = 'Go to the nearest emergency unit. ' * 20;
+      final original = {
+        'c': 'P-LONG',
+        'a': long,
+        'p': const [],
+      };
+
+      expect(
+        decodePassportRecord(encodePassportRecord(original)),
+        original,
+      );
+    });
+
     test('reads the JSON plaintext printed by earlier builds', () {
       // Cards already on paper cannot be reissued, so the decoder has to keep
       // understanding the format those cards were sealed with.

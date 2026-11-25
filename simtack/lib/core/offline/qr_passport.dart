@@ -162,7 +162,14 @@ String passportPayloadFor({
   required String phrase,
   required String patientCode,
 }) {
-  final sealed = sealPassport(record, phrase);
+  final String sealed;
+  try {
+    sealed = sealPassport(record, phrase);
+  } on FormatException {
+    // A record this build cannot encode must degrade to the pointer, not take
+    // the success screen down with it.
+    return passportPayload(patientCode);
+  }
   final link = passportLink(sealed);
   if (link.length > passportByteCeiling) {
     // Too much clinical record for one readable symbol. Falling back is visible

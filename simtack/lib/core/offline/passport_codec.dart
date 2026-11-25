@@ -277,12 +277,18 @@ String _readCode(_Reader reader, List<String> codes) {
   return codes[index];
 }
 
+/// Writes a string with a one-byte length, or a 0xFF marker followed by a
+/// two-byte length when the text is longer than 254 bytes. A referral action
+/// sentence from the server can exceed one byte's range; truncating clinical
+/// instructions to fit would be worse than spending two extra bytes.
 void _writeString(BytesBuilder out, String value) {
   final bytes = utf8.encode(value);
-  if (bytes.length > 255) {
-    throw const FormatException('A passport field is too long');
+  if (bytes.length < 255) {
+    out.addByte(bytes.length);
+  } else {
+    out.addByte(0xFF);
+    out.add((ByteData(2)..setUint16(0, bytes.length)).buffer.asUint8List());
   }
-  out.addByte(bytes.length);
   out.add(bytes);
 }
 
@@ -314,12 +320,22 @@ class _Reader {
   }
 
   String string() {
-    final length = uint8();
+    var length = uint8();
+    if (length == 0xFF) length = uint16();
     if (offset + length > bytes.length) {
       throw const FormatException('Truncated passport text');
     }
     final value = utf8.decode(bytes.sublist(offset, offset + length));
     offset += length;
+    return value;
+  }
+
+  int uint16() {
+    if (offset + 2 > bytes.length) {
+      throw const FormatException('Truncated passport text length');
+    }
+    final value = ByteData.sublistView(bytes, offset, offset + 2).getUint16(0);
+    offset += 2;
     return value;
   }
 }
