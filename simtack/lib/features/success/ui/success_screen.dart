@@ -563,6 +563,16 @@ class _SuccessScreenState extends State<SuccessScreen> {
                         embeddedImageEmitsError: true,
                       ),
                       const SizedBox(height: 12),
+                      Text(
+                        t.showQrToHealthWorkerHint,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: AppAccent.primary(context),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
                       // The printed key phrase, shown only when the bytes above
                       // really are a passport. Deriving both the sentence and the
                       // sentence's absence from the payload is what stops the
@@ -617,10 +627,6 @@ class _SuccessScreenState extends State<SuccessScreen> {
                               payload: _passportData,
                               offlinePassport: t.qrOfflinePassportHint,
                               needsInternet: t.qrNeedsInternetHint),
-                          style: TextStyle(
-                              fontSize: 11,
-                              color: AppPalette.textMuted(context))),
-                      Text(t.showQrToHealthWorkerHint,
                           style: TextStyle(
                               fontSize: 11,
                               color: AppPalette.textMuted(context))),
