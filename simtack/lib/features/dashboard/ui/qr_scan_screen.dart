@@ -415,6 +415,7 @@ class _PassportPhraseSheetState extends State<_PassportPhraseSheet> {
             decoration: InputDecoration(
               labelText: 'Unlock phrase',
               border: const OutlineInputBorder(),
+              counterText: '',
               errorText: _failure == null ? null : _rejectMessage(_failure!),
             ),
             onSubmitted: (_) => _tryOpen(),

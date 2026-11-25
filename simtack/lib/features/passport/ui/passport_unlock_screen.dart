@@ -175,6 +175,7 @@ class _PassportUnlockScreenState extends State<PassportUnlockScreen> {
             decoration: InputDecoration(
               labelText: 'Unlock phrase',
               border: const OutlineInputBorder(),
+              counterText: '',
               errorText: _failure == null ? null : _message(_failure!),
             ),
             onSubmitted: (_) => _open(),
