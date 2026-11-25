@@ -21,13 +21,23 @@ aid for locating pain, not a diagnostic or clinical reference.
 
 ## Female model
 
-The female geometry (`atlas-female.json`) additionally uses:
+The female geometry (`atlas-female.json`) combines two CC BY 4.0 sources:
 
-Kristen Browne and Heidi Schlehlein, Human Reference Atlas / HuBMAP,
-*3D Reference Organ Set for Female v1.5* (2023). **CC BY 4.0**.
+- Kristen Browne and Heidi Schlehlein, Human Reference Atlas / HuBMAP,
+  *3D Reference Organ Set for Female v1.5* (2023). **CC BY 4.0**. This provides
+  the female skin shell and reference organs.
+  - Source DOI: https://doi.org/10.48539/HBM352.BTSQ.586
+  - License: https://creativecommons.org/licenses/by/4.0/
+- The fitted female skeletal, muscular, arterial, venous, and nervous meshes
+  packaged by **ImliStack/Body-Atlas-3D** (built from BodyParts3D 4.0 and fit
+  onto the female skeleton). These are **anatomical approximations fitted to the
+  female body**, not female scan data; they are used here so the female viewer
+  has full-body system layers, the same way the male viewer does.
+  - Source: https://github.com/ImliStack/Body-Atlas-3D
+  - Upstream anatomy: BodyParts3D 4.0, CC BY 4.0 (see above)
 
-- Source DOI: https://doi.org/10.48539/HBM352.BTSQ.586
-- License: https://creativecommons.org/licenses/by/4.0/
+The female 3D view is an aid for locating pain, not a diagnostic or clinical
+reference.
 
 ## Packaging / conversion tooling
 

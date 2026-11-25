@@ -62,7 +62,11 @@ function visibleForSystem(system) {
     case 'muscles': return system === 'muscular';
     case 'veins': return system === 'venous';
     case 'arteries': return system === 'arterial';
-    case 'all': return true;
+    // "All" is a cut-away view: every internal system is shown, while the
+    // skin stays only as a faint outline. Leaving skin fully opaque here made
+    // the button look broken — the patient saw a normal body with a few red
+    // slivers poking through, not all of the anatomy.
+    case 'all': return system !== 'integumentary' || skinToggle.checked;
     default: return system === 'integumentary' && skinToggle.checked;
   }
 }
@@ -221,6 +225,7 @@ function clearScene() {
   disposeMeshes(currentMeshes);
   currentMeshes = [];
   currentParts = [];
+  overallBounds = null;
   // Markers are positioned relative to this specific body's geometry —
   // switching model/gender invalidates them, so clear rather than leave
   // stale markers floating at the old body's coordinates.
@@ -254,8 +259,6 @@ async function loadAtlas(name, options = {}) {
   performance.mark(`atomybridge-${lite ? 'lite' : 'full'}-start`);
   const atlas = await (await fetch(manifest)).json();
   if (token !== loadToken) return;
-  currentParts = atlas.parts;
-  overallBounds = computeOverallBounds(atlas.parts);
 
   // Build a lookup once instead of scanning all parts per chunk (O(parts)
   // per chunk was fine at this scale, but grouping up front keeps chunk
@@ -282,12 +285,19 @@ async function loadAtlas(name, options = {}) {
         metalness: 0.05,
         roughness: 0.6,
         side: THREE.DoubleSide,
+        // Skin can be faded in the "All" layer. Setting this once here, rather
+        // than toggling material.transparent while rendering, avoids a shader
+        // recompile every time the patient taps a layer button.
+        transparent: p.system === 'integumentary',
       });
       const mesh = new THREE.Mesh(geometry, material);
       mesh.userData.partIndex = i;
       mesh.visible = visibleForSystem(p.system);
       mesh.userData.system = p.system;
-      scene.add(mesh);
+      // Deliberately not added to the scene yet. A quiet upgrade used to add
+      // each mesh as its chunk arrived, so a failed or interrupted download
+      // left a half-body (often a single limb) floating over the old one. The
+      // scene is only touched after every chunk has decoded successfully.
       newMeshes.push(mesh);
     }
     loaded++;
@@ -302,13 +312,21 @@ async function loadAtlas(name, options = {}) {
   // harness) measurably serializes network + DecompressionStream + geometry
   // build time per chunk instead of overlapping them.
   let cursor = 0;
-  await Promise.all(Array.from({ length: 3 }, async () => {
-    while (cursor < atlas.chunks.length) {
-      const chunkIndex = cursor++;
-      const buffer = await decodeChunk(atlas.chunks[chunkIndex]);
-      addChunkGeometry(chunkIndex, buffer);
-    }
-  }));
+  try {
+    await Promise.all(Array.from({ length: 3 }, async () => {
+      while (cursor < atlas.chunks.length) {
+        const chunkIndex = cursor++;
+        const buffer = await decodeChunk(atlas.chunks[chunkIndex]);
+        addChunkGeometry(chunkIndex, buffer);
+      }
+    }));
+  } catch (error) {
+    // A partial atlas must never be mistaken for a complete one: dispose the
+    // meshes that did decode and leave the previous body (and its part list)
+    // untouched, so taps still resolve against what is actually on screen.
+    disposeMeshes(newMeshes);
+    throw error;
+  }
   if (token !== loadToken) {
     disposeMeshes(newMeshes);
     return;
@@ -317,6 +335,13 @@ async function loadAtlas(name, options = {}) {
     disposeMeshes(previousMeshes);
     disposeModesty();
   }
+  // Publish the manifest and geometry together, only after the whole atlas
+  // decoded. Assigning these before the chunks arrived meant a failed upgrade
+  // could leave tap resolution pointing at the new atlas while the old meshes
+  // were still on screen.
+  currentParts = atlas.parts;
+  overallBounds = computeOverallBounds(atlas.parts);
+  for (const mesh of newMeshes) scene.add(mesh);
   currentMeshes = newMeshes;
   if (name !== 'female') {
     addModestyPatch(SYSTEM_COLORS.integumentary);
@@ -329,8 +354,22 @@ async function loadAtlas(name, options = {}) {
 }
 
 function applyLayerVisibility() {
-  for (const mesh of currentMeshes) mesh.visible = visibleForSystem(mesh.userData.system);
-  if (modestyPatch) modestyPatch.visible = visibleForSystem('integumentary');
+  for (const mesh of currentMeshes) {
+    mesh.visible = visibleForSystem(mesh.userData.system);
+    if (mesh.userData.system !== 'integumentary') continue;
+    const fade = activeLayer === 'all';
+    mesh.material.opacity = fade ? 0.16 : 1;
+    // Without depthWrite off, a nearly transparent skin still hides the
+    // vessels behind it in the depth buffer.
+    mesh.material.depthWrite = !fade;
+  }
+  // The modesty patch is opaque skin. In the cut-away "All" view it would sit
+  // in front of the pelvic anatomy as a solid blob, so it only belongs to the
+  // skin layer.
+  if (modestyPatch) {
+    modestyPatch.visible =
+      visibleForSystem('integumentary') && activeLayer !== 'all';
+  }
   for (const button of layerButtons) {
     button.classList.toggle('selected', button.dataset.layer === activeLayer);
   }
@@ -355,11 +394,12 @@ function loadWithUpgrade(name) {
     upgradeTimer = null;
   }
   loadAtlas(name, { lite: true }).then(() => {
-    // The lite body is on screen. Offline, stay on it: it carries the same
-    // skin geometry and tap resolution, and the full atlas has already been
-    // pre-cached by the app when it was online. Never trade a working body for
-    // an error overlay.
-    if (navigator.onLine === false) return;
+    // Try the full atlas even when navigator.onLine is false. The app warms
+    // every full-atlas chunk into the service-worker cache, and that cache is
+    // served offline — skipping this step was why the muscle, vein and artery
+    // buttons went blank on an offline device that had already downloaded
+    // them. If a chunk genuinely is missing, loadAtlas() disposes the partial
+    // meshes and the catch below leaves the lite body in place.
     upgradeTimer = setTimeout(() => {
       loadAtlas(name, { quiet: true }).catch((error) => {
         // Keep the already-visible lite body. A missing full chunk must not
