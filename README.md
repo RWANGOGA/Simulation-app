@@ -371,7 +371,7 @@ reading the bytes — never by a caption.
 ### 1. Sealed passport
 
 ```text
-https://…/#/passport/ABP1:base64url(salt | IV | ciphertext | tag)
+https://…/#/p/ABP1:base64url(salt | IV | ciphertext | tag)
 ```
 
 - AES-256-GCM over a compact clinical record.

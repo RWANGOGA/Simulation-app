@@ -39,7 +39,15 @@ const int passportByteCeiling = 320;
 /// screen: a flag can be set wrongly by the caller, which is the same bug in a
 /// different place. The bytes either contain the record or they do not.
 /// Marker for the self-contained web passport link.
-const String passportRouteMarker = '#/passport/';
+///
+/// Deliberately short: the whole link is what an ordinary camera app shows on
+/// screen, so `/p/` saves eight characters over the original `/passport/`.
+/// Links printed before the change still open — [passportEnvelope] and
+/// [passportPayloadFromFragment] understand both routes.
+const String passportRouteMarker = '#/p/';
+
+/// The longer route printed by earlier builds.
+const String legacyPassportRouteMarker = '#/passport/';
 
 /// Builds the QR payload for a sealed visit.
 ///
@@ -54,24 +62,31 @@ String passportLink(String sealedPayload) =>
 /// this is a plain report link / unrelated QR.
 String? passportEnvelope(String payload) {
   if (payload.startsWith('$passportPayloadPrefix:')) return payload;
-  final index = payload.indexOf(passportRouteMarker);
-  if (index < 0) return null;
-  final candidate = payload.substring(index + passportRouteMarker.length);
-  return candidate.startsWith('$passportPayloadPrefix:') ? candidate : null;
+  for (final marker in const [
+    passportRouteMarker,
+    legacyPassportRouteMarker,
+  ]) {
+    final index = payload.indexOf(marker);
+    if (index < 0) continue;
+    final candidate = payload.substring(index + marker.length);
+    if (candidate.startsWith('$passportPayloadPrefix:')) return candidate;
+  }
+  return null;
 }
 
 /// The payload the web app receives from a generic scanner.
 ///
-/// [Uri.base.fragment] is the part after `#`, e.g.
-/// `/passport/ABP1:QGo…`. The route is stripped exactly once and the raw
-/// envelope is returned. This used to call [passportLink] as well, which
-/// prefixed `ABP1:` a second time and made every camera-scanned card fail as
-/// "unreadable" before the phrase was ever checked.
+/// [Uri.base.fragment] is the part after `#`, e.g. `/p/ABP1:QGo…`. The route is
+/// stripped exactly once and the raw envelope is returned. This used to call
+/// [passportLink] as well, which prefixed `ABP1:` a second time and made every
+/// camera-scanned card fail as "unreadable" before the phrase was ever checked.
 String? passportPayloadFromFragment(String fragment) {
-  const routeWithoutHash = '/passport/';
-  if (!fragment.startsWith(routeWithoutHash)) return null;
-  final payload = fragment.substring(routeWithoutHash.length);
-  return payload.startsWith('$passportPayloadPrefix:') ? payload : null;
+  for (final route in const ['/p/', '/passport/']) {
+    if (!fragment.startsWith(route)) continue;
+    final payload = fragment.substring(route.length);
+    if (payload.startsWith('$passportPayloadPrefix:')) return payload;
+  }
+  return null;
 }
 
 bool passportCarriesRecord(String payload) =>
@@ -121,10 +136,11 @@ String get reportBaseUrl {
 ///
 /// Two families exist, and the payload itself says which one it is:
 ///
-///  * `https://…#/passport/ABP1:…` — the same encrypted record wrapped in a
-///    web link so an ordinary camera app opens an unlock page instead of
-///    showing ciphertext. The page decrypts locally with the printed phrase;
-///    no database or API request is involved in reading the card.
+///  * `https://…#/p/ABP1:…` — the same encrypted record wrapped in a web link
+///    so an ordinary camera app opens an unlock page instead of showing
+///    ciphertext. The page decrypts locally with the printed phrase; no
+///    database or API request is involved in reading the card. The older
+///    `#/passport/` route is still accepted.
 ///  * `https://…#/report/<code>` — a pointer to the hosted report. Used for
 ///    visits too large for the symbol budget, and by every code printed before
 ///    the encrypted passport existed.

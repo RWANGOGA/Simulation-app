@@ -113,6 +113,11 @@ void main() {
       expect(payload, sealed);
       expect(payload, isNot(contains('ABP1:ABP1:')));
 
+      // Cards printed before the route was shortened still arrive at the same
+      // cipher, both as a fragment and as a pasted full link.
+      expect(passportPayloadFromFragment('/passport/$sealed'), sealed);
+      expect(passportEnvelope('https://example.test/#/passport/$sealed'), sealed);
+
       final opened = openPassport(payload!, phrase);
       expect(opened.isOpened, isTrue, reason: '${opened.failure}');
       expect(opened.record, record);
